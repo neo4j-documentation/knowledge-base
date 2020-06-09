@@ -1,0 +1,48 @@
+= Retired: Changing your Garbage Collection Method to G1
+:slug: changing-your-garbage-collection-method-to-g1
+:zendesk-id: 206282847
+:author: Dave Gordon
+:neo4j-versions: 2.0,2.1,2.2
+:tags: garbage collection, heap, memory, jvm
+:public:
+:category: operations
+
+[NOTE]
+This is already the default Garbage Collector in Neo4j 2.3+. 
+This guide is only intended for previous versions.
+
+When to Use G1:
+
+By default, Neo4j versions 2.2 and earlier use Concurrent Mark and Sweep (CMS) for garbage collection. 
+Customers with large heaps or who are seeing unacceptable garbage collection pauses with the default method should give G1 (Garbage 1st) a try.
+
+G1 trades off a little throughput in the application to ensure the Full GC pauses are predictable and short.
+It compacts objects on the heap as it runs to avoid the long Full GC associated with CSM.
+
+When setting G1, it is important to consider your target GC pause duration. 
+We recommend that you leave it at the default (200ms) to start with but increase it if you see too many GCs over one to two seconds.
+For example, you might try 400ms, then 600ms, until you find the right balance. The setting for the target pause is:
+
+----
+wrapper.java.additional=-XX:MaxGCPauseMillis=200
+----
+
+Add this line to `conf/neo4j-wrapper.conf` if you wish to change the default setting.
+
+Making the Switch to G1:
+
+Edit `conf/neo4j-wrapper.conf` and change:
+
+----
+#********************************************************************
+# JVM Parameters
+#********************************************************************
+
+#wrapper.java.additional=-XX:+UseConcMarkSweepGC
+wrapper.java.additional=-XX:+UseG1GC
+----
+
+[NOTE]
+G1 should only be used with latest Java 7 or Java 8 releases.
+
+

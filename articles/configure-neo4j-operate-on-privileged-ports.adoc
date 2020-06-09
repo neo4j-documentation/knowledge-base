@@ -1,0 +1,65 @@
+= Configuring Neo4j to operate on privileged ports
+:slug: configure-neo4j-operate-on-privileged-ports
+:author: David Fauth
+:neo4j-versions: 3.5
+:tags: server, ports
+:public:
+:category: operations
+
+In some environments, users are required to run Neo4j on ports lower than 1024 due to corporate policies. The following is a sample configuration showing how to configure Neo4j 3.5 and newer to listen on those ports.
+
+Refer to a  `path/to/file`.
+
+
+1. Configure `neo4j.conf` to set the http, https and bolt ports.
+
+On a debian installation it would look like this:
+
+In the `/etc/neo4j/pre-neo4j.sh` file, configure this as follows:
+
+----
+# HTTPS
+echo "dbms_connector_https_enabled" "${dbms_connector_https_enabled:=true}"
+echo "dbms_connector_https_listen_address" "${dbms_connector_https_listen_address:=0.0.0.0:80}"
+
+# HTTP
+echo "dbms_connector_http_enabled" "${dbms_connector_http_enabled:=false}"
+echo "dbms_connector_http_listen_address" "${dbms_connector_http_listen_address:=0.0.0.0:7474}"
+
+# BOLT
+echo "dbms_connector_bolt_enabled" "${dbms_connector_bolt_enabled:=true}"
+echo "dbms_connector_bolt_listen_address" "${dbms_connector_bolt_listen_address:=0.0.0.0:8080}"
+echo "dbms_connector_bolt_tls_level" "${dbms_connector_bolt_tls_level:=REQUIRED}"
+----
+
+On a tar installation it would look like this:
+
+----
+# Bolt connector
+dbms.connector.bolt.enabled=true
+#dbms.connector.bolt.tls_level=OPTIONAL
+dbms.connector.bolt.listen_address=:8080
+
+# HTTP Connector. There can be zero or one HTTP connectors.
+dbms.connector.http.enabled=false
+#dbms.connector.http.listen_address=:7474
+
+# HTTPS Connector. There can be zero or one HTTPS connectors.
+dbms.connector.https.enabled=true
+dbms.connector.https.listen_address=:80
+----
+
+2) Identify the location of the java installation.
+
+----
+readlink -f $(which java)
+----
+
+3) Bind the java executable to the privileged ports (use the path found in step 2).
+
+----
+sudo setcap cap_net_bind_service=+eip /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+----
+
+4) Neo4j should start and allow access via https on port 80.
+

@@ -1,0 +1,48 @@
+= Pass Temporal Objects as Parameters
+:slug: pass-temporal-objects-parameters
+:author: Jennifer Reif
+:twitter: @jmhreif
+:neo4j-versions: 3.4, 3.5
+:tags: drivers, cypher, temporal
+:public:
+:category: drivers
+
+With the support of datetime types in Neo4j, users might wonder how or if it works to transport those types along with other data types via the drivers.
+
+It is possible and supported to send temporal objects using one of our Neo4j drivers. We will show how to do that here.
+
+== Passing objects in Drivers
+
+The Neo4j drivers export nearly all of the supported Cypher data types, including temporal types. This means that you can send an object of parameters containing strings, numbers, dates/times, and mixed value types back and forth between the database and applications.
+
+[NOTE]
+--
+For a full list of the supported Cypher types in the Neo4j drivers, check out the documentation page on the https://neo4j.com/docs/driver-manual/current/cypher-values/#driver-neo4j-type-system[Cypher type system^].
+--
+
+Let us look at an example using the JavaScript driver.
+
+[source,javascript]
+----
+const neo4j = require('neo4j-driver').v1
+
+const myDate = new neo4j.types.Date(2000, 01, 01);
+
+session.run('CREATE (p:Person {name: $name, born: $birthday})', {name: "Bob", birthday: myDate})
+----
+
+In the example above, we created a constant of a date type, instantiating the value in the variable definition. Our next statement runs a Cypher `CREATE` and passes in a String value for the `name` parameter and our date constant for the `birthday` parameter.
+Our Cypher statement references the parameters by using the `$` in front of the parameter name.
+
+This avoids having to convert values from Strings using the `date()` function within the Cypher statement like the example below.
+
+[source,cypher]
+----
+CREATE (p:Person { name: 'Bob', birthday: date(2018,01,01) })
+----
+
+== Resources
+
+For more information on passing temporal types using the JavaScript driver, check out a https://www.adamcowley.co.uk/neo4j/neo4j-temporal-dates-javascript/[blog post by Adam Cowley^].
+
+Have questions? Feel free to raise them on our https://community.neo4j.com/[Community Site^] and have experts respond with answers!

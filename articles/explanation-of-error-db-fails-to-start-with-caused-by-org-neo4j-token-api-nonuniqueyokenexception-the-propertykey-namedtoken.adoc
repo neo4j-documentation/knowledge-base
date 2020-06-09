@@ -1,0 +1,28 @@
+= Explanation of Error: db fails to start with Caused by: org.neo4j.token.api.NonUniqueTokenException: The PropertyKey NamedToken
+:slug: explanation-of-error-db-fails-to-start-with-caused-by-org-neo4j-token-api-nonuniqueyokenexception-the-propertykey-namedtoken
+:author: Dana Canzano
+:neo4j-versions: 4.0
+:tags: upgrade
+:public:
+:category: operations
+
+When attempting to start Neo4j and one is running a Neo4j 4.0.x release and where `x` is <=2 the following error may be 
+enountered and logged in `logs\debg.log`
+
+----
+Caused by: org.neo4j.kernel.lifecycle.LifecycleException: Component 'org.neo4j.internal.recordstorage.RecordStorageEngine$2@783ae61f' failed to initialize. Please see the attached cause exception "The PropertyKey NamedToken[name:prop1, id:321, internal:false] is not unique, it existed as null.".
+        at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.init(LifeSupport.java:426)
+        at org.neo4j.kernel.lifecycle.LifeSupport.init(LifeSupport.java:66)
+        at org.neo4j.kernel.lifecycle.LifeSupport.start(LifeSupport.java:102)
+        at org.neo4j.kernel.database.Database.start(Database.java:462)
+        ... 13 more
+Caused by: org.neo4j.token.api.NonUniqueTokenException: The PropertyKey NamedToken[name:prop1, id:321, internal:false] is not unique, it existed as null.
+----
+
+This error has only been reported if your environment was previously on a Neo4j 3.5.x release and then later upgraded to 4.0.x, where `x` 
+is <=2.
+
+This error is addressed in Neo4j 4.0.3 forward.   
+If you have encountered this error the workaround is to utilize https://neo4j.com/docs/operations-manual/4.0/tools/copy/[neo4j-admin copy]
+which is an offline activity and will read a database and create a new copy of the database without the errors in the underlying
+`data/database/*` files.

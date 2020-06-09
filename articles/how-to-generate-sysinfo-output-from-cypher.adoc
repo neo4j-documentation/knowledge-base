@@ -1,0 +1,77 @@
+= How to generate sysinfo output from Cypher
+:slug: how-to-generate-sysinfo-output-from-cypher
+:author: Dana Canzano
+:neo4j-versions: 3.2, 3.3
+:tags: cypher, sysinfo
+:public:
+:category: operations
+
+If you need to generate the equivalent output from command `:sysinfo` as run from the Neo4j Browser at http://localhost:7474
+this can be achieved by running the following Cypher
+
+----
+call dbms.queryJmx("org.neo4j:instance=kernel#0,name=Store file sizes") yield attributes
+       with  keys(attributes) as k , attributes
+       unwind k as row
+       return "StoreSizes" as type,row,attributes[row]["value"]
+
+union all
+
+call dbms.queryJmx("org.neo4j:instance=kernel#0,name=Page cache") yield attributes
+       with  keys(attributes) as k , attributes
+       unwind k as row
+       return "PageCache" as type,row,attributes[row]["value"]
+
+union all
+
+call dbms.queryJmx("org.neo4j:instance=kernel#0,name=Primitive count") yield attributes
+       with  keys(attributes) as k , attributes
+       unwind k as row
+       return "ID Allocations" as type,row,attributes[row]["value"]  
+
+union all
+
+call dbms.queryJmx("org.neo4j:instance=kernel#0,name=Transactions") yield attributes
+       with  keys(attributes) as k , attributes
+       unwind k as row
+       return "Transactions" as type,row,attributes[row]["value"]
+
+union all
+
+call dbms.queryJmx("org.neo4j:instance=kernel#0,name=High Availability") yield attributes
+       with  keys(attributes) as k , attributes
+       unwind k as row
+       return "High Availability" as type,row,attributes[row]["value"]
+
+union all
+
+call dbms.queryJmx("org.neo4j:instance=kernel#0,name=Causal Clustering") yield attributes
+       with  keys(attributes) as k , attributes
+       unwind k as row
+       return "Causal Cluster" as type,row,attributes[row]["value"];
+----
+
+To which this will generate output similar to
+
+----
++------------------------------------------------------------------------------------+
+| type             | row                                  | attributes[row]["value"] |
++------------------------------------------------------------------------------------+
+| "StoreSizes"     | "LogicalLogSize"                     | 90                       |
+| "StoreSizes"     | "StringStoreSize"                    | 8192                     |
+| "StoreSizes"     | "ArrayStoreSize"                     | 8192                     |
+| "StoreSizes"     | "RelationshipStoreSize"              | 0                        |
+| "StoreSizes"     | "PropertyStoreSize"                  | 0                        |
+| "StoreSizes"     | "TotalStoreSize"                     | 139579                   |
+| "StoreSizes"     | "NodeStoreSize"                      | 0                        |
+| "PageCache"      | "Faults"                             | 62                       |
+| "PageCache"      | "EvictionExceptions"                 | 0                        |
+| "PageCache"      | "BytesWritten"                       | 196598                   |
+| "PageCache"      | "Flushes"                            | 20                       |
+| "PageCache"      | "Evictions"                          | 0                        |
+| "PageCache"      | "FileUnmappings"                     | 76                       |
+| "PageCache"      | "BytesRead"                          | 327650                   |
+| "PageCache"      | "Pins"                               | 126                      |
+| "PageCache"      | "FileMappings"                       | 93                       |
+...
+----

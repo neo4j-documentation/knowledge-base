@@ -1,0 +1,52 @@
+= How to avoid costly traversals with join hints
+:slug: how-to-avoid-costly-traversals-with-join-hints
+:author: Andrew Bowman
+:neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5
+:tags: cypher
+:category: cypher
+:public:
+
+When matching a pattern using Cypher, the number of possible paths to evaluate often correlates with query execution time.
+
+When there is a supernode in the path (a node with a high number of relationships whose type are included in your MATCH pattern), or simply enough nodes with many relationships, the number of possible paths
+can explode, slowing down your query. Traversal like this through supernodes can be expensive.
+
+Sometimes when traversing certain kinds of patterns, you may know from your modeling that if at all possible, a relationship between two
+specific kinds of nodes ought to be traversed in a certain direction instead of its opposite for best performance, and this is often the case with supernodes.
+
+For example, if we had a social graph of :People who :LIKE musical artists, it's very likely that some of those artists, perhaps many, are supernodes.
+If we were looking at `(:Person)-[:LIKES]->(:Artist {name:'Britney Spears'})`, we could reasonably assume that a :Person likely has relatively few :LIKES relationships, perhaps less than 100, but that a popular :Artist like Britney Spears may have millions of :LIKES relationships pointing her way.
+
+Traversing through Britney Spears is going to be costly as it could multiply the number of possible paths by the number of :LIKES relationships, blowing up the execution of the query.
+However, traversing only *to* Britney Spears is likely going to be relatively cheap.
+
+In cases where a query has the potential for multiple starting places, and if the planner isn't providing an efficient plan in light of bad traversals through supernodes, you can use a https://neo4j.com/docs/cypher-manual/current/query-tuning/using/#query-using-join-hint[join hint] in the query to prevent traversal through a node.
+
+Instead, multiple starting points are used, and from each one expansion is performed until reaching the node specified in the join hint.
+Then a hash join is used to find the common nodes that were matched to from both directions, and the fully matched path is realized.
+
+If I'm trying to find out artists my friends and I like in common (and how many likes are in common) I might have a query like this:
+
+[source,cypher]
+----
+MATCH (me:Person {name:'Me'})-[:FRIENDS_WITH]-(friend)-[:LIKES]->(a:Artist)<-[:LIKES]-(me)
+RETURN a, count(a) as likesInCommon
+----
+
+If the planner decides to use only a single starting point for this query and doesn't recognize a potential supernode issue, it's possible that it may choose to plan expansion through the :Artist node, which could be very costly:
+
+image:img/without-join-hint.png[image,role="popup-link"]
+
+As the Cypher query planner has the ability to rearrange the ordering of adjacent MATCH patterns (and across some WITH clauses), simply reordering my pattern isn't enough.
+I can use a join hint to ensure we only traverse *to* the node in question, but not through it or away from it.
+
+[source,cypher]
+----
+MATCH (me:Person {name:'Me'})-[:FRIENDS_WITH]-(friend)-[:LIKES]->(a:Artist)<-[:LIKES]-(me)
+USING JOIN on a
+RETURN a, count(a) as likesInCommon
+----
+
+From the query plan we can see that from the same starting point we traverse two different paths toward `a`, but not through it, and perform a node hash join to unify the paths on the common artist nodes.
+
+image:img/with-join-hint.png[image,role="popup-link"]

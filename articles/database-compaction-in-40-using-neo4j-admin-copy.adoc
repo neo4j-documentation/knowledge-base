@@ -1,0 +1,126 @@
+= Database Compaction in 4.0 using Neo4j-admin copy
+:slug: database-compaction-in-40-using-neo4j-admin-copy
+:author: Umar Muzammil
+:neo4j-versions: 4.0
+:tags: store, compaction
+:public:
+:category: server
+
+This article demonstrates using the neo4j-admin copy tool to reclaim un-used space occupied by neo4j store files.
+
+1). Adding 100k nodes: `foreach (x in range (1,100000) | create (n:testnode1 {id:x}))`.
+
+2). Checking allocated ID range: `MATCH (n:testnode1) RETURN ID(n) as ID order by ID limit 5`.
+
+  - IDs ascending: 0, 1, 2, 3, 4; IDs descending: 99999, 99998, 99997, 99996, 99995.
+  
+3). Execute `:sysinfo:` Total Store Size=18.6 MiB, ID Allocation: Node ID 100000, Property ID 100000.
+
+4). We may then delete the above created nodes by `Match (n) detach delete n`.
+
+5). Total store size reported as `:sysinfo:` Total Store Size=18.6 MiB, ID Allocation: Node ID 100000, Property ID 100000.
+
+6). We may then execute a full neo4j-admin backup (https://neo4j.com/docs/operations-manual/current/backup/performing/) to 
+perform an online backup which by default executes a checkpoint (to flush any cached updates in pagecache to store files). 
+
+7). From step 6 above, it seems that the allocated IDs remain unchanged and that the store-size has not altered despite deletion. If
+at this point, or in a production database where numerous load/deletes are frequently performed and may result in significant
+un-used space occupied by store files, we could use the `neo4j-admin copy` tool (essentially a merger of store-utils) introduced
+in 4.0 (https://neo4j.com/docs/operations-manual/4.0/tools/copy/). We may then use the backup performed in step 6 to execute the 
+neo4j-admin copy tool. Note that neo4j-admin copy may ONLY be executed _ON AN OFFLINE DATABASE OR BACKUP_.
+
+8). Execute neo4j-admin copy e.g. as:
+----
+$./bin/neo4j-admin copy --from-database=neo4j --to-database=1/backups/copy:
+
+Starting to copy store, output will be saved to: /$neo4j_home/logs/neo4j-admin-copy-2020-01-16.12.06.38.log
+2020-01-16 12:06:38.777+0000 INFO [StoreCopy] ### Copy Data ###
+2020-01-16 12:06:38.778+0000 INFO [StoreCopy] Source: /Users/um/neo4j/4.0/cc/1/data/databases/neo4j
+2020-01-16 12:06:38.778+0000 INFO [StoreCopy] Target: /Users/um/neo4j/4.0/cc/1/data/databases/1/backups/copy
+2020-01-16 12:06:38.779+0000 INFO [StoreCopy] Empty database created, will start importing readable data from the source.
+2020-01-16 12:06:40.159+0000 INFO [o.n.i.b.ImportLogic] Import starting
+
+Import starting 2020-01-16 12:06:40.227+0000
+  Estimated number of nodes: 0.00 
+  Estimated number of node properties: 0.00 
+  Estimated number of relationships: 0.00 
+  Estimated number of relationship properties: 0.00 
+  Estimated disk space usage: 3.922MiB
+  Estimated required memory usage: 7.969MiB
+
+(1/4) Node import 2020-01-16 12:06:40.604+0000
+  Estimated number of nodes: 0.00 
+  Estimated disk space usage: 1.961MiB
+  Estimated required memory usage: 7.969MiB
+(2/4) Relationship import 2020-01-16 12:06:42.804+0000
+  Estimated number of relationships: 0.00 
+  Estimated disk space usage: 1.961MiB
+  Estimated required memory usage: 7.969MiB
+(3/4) Relationship linking 2020-01-16 12:06:43.046+0000
+  Estimated required memory usage: 7.969MiB
+(4/4) Post processing 2020-01-16 12:06:43.461+0000
+  Estimated required memory usage: 7.969MiB
+-......... .......... .......... .......... ..........   5% ∆226ms
+.......... .......... .......... .......... ..........  10% ∆1ms
+.......... .......... .......... .......... ..........  15% ∆1ms
+.......... .......... .......... .......... ..........  20% ∆1ms
+.......... .......... .......... .......... ..........  25% ∆0ms
+.......... .......... .......... .......... ..........  30% ∆1ms
+.......... .......... .......... .......... ..........  35% ∆0ms
+.......... .......... .......... .......... ..........  40% ∆1ms
+.......... .......... .......... .......... ..........  45% ∆0ms
+.......... .......... .......... .......... ..........  50% ∆1ms
+.......... .......... .......... .......... ..........  55% ∆0ms
+.......... .......... .......... .......... ..........  60% ∆0ms
+.......... .......... .......... .......... ..........  65% ∆1ms
+.......... .......... .......... .......... ..........  70% ∆0ms
+.......... .......... .......... .......... ..........  75% ∆1ms
+.......... .......... .......... .......... ..........  80% ∆0ms
+.......... .......... .......... .......... ..........  85% ∆0ms
+.......... .......... .......... .......... ..........  90% ∆1ms
+.......... .......... .......... .......... ..........  95% ∆0ms
+.......... .......... .......... .......... .......... 100% ∆1ms
+
+
+IMPORT DONE in 3s 860ms. 
+Imported:
+  0 nodes
+  0 relationships
+  0 properties
+Peak memory usage: 7.969MiB
+2020-01-16 12:06:44.031+0000 INFO [o.n.i.b.ImportLogic] Import completed successfully, took 3s 860ms. Imported:
+  0 nodes
+  0 relationships
+  0 properties
+2020-01-16 12:06:44.318+0000 INFO [StoreCopy] Import summary: Copying of 200622 records took 5 seconds (40124 rec/s). Unused Records 200622 (100%) Removed Records 0 (0%)
+2020-01-16 12:06:44.318+0000 INFO [StoreCopy] ### Extracting schema ###
+2020-01-16 12:06:44.319+0000 INFO [StoreCopy] Trying to extract schema...
+2020-01-16 12:06:44.330+0000 INFO [StoreCopy] ... found 0 schema definition. The following can be used to recreate the schema:
+2020-01-16 12:06:44.332+0000 INFO [StoreCopy] 
+----
+Above example completed in around 6s, and resulted in a compact as well as consistent store (any inconsistent nodes, properties,
+relationships are not copied over to the newly created store). Another point to note is that the above "/copy" of the was created 
+at $neo4j_home/data/databases/neo4j/1/backups/copy, instead of /current-directory/1/backups/copy, since the copy tool prefixes 
+`$neo4j_home/data/databases/<database_name>` to the specified destination directory.
+
+9). We may then restore the above copy as on a standalone Neo4j 4.0 instance and compare the difference in store size to the 
+previous 61.6MiB: 
+Execute `./sa/bin/neo4j-admin restore --from=cc/1/data/databases/1/backups/copy --verbose --database=sa/data/databases/neo4j --force`
+
+Note that the restored neo4j databases got restored to `$neo4j_home/data/databases/sa/data/databases`, again prefixing the specified 
+destination directory with `$neo4j_home/data/databases`
+
+10). Finally, compare the total store-size now (following compaction) to that before:
+
+`sysinfo on the above restored database now shows a total store size = 800.00 KiB in this example`
+
+This shows that neo4j-admin copy tool successfully compacted the store and the OS reclaimed the space reserved by the ID stores
+for future ID creates.
+
+References:
+
+https://neo4j.com/docs/operations-manual/4.0/tools/copy/
+https://github.com/jexp/store-utils
+https://neo4j.com/docs/operations-manual/current/backup/performing/
+https://neo4j.com/docs/operations-manual/current/backup/restoring/
+https://neo4j.com/docs/operations-manual/current/tools/consistency-checker/

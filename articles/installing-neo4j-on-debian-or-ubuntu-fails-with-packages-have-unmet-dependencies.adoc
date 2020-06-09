@@ -1,0 +1,30 @@
+= Installing Neo4j Database on Debian or Ubuntu fails with "The following packages have unmet dependencies"
+:slug: installing-neo4j-on-debian-or-ubuntu-fails-with-packages-have-unmet-dependencies
+:author: Daniel Terlizzi
+:neo4j-versions: 3.5, 3.4
+:tags: installation
+:public:
+:category: operations
+:environment: debian,ubuntu
+
+*Installing Neo4j Database on Debian or Ubuntu fails with the error:*
+
+----
+The following packages have unmet dependencies:
+ neo4j-enterprise : Depends: cypher-shell (< 1.2.0) but it is not going to be installed
+E: Unable to correct problems, you have held broken packages.
+----
+
+*Why is this happening?*
+
+The apt package manager is not handling multiple versions of a package, in this case Cypher Shell 1.1.12 and 4.0.
+
+*How to circumvent this issue?*
+
+Until we find a solution to this issue we suggest the following workaround:
+
+Add `cypher-shell=1.1.12` to the end of your apt install command, eg:
+
+`sudo apt install neo4j cypher-shell=1.1.12`
+
+This way you ensure the lastest supported Cypher Shell version will be installed for the Neo4j Database version 3.x.

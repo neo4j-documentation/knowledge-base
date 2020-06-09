@@ -1,0 +1,41 @@
+= Neo4j behaviour when running out of disk space (3.4+)
+:slug: neo4j-behaviour-when-running-out-of-disk-space-3-4
+:author: José Rocha
+:neo4j-versions: 3.4
+:tags: transaction,consistency,disk-space,disk
+:public:
+:category: operations
+
+Following the improvements on the recovery process after an instance runs out of disk space introduced in v3.4.0, this article aims to offer a view on the behaviour of Neo4j when this happens.
+
+Prior to 3.4, running out of disk space caused transaction log corruption. They got corrupted when we tried to append something but there was no more space left on device. This is fine by itself since transactions are in fact never committed from user perspective, the problem was that we were unable to recover from that situation.
+
+[NOTE]
+====
+If you are running any version prior to 3.4, please refer to link:https://support.neo4j.com/hc/en-us/articles/360005942054-How-to-recover-Neo4j-after-running-out-of-disk-space[How to recover Neo4j after running out of disk space] for recovery alternatives.
+====
+
+This is the expected behaviour (and recovery) on 3.4+:
+
+Standalone instance:
+
+* Instance runs out of diskspace
+* JVM doesn't crash but neo4j is in a non-usable state (needs manual intervention)
+* Manually free space on the server
+* Restart instance
+
+Causal Cluster:
+
+* Instance runs out of diskspace
+* JVM doesn't crash but neo4j is in a non-usable state (needs manual intervention)
+* A new leader gets elected automatically and write operations can resume straight away
+* Manually free space on old leader
+* Unbind the instance using `neo4j-admin unbind` (this triggers recovery of local database at startup if it can, instead of a store copy)
+* Restart instance
+
+[NOTE]
+====
+If not restarted, the old leader will still part of the cluster (as a follower) as drivers are concerned so client requests may be routed to it and timeout
+====
+
+Although we try to make this process as seamless as possible, this is still regarded as a disaster scenario. You should always monitor your disk space utilization on the OS level to prevent these situations from happening.

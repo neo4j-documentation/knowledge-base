@@ -1,0 +1,39 @@
+= Lock Manager Differences Explained
+:slug: lock-manager-differences-explained
+:author: Dana Canzano
+:neo4j-versions: 2.3, 3.0
+:tags: lock,performance
+//:public:
+:category: operations
+
+Work in Progress
+
+=== community:
+ * uses Java intrinsic locks, i.e. ’synchronized’. this might not perform that well on multiprocessor machines
+ * uses Thread.sleep() and Thread.interrupt() to wait for locks. this involves context switches which can be expensive
+ * keeps global graph or all locks to detect deadlocks. this is a shared data structure that needs to
+   be updated on every lock operation, so again synchronization overhead
+ * creates lock clients for every new started transaction
+ 
+ 
+=== enterprise:
+ * uses compare-and-set instructions (AtomicInteger, AtomicLong) and concurrent non-blocking data 
+   structures (ConcurrentHashMap) instead of synchronization. they should give better scaling
+ * uses a combination of busy-waits and Thread.sleep() to wait for locks. this should theoretically give less
+   context switches
+ * has no global resource to detect deadlocks. each lock client has a local unsynchronized bit-set for deadlock
+   detection. so there is no global shared resource to update
+ * pools lock clients so newly created transactions can just take them from a thread-local storage
+ * bit-set used for deadlock detection is not synchronized but is updated and read from different
+   threads. this racy access is on purpose for performance but it leads to false-positive deadlocks
+
+Generally speaking you should not need to change the default lock_manager but to do so would require you to  
+editting the $NEO4J_HOME/conf/neo4j.conf (3.x) or $NEO4J_HOME/conf/neo4j.properties (2.x) and include
+
+----
+lock_manager=community
+----
+
+and then restart Neo4j.
+
+

@@ -1,0 +1,107 @@
+= Creating and working with linked lists in Cypher
+:slug: creating-and-working-with-linked-lists
+:author: Andrew Bowman
+:neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5
+:tags: cluster
+:category: cypher
+:public:
+
+At some point when working with a graph, you may want to create a linked list out of some nodes.
+
+If each of the nodes to be linked has its own variable, this is easy, you just do a CREATE of the pattern using the node variables:
+
+[source,cypher]
+----
+...
+// assume a, b, and c were previously matched and in scope
+CREATE (a)-[:REL]->(b)-[:REL]->(c)
+----
+
+You can of course break up a larger pattern into smaller ones, and use MERGE on the smaller patterns if needed, when there's a possibility that a part of this linked pattern already exists.
+
+However, when we don't have separate variables for the nodes in question, such as if all of the nodes to link are under the same variable, or within a list, it's not obvious how to link them.
+
+== Using apoc.nodes.link() to link together nodes in a list
+
+The easiest approach is to leverage `apoc.nodes.link()` from APOC Procedures, passing the collection of nodes and the relationship type to use.
+Relationships will be created of the given type, outgoing between each of the nodes sequentially.
+
+[source,cypher]
+----
+MATCH (p:Person)
+WITH p
+ORDER BY p.name ASC
+LIMIT 5
+WITH collect(p) as persons
+CALL apoc.nodes.link(persons, 'KNOWS')
+RETURN persons
+----
+
+This will take the first 5 :Person nodes by name and link them together as a 5-node chain in the given order.
+
+== Linking nodes without APOC
+
+If you don't have APOC available, you can use just Cypher, but this requires a tricky triple-FOREACH syntax:
+
+[source,cypher]
+----
+MATCH (p:Person)
+WITH p
+ORDER BY p.name ASC
+LIMIT 5
+WITH collect(p) as persons
+FOREACH (i in range(0, size(persons) - 2) |
+ FOREACH (node1 in [persons[i]] |
+  FOREACH (node2 in [persons[i+1]] |
+   CREATE (node1)-[:KNOWS]->(node2))))
+----
+
+The outer FOREACH is to only apply this up to the second-to-last node, since the last node won't need an outgoing relationship from it.
+
+The other two FOREACHes look more complex, but these are just workarounds so we can have a variable to use for each of the nodes we want to link together,
+since we can't use indexed collection access within our CREATE like so: `CREATE (persons[i])-[:KNOWS]->(persons[i+1])`, and we can't use WITH within a FOREACH to manifest a variable for us to use.
+If you take another look at these two FOREACHes, you'll see that all they're doing is getting the node in the persons list at position `i` and the node at position `i+1` and allowing them to be addressed as variables node1 and node2.
+
+
+Alternately we could use UNWIND in place of FOREACH, allowing us to alias the nodes we want to link together, but in a more complex query with high cardinality this may not be a recommended approach:
+
+[source,cypher]
+----
+MATCH (p:Person)
+WITH p
+ORDER BY p.name ASC
+LIMIT 5
+WITH collect(p) as persons
+UNWIND range(0, size(persons) - 2) as index
+WITH persons[index] as node1, persons[index+1] as node2
+CREATE (node1)-[:KNOWS]->(node2)
+----
+
+== Mutual exclusion when altering a linked list
+
+If you have a linked list in your graph, you may at some point want to alter it, appending or removing at any point in the list.
+
+If there is any chance that list alteration queries can execute at the same time, it's important to make sure you use appropriate locking to ensure mutual exclusion when updating and avoid race conditions which could compromise your linked list structure and correctness.
+
+It's often useful to have a 0th node at the head of a linked list which is always present, but doesn't represent an actual entry in the list.
+This 0th node can be locked upon first for any query that needs to alter the list.
+
+To lock on a node, you can either write a property or label on it, or use an APOC locking procedure.
+
+As an example, let's say we have a to-do list linked to a person, and we want to append to this list. We have a :TODO_LIST node as our 0th node linked to the person.
+
+[source,cypher]
+----
+MATCH (p:Person {name:'Keanu Reeves'})-[:TO_DO]->(listHead:TO_DO_LIST)
+CALL apoc.lock.nodes([listHead])
+MATCH (listHead)-[:NEXT*0..]->(end)
+WHERE NOT (end)-[:NEXT]->()
+CREATE (end)-[:NEXT]->(new:Event {name:'Punch Agent Smith'})
+----
+
+By acquiring a lock on the 0th node, listHead, *BEFORE we match into the list itself* we ensure that we avoid any race conditions by concurrently executing queries that can alter the list underneath us during execution (the lock is released when the transaction commits).
+
+For example, without this locking, it's possible that between the time we have matched to the `end` node, but before we `CREATE` the new event at the end, a concurrent query adds a different event at the end,
+and we could end up with a list that is no longer a list since it branches at what used to be the end node, which now has two children.
+
+Using a 0th node to lock upon provides a consistent node to lock upon no matter if the list is empty or not, and provides a safe means to avoid race conditions from concurrent updates.

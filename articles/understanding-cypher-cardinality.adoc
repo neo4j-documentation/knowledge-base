@@ -1,0 +1,363 @@
+= Tuning Cypher queries by understanding cardinality
+:slug: understanding-cypher-cardinality
+:author: Andrew Bowman
+:neo4j-versions: 2.2, 2.3, 3.0, 3.1, 3.2, 3.3, 3.4
+:tags: performance, cypher,cardinality
+:public:
+:category: cypher
+
+Cardinality issues are the most frequent culprit in slow or incorrect Cypher queries.
+Because of this, understanding cardinality, and using this understanding to manage cardinality issues, is a critical component in Cypher query tuning, and query correctness in general.
+
+.A note about the following examples
+
+We will use the built in Movies graph for examples (use `:play movies` in the Neo4j browser to create the dataset).
+
+Note that the query planner can optimize some operations.
+It may change the order of some operations, changing the order of expansion, or which nodes we use as the starting nodes, or more.
+It's still best to be mindful of cardinality when tuning your queries, even if the plan isn't as expected, or circumvents the issue for you in some cases.
+
+
+== Cypher operations execute per row, and generate rows of results
+
+To understand cardinality in Cypher, two important aspects of Cypher execution need to be understood first:
+
+1. Cypher operations execute per record/row* of the input stream to the operation
+
+2. Cypher operations generate streams of result records/rows*
+
+`*` While "record" is more technically correct (Neo4j doesn't use tables, so it doesn't really have rows), "row" is often more familiar, and is the term used in query plan output. We'll be using "row" from here on.
+
+These are two aspects of the same principle: streams of rows are both the input and output for cypher operations.
+
+You can see how streams of rows flow between Cypher operations in a https://neo4j.com/docs/developer-manual/current/cypher/query-tuning/how-do-i-profile-a-query/[PROFILE query plan],
+increasing from match expansions and unwinds, and diminishing through filtering, aggregations, and limits.
+
+The more rows in the stream, the more work is performed by the next operation, contributing to db hits and query execution time.
+
+As an example, take this simple query on the movies graph to find all actors in The Matrix:
+
+[source,cypher]
+----
+MATCH (movie:Movie {title:'The Matrix'})<-[:ACTED_IN]-(actor)
+----
+
+If we decided to return the data at this point (`RETURN movie.title as title, actor.name as name`) we would get the following results (in no particular order):
+
+[options=header]
+|===
+|   title     |              name
+|"The Matrix" | "Keanu Reeves"
+|"The Matrix" | "Hugo Weaving"
+|"The Matrix" | "Laurence Fishburne"
+|"The Matrix" | "Carrie-Anne Moss"
+|"The Matrix" | "Emil Eifrem"
+|===
+
+These are 5 rows in the result stream.
+
+If instead of returning we decide to do something more from those match results, these rows will be the input for the next operation in the query.
+
+That operation will execute for each these rows.
+
+== What is cardinality in Cypher and why does it matter?
+
+Cardinality in general refers to the number of rows flowing between operations.
+
+Remember, operations execute per row, and depending upon your query, it's possible for there to be multiple rows where the same value is present for a variable that you're operating upon.
+
+For example, if you're performing an expansion out from a node variable, if the same specific node is present on multiple rows, you could be performing the same operation multiple times redundantly.
+
+Managing cardinality is all about making sure that when you perform operations on values, that you shrink the cardinality first, if possible, so that you avoid those redundant operations.
+
+Why does that matter?
+
+* Because we want the query to be quick; we want to do the least amount of work needed, as opposed to redundantly performing the same operation for the same value multiple times.
+* Because we want the query to be correct; we don't want to see unwanted duplicate result rows, or end up creating duplicate graph elements.
+
+=== Cardinality issues can lead to redundant and wasteful operations
+
+Note that in the results of our Matrix query above, the same values occur across multiple rows because they are present in multiple matched paths.
+
+In the query results above, The Matrix movie is the same starting node for all results, so the same node is present on all rows of the stream.
+Each distinct actor only occurs in a single row of the stream.
+
+If we performed a match from `actor` (the variable for actors in the match), that match would only be performed once per distinct actor.
+[source,cypher]
+----
+MATCH (movie:Movie {title:'The Matrix'})<-[:ACTED_IN]-(actor)
+MATCH (actor)-[:ACTED_IN]->(otherMovie)
+...
+----
+
+However if we performed a match from `movie` (the variable for movies in the match), that match would be performed 5 times redundantly for the same Matrix node.
+[source,cypher]
+----
+MATCH (movie:Movie {title:'The Matrix'})<-[:ACTED_IN]-(actor)
+MATCH (movie)<-[:DIRECTED]-(director)
+...
+----
+
+=== Cardinality issues can result in duplicated data
+
+Remember that operations execute per row. This includes CREATE and MERGE operations.
+
+Consider if we wanted to create a new relationship :WORKED_ON between actors and directors to movies they worked on.
+
+Just looking at the Matrix movie, a wrong approach may look like this:
+
+[source,cypher]
+----
+MATCH (movie:Movie {title:'The Matrix'})<-[:ACTED_IN]-(actor)
+MATCH (movie)<-[:DIRECTED]-(director)
+CREATE (actor)-[:WORKED_ON {role:'actor'}]->(movie)
+CREATE (director)-[:WORKED_ON {role:'director'}]->(movie)
+----
+
+If we viewed the result, we would see two :WORKED_ON relationships between each actor and The Matrix, and 5 :WORKED_ON relationships between each director and The Matrix.
+
+Why? Because the first two matches above resulted in a cross product of the 5 actors and the 2 directors, 10 rows total.
+
+Each distinct director would appear on 5 of those rows (once for each actor) and each distinct actor would appear on 2 of those rows (once for each director).
+The CREATE operations would execute on each of those 10 rows, leading to the redundant relationships.
+
+While we could solve this by using MERGE instead of CREATE, which would only create the expected number of relationships, we're still performing redundant operations in the process.
+
+== How do we manage cardinality?
+
+We manage cardinality mostly through aggregations and reordering operations in the query, and sometimes through the use of LIMIT (when it makes sense to do so).
+
+=== Aggregation
+
+The important part about https://neo4j.com/docs/developer-manual/current/cypher/functions/aggregating/[aggregations] is that the combination of non-aggregation variables become distinct.
+If an operation executes upon those distinct variables, then there should be no wasted executions.
+
+Let's take the above query and use an aggregation to reduce the cardinality
+
+[source,cypher]
+----
+MATCH (movie:Movie {title:'The Matrix'})<-[:ACTED_IN]-(actor)
+WITH movie, collect(actor) as actors
+MATCH (movie)<-[:DIRECTED]-(director)
+WITH movie, actors, collect(director) as directors
+...
+----
+
+In the second line, we perform a collect() aggregation. The only non-aggregation variable, `movie`, becomes the distinct grouping key.
+The cardinality drops to a single row here, as the row only has The Matrix node and the list of actors.
+
+Because of this, the subsequent expand operation from the next MATCH will only execute once for The Matrix node, instead of 5 times as before.
+
+But what if we want to perform additional matches from `actor`?
+
+In that case we can UNWIND our collection after our match:
+
+[source,cypher]
+----
+MATCH (movie:Movie {title:'The Matrix'})<-[:ACTED_IN]-(actor)
+WITH movie, collect(actor) as actors
+MATCH (movie)<-[:DIRECTED]-(director)
+WITH movie, collect(director) as directors
+UNWIND actors as actor
+MATCH (actor)-[:ACTED_IN]->(other)
+WHERE other <> movie
+...
+----
+
+=== Pattern comprehension can help
+
+Pattern comprehension is a way to populate a list with the results of an expansion.
+If your desired result include collections of connected nodes, it's a good way to keep cardinality low and make the query a little less verbose.
+
+
+[source,cypher]
+----
+MATCH (movie:Movie {title:'The Matrix'})
+WITH movie, [(movie)<-[:DIRECTED]-(director) | director] as directors
+MATCH (movie)<-[:ACTED_IN]-(actor:Person)-[:ACTED_IN]->(other)
+...
+----
+
+=== Reorder the query to aggregate earlier
+
+Newcomers to Cypher (especially those from SQL backgrounds) often try to perform many operations (limit, aggregation, etc) in the RETURN statement.
+
+In Cypher, we encourage performing these operations early, where it makes sense to do so, as it can keep cardinality low and prevent wasteful operations.
+
+Here's an example of performing aggregations late, though we get the correct answer through usage of `COLLECT(DISTINCT ...)`
+
+[source,cypher]
+----
+MATCH (movie:Movie)
+OPTIONAL MATCH (movie)<-[:ACTED_IN]-(actor)
+OPTIONAL MATCH (movie)<-[:DIRECTED]-(director)
+RETURN movie, collect(distinct actor) as actors, collect(distinct director) as directors
+----
+In Neo4j 3.3.5, the PROFILE for this has 621 db hits.
+
+We do get the right answer in the end, but the more back-to-back matches or optional matches we perform, the more cardinality issues have a chance to snowball multiplicatively.
+
+If we reorder the query to COLLECT() after each OPTIONAL MATCH instead, or use pattern comprehension, we cut down on unnecessary work, as our expand operations occur on each movie keeping cardinality as low as possible and eliminating redundant operations.
+
+[source,cypher]
+----
+MATCH (movie:Movie)
+WITH movie, [(movie)<-[:DIRECTED]-(director) | director] as directors, [(movie)<-[:ACTED_IN]-(actor) | actor] as actors
+RETURN movie, actors, directors
+----
+In Neo4j 3.3.5, the PROFILE for this has 331 db hits.
+
+Of course, on queries on small graphs like this with small result sets, and few operations, the difference is negligible when we look at timing differences.
+
+However as graph data grows, as well as the complexity of graph queries and results, keeping cardinality low and avoiding multiplicative db hits becomes the difference between a quick streamlined query and one that may exceed acceptable execution time.
+
+=== Use DISTINCT or an aggregation to reset cardinality
+
+Sometimes in the course of a query we want to expand from some node, perform operations on the nodes we expand to, then expand on a different set of nodes from the original.
+If we're not careful, we can encounter cardinality issues.
+
+Consider the attempt to create :WORKED_ON relationships from earlier:
+
+[source,cypher]
+----
+MATCH (movie:Movie {title:'The Matrix'})<-[:ACTED_IN]-(actor)
+MATCH (movie)<-[:DIRECTED]-(director)
+CREATE (actor)-[:WORKED_ON {role:'actor'}]->(movie)
+CREATE (director)-[:WORKED_ON {role:'director'}]->(movie)
+----
+
+This query resulted in duplicated relationships, even if we used MERGE we would still be doing more work than needed.
+
+One solution here is to do all the processing on one set of nodes first, then do the processing on the next set.
+The first step toward such a solution might look like this:
+
+[source,cypher]
+----
+MATCH (movie:Movie {title:'The Matrix'})<-[:ACTED_IN]-(actor)
+CREATE (actor)-[:WORKED_ON {role:'actor'}]->(movie)
+WITH movie
+MATCH (movie)<-[:DIRECTED]-(director)
+CREATE (director)-[:WORKED_ON {role:'director'}]->(movie)
+----
+
+Even though we get 1 :WORKED_ON relationship for each actor, we are still seeing 5 :WORKED_ON relationship per director.
+
+Why? Because cardinality does not reset automatically. Even though we have `WITH movie` in the middle, we still have 5 rows, one per actor (even though the actor variable is no longer in scope), with The Matrix as `movie` for each of them.
+
+To fix this, we need to either use DISTINCT or an aggregation to reset the cardinality so there is only a single row per distinct `movie`.
+
+
+[source,cypher]
+----
+MATCH (movie:Movie)<-[:ACTED_IN]-(actor)
+CREATE (actor)-[:WORKED_ON {role:'actor'}]->(movie)
+WITH DISTINCT movie
+MATCH (movie)<-[:DIRECTED]-(director)
+CREATE (director)-[:WORKED_ON {role:'director'}]->(movie)
+----
+By using `WITH DISTINCT movie` we ensure there are no duplicates in the stream, minimizing cardinality.
+
+The following query will also work just fine, since when we aggregate the non-aggregation variables become distinct:
+
+[source,cypher]
+----
+MATCH (movie:Movie)<-[:ACTED_IN]-(actor)
+CREATE (actor)-[:WORKED_ON {role:'actor'}]->(movie)
+WITH movie, count(movie) as size
+MATCH (movie)<-[:DIRECTED]-(director)
+CREATE (director)-[:WORKED_ON {role:'director'}]->(movie)
+----
+
+
+== DISTINCT nodes from variable-length paths
+
+Variable-length pattern matches can be costly in some cases, as Cypher attempts to find all possible paths that match the given pattern.
+
+When you are only interested in distinct nodes at the end of the pattern, this behavior is wasteful, as you don't need multiples of the same node that were reached from different paths, and continuing to work with those results will likely lead to cardinality issues.
+
+You can tell your query that you're only interested in https://neo4j.com/docs/developer-manual/current/cypher/functions/aggregating/[DISTINCT] nodes, and by meeting a few small conditions the planner will optimize the expand operation (this shows as `VarLengthExpand(Pruning)` in the query plan).
+
+You need an upper bound on the expansion, and to have a `WITH DISTINCT` or `RETURN DISTINCT` clause after the match to take advantage of this optimization.
+
+[source,cypher]
+----
+PROFILE
+MATCH (:Person{name:'Keanu Reeves'})-[:ACTED_IN*..5]-(movie)
+WITH DISTINCT movie
+...
+----
+
+.A note about limitations of var-length pattern matches
+
+Although pruning var expands can be faster than the regular expand operation, it still must find all possible paths, even if we are only retaining distinct results.
+
+On even moderately connected graphs, such as the movies graph, if there aren't tight constraints on the relationship type and direction, var-length path matches may still get increasingly expensive at higher (or no) upper bounds if the permutation of all possible paths skyrockets, to the point where such a query may hang.
+
+If you need distinct connected nodes in these cases, you may need to turn to APOC Procedures for path expansions that traverse the graph in a more efficient manner that better fits this use case.
+
+=== Be careful with LIMIT when it comes after write operations
+
+LIMIT is lazy in that once it receives the number of results to be limited, processing stops for previous operations.
+
+While this can make it very efficient, it may have an unexpected effect when you're performing write operations before the LIMIT, in that the query will only process as many results as are necessary for the limited amount to be reached
+(though Eager operations and aggregations between the write operations and the LIMIT should be safe, in that all processing before this point should have executed as expected).
+
+Let's use a modified version of the above example, but instead of using DISTINCT or an aggregation to reduce cardinality, let's use `LIMIT 1`, since that's guaranteed to get us down to one row:
+
+[source,cypher]
+----
+MATCH (movie:Movie {title:'The Matrix'})<-[:ACTED_IN]-(actor)
+CREATE (actor)-[:WORKED_ON {role:'actor'}]->(movie)
+WITH movie
+LIMIT 1
+MATCH (movie)<-[:DIRECTED]-(director)
+CREATE (director)-[:WORKED_ON {role:'director'}]->(movie)
+----
+
+While this seems to make sense, because LIMIT is lazy, it will only pull through enough results to satisfy the limit, and then no more rows will be pulled through.
+
+As a result, even though there are 5 actors in The Matrix and 2 directors, this query will only create 3 relationships: 1 will be for an actor, the remaining 2 will be for the directors.
+The first match was found, the first relationship created, then since the limit was reached, further matches (and relationship creations) for actors were not processed.
+
+If we added a `collect(actor) as actors` or similar aggregation before the usage of LIMIT, we would have introduced an EagerAggregation operation (as seen in the EXPLAINed query plan) which would have processed that part of the query for all input rows to that point before the LIMIT was reached, ensuring that our expected 7 relationships were created.
+
+The takeaway here is to be aware of where in the query you're using LIMIT, especially when there are write operations occurring before the LIMIT.
+
+If you need to ensure the write operations occur for all rows before the LIMIT is applied, introduce an Eager in the query plan with aggregations, or use an alternative to LIMIT instead.
+
+Note that the lazy behavior of LIMIT as illustrated here is under review -- future versions of Cypher may adjust its behavior.
+
+=== Use LIMIT early if possible
+
+While not directly related to cardinality, if you're using LIMIT in your query it's advantageous to LIMIT early, if possible, instead of at the end.
+
+Consider the differences here:
+
+[source,cypher]
+----
+MATCH (movie:Movie)
+OPTIONAL MATCH (movie)<-[:ACTED_IN]-(actor)
+WITH movie, collect(actor) as actors
+OPTIONAL MATCH (movie)<-[:DIRECTED]-(director)
+WITH movie, actors, collect(director) as directors
+RETURN movie, actors, directors
+LIMIT 1
+----
+In Neo4j 3.3.5 the PROFILE for this has 331 db hits.
+
+[source,cypher]
+----
+MATCH (movie:Movie)
+WITH movie
+LIMIT 1
+OPTIONAL MATCH (movie)<-[:ACTED_IN]-(actor)
+WITH movie, collect(actor) as actors
+OPTIONAL MATCH (movie)<-[:DIRECTED]-(director)
+WITH movie, actors, collect(director) as directors
+RETURN movie, actors, directors
+----
+In Neo4j 3.3.5 the PROFILE for this has 11 db hits.
+
+We avoid doing work that will only be thrown out when we finally perform the LIMIT.
+
+

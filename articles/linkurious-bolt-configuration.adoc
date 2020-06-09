@@ -1,0 +1,81 @@
+= Linkurious bolt configuration
+:slug: linkurious-bolt-configuration
+:author: Ali Maddahian
+:neo4j-versions: 3.1,3.2,3.3,3.4,3.5
+:tags: bolt, drivers, linkurious
+:public:
+:category: operations
+
+Default Linkurious configuration contains the following snippet in the `production.json` configuration file: 
+
+----
+dataSources": [
+  {
+   "readOnly": false,
+   "graphdb": {
+    "vendor": "neo4j",
+    "url": "http://127.0.0.1:7474",
+    "user": null,
+    "password": null
+   },
+   "index": {
+    "vendor": "elasticSearch",
+    "host": "127.0.0.1",
+    "port": 9201,
+    "forceReindex": false,
+    "dynamicMapping": false,
+    "skipEdgeIndexation": false
+   }
+  }
+ ],
+----
+
+With the documentation stating the following:
+
+----
+Linkurious can connect to Neo4j via the Bolt protocol. To do so, you need to enable the protocol in your Neo4j configuration file. If Linkurious is connected over HTTP/S, it will try to automatically upgrade the connection to Bolt. The HTTP/S protocol is still required to perform a small subset of operations.
+----
+
+Where the URL can be set to http/https/bolt/bolt+routing.   However, using the above configuration can run into issues with respect to writes in a cluster environment.
+
+In general, writes are generated when:
+
+* You create/edit/delete information through the UI
+* You write your own queries / queries template and let the user run them
+
+When Linkurious uses the `bolt+routing` protocol, Linkurious can return a node in the cluster that could potentially also be a read-only replica, and of course, when sending a write query to that node, the write will fail.
+
+That said, you can have different scenarios:
+
+1. You don’t want any user changing the data through LKE UI (and you properly configured all the securities to achieve this, you also have a read-only flag in the datasource). In this case you’ll never face any issue since the system will never perform write operations. You configuration will work.
+
+2. Your cluster only contains Core Server and no Replica (read-only). In this case every node returned by bolt+routing protocol will accept write requests and then will never fail. 
+
+3. You want to change data through LKE UI and the Neo4j cluster contains also Replica Servers. In this case, to remove the possibility of failure, you’ll need to configure the extra `writeUrl` parameter as shown below using HTTP/S protocol and point to the core servers, ensuring all write queries are sent to the cores (This is because all http calls are sent via bolt under the cover in Linkurious)
+
+The configuration will then look like:
+
+----
+{
+  "dataSources": [
+    {
+      "graphdb": {
+        "vendor": "neo4j",
+        "url": "bolt+routing://full-cluster:7687/",
+        "writeUrl": "http://core-server:7474/",
+        "user": "myNeo4jUser",
+        "password": "nyNeo4jPassword"
+      },
+      "index": {
+        "vendor": "neo4jSearch"
+      }
+    }
+  ]
+}
+----
+
+Where:
+
+full-cluster : is whatever point to any active node in the cluster. If you put a single server, in case of failure of that server the system won’t be able to connect to the cluster. In this case it is recommended to put here an always active component that never return an offline server (e.g. load balancer, reverse proxy with backup server configuration, dns alias with a pull of active servers, etc…)
+
+core-server : should follow the same recommendations above with the only difference that this components should never return a Replica Server, should link only the subset of Core servers

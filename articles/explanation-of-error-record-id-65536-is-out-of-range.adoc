@@ -1,0 +1,76 @@
+= Explanation of error "Record id 65536 is out of range [0, 65535]"
+:slug: explanation-of-error-record-id-65536-is-out-of-range
+:author: Dana Canzano
+:neo4j-versions: 3.2, 3.3
+:tags: relationship, record-id
+:public:
+:category: operations
+
+When running a Cypher statement that creates a new relationship type, for example
+
+----
+MERGE (n1:Person {id:1})-[r:knows]->(n2:Person {id:2})
+----
+
+one may encounter an error which is logged in the $NEO4J_HOME/logs/debug.log as 
+
+----
+2017-10-30 17:08:29.741+0000 ERROR [o.n.b.v.r.ErrorReporter] Client triggered an unexpected error [UnknownError]: Could not create token, reference 63c2e7ef-6f5b-4834-b2a8-fe74cac3a50a. Could not create token
+org.neo4j.graphdb.TransactionFailureException: Could not create token
+        at org.neo4j.kernel.impl.core.DelegatingTokenHolder.getOrCreateId(DelegatingTokenHolder.java:85)
+        at org.neo4j.kernel.impl.api.store.StorageLayer.relationshipTypeGetOrCreateForName(StorageLayer.java:376)
+        at org.neo4j.kernel.impl.api.StateHandlingStatementOperations.relationshipTypeGetOrCreateForName(StateHandlingStatementOperations.java:1384)
+        at org.neo4j.kernel.impl.api.DataIntegrityValidatingStatementOperations.relationshipTypeGetOrCreateForName(DataIntegrityValidatingStatementOperations.java:86)
+        at org.neo4j.kernel.impl.api.OperationsFacade.relationshipTypeGetOrCreateForName(OperationsFacade.java:774)
+        at org.neo4j.cypher.internal.spi.v3_3.TransactionBoundQueryContext.getOrCreateRelTypeId(TransactionBoundQueryContext.scala:114)
+        at org.neo4j.cypher.internal.compatibility.v3_3.ExceptionTranslatingQueryContext$$anonfun$getOrCreateRelTypeId$1.apply$mcI$sp(ExceptionTranslatingQueryContext.scala:203)
+...
+.....
+........
+        at org.neo4j.bolt.v1.runtime.concurrent.RunnableBoltWorker.run(RunnableBoltWorker.java:96)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+        at java.lang.Thread.run(Thread.java:748)
+        at org.neo4j.helpers.NamedThreadFactory$2.run(NamedThreadFactory.java:109)
+Caused by: org.neo4j.kernel.impl.store.id.validation.IdCapacityExceededException: Record id 65536 is out of range [0, 65535]
+        at org.neo4j.kernel.impl.store.id.validation.IdValidator.assertIdWithinCapacity(IdValidator.java:88)
+        at org.neo4j.kernel.impl.store.id.validation.IdValidator.assertValidId(IdValidator.java:67)
+        at org.neo4j.kernel.impl.store.id.IdGeneratorImpl.nextId(IdGeneratorImpl.java:143)
+        at org.neo4j.kernel.impl.core.DefaultRelationshipTypeCreator.createKey(DefaultRelationshipTypeCreator.java:40)
+        at org.neo4j.kernel.impl.core.IsolatedTransactionTokenCreator.getOrCreate(IsolatedTransactionTokenCreator.java:59)
+        at org.neo4j.kernel.impl.core.DelegatingTokenHolder.createToken(DelegatingTokenHolder.java:103)
+        at org.neo4j.kernel.impl.core.DelegatingTokenHolder.getOrCreateId(DelegatingTokenHolder.java:76)
+        ... 49 more
+----
+
+and they key part from above is the reference to *Record id 65536 is out of range [0, 65535]*
+
+This error is caused as a result of hitting the maximum number of relationship types for a graph.db.  The current limit is 65536. 
+Note this is specifically for the 'relationship type', i.e. the identifier used to name the relationship.  This limit does not 
+apply to number of relationships between nodes or the total number of relationships in the graph.
+
+When this error is encountered running
+
+----
+call db.relationshipTypes() yield relationshipType return count(relationshipType) as numRelTypes;
+----
+
+will return 
+
+----
++-------------+
+| numRelTypes |
++-------------+
+| 65536       |
++-------------+
+----
+
+
+
+
+
+To resolve this error would require removal of relationship types which are no longer associated with any nodes.   As there is currently 
+no Cypher command to do this, one would need to run https://github.com/jexp/store-utils[copy-store.sh].  This command will read a 
+offline graph.db and prepare a new graph.db but exlcuding any relationship types/properties which are no longer in use.

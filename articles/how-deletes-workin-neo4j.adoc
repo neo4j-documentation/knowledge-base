@@ -1,0 +1,35 @@
+= How deletes work in Neo4j
+:slug: how-deletes-workin-neo4j
+:author: José Rocha
+:twitter: @i_am_rocha
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4
+:tags: delete, disk, storage
+:public:
+:category: operations
+
+Neo4j uses logical deletes to delete from the database to achieve maximum performance and scalability. To understand how this might appear to an operator of the database, lets take a simple case of loading data into Neo4j. When you start loading data, you can see
+the nodes are stored in a file called `neostore.nodestore.db`. As you keep loading, the file will keep growing.
+
+However, once you start deleting nodes, you can verify that the file `neostore.nodestore.db` does not reduce in size. In fact, not only
+does the size remain the same, but you will also start to see the file `neostore.nodestore.db.**id**` grow - and keep growing for all records deleted.
+
+This happens because of id re-use. Deletes in Neo4j do not physically delete the records, but rather just flip the bit from _available_
+to _unavailable_. We keep the deleted (but available to reuse) IDs in `neostore.nodestore.db.**id**`. This means the 
+`neostore.nodestore.db.**id**` file acts sort of like a "recycle bin" where it stores all the deleted ids.
+
+Now you've deleted the data and `neostore.nodestore.db` is the same size as before the delete, the `neostore.nodestore.db.**id**` file is 
+larger than before the delete operation. How do you reclaim this space?
+
+When you start loading new data after the deletes, Neo4j starts using the ids recorded in `neostore.nodestore.db.**id**` and thus the 
+`neostore.nodestore.db` file does not grow in size and the file `neostore.nodestore.db.**id**` starts decreasing until it's completely
+empty. 
+
+If you do not plan to add more nodes but still want to shrink the size of the database on disk, you can use the 
+link:https://github.com/jexp/store-utils[copy store util]. This utility will read an offline database, copy it to a new one, and leave out data that is no longer in use (and also the list of eligible ids to re-use).
+
+
+[NOTE]
+====
+Large deletes can generate a lot of transaction logs. You should be aware of this when doing mass delete operations otherwise - ironically
+- your filesystem can potentially fill up.
+====

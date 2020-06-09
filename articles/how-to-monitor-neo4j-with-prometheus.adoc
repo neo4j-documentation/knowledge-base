@@ -1,0 +1,48 @@
+= How to monitor Neo4j with Prometheus
+:slug: how-to-monitor-neo4j-with-prometheus
+:author: Dana Canzano
+:neo4j-versions: 3.4
+:tags: monitoring,metrics
+:public:
+:category: operations
+
+Commencing with the release of Neo4j Enterprise 3.4, one can now use the open source monitoring tool 
+https://prometheus.io[Prometheus] to monitor Neo4j.
+The following article details a basic Prometheus implementation to demonstrate the connectivity between Prometheus v2.2.1 and Neo4j.
+
+After installing Prometheus, Neo4j needs to be configured via its `neo4j.conf` file with the following parameters:
+
+----
+# Enable the Prometheus endpoint. Default is 'false'.
+metrics.prometheus.enabled=true
+# The IP and port the endpoint will bind to in the format <hostname or IP address>:<port number>.
+# The default is localhost:2004.
+metrics.prometheus.endpoint=localhost:2004
+----
+
+and the `prometheus.yml` file should be configured as follows:
+
+----
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'Neo4j-prometheus'
+
+    # metrics_path: /metrics
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ['localhost:2004']
+----
+
+In the above configuration snippets, Prometheus has been installed on the same server as Neo4j.  If you choose to install it on a different server, simply replace references to localhost above with the IP address of the Neo4j instance.
+
+Launching the Prometheus browser at **http://<IP of Prometheus Server>:9090** and clicking the menu option `Status` -> `Targets` should display: 
+
+image:https://imgur.com/aeA6XY3.png[image]
+
+Returning back to the 3rd menu choice of `Graphs` one can define a graph to monitor a Neo4j metric. For example, in the detail below the
+graph represents the number of transactions started (neo4j_transaction_started):
+
+image:https://imgur.com/3tZeFKz.png[image]

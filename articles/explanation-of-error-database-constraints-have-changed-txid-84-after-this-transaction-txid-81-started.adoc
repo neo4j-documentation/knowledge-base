@@ -1,0 +1,39 @@
+= Explanation of error "Database constraints have changed (txId=xxxxx) after this transaction (txId=yyyyy) started, which is not yet supported"
+:slug: explanation-of-error-database-constraints-have-changed-txid-84-after-this-transaction-txid-81-started
+:author: Dana Canzano
+:neo4j-versions: 2.2, 2.3, 3.0
+:tags: constraint
+:public:
+:category: operations
+
+The following error, via `bin/neo4j-shell`:
+
+----
+Database constraints have changed (txId=84) after this transaction (txId=81) started, which is not yet supported. Please retry your transaction to ensure all constraints are executed.
+----
+
+or as logged in `log/debug.log` (3.x) or `graph.db/messages.log` (2.3.x):
+
+----
+2016-10-18 16:40:43.595+0000 ERROR [o.n.s.r.t.TransactionFacade]: Failed to commit transaction. 
+java.lang.RuntimeException: org.neo4j.kernel.api.exceptions.TransactionFailureException: Database constraints have changed (txId=81) after this transaction 
+(txId=84) started, which is not yet supported. Please retry your transaction to ensure all constraints are executed. 
+at org.neo4j.server.rest.transactional.TransitionalTxManagementKernelTransaction.commit(TransitionalTxManagementKernelTransaction.java:87) ~[neo4j-server-2.2.8.jar:2.2.8] 
+at org.neo4j.server.rest.transactional.TransactionHandle.closeContextAndCollectErrors(TransactionHandle.java:278) [neo4j-server-2.2.8.jar:2.2.8] 
+----
+
+can be explained by the following scenario:   
+
+[width="80%",options="header"]
+|=======
+|txID |Date/time | Cypher Statement
+|81 | Oct-19-2012 09:00|     Begin
+|84 | Oct-19-2012 09:01| Begin
+|84 | Oct-19-2012 09:02|     create constraint on (n:Person) assert n.user_id is unique;
+|84 | Oct-19-2012 09:03| Commit
+|81 | Oct-19-2012 09:04|     create (n:Person {user_id:1234})
+|81 | Oct-19-2012 09:05| Commit
+|=======
+
+where the exception is thrown at Oct-19-2012 09:05 by the Cypher statement with txID 81 when it tries to create a node which applies to the newly committed constraint, and the transaction is rolled back. Correct remedial action is to resubmit the failed transaction.
+

@@ -1,0 +1,177 @@
+= An approach to parsing the query.log
+:slug: an-approach-to-parsing-the-query-log
+:author: Dana Canzano
+:category: operations
+:tags: query.log, logging
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3
+:public:
+
+When one has enabled query.log through Neo4j Enterprise parameter
+https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.logs.query.enabled[`dbms.logs.query.enabled`]
+the included bash shell script can be used to quickly parse the log and identify the top 10 most expensive queries based upon total execution time and if one has enabled 
+https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.logs.query.time_logging_enabled[dbms.logs.query.time_logging_enabled]
+then the top 10 most expensive queries based upon planning, cpu and waiting time will also be reported.
+
+The bash shell script is as follows:
+
+----
+#!/bin/bash
+# Copyright (c) 2002-2018 "Neo Technology,"
+# Network Engine for Objects in Lund AB [http://neotechnology.com]
+# This file is a commercial add-on to Neo4j Enterprise Edition.
+
+# only parse those lines where the 3rd field is 'INFO'
+# count total number of lines in query.log which report INFO in the 3rd field
+
+parse() {
+logfile=$1
+if [ -e $logfile ]; then
+    # log file exits
+    awk '$3== "INFO" {print "First Query Reported at: " $1 " " $2}' $logfile | head -1
+    awk '$3== "INFO" {print " Last Query Reported at: " $1 " " $2}' $logfile | tail -1
+
+
+    awk '$3== "INFO" {count++;  total=total+$4 } END{print "\n*******EXECUTION:******* \nTotal # of Completed Queries: " count "\n       Total Duration (msec): " total "\n   Avg of all Queries (msec): " total/count "\n" }' $logfile
+
+    # print longest query
+    printf "Top 10 Longest Queries longest on top and leading line number: \n"
+    printf "Note: Queries which are multi-line will only report first line of query !!!\n\n\n"
+    awk '$3== "INFO" {print "line:" NR "\t" $0}' $logfile | sort -n -r -k 5 | head -10
+
+    pcw=`grep "INFO" $logfile | grep "(planning:" | head -1`
+    if [ ! -z "$pcw" ]; then
+          # only enter this block if conf/neo4j.conf has
+          #     dbms.logs.query.time_logging_enabled=true
+          # which thus causes field 6 to appear as `(planning:...........`
+          #
+          # produce metrics on planning, CPU and waiting
+          #PLANING
+          awk '$3== "INFO" && $6== "(planning:" {count++;  total=total+$7 } $7== "0," {planzero++;} END{print "\n\t\t*******PLANNING:******* \n Total # of Completed Queries: " count "\n        Total Duration (msec): " total "\n    Avg of all Queries (msec): " total/count "\nNumber of Queries NOT Planned: " planzero "    " (planzero/count)*100 "%\n" }' $logfile
+
+          # print longest query
+          awk '$3== "INFO" {print "line:" NR "\t" $0}' $logfile | sort -n -r -k 8 | head -10
+
+
+
+          #CPU
+          awk '$3== "INFO" && $8== "cpu:" {count++;  total=total+$9 } END{print "\n\t\t*******CPU:******* \nTotal # of Completed Queries: " count "\n       Total Duration (msec): " total "\n   Avg of all Queries (msec): " total/count "\n" }' $logfile
+awk '$3== "INFO" {print "line:" NR "\t" $0}' $logfile | sort -n -r -k 10 | head -10
+
+
+
+          #WAITING
+          awk '$3== "INFO" &&$10== "waiting:" {count++;  total=total+$11 } $11== "0)" {nowait++;} END{print "\n\t\t\t*******WAITING:******* \n Total # of Completed Queries: " count "\n        Total Duration (msec): " total "\n    Avg of all Queries (msec): " total/count "\nNumber of Queries NOT Waiting: " nowait "      " (nowait/count)*100 "%\n" }' $logfile
+awk '$3== "INFO" {print "line:" NR "\t" $0}' $logfile | sort -n -r -k 12 | head -10
+     fi
+else
+    # logfile does not exist
+    printf "\n$logfile does not exist\n"
+    printf "Usage: $0 <filename>\n"
+fi
+}
+
+if [ -z $1 ]; then
+        parse "query.log"
+  else
+        parse $1
+fi
+----
+
+
+Upon running the script and passing the query.log file to be analyzed, for example `./parse_querylog.sh query.log`  output will be similar to
+
+1. when `dbms.logs.query.time_logging_enabled=false`
+
+----
+First Query Reported at: 2018-04-10 11:48:36.425+0000
+ Last Query Reported at: 2018-04-10 11:49:01.213+0000
+
+*******EXECUTION:*******
+Total # of Completed Queries: 6
+       Total Duration (msec): 2521
+   Avg of all Queries (msec): 420.167
+
+Top 10 Longest Queries longest on top and leading line number:
+Note: Queries which are multi-line will only report first line of query !!!
+
+
+line:1  2018-04-10 11:48:36.425+0000 INFO  2398 ms: embedded-session             - MATCH (a:` Arbitrary label name that really doesn't matter `) RETURN a LIMIT 0 - {} - {}
+line:2  2018-04-10 11:48:37.106+0000 INFO  48 ms: bolt-session  bolt            neo4j-java/dev          client/127.0.0.1:35796  server/127.0.0.1:7687>   - RETURN 1 - {} - {}
+line:3  2018-04-10 11:48:43.839+0000 INFO  33 ms: bolt-session  bolt            neo4j-java/dev          client/127.0.0.1:35796  server/127.0.0.1:7687>   - match (n) return count(n); - {} - {}
+line:9  2018-04-10 11:49:01.213+0000 INFO  21 ms: bolt-session  bolt            neo4j-java/dev          client/127.0.0.1:35796  server/127.0.0.1:7687>   -
+line:4  2018-04-10 11:48:47.494+0000 INFO  12 ms: bolt-session  bolt            neo4j-java/dev          client/127.0.0.1:35796  server/127.0.0.1:7687>   -
+line:6  2018-04-10 11:48:51.613+0000 INFO  9 ms: bolt-session   bolt            neo4j-java/dev          client/127.0.0.1:35796  server/127.0.0.1:7687>   -
+----
+
+2. when `dbms.logs.query.time_logging_enabled=true`
+
+(*Note:* the listing of 10 queries per section has been reduced to 2 lines for brevity.  Additonally the Cypher of the query has been reduced)
+
+
+----
+First Query Reported at: 2018-01-24 07:58:13.360+0000
+ Last Query Reported at: 2018-01-24 15:19:40.897+0000
+
+*******EXECUTION:*******
+Total # of Completed Queries: 13655
+       Total Duration (msec): 1207191
+   Avg of all Queries (msec): 88.4065
+
+Top 10 Longest Queries longest on top and leading line number:
+Note: Queries which are multi-line will only report first line of query !!!
+
+
+line:12100      2018-01-24 08:49:14.144+0000 INFO  10082 ms: (planning: 0, cpu: 81, waiting: 0) - bolt-session  bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.1.3:56870    server/10.0.1.2:7687>        neo4j - MATCH (n:Person............) 
+line:58883      2018-01-24 12:28:17.472+0000 INFO  2530 ms: (planning: 313, cpu: 2520, waiting: 0) - bolt-session       bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.27:56870        server/10.0.1.2:7687>        neo4j -  MATCH (n:Person)
+
+                *******PLANNING:*******
+ Total # of Completed Queries: 13655
+        Total Duration (msec): 8798
+    Avg of all Queries (msec): 0.644306
+Number of Queries NOT Planned: 11448    83.8374%
+
+line:37438      2018-01-24 10:43:28.532+0000 INFO  2255 ms: (planning: 991, cpu: 2239, waiting: 0) - bolt-session       bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.45:56870      server/10.0.1.2:7687>        neo4j -  MATCH (n:Person...............)
+line:89641      2018-01-24 15:13:42.191+0000 INFO  513 ms: (planning: 409, cpu: 510, waiting: 0) - bolt-session bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.45:56870       server/10.0.1.2:7687>        neo4j - MATCH (n:Person...........) {}
+
+
+                *******CPU:*******
+Total # of Completed Queries: 13655
+       Total Duration (msec): 1194341
+   Avg of all Queries (msec): 87.4655
+
+line:58883      2018-01-24 12:28:17.472+0000 INFO  2530 ms: (planning: 313, cpu: 2520, waiting: 0) - bolt-session       bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.27:56870        server/10.0.1.2:7687>       neo4j -  MATCH (n:Person .......)
+line:386        2018-01-24 07:59:54.851+0000 INFO  2359 ms: (planning: 256, cpu: 2350, waiting: 0) - bolt-session       bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.27:49536        server/10.0.1.2:7687>        neo4j -  MATCH (n:Person {.......})
+
+                        *******WAITING:*******
+ Total # of Completed Queries: 13655
+        Total Duration (msec): 27
+    Avg of all Queries (msec): 0.0019773
+Number of Queries NOT Waiting: 13654      99.9927%
+
+line:81         2018-01-24 07:58:33.168+0000 INFO  67 ms: (planning: 0, cpu: 67, waiting: 27) - bolt-session    bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.27:49536        server/10.0.1.2:7687>        neo4j -  MATCH (n:Person) return n:Deleted
+line:9991       2018-01-24 08:40:16.476+0000 INFO  74 ms: (planning: 0, cpu: 74, waiting: 0) - bolt-session     bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.27:49536        server/10.0.1.2:7687>        neo4j -  MATCH (n:Person..............)
+----
+
+
+From the output of the 2nd run we see that the log spans `First Query Reported at: 2018-01-24 07:58:13.360+0000` through
+`Last Query Reported at: 2018-01-24 15:19:40.897+0000`.  
+The script then reports that we found `Total # of Completed Queries: 13655` and then provide a listing of the Top 10 most expensive 
+queries based upon Total/Avg Exection time, Total/Avg Time Planning, Total/Avg Time CPU and Total/Avg Time Waiting.   
+Additionally from the output we can see that 'query planning' is not a significant issue as 
+`Number of Queries NOT Planned: 11448    83.8374%` indicating 83.8374% of queries were satisfied from the query plan cache.
+Finally, 'locking' is not a concern as `Number of Queries NOT Waiting: 13654      99.9927%` 
+indicating 99.9927% of all queries spent no time in a 'waiting' state.   
+
+
+*Note:* There are certain 'caveats' to the script.
+
+* The above script will report the line number of the query in the log file for those queries that meet any of the 'Top 10'
+results.   However if a query is multi-line including carriage returns, only the first line of the query is displayed.   One would
+need to read the query.log at the spcific line number to fully understand the query in question.
+
+* Times reported can be inflated if run against a query.log which is immediately after a cold start of Neo4j.   This is as a result of
+queries not being in the query plan cache or the pagecache.
+
+* One can configure query.log logging to only log queries longer than X duration through parameter `dbms.logs.query.threshold`.   If
+you set to 0 then everything is logged.   If you set to 2s then only queries longer than 2 seconds will be logged and this will 
+effect the results above.

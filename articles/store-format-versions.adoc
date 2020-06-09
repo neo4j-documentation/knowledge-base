@@ -1,0 +1,50 @@
+= Store Format Versions Reference Guide
+:slug: store-format-versions
+:author: Dave Gordon
+:neo4j-versions: 2.x, 3.1,3.2,3.3,3.4,3.5
+:tags: store, version
+:public:
+:category: operations
+
+In some situations, you may see a log message or exception that refers to a store format version, and it is not clear 
+which Neo4j store format it is referring to. Please use the table below to map store format versions to Neo4j Server versions. 
+
+Note: Standard is the default in Enterprise and the only format available in Community. It has a limit of 34B nodes, 34B relationships, 68B properties.
+High Limit is only available in Enterprise and supports virtually unlimited numbers of nodes, relationships and properties.
+
+=== Standard Store Versions
+
+[options="header"]
+|=======================
+|Store Format Name|Store Format Version|Neo4j Server Version
+|STANDARD_V2_0 |v0.A.1 |2.0.0
+|STANDARD_V2_1 |v0.A.3 |2.1.0   
+|STANDARD_V2_2 |v0.A.5 |2.2.0
+|STANDARD_V2_3 |v0.A.6 |2.3.0
+|STANDARD_V3_0 |v0.A.7 |3.0.0
+|STANDARD_V3_2 |v0.A.8 |3.2.0
+|STANDARD_V3_4 |v0.A.9 |3.4.0 
+|=======================
+
+=== High Limit Store Versions
+
+[options="header"]
+|=======================
+|Store Format Name|Store Format Version|Neo4j Server Version
+|HIGH_LIMIT_V3_0_0 |vE.H.0 |3.0.0
+|HIGH_LIMIT_V3_0_6 |vE.H.0b |3.0.6
+|HIGH_LIMIT_V3_1_0 |vE.H.2 |3.1.0
+|HIGH_LIMIT_V3_2_0 |vE.H.3 |3.2.0
+|HIGH_LIMIT_V3_4_0 |vE.H.4 |3.4.0
+|=======================
+
+
+=== Inspecting a store's format 
+
+You can use the `neo4j-admin store-info` against an offline store to find out what format it is using. Example:
+
+----
+$ ./bin/neo4j-admin store-info --store=data/databases/mygraph.db
+Store format version:         v0.A.9
+Store format introduced in:   3.4.0
+----

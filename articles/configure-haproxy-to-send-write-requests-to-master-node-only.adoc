@@ -1,0 +1,70 @@
+= Configure HAProxy to Send Write Requests to Leader Node Only
+:slug: configure-haproxy-to-send-write-requests-to-master-node-only
+:zendesk-id: 205270948
+:author: Stefan Armbruster
+:neo4j-versions: 3.0,3.1,3.2,3.3,3.4,3.5
+:tags: cluster, master, writes, load balancer
+:public:
+:category: cluster
+
+There are a few options regarding implementation of a proxy server to direct writes to a Master node and reads to the Slave nodes in a Neo4j cluster.
+Commonly, it is recommended to handle this logic in the application code.
+However, there is another way.
+
+By using the following configuration for HAProxy, you can direct `GET` requests (reads) to the Slave nodes, while directing everything else (`DELETE, POST, PUT`) to the Master.
+
+----
+global
+daemon
+maxconn 256
+
+defaults
+mode http
+timeout connect 5000ms
+timeout client 50000ms
+timeout server 50000ms
+
+frontend http-in
+bind *:80
+acl write_methods method POST DELETE PUT
+#Only POST and DELETE methods are used according to the documentation
+use_backend neo4j-write if write_methods
+default_backend  neo4j-read-only
+
+backend neo4j-read-only
+balance roundrobin
+option httpchk GET /db/manage/server/causalclustering/read-only
+server s1 10.0.1.10:7474 maxconn 32 check
+server s2 10.0.1.11:7474 maxconn 32 check
+server s3 10.0.1.12:7474 maxconn 32 check
+
+backend neo4j-write
+balance roundrobin
+option httpchk GET /db/manage/server/causalclustering/writable
+server s1 10.0.1.10:7474 maxconn 32 check
+server s2 10.0.1.11:7474 maxconn 32 check
+server s3 10.0.1.12:7474 maxconn 32 check
+----
+
+The logic here says that by default a request is routed to a follower and if it is a write request (POST, DELETE, PUT), route it to a Master instead.
+
+See the product documentation for more info on this topic:
+https://neo4j.com/docs/operations-manual/3.5/ha-cluster/haproxy/
+
+The first step in configuring Basic Authentication in HAProxy is to get the base64 representation of username:password.
+
+To do this at the command line, for username neo4j and password neo4j:
+
+----
+$ echo -n "neo4j:neo4j" | base64
+bmVvNGo6bmVvYWRtaW4=
+----
+
+Please note that this username-password combination is not valid and only used for demonstration purposes.
+
+Then append `HTTP/1.0\r\nAuthorization:\ Basic\ *base64_username_password*` as following:
+
+----
+option httpchk GET /db/manage/server/causalclustering/writable HTTP/1.0\r\nAuthorization:\ Basic\ bmVvNGo6bmVvYWRtaW4=
+----
+

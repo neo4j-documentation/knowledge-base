@@ -1,0 +1,52 @@
+= How to estimate initial memory configuration
+:slug: how-to-estimate-initial-memory-configuration
+:zendesk-id: 205965148
+:author: Dave Gordon
+:neo4j-versions: 2.3,3.0
+:tags: heap, memory, jvm, page-cache, cache
+:public:
+:category: operations
+
+The initial and eventual memory configuration parameters can be a moving target, based on how your store changes in size and how your workload increases or changes over time.
+
+This guidance is meant for the initial configuration.
+
+In order to decide on an appropriate configuration, you need the following information:
+
+* Amount of physical memory on the machine hosting Neo4j.
+* Estimates of the following:
+** Number of nodes.
+** Number of relationships.
+** Average number of properties per node and per relationship.
+
+A fairly high-level rule of thumb is `Total Physical Memory = Heap + Page Cache + OS Memory`. 
+
+Usually reserving 1-2GB for the OS is sufficient. The heap and page cache are detailed below.
+
+=== First, we need to decide on a good heap size. 
+
+A heap should not be overly large, as that can cause much longer Stop-the-World pauses when a full garbage collection (GC) cycle is needed. 
+It should also be big enough to allow enough memory for your workload. 
+On systems with a large amount of physical memory (>56GB), keeping the heap to 16GB and under typically works well.
+
+=== Second, consider the page cache. 
+
+This is where the store files will be mapped in main memory for quicker access. 
+The default page-cache size is 50% of the available memory.
+A good rule of thumb is Store `size + expected growth + 10%`. 
+So, for a store that is 5GB in size, and you expect that to double in size in the next year, you would ideally allocate `5GB + 5GB + 1GB = 11GB`.
+
+[NOTE]
+This last section is no longer relevant for Neo4j versions 2.3 and later.
+
+=== Lastly, let's look at the object cache options. 
+The object cache is where nodes, relationships, and other objects are mapped to main memory. 
+By default on Neo4j 2.2.x, this is set to High Performance Cache (hpc). 
+On small stores (~10GB or smaller), this performs well. 
+On larger stores, you will probably see better performance turning off the cache (set `cache_type=none`). 
+
+If you are using the object cache and need to tune it further, consider starting with the `cache.memory_ratio` option. 
+This is on-heap, so it is the percentage of the heap to use for object cache. 
+The default is 50%, but you can increase this a bit (to as high as 65-70%), especially if the JVM is not using all of its heap consistently.
+
+

@@ -1,0 +1,162 @@
+= Using apoc.load.jsonParams to load data from Zendesk into Neo4j to learn about article subscribers
+:slug: using-apoc-load-jsonparams-to-load-data-from-zendesk-into-neo4j-to-learn-about-article-subscribers
+:author: Dana Canzano
+:neo4j-versions: 3.2, 3.3, 3.4
+:tags: apoc, json,import
+:public:
+:category: import-export
+
+The following document describes how to utilize the https://developer.zendesk.com/rest_api/docs/core/introduction[Zendesk API]
+to load data from Zendesk into Neo4j, specifically data about users who have choosen to subscribe/follow Knowledge 
+Base section(s).  This document attempts to solve the issue described by the following questions from Zendesk
+https://support.zendesk.com/hc/en-us/community/posts/205399517-Followers-of-a-section-or-article-[ 
+Question & Answers].  Although the Zendesk UI allows users to subscribe/follow a Knowledge Section it does not provide an equivalent
+UI for a Zendesk Administrator to see what users are subscribed to each section.
+
+The Cypher below, will create supporting indexes and then iterate overr every section, request all the user_ids with said section, 
+create the relationship between the user_id and section and then populate the user_id with more identifying details.
+
+----
+create index on :Section(id);
+create index on :User(id);
+create index on :Organization(id);
+
+// get all sections
+CALL apoc.load.jsonParams("https://your_domain.zendesk.com/api/v2/help_center/sections.json",{Authorization:"Basic base64Encoded_username:password"},null)
+  yield value as sectionvalue
+  with sectionvalue
+  unwind sectionvalue.sections as section_item
+    Merge (n:Section {id:section_item.id,name:section_item.name, created_at:section_item.created_at, updated_at:section_item.updated_at,url:section_item.html_url})
+    with section_item.id as secid
+    // foreach section then find the subscribers
+    CALL apoc.load.jsonParams("https://your_domain.zendesk.com/api/v2/help_center/sections/"+secid+"/subscriptions.json?per_page=200",{Authorization:"Basic base64Encoded_username:password"},null)
+       yield value as subscribervalue
+       with subscribervalue, secid
+       unwind subscribervalue.subscriptions as subscription_item
+            // create the relationship from the User to the Secction through the :Follows relationship
+            match (s:Section {id:secid}) with s,subscription_item
+            merge (n:User {id: subscription_item.user_id})
+            merge (n)-[:Follows {subscribed_on: subscription_item.created_at}]->(s)
+            with subscription_item.user_id as s_userid
+            CALL apoc.load.jsonParams("https://your_domain.zendesk.com/api/v2/users/"+s_userid+".json",{Authorization:"Basic base64Encoded_username:password"},null)
+                 yield value as userRecord
+               with userRecord, s_userid
+               unwind userRecord.user as uid
+               match (n:User {id:s_userid})
+               set
+                     n.name=uid.name,
+                     n.email=uid.email,
+                     n.created_at=uid.created_at,
+                     n.last_login=uid.last_login_at,
+                     n.url=uid.url;
+					 
+					 
+match (n:User) where exists(n.organization_id)
+      with n,n.organization_id as organization_id
+      CALL apoc.load.jsonParams("https://your_domain.zendesk.com/api/v2/organizations/"+organization_id+".json",{Authorization:"Basic base64Encoded_username:password"},null)
+      yield value as orgRecord
+      unwind orgRecord.organization as orgid
+      with n,orgid
+      merge (o:Organization {id: orgid.id, name: orgid.name, created_at: orgid.created_at})
+      merge (n)-[:IS_MEMBER_OF_ORG]->(o);                     
+                     
+----
+
+and to load 140 nodes (81 Users, 7 Sections, 52 Organizations) and associated relationships took 54 seconds.
+
+In the above Cypher code, you will need to replace all occurances of
+
+      `your_domain`  with the actual domain your Zendesk is hosted under
+      `base64Encoded_username:password` with the base64 encoding (https://www.base64encode.org/) of a Zendesk
+       Admin user and password who has Admin rights in Zendesk
+
+Additionally, to use basic authentication, you must enable
+https://developer.zendesk.com/rest_api/docs/core/introduction#basic-authentication[password access]  in the Zendesk Support 
+admin interface at Admin > Channels > API.
+
+Finally, per the Zendesk https://developer.zendesk.com/rest_api/docs/core/introduction#pagination[API], if you expect to have more 
+than 100 results per API call you will need to consider Pagination.
+
+----
+Pagination
+By default, most list endpoints return a maximum of 100 records per page. You can change the number
+of records on a per-request basis by passing a per_page parameter in the request URL parameters. 
+Example: per_page=50. However, you can't exceed 100 records per page on most endpoints.
+
+When the response exceeds the per-page maximum, you can paginate through the records by
+incrementing the page parameter. 
+Example: page=3. List results include next_page and previous_page URLs in the response
+body for easier navigation:
+----
+
+
+Copying the above Cypher into a shell script file, for example build_zd.cql, will then allow for it to be run through
+https://neo4j.com/docs/operations-manual/3.4/tools/cypher-shell/[cypher-shell] by running
+
+----
+cat build_zd.cql | bin/cypher-shell
+----
+
+And the resultant graph model is thus defined as
+
+image:https://imgur.com/Kp38cGv.png[image,width=460]
+
+The entire graph thus appears as
+
+image:https://imgur.com/VNJCeBO.png[image,width=460]
+
+To which we will see there are 4 Sections (i.e. green nodes/circles) which have no subscribers (i.e the 4 green nodes 
+in the upper left corner).
+Three other sections have subscribers, though the Section on the right has the most subscribers (i.e blue nodes/circles)
+Additionally some subscribers/users have choosen to follow multiple sections.
+
+Each Node is defined with the following properties
+
+----
+*User:* 
+        name
+        email
+        created-at
+        last_login
+        url
+        suspended
+        orgainization_id
+        id
+        
+*Section:*  name
+            url
+            created_at
+            updated_at
+            id
+         
+*Organization:*  name
+                 created_at
+                 id
+----
+
+ 
+Usefull Cypher statements to query the graph
+
+1. Find # of users subscribed by Section
+
+----
+match     (n:Section) 
+return     n.name,
+           size (  (n)<-[:Follows]-() ) as subscribers
+order by   subscribers desc;
+----
+
+2. Find users and associated organization, per section and when the user subscribed subscribed
+
+----
+match (s:Section)<-[r:Follows]-(u:User)-[:IS_MEMBER_OF_ORG]->(o:Organization)
+return      s.name,
+            u.name,
+            u.email,
+            o.name,
+            u.suspended,
+	    r.subscribed_on as DateWhenSubscribed
+order by    s.name,
+            o.name,
+            u.name
+----

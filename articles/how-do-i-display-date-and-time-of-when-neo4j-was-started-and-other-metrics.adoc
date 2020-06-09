@@ -1,0 +1,35 @@
+= How do I display date and time of when neo4j was started and other metrics
+:slug: how-do-i-display-date-and-time-of-when-neo4j-was-started-and-other-metrics
+:author: Dana Canzano
+:neo4j-versions: 3.1
+:tags: functions, apoc, jmx
+:public:
+:category: operations
+
+The following Cypher will utilize the JMX metrics as part of 3.1 Enterprise and display the date/time when Neo4j was started.
+
+----
+CALL dbms.queryJmx("org.neo4j:instance=kernel#0,name=Kernel") yield attributes
+       with  keys(attributes) as k , attributes
+       unwind k as row
+       return row,
+         case row
+             when 'StoreCreationDate' then apoc.date.format(attributes[row]["value"],"ms", null, apoc.date.systemTimezone())
+             when 'KernelStartTime' then apoc.date.format(attributes[row]["value"],"ms", null, apoc.date.systemTimezone())
+             else attributes[row]["value"] end as value;
+----
+
+which will produce output similar to
+
+----
+"KernelVersion", "neo4j-kernel, version: 3.1.0-M13-beta3,ce6b3ff5d345f11e981c1fe5be4b0fe3640c5aee"
+"DatabaseName", "graph.db"
+"MBeanQuery", "org.neo4j:instance=kernel#0,name=*"
+"StoreId", "43a957e6b0c46148"
+"ReadOnly", FALSE
+"StoreCreationDate", "2016-11-04 20:34:32"
+"StoreLogVersion", 0
+"KernelStartTime", "2016-11-18 18:24:18"
+----
+
+In the above output, the StoreCreationDate and KernelStartTime are expressed in the system timezone time. Note that this Cypher utilizes the user defined function `apoc.date.format` which is included as part of the link:https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC] package.

@@ -1,0 +1,128 @@
+= Understanding Database Growth
+:slug: understanding-database-growth
+:author: Dana Canzano
+:neo4j-versions: 3.2, 3.3
+:tags: database growth, copy-store, operations
+:public:
+:category: operations
+
+The easiest way to determine the size of your graph is through the filesystem and summing up the size of the files named `\*store.db*`.
+For example on linux implmentations one can run
+
+----
+du -hc $NEO4J_HOME/data/databases/graph.db/*store.db*
+----
+
+and this should be run on a stopped database or one which has recently checkpointed (i.e. immediately after backup)
+
+and this will produce output similar to
+
+----
+5.5M    neostore.labelscanstore.db
+8.0K    neostore.labeltokenstore.db
+4.0K    neostore.labeltokenstore.db.id
+8.0K    neostore.labeltokenstore.db.names
+4.0K    neostore.labeltokenstore.db.names.id
+72M     neostore.nodestore.db
+4.0K    neostore.nodestore.db.id
+8.0K    neostore.nodestore.db.labels
+4.0K    neostore.nodestore.db.labels.id
+196M    neostore.propertystore.db
+8.0K    neostore.propertystore.db.arrays
+4.0K    neostore.propertystore.db.arrays.id
+4.0K    neostore.propertystore.db.id
+8.0K    neostore.propertystore.db.index
+4.0K    neostore.propertystore.db.index.id
+8.0K    neostore.propertystore.db.index.keys
+4.0K    neostore.propertystore.db.index.keys.id
+8.0K    neostore.propertystore.db.strings
+4.0K    neostore.propertystore.db.strings.id
+8.0K    neostore.relationshipgroupstore.db
+4.0K    neostore.relationshipgroupstore.db.id
+0       neostore.relationshipstore.db
+4.0K    neostore.relationshipstore.db.id
+0       neostore.relationshiptypestore.db
+4.0K    neostore.relationshiptypestore.db.id
+8.0K    neostore.relationshiptypestore.db.names
+4.0K    neostore.relationshiptypestore.db.names.id
+8.0K    neostore.schemastore.db
+4.0K    neostore.schemastore.db.id
+273M    total
+----
+
+To which the final line reports that the total size of the graph is 273M.   This does not include the size of the Neo4j 
+transaction logs (neostore.transaction.*) but that is because the size of these files and retention is user configurable.
+
+In the above listing the output was taken from a graph which contained 5 million nodes all with the label `:Person` and each node
+had a property named `id` and it was a value from 1 to 5 million.   This data was prepared by running the equivalent of
+
+----
+        USING PERIODIC COMMIT 50000
+        LOAD CSV WITH HEADERS FROM 'file:///person.csv' AS row
+        CREATE (:Person { id: row.id}  );
+----
+
+Because of this you will see that the neostore.labelscanstore*, neostore.nodestore* and neostore.propertystore* files consume more than 
+their default space.   Since the graph has no relationship the files named neostore.relationship* are effectively empty.
+
+It should be obvious that as you add data the files will grow in size.   However there is one caveat to this which could explain why 
+adding more data actually results in your database size decreasing.
+
+In the above file listing the files ending in .id, for example `neostore.nodestore.db.id`, serve as a recycle bin of
+IDs which are eligible for re-use.   As the graph was simply populated with 5 million :Person nodes, and nothing
+was deleted the `neostore.nodestore.db.id` is empty and the nodes are recorded in `neostore.nodestore.db`.
+However, if we were to then delete all 5 million nodes, we will see that the size of `neostore.nodestore.db` does not decrease but
+`neostore.nodestore.db.id` increases to a size of 39M.   And as a result of this delete, we see that the total graph size has
+increased by at least 39M.    Now if we were to re-insert the 5 million nodes, then the size of `neostore.nodestore.db.id` will 
+decrease because as new nodes are added we first check to see if we can re-use an ID that was previously in use and if so we remove it
+from the `neostore.nodestore.db.id`.    Since the `neostore.nodestore.db.id` had 5 million ids which could be re-used and since we
+added 5 million nodes, then this file would be near empty (i.e. 4.0 K) upon completion.    By adding these nodes, which 
+reduced the size of `neostore.nodestore.db.id` from 39M to 4.0k the total database size also decreased in the same fashion.
+Note the size of `neostore.nodestore.db` has not changed in this experience.
+
+In summary the experience is as follows relative to these 2 files (and with file size capture after a `neo4j stop`)
+
+* step 1: empty graph
++
+----
+0       neostore.nodestore.db
+4.0K    neostore.nodestore.db.id
+----
+
+* step 2:  add 5 million :Person nodes
++
+----
+72M     neostore.nodestore.db
+4.0K    neostore.nodestore.db.id
+----
+
+* step 3:  remove 5 million :Person nodes  (i.e. `CALL apoc.periodic.commit("match (n:Person) with n limit {limit} delete n return
+count(*)",{limit:50000});`)   -- at which point the graph is now empty
++
+----
+72M     neostore.nodestore.db
+39M     neostore.nodestore.db.id
+----
+
+* step 4: re-add the 5 million :Person nodes
++
+----
+72M     neostore.nodestore.db
+4.0K    neostore.nodestore.db.id
+----
+
+
+Now if you had reached step #3 above and did not plan to add more nodes but wanted to shrink the size of the files you 
+will want to consider using https://github.com/jexp/store-utils[copy-store.sh].   This utility will read a offline 
+database and copy out the data and not include any of the overhead of either data written but no longer in use or the list of 
+eligible IDs to re-use.
+
+After running copy-store.sh against the graph (as it existed at the completion of step #3 above) so as to prepare a new graph 
+the resultant newly created graph.db now defined the 2 files as
+
+----
+0       neostore.nodestore.db
+4.0K    neostore.nodestore.db.id
+----
+
+

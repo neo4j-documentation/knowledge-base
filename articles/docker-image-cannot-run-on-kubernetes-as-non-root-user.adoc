@@ -1,0 +1,36 @@
+= Neo4j Docker image cannot run on kubernetes as non root user
+:slug: docker-image-cannot-run-on-kubernetes-as-non-root-user
+:author: Kambiz Chehresa
+:neo4j-versions: 3.4, 3.5
+:tags: kubernetes, docker, security
+:public:
+:category: installation
+:environment: kubernetes
+
+In Kubernetes (K8S) various levels of security can be set which apply cluster-wide to Pods running containers.
+One of which is a policy which prevents containers within a Pod to be executed/run as root user (runAsNonRoot). 
+
+If this config is set, but the Pod definition for your K8S cluster does override `securityContext>runAsUser` value 
+then upon trying to have neo4j container(s) started you will see an error along the lines of:
+
+----
+Error: container has runAsNonRoot and image will run as root
+----
+
+To resolve this issue, make sure that in your K8S' cluster Pod definition, you have something similar to the following:
+
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  securityContext:
+    runAsUser: 1000
+....
+----
+
+`runAsUser` is the UID used to run the entrypoint of the container process, in this case Neo4j's. The value is a high number
+chosen to avoid conflicts with the host's user table. 
+
+Reference: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/

@@ -1,0 +1,182 @@
+= Number of open files
+:slug: number-of-open-files-on-linux
+:author: José Rocha
+:neo4j-versions:  3.3, 3.4, 3.5
+:tags: linux
+:public:
+:category: installation
+
+GNU/Linux and Mac OS operating systems impose an upper limit on the number of concurrent files a user may have open. 
+
+This article covers how to configure the number of open files on GNU/Linux that use systemd or sysvinitd.
+
+For Mac OS, please check the following article: https://support.neo4j.com/hc/en-us/articles/360022552334-Setting-Max-Open-File-Limits-on-Mac-OSX[Setting Max Open File Limits on Mac OSX]
+
+
+== Check the settings for current user and current session
+
+This number is reported for the current user and session with the `ulimit -n` command:
+
+----
+user@localhost:~$ ulimit -n
+1024
+----
+
+== Check the setting for a running process
+
+
+To monitor how many open files a user has, you can run:
+
+> lsof -u <user>
+
+replacing <user> with the linux username who started the Neo4j process.
+
+To understand the limits for one specific ProcessID one can also run:
+
+> cat /proc/<processID>/limits
+
+replacing <processID> with the linux processID for the running Neo4j process.
+
+This will produce output similar to
+
+----
+cat /proc/5219/limits
+Limit                     Soft Limit           Hard Limit           Units
+Max cpu time              unlimited            unlimited            seconds
+Max file size             unlimited            unlimited            bytes
+Max data size             unlimited            unlimited            bytes
+Max stack size            8388608              unlimited            bytes
+Max core file size        0                    unlimited            bytes
+Max resident set          unlimited            unlimited            bytes
+Max processes             31357                31357                processes
+Max open files            40000                40000                files
+----
+
+
+== Validate the correct settings
+
+Neo4j will report the current setting for number of file descriptors in the `debug.log` as following:
+
+`2019-01-02 13:39:27.003+0000 INFO [o.n.i.d.DiagnosticsManager] Max number of file descriptors: 10000`
+
+The usual default is 1024 and is often not enough. We recommend setting this to 40000 to ensure Neo4j works correctly.
+
+It is possible to set the limit with the `ulimit -n` command, but only for the root user, and it only affects the current session, 
+so it’s not permanent. Also, it will not affect your processes that are already running.
+
+It is necessary to check this before and *after changing the file descriptor limit*.
+
+== Change file descriptor limit
+
+Depending on the System and Service Manager, the configuration steps differ.
+Since 2015, the majority of Linux distributions have adopted systemd and it is considered a de facto standard.
+
+
+.Table Systemd vs SysVinit usage as of 2019
+|===
+|OS |SysVinit(deprecated) |systemd
+
+|RedHat Enterprise Linux >=7, CentOS >=7, fedora >=16 
+|no
+|yes
+
+|RedHat Enterprise Linux <=6, CentOS <=6, fedora <=15 
+|yes
+|no
+
+|Ubuntu >=16.04,  Debian >=8
+|no
+|yes
+
+|===
+
+
+
+== If your system is using systemd 
+
+=== neo4j is running as a service
+
+run the following command
+
+> sudo systemctl edit neo4j.service
+
+and append the following 
+
+----
+[Service]
+LimitNOFILE=60000
+----
+
+Follow the https://neo4j.com/docs/operations-manual/3.3/installation/linux/debian/#debian-operation[product documentation]
+
+=== neo4j is as a normal process
+
+run the following command
+
+> $ sudo vi /etc/systemd/system.conf 
+
+and uncomment and define DefaultLimitNOFILE
+
+----
+[Manager]
+...
+DefaultLimitNOFILE=60000
+----
+
+run the following command
+
+> $ sudo vi /etc/systemd/user.conf 
+
+and uncomment and define LimitNOFILE 
+
+----
+[Manager]
+...
+DefaultLimitNOFILE=60000
+----
+
+
+=== If your system is using SysVinit
+
+The actual way to raise your file limits consists of editing three files:
+
+- */etc/security/limits.conf* needs to have these lines in it:
+
+----
+neo4j  soft  nofile  40000
+neo4j  hard  nofile  40000
+----
+
+- */etc/pam.d/common-session* needs to have this line in it:
+
+----
+session required pam_limits.so
+----
+
+- */etc/pam.d/common-session-noninteractive* also needs to have this line in it:
+
+----
+session required pam_limits.so
+----
+
+Keep in mind that limits can be easily modified by anything responsible for execution of your processes. If running `ulimit -n` 
+(with the correct user) is giving you the number you just set, but cat `/proc/{process_id}/limits` is still printing the low number,
+you almost certainly have a process manager, an init script, or something similar overriding your limits. One last thing worth noting
+is that processes inherit the limits of the parent process.
+
+== Related issue: NativeFSLock strange behavior - Lock obtain timed out
+
+Sometimes you'll see the following error in the logs:
+    LockObtainFailedException: Lock obtain timed out: NativeFSLock
+
+In this case you might want to increase the number of file descriptors to an even higher value.
+
+For example: if you encounter the issue with 40000, try to increase it to 80000 or higher.
+
+== Links
+
+For more information, refer to:
+
+. http://0pointer.de/blog/projects/why.html[why systemd has replaced sysvinitd]
+
+. https://en.wikipedia.org/wiki/Systemd[Systemd wikipedia article]

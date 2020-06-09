@@ -1,0 +1,82 @@
+= Hosting Multiple Neo4j Instances On One Machine
+:slug: hosting-multiple-neo4j-instances-on-one-machine
+:author: Umar Muzammil
+:neo4j-versions: 3.2, 3.3, 3.4
+:tags: hardware, planning, monitoring, CPU, RAM
+:public:
+:category: installation
+
+This document lists some considerations whilst planning to host multiple neo4j instances on the same physical host machine.
+
+
+Multiple instances are allowed though this is not typically seen in the field. As a starting point of planning one should ideally monitor the following over e.g. 1-2 weeks of production for each neo4j instance 
+planned to be co-hosted:
+
+* peak memory utilisation and times
+* peak cpu usage and times
+* standard variance between peaks and average
+* memory and cpu utilisation at rest
+
+We then need to consider the following neo4j specific requirements:
+
+* heap initial & max size allocations (should be same by default)
+* pagecache allocation
+* 2-3 GB for the OS
+* Max open files limit (https://docs.oracle.com/cd/E19623-01/820-6168/file-descriptor-requirements.html)
+* current size of the database, standard variance in size and foreseeable growth via import etc.
+* type of queries, both read and write, periodic jobs running such queries and corresponding resource utilisation
+
+Once above are estimated/profiled, we can account for expected growth and if the host is capable enough to account for additional 
+instances (for which the above is also estimated), then we can proceed with adding further instances.
+
+
+Lets have a sample machine with below specs:
+
+-	Total memory (RAM) = 200GB 
+- Total CPU(s) = 12
+- CPU clock frequency = 2.5GHz
+
+And the following sample neo4j parameters set for a single neo4j instance already running on the machine:
+
+-	Total database size = 12G
+-	Page Cache = 15G
+-	Heap = 12G
+
+Following are sample cpu and memory profiles for the above single instance over a 6 month period:
+
+image::https://i.imgur.com/tdxPujf.png[CPU Profile]
+
+We can see the CPU peaking occasionally at 30% which seems reasonably low if a second instance were to be added to the host machine.
+
+image::https://i.imgur.com/OLuaCT0.png[Memory Profile]
+
+We can see that memory usage has peaked frequently above 90% and then 50% at times.
+
+Assuming in our example, that Neo4j was the only production application (and the primary memory using application we would need to see 
+transactions executed at the time when memory utilisation peaked at 50% and above 90% and adding in the expected workload of the second
+instance will then give an idea of the required RAM on the machine.
+
+Ideally, one would want to keep as much of the database in pagecache as possible (to minimize disk hits), whilst allowing for store sizes,
+indexes and expected growth. A rule of thumb is store size + expected growth + 10%. So, for a store thats 12GB, and we expect that to 
+double in size in the next year, we would ideally allocate 12GB + 12GB + 1.2GB = 25.2GB. Again, this depends largely on expected growth.
+8GB-12GB in most cases is a good default figure for heap, but this eventually depends on executed transaction types.
+
+Assuming above, one would need 25.2GB(pagecache) + 12GB(heap) + 3GB (OS) = approx 40GB per instance of ram. Since we assume there is 200GB
+on the host machine, this should be sufficient, but what we really need to see whilst profiling, is the peak memory usage of each instance 
+over e.g. 1-2 weeks in production. 
+
+Importantly also, lets say the peak cpu utilisation by instance 1 never exceeds X% and if instance 2 never exceeds Y% and X+Y (peak) is
+always less than 90% of total CPU, then in such case, hosting a second instance on that machine may work fine.
+
+Another important consideration in terms of cpu, is how many threads simultaneously can the total CPUs handle and what is the CPU clock
+frequency. Hyperthreaded cores are claimed to be able to handle twice the number of threads (although in practice, they just use a thread's
+waiting time more efficiently to process other threads). It is perhaps therefore best to assume the max simultaneous thread executions to
+be equal number of cores, i.e. 12 in our example. How transactions are submitted by the read/write queries and well as the thread processing 
+capability (cpu's clock rate) will determine what percentage of the cpu is used at peak, by each neo4j instance. This is best estimated by 
+actual profiling over time.
+
+Do also consider the store size and transaction log growth over time, per instance to avoid running out of disk space. 
+Peak expected growth total for each instances should never increase beyond available disk space (here is a good reference about transaction
+log growth and rotation: https://neo4j.com/docs/operations-manual/3.4/configuration/transaction-logs/).
+
+Finally, configuring multiple instances one needs to be mindful of port allocations, availability and conflicts, particularly with those used by other Neo4j instances. If the multiple instances being set up, are to be clustered, communications between cluster member via ports/IPs must be correctly configured in each member's configuration.

@@ -1,0 +1,100 @@
+= Checkpointing and Log Pruning interactions
+:slug: checkpointing-and-log-pruning-interactions
+:author: Chris Gioran
+:category: operations
+:tags: checkpoint, pruning, logging, metrics, configuration
+:neo4j-versions: 3.2, 3.3
+:public:
+
+== Overview
+Checkpointing is the process of flushing all pending page updates from the page cache to the store files. This is necessary for ensuring that the number of transactions that are in need of being replayed during recovery is kept to a reasonable number, mostly to reduce recovery time after an improper shutdown. Regardless of the existence of checkpoints, database operations remain safe, since all transactions not confirmed to have had their changes persisted to storage will be replayed on the next database startup. However, that is dependent on the existence of the set of changes these transactions consist of, information that is kept in the transaction logs. Keeping the list of non-applied transactions long (the interval between checkpoints large) will result in accumulation of transaction logs, since they are necessary for recovery. Checkpointing introduces a special “Checkpointing” entry in the transaction log which marks the last transaction at which checkpointing happened. This is used to determine which transaction logs are no longer necessary, since all the transactions they contain have been safely persisted to the store files.
+
+The process of removing transaction logs that are no longer necessary for recovery is called pruning. From the above description it is apparent that pruning is dependent on checkpointing, in the sense that checkpointing determines which logs can be pruned or, put differently, when pruning can happen, since if a checkpoint doesn’t take place the set of prune-able transaction log files cannot have changed. This dependency is expressed through the triggering of pruning (which may or may not include a check for their existence, as discussed below) whenever checkpointing happens. This relationship is invariant and applies to the entirety of the discussion that follows.
+
+== Triggering of checkpointing (and pruning) events
+Checkpointing, which is the driving event for pruning, can be triggered in a few different ways. 
+
+The simplest method, called "periodic", checks by default every 15 minutes whether there are changes pending flushing (i.e. transactions that have not been checkpointed yet). If so, it performs a checkpoint and subsequently triggers a log prune. Note that no checkpointing being performed imples no pruning happens. This is the default behaviour and the only one available in community edition.
+
+In the enterprise edition, there are two additional checkpointing policies. The simplest is called "continuous" and, as the name implies, it constantly checks if a checkpoint is possible (that is, if any transactions committed since the last successful checkpoint) and if so, it performs it. Pruning is triggered immediately after it completes, just like in the periodic policy.
+
+The third and final checkpointing policy is "volumetric". It checks every 10 seconds if any logs are available for pruning and, if so, it triggers a checkpoint and subsequently it prunes the logs. This policy appears to invert the control between checkpointing and pruning, but in reality it only changes the criteria for when checkpointing must happen. Instead of relying on a time trigger, as the previous two, it relies on a pruning check. Pruning will still happen after checkpointing has occured, as with the other two policies. Nevertheless, since the check depends on the existence of prunable transaction log files, this policy depends on pruning configuration, as described in the next session.
+
+The policy to be used is controlled by the setting `dbms.checkpoint` and it defaults to "periodic".
+
+== Logging and Metrics
+The following details the expected messages to appear in the `logs\debug.log` upon a checkpoint event
+
+Checkpoint based upon dbms.checkpoint.interval.time
+
+----
+2019-08-28 12:55:05.174+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Scheduled checkpoint for time threshold" @ txId: 49 checkpoint started...
+2019-08-28 12:55:05.253+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Scheduled checkpoint for time threshold" @ txId: 49 checkpoint completed in 79ms
+----
+
+Checkpoint based upon dbms.checkpoint.interval.tx
+
+----
+2019-08-28 13:08:51.603+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Scheduled checkpoint for tx count threshold" @ txId: 118 checkpoint started...
+2019-08-28 13:08:51.669+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Scheduled checkpoint for tx count threshold" @ txId: 118 checkpoint completed in 66ms
+----
+
+Checkoint when dbms.checkpoint=continuous
+
+----
+2019-08-28 13:17:21.927+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Scheduled checkpoint for continuous threshold" @ txId: 171 checkpoint started...
+2019-08-28 13:17:21.941+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Scheduled checkpoint for continuous threshold" @ txId: 171 checkpoint completed in 13ms
+----
+
+
+Checkpoint as a result of database shutdown
+
+----
+2019-08-28 12:35:56.272+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Database shutdown" @ txId: 47 checkpoint started...
+2019-08-28 12:35:56.306+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Database shutdown" @ txId: 47 checkpoint completed in 34ms
+----
+
+Checkpoint as a result of `call dbms.checkpoint();` introduced in Neo4j 3.5.6
+
+----
+2019-08-28 12:31:56.463+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Call to dbms.checkpoint() procedure" @ txId: 47 checkpoint started...
+2019-08-28 12:31:56.490+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Call to dbms.checkpoint() procedure" @ txId: 47 checkpoint completed in 27ms
+----
+
+Checkpoint as a result of a backup run
+
+----
+2019-08-28 12:33:30.489+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Full backup" @ txId: 47 checkpoint started...
+2019-08-28 12:33:30.509+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Full backup" @ txId: 47 checkpoint completed in 20ms
+----
+
+https://neo4j.com/docs/operations-manual/3.5/monitoring/metrics/reference/#metrics-general-purpose[Checkpoint Metrics] are also available and are detailed in `metrics/` and the following files
+
+----
+neo4j.check_point.check_point_duration.csv 
+neo4j.check_point.total_time.csv
+neo4j.check_point.events.csv
+----
+
+
+
+== Controlling transaction log pruning
+Transaction log pruning configuration primarily deals with specifing the number of transaction logs that should remain available. The primary reason for leaving more than the absolute minimum amount required for recovery comes from requirements of clustered deployments and online backup. Since database updates are communicated between cluster members and backup clients through the transaction logs, keeping more than the minimum amount necessary allows for transferring just the incremental changes (in the form of transactions) instead of the whole store files, which can lead to substantial savings in time and network bandwidth. This is true for HA deployments, backups and Read Replicas in Causal Clusters. However, in the case of Core members in Causal Clustering it is not the transaction logs that matter, but rather the Raft log contents. That scenario is covered in a separate KB article.  
+
+The amount of transaction logs left after a pruning operation is controlled by the setting `dbms.tx_log.rotation.retention_policy` and it can take a variety of values. They are of the form `<numerical value> <measurement>`. 
+
+`<measurement>` can be "files", "size", "txs", "entries", "hours", or "days".
+
+* **"files"** determines the mimumum number of transaction log files left after pruning. That means that once the checkpoint is performed, a number of log files will be deleted to leave at least as many as specified - for example the value "5 files" will leave at least 5 files of transaction logs.
+* **"size"** behaves similarly but instead of counting files it counts total file size. For example, "500M size" will leave at least 500M worth of files behind.
+* **"txs"** and **"entries"** are synonymous. They behave similarly to the above but they count transactions present in the files, regardless of file count or size. "100 txs" will leave at least 100 transactions worth of logs unpruned after every operation.
+* **"hours"** and **"days"** measure time instead of size or transaction count, but otherwise behave similarly. Setting the value to "20 hours" will ensure that at least 20 hours worth of transactions will be present in the logs.
+
+== Relevant Configuration Settings
+
+* dbms.checkpoint
+* link:https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.checkpoint.interval.tx[dbms.checkpoint.interval.tx]
+* link:https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.checkpoint.interval.time[dbms.checkpoint.interval.time]
+* link:https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.checkpoint.iops.limit[dbms.checkpoint.iops.limit]
+* link:https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.tx_log.rotation.retention_policy[dbms.tx_log.rotation.retention_policy]
+* link:https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.tx_log.rotation.size[dbms.tx_log.rotation.size]

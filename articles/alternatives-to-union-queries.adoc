@@ -1,0 +1,145 @@
+= Alternatives to UNION queries
+:slug: alternatives-to-union-queries
+:author: Andrew Bowman
+:category: cypher
+:tags: cypher, union, path
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4
+:public:
+
+While UNIONs can be useful for certain cases, they can often be avoided completely with small changes to the query.
+
+In this article we'll present various example cases where a UNION isn't necessary, and a simple Cypher query will do.
+
+=== Starting node + all others through a common node
+
+There are cases where you want all nodes connected to a common node in some way, including the starting node, and all of these nodes are connected by the same pattern.
+
+A prototypical case is, for a given actor, to get all of the actors of movies they've worked on, including the starting actor.
+
+A first attempt may look something like this:
+
+[source,cypher]
+----
+MATCH (:Person {name:'Keanu Reeves'})-[:ACTED_IN]->(movie:Movie)<-[:ACTED_IN]-(coactor)
+RETURN movie, coactor
+----
+
+Since Cypher only allows a single traversal of a relationship in each matched path, this won't return Keanu Reeves as a coactor.
+The :ACTED_IN relationship used to match to the movie node can't be traversed back again when finding coactors.
+
+This can be addressed with a UNION:
+
+[source,cypher]
+----
+MATCH (:Person {name:'Keanu Reeves'})-[:ACTED_IN]->(movie:Movie)<-[:ACTED_IN]-(coactor)
+RETURN movie, coactor
+UNION
+MATCH (p:Person {name:'Keanu Reeves'})-[:ACTED_IN]->(movie:Movie)
+RETURN movie, p as coactor
+----
+
+This allows Keanu Reeves to show up in the results as desired.
+However this is more complicated than it needs to be, and we can't continue processing the unioned result, if that's something we need later.
+
+Instead of using UNION for this, we can instead match to the central node, then make an additional MATCH out to the coactors:
+
+[source,cypher]
+----
+MATCH (:Person {name:'Keanu Reeves'})-[:ACTED_IN]->(movie:Movie)
+MATCH (movie)<-[:ACTED_IN]-(coactor)
+RETURN movie, coactor
+----
+
+By using a second MATCH, we've broken up the paths used, so there's no longer any restriction for the :ACTED_IN relationships when we match back out to coactors for a movie.
+The relationship to Keanu Reeves is treated as any other relationship from the MATCH, and Keanu Reeves appears in the results.
+
+=== Optional connections
+
+For some queries we may want the results from two similar patterns, but there may be some extra traversals on one that aren't present in the other.
+
+For example, building on the previous query for coactors of Keanu Reeves, maybe we want to find coactors not just through the movies Keanu Reeves has acted in, but similar movies.
+
+We could do this through a UNION query:
+
+[source,cypher]
+----
+MATCH (:Person {name:'Keanu Reeves'})-[:ACTED_IN]->(movie:Movie)
+MATCH (movie)<-[:ACTED_IN]-(coactor)
+RETURN movie, coactor
+UNION
+MATCH (:Person {name:'Keanu Reeves'})-[:ACTED_IN]->(:Movie)-[:SIMILAR]-(movie:Movie)
+MATCH (movie)<-[:ACTED_IN]-(coactor)
+RETURN movie, coactor
+----
+
+However the two match patterns are similar enough that we can actually get the results we want without UNION.
+
+[source,cypher]
+----
+MATCH (:Person {name:'Keanu Reeves'})-[:ACTED_IN]->(:Movie)-[:SIMILAR*0..1]-(movie:Movie)
+MATCH (movie)<-[:ACTED_IN]-(coactor)
+RETURN movie, coactor
+----
+
+We are using a variable-length relationship for :SIMILAR with a lower bound of 0.
+
+This means that the two connected nodes in the pattern may be the same node, with no actual relationship between them.
+
+This will allow `movie` to match both to the movies Keanu Reeves acted in, as well as any :SIMILAR movies if such a relationship exists.
+
+This `[*0..1]` trick basically represents an optional connection, and can be used when we want both a node and a connected node to be treated the same way (and represented by the same variable, if needed) in the pattern.
+
+==== Optional connections to get the right node
+
+In the above example our optional connection was between :Movie nodes, allowing us to get nodes connected to both the starting node, and an adjacent node.
+
+We can also use this approach when it's possible the initial node isn't the one we want, but an adjacent node that might possibly be beyond it.
+
+Consider a social graph where people can recommend many things, including :Books, :Movies, :Games, and more:
+
+[source,cypher]
+----
+(:Person)-[:FRIENDS_WITH]->(:Person)
+(:Person)-[:RECOMMENDS]->(:Movie)
+(:Person)-[:RECOMMENDS]->(:Book)
+(:Person)-[:RECOMMENDS]->(:Game)
+(:Movie)-[:BASED_ON]->(:Book)
+(:Movie)-[:BASED_ON]->(:Game)
+(:Game)-[:BASED_ON]->(:Movie)
+(:Game)-[:BASED_ON]->(:Book)
+(:Book)-[:BASED_ON]->(:Game)
+(:Book)-[:BASED_ON]->(:Movie)
+----
+
+If we want to return movie recommendations from friends, it's easy enough just to return :Movie nodes recommended by a friend.
+
+But if we also want to return movies associated with non-movie recommendations (such as movies based on recommended books or other media), then the query is a little more complicated.
+
+We can do this with a UNION:
+
+[source,cypher]
+----
+MATCH (me:Person {name:'Keanu Reeves'})-[:FRIENDS_WITH]-(friend)-[:RECOMMENDS]->(movie:Movie)
+RETURN friend, movie
+UNION
+MATCH (me:Person {name:'Keanu Reeves'})-[:FRIENDS_WITH]-(friend)-[:RECOMMENDS]->()-[:BASED_ON]->(movie:Movie)
+RETURN friend, movie
+----
+
+A better approach is to forgo the UNION and use an optional connection:
+
+[source,cypher]
+----
+MATCH (me:Person {name:'Keanu Reeves'})-[:FRIENDS_WITH]-(friend)-[:RECOMMENDS]->()-[:BASED_ON*0..1]->(movie:Movie)
+RETURN friend, movie
+----
+
+If the recommended item is a :Movie, it will be included, and if it's something that a :Movie was based on, that movie will also be included.
+
+If we also wanted to get movies anywhere in a :BASED_ON chain (for example, for recommended books based on a games based on movies) we could omit the upper bound of the relationship:
+
+[source,cypher]
+----
+MATCH (me:Person {name:'Keanu Reeves'})-[:FRIENDS_WITH]-(friend)-[:RECOMMENDS]->()-[:BASED_ON*0..]->(movie:Movie)
+RETURN friend, movie
+----

@@ -1,0 +1,66 @@
+= TLS/SSL Configuration for Specific Ciphers
+:slug: tls-ssl-configuration-for-specific-ciphers
+:author: Ali Maddahian
+:neo4j-versions: 3.5
+:tags: ssl, tls, cipher, security, unix, operations
+:public:
+:category: security
+
+
+Per Documentation: `dbms.ssl.policy.<policyname>.ciphers` is by default set to the Java platform default allowed cipher suites, which can also be explicitly set to any specific ciphers (separated by ",") to further restrict list of allowed ciphers, thus enabling us to enforce a particular single strong cipher (if needed) and remove any doubt about which cipher gets negotiated and chosen.
+
+Also, alternatively and/or additionally, we can also disable ciphers by using the instructions referenced here: https://lightbend.github.io/ssl-config/CipherSuites.html   
+where as an example, you would add the following into neo4j.conf: 
+
+----
+dbms.jvm.additional=-Djava.security.properties=<$NEO4J_HOME>/neo4j-enterprise-3.5.x/conf/disabledAlgorithms.properties
+----
+
+with the content of the file including the following(as an example):
+
+----
+# disabledAlgorithms.properties
+jdk.tls.disabledAlgorithms=EC keySize < 160, RSA keySize < 2048, DSA keySize < 2048
+jdk.certpath.disabledAlgorithms=MD2, MD4, MD5,  EC keySize < 160, RSA keySize < 2048, DSA keySize < 2048
+----
+
+To debug further in case of any issues, you can use the following steps:
+
+1) You can assess the handshake between the client and neo4j by including the following setting in neo4j.conf (and restart):
+----
+dbms.jvm.additional=-Djavax.net.debug=ssl:handshake
+----
+
+2) Run the following to investigate list of available ciphers (example)
+
+----
+$ nmap --script ssl-enum-ciphers -p 7473 localhost
+
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-07-17 17:54 PDT
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.00033s latency).
+Other addresses for localhost (not scanned): ::1
+
+PORT     STATE SERVICE
+7473/tcp open  rise
+| ssl-enum-ciphers:
+|   TLSv1.2:
+|     ciphers:
+|       TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 (secp256r1) - A
+|       TLS_RSA_WITH_AES_128_CBC_SHA256 (rsa 2048) - A
+|       TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 (dh 2048) - A
+|       TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (secp256r1) - A
+|       TLS_RSA_WITH_AES_128_GCM_SHA256 (rsa 2048) - A
+|       TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 (dh 2048) - A
+|     compressors:
+|       NULL
+|     cipher preference: server
+|_  least strength: A
+
+Nmap done: 1 IP address (1 host up) scanned in 0.66 seconds
+----
+
+3) As well as the following:
+----
+$openssl s_client -connect <server-name-ip>:7473
+----

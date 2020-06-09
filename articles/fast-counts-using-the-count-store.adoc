@@ -1,0 +1,269 @@
+= Fast counts using the count store
+:slug: fast-counts-using-the-count-store
+:author: Andrew Bowman
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
+:tags: cypher, counts
+:public:
+:category: cypher
+
+Neo4j maintains a transactional count store for holding count metadata for a number of things.
+
+The count store is used to inform the query planner so it can make educated choices on how to plan the query.
+
+Obtaining counts from the count store is constant-time, so if you want counts for something that is obtainable from the count store, it can be queried quickly.
+
+You can tell if the count store is being used in your query by looking at the query plan from an EXPLAIN of the query. You should see either a `NodeCountFromCountStore` or a `RelationshipCountFromCountStore` operator.
+
+==== Limitations of count store queries
+
+By definition, a query to get counts has to have a `count()` aggregation.
+
+A WHERE clause cannot be present, nor can there be any inlined properties in the match pattern.
+
+Due to limitations of the query planner, the count store will only be leveraged if the `count()` aggregation is alone on a WITH or RETURN.
+*If any other variable is in scope along with the count() aggregation, the count store will not be used.*
+
+As previously mentioned, you can tell if the count store is being used by checking for either a `NodeCountFromCountStore` or a `RelationshipCountFromCountStore` in the query plan.
+
+Workarounds for when you want multiple counts in the same query will be discussed near the end of the article.
+
+== Node counts
+
+You can use the count store to get a count of all the nodes in the db:
+
+[source,cypher]
+----
+MATCH (n)
+RETURN count(n) as count
+----
+
+You can also get a count for all nodes of a given label:
+
+[source,cypher]
+----
+MATCH (n:Person)
+RETURN count(n) as count
+----
+
+Variables are optional for these kinds of queries, so you can omit them and use `count(*)` instead with the same results:
+
+[source,cypher]
+----
+MATCH ()
+RETURN count(*) as count
+----
+and
+[source,cypher]
+----
+MATCH (:Person)
+RETURN count(*) as count
+----
+
+==== Limitation - Can't use the count store for querying for nodes with multiple labels
+
+The count store will not be used when querying for nodes with multiple labels, as these counts are not tracked in the count store.
+
+The following will **not** use the count store:
+
+[source,cypher]
+----
+MATCH (n:Person:Director)
+RETURN count(n) as count
+----
+
+== Relationship counts
+
+The count store also holds relational count metadata, and the pattern used here must depict a single relationship pattern.
+Note that the query **must** use a directed relationship in the match pattern for the count store to be used, do not omit the direction.
+
+The count store can be used whether or not a relationship type is present:
+
+[source,cypher]
+----
+MATCH ()-[r]->()
+RETURN count(r) as count
+----
+
+[source,cypher]
+----
+MATCH ()-[r:ACTED_IN]->()
+RETURN count(r) as count
+----
+
+The count store will also be used when querying for relationships of multiple types, this will just add the counts together for each of the types:
+
+[source,cypher]
+----
+MATCH ()-[r:ACTED_IN|DIRECTED]->()
+RETURN count(r) as count
+----
+
+As with nodes, variables are optional here, and `count(*)` can be used instead:
+
+[source,cypher]
+----
+MATCH ()-[:ACTED_IN]->()
+RETURN count(*) as count
+----
+
+=== Relationship counts to/from a node with a single label
+
+The count store also keeps count of the relationships with respect to the label of a single end-node.
+The following queries will get their count from the count store.
+
+[source,cypher]
+----
+MATCH ()-[r:ACTED_IN]->(:Movie)
+RETURN count(r) as count
+----
+
+[source,cypher]
+----
+MATCH (:Person)-[r:ACTED_IN]->()
+RETURN count(r) as count
+----
+
+[source,cypher]
+----
+MATCH ()-[r]->(:Movie)
+RETURN count(r) as count
+----
+
+==== Limitation - Can't use the count store with labels present on both start and end nodes
+
+The count store does not keep metadata with respect to labels on both the start and end node.
+
+The following will **not** use the count store:
+
+[source,cypher]
+----
+MATCH (:Person)-[r:ACTED_IN]->(:Movie)
+RETURN count(r) as count
+----
+
+== Getting multiple counts in a single query
+
+In cases where you want to get multiple counts from the count store in a single query, you may run into the limitation mentioned at the top of this article:
+that the `count()` aggregation must be alone on the WITH or RETURN row for the count store to be used.
+
+There are two notable workarounds to this limitation.
+
+==== Use a UNION ALL query for counts
+
+If we get the counts using the count store for separate queries and UNION them together, we can get the desired counts with just a bit of extra work:
+
+[source,cypher]
+----
+MATCH (n:Person)
+WITH count(n) as count
+RETURN 'Person' as label, count
+UNION ALL
+MATCH (n:Movie)
+WITH count(n) as count
+RETURN 'Movie' as label, count
+----
+
+Note that we need another variable present to provide context, but we must introduce that variable only after we get the count(), as an additional variable at the point of aggregation would otherwise prevent usage of the count store.
+
+Alternately, we can return a map structure where the type of the label and its associated count is included in the map:
+
+[source,cypher]
+----
+MATCH (n:Person)
+RETURN {label:'Person', count: count(n)} as info
+UNION ALL
+MATCH (n:Movie)
+RETURN {label:'Movie', count: count(n)} as info
+----
+
+==== Use apoc.cypher.run() to get counts dynamically per label/type
+
+`apoc.cypher.run()` can be used to execute a single Cypher query per row, which can allow you to get the counts from the counts store per row.
+
+Combined with a call to get node labels or relationship types, this can be an effective way to automatically and quickly get multiple counts at the same time:
+
+For labels:
+[source,cypher]
+----
+CALL db.labels() YIELD label
+CALL apoc.cypher.run('MATCH (:`'+label+'`) RETURN count(*) as count',{}) YIELD value
+RETURN label, value.count
+----
+
+For relationships:
+[source,cypher]
+----
+CALL db.relationshipTypes() YIELD relationshipType as type
+CALL apoc.cypher.run('MATCH ()-[:`'+type+'`]->() RETURN count(*) as count',{}) YIELD value
+RETURN type, value.count
+----
+
+
+==== Use apoc.meta.stats() from APOC Procedures
+
+https://neo4j-contrib.github.io/neo4j-apoc-procedures/[APOC Procedures] has https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_meta_graph[meta procedures] that can be used to access nearly all of the count store data at once.
+
+You will need to pick and choose what data from the `apoc.meta.stats()` call you want to display.
+
+.Contents
+
+The following values are YIELDed by the `apoc.meta.stats()` call:
+
+`labelCount` - The number of labels in the graph.
+
+`relTypeCount` - The number of relationship types in the graph.
+
+`propertyKeyCount` - The number of property keys in the graph.
+
+`nodeCount` - The number of total nodes in the graph.
+
+`relCount` - The number of total relationships in the graph.
+
+`labels` - A map of each label with the count of nodes of that label.
+
+`relTypes` - A map of each relationship pattern (of typed relationships only, and including patterns with a label at one end node) and their associated count.
+
+`relTypesCount` - A map of each relationship type and the counts for that type.
+
+`stats` - A map that holds all of the counts data mentioned above.
+
+.Usage
+
+The `labels` counts are often the most useful on their own, but similar approaches can be used for the others:
+
+[source,cypher]
+----
+CALL apoc.meta.stats() YIELD labels
+RETURN labels
+----
+
+This may return a map like:
+
+[source,cypher]
+----
+{
+  "Movie": 38,
+  "Word": 12,
+  "News": 2,
+  "Director": 28,
+  "Reviewer": 3,
+  "Person": 133,
+  "Sentence": 17
+}
+----
+
+Getting one of the values is as easy as just using dot notation to get values for a key.
+
+[source,cypher]
+----
+CALL apoc.meta.stats() YIELD labels
+RETURN labels.Person as personCount
+----
+
+If multiple values are needed, we can use map projection to get a map of only the counts we want:
+
+[source,cypher]
+----
+CALL apoc.meta.stats() YIELD labels
+RETURN labels {.Person, .Movie, .Director} as counts
+----

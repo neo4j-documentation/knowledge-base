@@ -1,0 +1,47 @@
+= When to use bookmarks
+:slug: when-to-use-bookmarks
+:author: José Rocha
+:neo4j-versions: 3.1, 3.2, 3.3, 3.4
+:tags: cluster,causal,leader,follower,bookmarks,drivers
+:public:
+:category: cluster
+
+Bookmarks are part of a broader topic: *Causal consistency*. We recommend reading the 
+link:https://neo4j.com/docs/operations-manual/current/clustering/introduction/[introduction to Neo4j Causal Clustering] and
+the link:https://neo4j.com/docs/operations-manual/current/clustering/lifecycle/[lifecycle of a Neo4j Causal Cluster] before 
+reading further. Pay special attention to
+link:https://neo4j.com/docs/operations-manual/current/clustering/introduction/#causal-consistency-explained[Causal Consistency explained].
+
+Bookmarks ensure than when reading data from the cluster, that data read represents the user's most recent view of the graph.
+When using bookmarked transactions, you are effectively saying: "Use a particular instance, only when its able to honour this 
+bookmark" (in other words, after they processed and applied the bookmark).
+
+Unfortunately there isn't a one-size-fits-all scenario when it comes to understanding when it makes sense to use bookmarks. 
+If we look back at all the information about raft and application of transactions to the followers (links above), we know this:
+
+- The speed of the data propagation can be seen as (from faster to slower data readiness):
+	. Leader
+	. Majority of followers
+	. Rest of followers and read replicas
+- Leader has all the transactions and is always the most up-to-date instance
+- Majority of followers have the transactions due to raft's nature (but may not have applied them yet)
+- Rest of followers (and read replicas) will eventually have the transactions at a later period in time
+
+With this information you can make design choices such as:
+
+- Use bookmarks for queries where you absolutely need to read your own writes and:
+	. Direct read queries that are latency sensitive to the leader^1^, making use of _bolt_ for direct connection instead of _bolt+routing_.
+	. Use _bolt+routing_ for other queries that are not as latency sensitive (these queries will be routed to the followers)
+
+- Do not use bookmarks for other queries that do not require a most up-to-date view of the graph (this queries will be routed to a random follower/read-replica)
+
+[IMPORTANT]
+====
+^1^ Be careful when making the decision to direct read transactions to the leader. You will want to avoid stressing the leader to a
+point where it cannot serve more requests. You can read more about this topic 
+link:https://support.neo4j.com/hc/en-us/articles/360006361794-Causal-Cluster-FAQ-for-heavy-workloads[here].
+====
+
+This is only an example but all of it is achievable with a mix of direct/routed connections and bookmarks. Remember that bookmarks exist
+on a transaction level, which means that you can tweak this to your need in order to achieve the optimal throughput and experience. You
+might have several clients with different consistency and data readiness requirements and adjust the bookmark usage per-client basis.

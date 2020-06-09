@@ -1,0 +1,119 @@
+= Importing CSV Files: Neo4j Desktop and Sandbox
+:slug: import-csv-locations
+:author: Jennifer Reif
+:twitter: @jmhreif
+:neo4j-versions: 3.4, 3.5
+:tags: load csv, import, cypher
+:public:
+:category: import-export
+
+Loading various kinds of files into Neo4j requires different locations depending on the tool you are using.
+
+Import methods we will cover: 1. Neo4j Desktop 2. Neo4j Sandbox
+
+== Neo4j Desktop
+
+Filepath for Neo4j Desktop will vary based on your operating system.
+
+*Mac OS or Linux*
+- <neo4j-home>/import
+
+For example, mine is located in the following path:
+----
+/Users/<userid>/Library/Application Support/Neo4j Desktop/Application/neo4jDatabases/database-<id#>/installation-<neo4jVersion>/import
+----
+
+If you used the default application path when Neo4j Desktop was installed, your path could be the same as the path above (after substituting your user account, database id, and version). If you changed the path of Neo4j Desktop when it was installed, the path should follow those changes.
+
+*Windows Desktop*
+- <neo4j-home>\import
+
+As an example, this is the path for my Windows installation (assuming the default application path when Neo4j Desktop was installed):
+----
+C:\Users\<userid>\.Neo4jDesktop\neo4jDatabases\database-<id#>\installation-<neo4jVersion>\import
+----
+
+*Custom Import Folder*
+
+If you require a file location different from the default, you can update the following setting in the neo4j.conf file. We recommend specifying a directory path, rather than commenting out the setting, to avoid the security issue mentioned in the configuration comment.
+
+----
+# This setting constrains all `LOAD CSV` import files to be under the `import` directory. Remove or comment it out to
+# allow files to be loaded from anywhere in the filesystem; this introduces possible security problems. See the
+# `LOAD CSV` section of the manual for details.
+dbms.directories.import=import
+----
+
+== Neo4j Sandbox
+
+Importing files in Neo4j Sandbox works a bit differently. Sandboxes are instance that are spun up and hosted in the cloud and expire after a certain period of time. Because of this, the security settings do not allow sandboxes to access local file settings on a desktop. Any files that need to be imported must be stored or placed in a remote location that the instance can access - like GitHub, a website, Google Drive, or Dropbox. We will look at examples for each of the locations for importing into a Neo4j Sandbox instance.
+
+*GitHub*
+
+If you find or place a file in a GitHub repository, Neo4j Sandbox can access the content in a raw format. You just need to navigate to the GitHub repository that contains the file and drill down to the file itself. Once there, you should see a menu bar like the one below right above the file contents.
+
+image::https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/import-csv-locations-gh.jpg[image,role="popup-link"]
+
+Click on the `Raw` button in the button list on the right and copy the url path when the page loads (url should start like `https://raw.githubusercontent.com/...`). Now you should be able to view the data in your sandbox browser session with a query like this one.
+
+----
+LOAD CSV FROM 'https://raw.githubusercontent.com/<yourFileRepositoryPath>' AS row
+RETURN row
+----
+
+*Website*
+
+If the file is hosted on a website, Neo4j Sandbox can access it there with a url. For example, in the Neo4j Cypher Manual, the `LOAD CSV` page uses a csv file on neo4j.com.
+
+----
+LOAD CSV FROM 'https://neo4j.com/docs/cypher-manual/3.5/csv/artists.csv' AS row
+RETURN row
+----
+
+*Google Drive*
+
+You can access files uploaded to Google Sheets, as long as the permissions are set correctly. Once the file is uploaded to Google Drive, you can follow the screenshots below to walk through the rest of the process. The red boxes and numbering show where to click and what order to do the steps.
+
+.Step 1 - Review file permissions
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_gdownload1.jpg[image,role="popup-link"]
+
+.Step 2 - Ensure permissions are open
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_gdownload2.jpg[image,role="popup-link"]
+
+.Step 3 - Download Google Sheet as CSV
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_gdownload3.jpg[image,role="popup-link"]
+
+.Step 4 - Go to browser downloads and copy link address
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_gdownload4.jpg[image,role="popup-link"]
+
+.Step 5 - Run Cypher LOAD CSV command
+----
+LOAD CSV WITH HEADERS FROM 'https://docs.google.com/spreadsheets/d/<yourFilePath>' AS row
+RETURN row
+----
+
+*Dropbox*
+
+A file uploaded to Dropbox works similarly to the process with Google Drive. Again, you will need to ensure permissions are set appropriately. Screenshots below step through the rest of the steps.
+
+.Step 1 - Review file permissions
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_ddownload1.jpg[image,role="popup-link"]
+
+.Step 2 - Ensure permissions are open
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_ddownload2.jpg[image,role="popup-link"]
+
+.Step 3 - Download Dropbox file
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_ddownload3.jpg[image,role="popup-link"]
+
+.Step 4 - Go to browser downloads and copy link address
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_ddownload4.jpg[image,role="popup-link"]
+
+.Step 5 - Run Cypher LOAD CSV command
+----
+LOAD CSV WITH HEADERS FROM 'https://<fileId>.dl.dropboxusercontent.com/cd/0/get/<yourFilePath>/file#' AS row
+RETURN row
+----
+
+== Resources
+
+You can find the full list of file locations by operating system (does not include Sandbox) in the https://neo4j.com/docs/operations-manual/current/configuration/file-locations/[operations manual^]. Rik's http://blog.bruggen.com/2014/07/using-loadcsv-to-import-data-from.html[blog post^] on loading a Google spreadsheet is also helpful for importing online files. The https://neo4j.com/developer/desktop-csv-import/[CSV import developer guide^] walks through loading local CSV files to Neo4j Desktop.

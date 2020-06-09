@@ -1,0 +1,25 @@
+= Using Cypher and APOC to move a property value to a label
+:slug: using-cypher-and-apoc-to-move-a-property-value-to-a-label
+:author: Dana Canzano
+:neo4j-versions: 3.0
+:tags: apoc, refactoring, procedures
+:public:
+:category: operations
+
+Commencing with Neo4j 3.0 and the introduction of stored procedures as well as link:https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC^] one can utilize the stored procedure link:https://neo4j.com/docs/labs/apoc/current/graph-updates/data-creation/[apoc.create.addLabels^] to move a property to a label with Cypher as follows
+
+[source,cypher]
+----
+// create a node with property studio
+create (n:Movies {name: 'A Few Good Men', studio: 'Warner Brothers'})
+----
+
+[source,cypher]
+----
+// move the 'studio' property to a label and remove it as a property
+MATCH (n:Movies) 
+call apoc.create.addLabels([ id(n) ], [ n.studio ]) yield node 
+with node 
+remove node.studio
+return node
+----

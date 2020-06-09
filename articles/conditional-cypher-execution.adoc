@@ -1,0 +1,128 @@
+= Conditional Cypher Execution
+:slug: conditional-cypher-execution
+:author: Andrew Bowman
+:category: cypher
+:tags: cypher, conditional, apoc
+:neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5
+:public:
+
+At some point you're going to write a Cypher query requiring some conditional logic, where you want different Cypher statements executed depending on the case.
+
+At this point in time Cypher does not include native conditional functionality to address this case, but there are some workarounds that can be used.
+
+This article covers the ways you can perform conditional Cypher execution.
+
+.First a note on CASE
+
+The CASE expression does some conditional logic, but the logic can only be used to output an expression. It cannot be used to conditionally execute Cypher clauses.
+
+
+== Using FOREACH for write-only Cypher
+
+The FOREACH clause can be used to perform the equivalent of an IF conditional, with the restriction that only write clauses are used (MERGE, CREATE, DELETE, SET, REMOVE).
+
+This relies on the characteristic that the Cypher in a FOREACH clause is executed per element in the given list.
+If a list has 1 element, then the Cypher in the FOREACH will execute.
+If the list is empty, then the contained Cypher will not execute.
+
+We can use CASE to evaluate a boolean condition and output a single-element list, or an empty list, and this drives the conditional Cypher execution (to execute the subsequent write-only clauses, or not).
+
+For example:
+
+[source,cypher]
+----
+MATCH (node:Node {id:12345})
+FOREACH (i in CASE WHEN node.needsUpdate THEN [1] ELSE [] END |
+  SET node.newProperty = 5678
+  REMOVE node.needsUpdate
+  SET node:Updated)
+...
+----
+
+To get the equivalent of if/else logic, a separate FOREACH must be used for the else part.
+
+Remember that any other non-write clause, such as MATCH, WITH, and CALL, cannot be used with this approach.
+
+== APOC conditional procedures
+
+Alternately, the APOC Procedures library includes procedures designed for http://neo4j-contrib.github.io/neo4j-apoc-procedures/3.5/cypher-execution/conditionals/[conditional Cypher execution].
+
+There are two types of procedures:
+
+`apoc.when()` - When you only have an `if` (and maybe `else`) queries to execute based on a single condition. Cannot write to the graph.
+
+`apoc.case()` - When you want to check a series of separate conditions, each having their own separate Cypher query to execute if the condition is true.
+Only the first condition that evaluates to true will execute its associated query. If no condition is true, then an else query can be supplied as a default.
+Cannot write to the graph.
+
+.Read and write variations
+
+The procedures shown above have read permission only, they are not allowed to write to the graph, and so if there are any write operations
+in the conditional Cypher within, the query will error out.
+
+There are variations available that have permission to write to the graph:
+
+`apoc.do.when()` - Conditional if/else Cypher execution like `apoc.when()`, but writes are allowed to the graph.
+
+`apoc.do.case()` - Conditional case Cypher execution like `apoc.case()`, but writes are allowed to the graph.
+
+This is necessary because the read or write mode of a procedure must be declared in the procedure code.
+
+Having only a read-only procedure would not have the capability to write to the graph.
+
+Having only a write capable procedure means it's not callable by read-only users, even if the conditional Cypher doesn't perform any writes.
+
+Both of these are necessary to offer full capabilities no matter the user type or needs of the conditional Cypher query.
+
+The full signatures:
+
+[cols="1m,5"]
+|===
+| CALL apoc.when(condition, ifQuery, elseQuery:'', params:{}) yield value | based on the conditional, executes read-only `ifQuery` or `elseQuery` with the given `params`
+| CALL apoc.do.when(condition, ifQuery, elseQuery:'', params:{}) yield value | based on the conditional, executes writing `ifQuery` or `elseQuery` with the given `params`
+| CALL apoc.case([condition, query, condition, query, ...], elseQuery:'', params:{}) yield value | given a list of conditional / read-only query pairs, executes the query associated with the first conditional evaluating to true (or the `elseQuery` if none are true) with the given `params`
+| CALL apoc.do.case([condition, query, condition, query, ...], elseQuery:'', params:{}) yield value | given a list of conditional / writing query pairs, executes the query associated with the first conditional evaluating to true (or the `elseQuery` if none are true) with the given `params`
+|===
+
+In all cases, the `condition` must be a boolean expression, and all conditional queries (`ifQuery`, `elseQuery`, `query`) are actually Cypher query strings, and must be quoted.
+
+As such, be careful to properly handle quotes within your query string. If the query string itself is inside double-quotes, any strings within that query ought to be single-quotes (or vice versa).
+
+Using these procedures can be tricky. Here are some more tips to help avoid the most common tripping points.
+
+.Dealing with quotes/escapes in complex nested queries
+
+For more complicated queries (such as nested queries that must handle quotes at multple levels),
+consider either defining the query string as a variable first, then pass the variable into the procedure,
+or alternately pass the conditional queries as parameters to the query itself.
+This might save you from the headaches of dealing with escape characters within Java strings.
+
+.Pass parameters that must be visible within the conditional queries
+
+When executed, the conditional Cypher queries do not have visibility to the variables outside of the CALL.
+
+If a query must see or use a variable, pass it along as part of the `params` map argument to the call like so:
+
+[source,cypher]
+----
+MATCH (bruceWayne:Person {name:'Bruce Wayne'})
+CALL apoc.do.when(bruceWayne.isOrphan, "MERGE (batman:Hero {name:'Batman'}) CREATE (bruce)-[:SuperheroPersona]->(batman) RETURN bruce", "SET bruce.name = 'Bruce NOT BATMAN Wayne' RETURN bruce", {bruce:bruceWayne}) YIELD value
+...
+----
+
+The params map is the last argument of the call: `{bruce:bruceWayne}`, and allows the `bruceWayne` variable to be visible to any of the conditional queries as `bruce`.
+Additional parameters can be added to the params map if needed.
+
+.Conditional queries must RETURN something if you want to keep executing the query after the CALL
+
+Currently, when a (non-empty) conditional query is executed, and the query doesn't RETURN anything, nothing is YIELDed for the row,
+wiping out the row. For that original row, anything after the CALL is now a no-op, since there is no longer a row to execute upon (Cypher operations execute per row).
+
+While this may be fine for when the conditional CALL is the last part of the query (and thus there is nothing more to execute after), this behavior will be an unwelcome and confusing
+surprise to anyone who wants to continue the query, but forgot to add a RETURN to their conditional queries.
+
+The resulting symptom is that the query executes up to the conditional CALL, but (maybe for all rows, maybe for only a subset) no part of the query after the CALL gets executed.
+
+To avoid confusion, it may help to always include a RETURN in all of your conditional queries (except those you leave completely blank, such as no-op `else` queries...they behave as expected).
+
+This often-confusing behavior will be fixed up in a later APOC update within 2020.

@@ -1,0 +1,43 @@
+= How do I quickly switch between multiple graphs without modifying neo4j.conf?
+:slug: how-do-i-quickly-switch-between-multiple-graphs-without-modifying-neo4j-conf
+:author: Dana Canzano
+:neo4j-versions: 3.0, 3.1
+:tags: configuration
+:public:
+:category: operations
+
+If you have multiple graphs set up and want to quickly switch between each without modifying `dbms.active_database` in `conf/neo4j.conf`,
+you can accomplish this with a `neo4j restart` and with the environment variable `NEO4J_CONF` defined pointing to the appropriate/corresponding neo4j.conf file.
+
+For example, one could define:
+
+----
+$NEO4J_HOME/conf
+$NEO4J_HOME/conf_test
+----
+
+and where each directory has the same files, namely: 
+
+----
+jmx.access  jmx.password  neo4j.conf  neo4j-wrapper.conf
+----
+
+and in the `$NEO4J_HOME/conf_tests/neo4j.conf` one might configure the databse name to a different graph:
+
+----
+# The name of the database to mount
+dbms.active_database=graph.db.test
+----
+
+Then, prior to a restart of neo4j if one modifies the environment variable `NEO4J_CONF` to point to the $NEO4J_HOME/conf_test, for 
+example:
+
+----
+export NEO4J_CONF="/home/neo/neo4j-enterprise-3.0.7/conf_test"
+----
+
+then upon restart of neo4j, it will then use the graph in the `graph.db.test` location.
+
+Note: Be aware that the `dbms.active_database` setting in `neo4j.conf` is one of many settings that you may want/need to change.
+If for example you do not change `#dbms.directories.logs=logs` then both conf files will result in each Neo instance
+writing to `$NEO4J_HOME/logs`.

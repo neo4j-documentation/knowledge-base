@@ -1,0 +1,24 @@
+= How to configure mixed-mode security (native and LDAP) in Neo4j
+:slug: how-to-configure-mixed-mode-security-in-neo4j
+:author: Dave Gordon
+:neo4j-versions: 3.1, 3.2
+:tags: security, ldap
+:public:
+:category: operations
+
+For environments where you need both LDAP authentication as well as some native user accounts, there is a way to allow this in Neo4j 3.1 and newer. Use the configuration setting `dbms.security.auth_providers` instead of the singular version `dbms.security.auth_provider`. This will allow you to supply a list of providers to use for authentication. 
+
+To allow both LDAP and native users to login, use the following setting in `conf/neo4j.conf`:
+
+----
+dbms.security.auth_providers=ldap,native
+----
+
+To control at a finer level which auth provider does (authentication and/or authorization), use the following settings as well (in the example we are setting all to `true`, but this can differ based on specific needs):
+
+----
+dbms.security.native.authentication_enabled=true
+dbms.security.native.authorization_enabled=true
+dbms.security.ldap.authentication_enabled=true
+dbms.security.ldap.authorization_enabled=true
+----

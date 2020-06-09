@@ -1,0 +1,282 @@
+= Index limitations and workarounds
+:slug: index-limitations-and-workaround
+:author: Anton Persson
+:neo4j-versions: 4.0
+:outdated: false
+:tags: indexing
+:public:
+:category: operations
+
+In this article we discuss index providers and what limitations and workarounds there are.
+
+There are two index types in Neo4j, btree and full-text.
+This article target btree indexes, up until 4.0 called schema indexes.
+This is the normal index you get when you create an index or index backed constraint through Cypher.
+
+.Query
+[source, cypher]
+----
+CREATE INDEX "My index" FOR (p:Person) ON (p.name)
+----
+
+All indexes are backed by an index provider.
+Full-text indexes are backed by `fulltext-1.0` and btree indexes are backed by `native-btree-1.0` (default) or `lucene+native-3.0`.
+
+The table below lists the available btree index providers and their support for native indexing:
+
+[options="header"]
+|===
+| Index provider                    | Value types supported for native indexing
+| `native-btree-1.0`                | Native for all types
+| [deprecated]#`lucene+native-3.0`# | Lucene for single-property strings, native for the rest
+|===
+
+== Key size limit
+
+The `native-btree-1.0` index provider has a key size limit of 8167 bytes.
+This limit manifests itself in different ways depending on whether the key holds a single string, a single array, or multiple values (i.e. is the key in a _composite index_).
+
+If a transaction reaches the key size limit for one or more of its changes, that transaction will fail before committing any changes.
+If the limit is reached during index population, the resulting index will be in a failed state, thus not be usable for any queries.
+
+See below for details on how to calculate key sizes for native indexes.
+
+If keys does not fit in this limit, most likely a full-text index is a better fit for what the use case, if that's not the case the `lucene+native-3.0` has a key size limit of 32766 bytes.
+
+== Contains and ends with queries
+
+The `native-btree-1.0` index provider have limited support for `ENDS WITH` and `CONTAINS` queries.
+These queries will not be able to do an optimized search the way they do for queries that use `STARTS WITH`, `=` and `<>`.
+Instead, the index result will be a stream of an index scan with filtering.
+
+For single-property strings `lucene+native-3.0` can be used instead which have full support for both `ENDS WITH` and `CONSTAINS`.
+
+To create an index with a different provider than default, the easiest way is to use `db.createIndex`, `db.createUniquePropertyConstraint` or `db.createNodeKey` procedures to which you can provide index provider name.
+Another option is to configure the default index provider using `dbms.index.default_schema_provider`.
+Note that a restart is necessary for this config option to take effect.
+
+== Key size calculation
+
+[abstract]
+--
+This part describes how to calculate key sizes for native indexes.
+--
+
+As described in the section about key size there are limitations to how large the key size can be when using `native-btree-1.0` index provider.
+This appendix describes in detail how the sizes can be calculated.
+
+=== Element size calculations
+
+It is useful to know how to calculate the size of a single value when calculating the total size of the resulting key.
+In some cases those entry sizes is different based on whether the entry is in an array or not.
+
+[[table-index-configuration-element-sizes]]
+.Element sizes
+[options="header"]
+|===
+| Type                   | `elementSize~ifSingle~` +*+  | `elementSize~ifInArray~` +**+
+| `Byte`                 | 3                            | 1
+| `Short`                | 4                            | 2
+| `Int`                  | 6                            | 4
+| `Long`                 | 10                           | 8
+| `Float`                | 6                            | 4
+| `Double`               | 10                           | 8
+| `Boolean`              | 2                            | 1
+| `Date`                 | 9                            | 8
+| `Time`                 | 13                           | 12
+| `LocalTime`            | 9                            | 8
+| `DateTime`             | 17                           | 16
+| `LocalDateTime`        | 13                           | 12
+| `Duration`             | 29                           | 28
+| `Period`               | 29                           | 28
+| `Point (Cartesian)`    | 28                           | 24
+| `Point (Cartesian 3D)` | 36                           | 32
+| `Point (WGS-84)`       | 28                           | 24
+| `Point (WGS-84 3D)`    | 36                           | 32
+| `String`               | `3 + utf8StringSize` +***+   | `2 + utf8StringSize` +***+
+| `Array`                | †                            | Nested arrays are not supported
+|===
+
++*+ `elementSize~ifSingle~` denotes the size of an element if is a single entry.
+
++**+ `elementSize~ifInArray~` denotes the size of an element if it is part of an array.
+
++***+ `utf8StringSize` is the size of the `String` in bytes when encoded with UTF8.
+
+† `elementSize~Array~` is the size of an array element, and is calculated using the following formulas:
+
+* If the data type of the array is a numeric data type:
++
+`elementSize~Array~ = 4 + ( arrayLength * elementSize~ifInArray~ )`
+* If the data type of the array is a geometry data type:
++
+`elementSize~Array~ = 6 + ( arrayLength * elementSize~ifInArray~ )`
+* If the data type of the array is non-numeric:
++
+`elementSize~Array~ = 3 + ( arrayLength * elementSize~ifInArray~ )`
+
+
+.String encoding with UTF8
+[NOTE]
+====
+It is worth noting that common characters, such as letters, digits and some symbols, translate into one byte per character.
+Non-Latin characters may occupy more than one byte per character.
+Therefore, for example, a string that contains 100 characters or less may be longer than 100 bytes if it contains multi-byte characters.
+
+More specifically, the relevant length in bytes of a string is when encoded with https://en.wikipedia.org/wiki/UTF-8[UTF8].
+====
+
+
+.Calculate the size of a string when used in an index
+====
+
+Consider the string `His name was Måns Lööv`.
+
+This string has 19 characters that each occupies 1 byte.
+Additionally, there are 3 characters that each occupy 2 bytes per character, which add 6 to the total.
+Therefore, the size of the `String` in bytes when encoded with UTF8, utf8StringSize, is 25 bytes.
+
+If this string is part of a native index, we get:
+
+`elementSize = 2 + utf8StringSize = 2 + 25 = 27 bytes`
+
+====
+
+.Calculate the size of an array when used in an index
+====
+
+Consider the array [19, 84, 20, 11, 54, 9, 59, 76, 82, 27, 9, 35, 56, 80, 65, 95, 16, 91, 61, 11].
+
+This array has 20 elements of the type `Int`.
+Since they are in an array, we need to use `elementSize~ifInArray~`, which is `4` for `Int`.
+
+Applying the formula for arrays of numeric data types, we get:
+
+`elementSize~Array~ = 4 + ( arrayLength * elementSize~ifInArray~ )  = 4 + ( 20 * 4 ) = 84 bytes`
+
+====
+
+
+=== Non-composite indexes
+
+The only way that a non-composite index can violate the size limit is if the value is a long string or a large array.
+
+[discrete]
+[[index-configuration-limitations-single-strings]]
+==== Strings
+
+Strings in non-composite indexes have a key size limit of 8164 bytes.
+
+[discrete]
+[[index-configuration-limitations-arrays]]
+==== Arrays
+
+The following formula is used for arrays in non-composite indexes:
+
+`1 + elementSize~Array~ =< 8167`
+
+Here `elementSize~Array~` is the number calculated from <<table-index-configuration-element-sizes>>.
+
+If we count backwards, we can get the exact array length limit for each data type:
+
+* `maxArrayLength = FLOOR( ( 8167 - 4 ) / elementSize~ifInArray~ )` for numeric types.
+* `maxArrayLength = FLOOR( ( 8167 - 4 ) / elementSize~ifInArray~ )` for non-numeric types.
+
+These calculations result in the table below:
+
+.Maximum array length, per data type
+[options="header"]
+|===
+| Data type              | `maxArrayLength`
+| `Byte`                 | 8163
+| `Short`                | 4081
+| `Int`                  | 2040
+| `Long`                 | 1020
+| `Float`                | 2040
+| `Double`               | 1020
+| `Boolean`              | 8164
+| `String`               | See <<table-index-configuration-string-max-array-length>>
+| `Date`                 | 1020
+| `Time`                 | 680
+| `LocalTime`            | 1020
+| `DateTime`             | 510
+| `LocalDateTime`        | 680
+| `Duration`             | 291
+| `Period`               | 291
+| `Point (Cartesian)`    | 340
+| `Point (Cartesian 3D)` | 255
+| `Point (WGS-84)`       | 340
+| `Point (WGS-84 3D)`    | 255
+|===
+
+Note that in most cases, Cypher will use `Long` or `Double` when working with numbers.
+
+Properties with the type of `String` are a special case because they are dynamically sized.
+The table below shows the maximum number of array elements in an array, based on certain string sizes:
+
+[[table-index-configuration-string-max-array-length]]
+.Maximum array length, examples for strings
+[options="header"]
+|===
+| String size              | `maxArrayLength`
+| 1                        | 2721
+| 10                       | 680
+| 100                      | 80
+| 1000                     | 8
+|===
+
+The table can be used as a reference point.
+For example: if we know that all the strings in an array occupy 100 bytes or less, then arrays of length 80 or lower will definitely fit.
+
+
+=== Composite indexes
+
+This limitation only applies if one or more of the following criteria is met:
+
+* Composite index contains strings
+* Composite index contains arrays
+* Composite index targets many different properties (>50)
+
+We denote a targeted property of a composite index a `slot`.
+For example, an index on `:Person(firstName, surName, age)` has three properties and thus three slots.
+
+In the index, each slot is filled by an _element_.
+In order to calculate the size of the index, we must have the size of each element in the index, i.e. the `elementSize`, as calculated in previous sections.
+
+
+The following equation can be used to verify that a specific composite index entry is within bounds:
+
+`sum( elementSize ) =< 8167`
+
+Here, `sum( elementSize )` is the sum of the sizes of all the elements of the composite key as defined in `elementSize~ifSingle~` in <<index-configuration-limitations-element-size-calculations>>.
+
+.The size of a composite index containing strings
+====
+
+Consider a composite index of five strings that each can occupy the maximum of 500 bytes.
+
+Using the equation above we get:
+
+`sum( elementSize ) = 5 * ( 3 + 500 ) = 2515 < 8167`
+
+We are well within bounds for our composite index.
+
+====
+
+.The size of an index containing arrays
+====
+
+Consider a composite index of 10 arrays of type `Float` that each have a length of 250.
+
+First we calculate the size of each array element:
+
+`elementSize~Array~ = 4 + ( arrayLength * elementSize~ifInArray~ ) = 4 + ( 250 * 4 ) = 1004`
+
+Then we calculate the size of the composite index:
+
+`sum( elementSize~Array~ ) = 10 * 1004 = 10040 > 8167`
+
+This index key will exceed the key size limit for native indexes.
+
+
+====

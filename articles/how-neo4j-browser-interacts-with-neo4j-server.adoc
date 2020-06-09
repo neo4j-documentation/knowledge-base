@@ -1,0 +1,86 @@
+= How Does Neo4j Browser interact with Neo4j Server?
+:slug: how-neo4j-browser-interacts-with-neo4j-server
+:author: Dave Shiposh
+:neo4j-versions: 3.2, 3.3
+:tags: browser, bolt, websocket
+:public:
+:category: browser
+
+Starting with Neo4j 3.2, the Neo4j Browser only supports Bolt connectivity to the Neo4j Server.  This requires that the network 
+allows for socket communication between the browser and Bolt Port specified on the Neo4j Server.
+To see if your network allows for websockets one can use http://www.websocket.org/echo.html[http://www.websocket.org/echo.html]
+
+If websockets are not allowed on your network, when attempting to authenticate via the Neo4j browser at http://localhost:7474 the 
+following error will be logged
+
+----
+ServiceUnavailable: WebSocket connection failure. Due to security constraints in your web browser, the reason for the failure is not 
+available to this Neo4j Driver. Please use your browsers development console to determine the root cause of the failure. Common reasons
+include the database being unavailable, using the wrong connection URL or temporary network problems. If you have enabled encryption,
+ensure your browser is configured to trust the certificate Neo4j is configured to use. WebSocket `readyState` is: 3
+----
+
+Additionally to allow for remote browser connections your $NEO4J_HOME/conf/neo4j.conf needs to be configured as
+
+----
+# To have Bolt accept non-local connections, uncomment this line:
+dbms.connector.bolt.address=0.0.0.0:7687
+----
+
+
+Below is the communication process between the Neo4j Browser and Neo4j Server:
+
+* The Browser does one HTTP call on startup:
+
+  GET / HTTP/1.1
+  Host: <server>:7474
+  Content-Type: application/json
+  
+* This request is there only to ask Neo4j what the Bolt URL is (configurable on the server with https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.connectors.default_advertised_address[`dbms.connectors.default_advertised_address`]).
+After that request the Browser tries to connect to the server over Bolt without credentials. This is for two reasons:
+ - When the response comes back, we know if auth is enabled or not
+ - If connection is successful, update app state to reflect that no credentials are needed to connect
+
+* If the first connection attempt is unsuccessful the Browser checks if there are any login credentials stored in the web browsers localstorage. If there is, the Browser tries to connect with them
+  - If successful, all good.
+  - If unsuccessful, give up and prompt the user for connection credentials
+
+
+* So, as a diagram this would look something like
+
+* Seq 0
+  
+  Client === GET ==> Neo4j (HTTP 7474) Ask for Bolt connection URL
+  Client <== Resp === Neo4j (HTTP 7474)
+
+* Seq 1
+  
+  Client === Bolt ==> Neo4j (WS 7687) without auth credentials
+
+* Alternate 1.1
+  
+  Client <== Resp (success) === Neo4j (WS 7687)
+  (Success, stop)
+
+* Alternate 1.2
+  
+  Client <== Resp (no success) === Neo4j (WS 7687)
+  (No success, goto Seq 2)
+
+* Seq 2
+  
+  Client === Bolt ==> Neo4j (WS 7687) with auth credentials
+
+* Alternate 2.1
+  
+  Client <== Resp (success) === Neo4j (WS 7687)
+  (Success, stop)
+
+* Alternate 2.2
+  
+  Client <== Resp (no success) === Neo4j (WS 7687)
+  (No success, prompt user for credentials)
+
+
+Note you will end up at the same page prompting for credentials both when you have invalid credentials and/or when you are unable to connect via Bolt, so it's important to check both possible causes if you're unable to connect.
+

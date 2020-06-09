@@ -1,0 +1,225 @@
+= Diagnose storage performance issues
+:public:
+:tags: storage, performance, installation, configuration
+:slug: diagnose-storage-performance-issues
+:category: installation
+:neo4j-versions: 3.4,3.5,4.0
+:author: Jeremie Phoulchand
+
+Slow storage can affect Neo4j performance, therefore we recommend using Solid State Drives in the https://neo4j.com/docs/operations-manual/current/performance/disks-ram-and-other-tips/#performance-storage[product documentation^].
+
+== Benchmark your underlying system
+
+On Ubuntu or RedHat, you can use `fio` tool to benchmark your underlying storage.
+
+The command below will create a 1GB file in the current folder:
+
+----
+$  fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
+----
+
+It produces the following output on an AWS instance with a gp2 (General Purpose SSD). We can see 1500iops:
+
+----
+test: (g=0): rw=randrw, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=64
+fio-2.1.5
+Starting 1 process
+test: Laying out IO file(s) (1 file(s) / 1024MB)
+Jobs: 1 (f=1): [m] [100.0% done] [6100KB/5892KB/0KB /s] [1525/1473/0 iops] [eta 00m:00s]
+test: (groupid=0, jobs=1): err= 0: pid=2394: Thu Nov  7 15:34:32 2019
+  read : io=524704KB, bw=6074.2KB/s, iops=1518, runt= 86383msec
+  write: io=523872KB, bw=6064.6KB/s, iops=1516, runt= 86383msec
+  cpu          : usr=0.23%, sys=1.21%, ctx=86679, majf=0, minf=6
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued    : total=r=131176/w=130968/d=0, short=r=0/w=0/d=0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: io=524704KB, aggrb=6074KB/s, minb=6074KB/s, maxb=6074KB/s, mint=86383msec, maxt=86383msec
+  WRITE: io=523872KB, aggrb=6064KB/s, minb=6064KB/s, maxb=6064KB/s, mint=86383msec, maxt=86383msec
+
+Disk stats (read/write):
+  nvme0n1: ios=131032/130833, merge=0/27, ticks=1289168/1306400, in_queue=2508680, util=99.78%
+----
+
+On a modern laptop, you can expect 13000iops.
+
+----
+fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
+test: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
+fio-3.7
+Starting 1 process
+Jobs: 1 (f=1): [m(1)][100.0%][r=52.4MiB/s,w=52.4MiB/s][r=13.4k,w=13.4k IOPS][eta 00m:00s]
+test: (groupid=0, jobs=1): err= 0: pid=8720: Thu Nov 14 15:25:49 2019
+   read: IOPS=13.4k, BW=52.2MiB/s (54.7MB/s)(512MiB/9804msec)
+   bw (  KiB/s): min=51625, max=55192, per=99.55%, avg=53220.42, stdev=977.74, samples=19
+   iops        : min=12906, max=13798, avg=13304.89, stdev=244.52, samples=19
+  write: IOPS=13.4k, BW=52.2MiB/s (54.8MB/s)(512MiB/9804msec)
+   bw (  KiB/s): min=51865, max=54634, per=99.55%, avg=53247.68, stdev=774.47, samples=19
+   iops        : min=12966, max=13658, avg=13311.63, stdev=193.63, samples=19
+  cpu          : usr=4.52%, sys=75.46%, ctx=1117, majf=0, minf=28
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued rwts: total=131040,131104,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: bw=52.2MiB/s (54.7MB/s), 52.2MiB/s-52.2MiB/s (54.7MB/s-54.7MB/s), io=512MiB (537MB), run=9804-9804msec
+  WRITE: bw=52.2MiB/s (54.8MB/s), 52.2MiB/s-52.2MiB/s (54.8MB/s-54.8MB/s), io=512MiB (537MB), run=9804-9804msec
+
+Disk stats (read/write):
+  sda: ios=128856/128900, merge=19/39, ticks=148871/43881, in_queue=192710, util=99.10%
+----
+
+On an nvme locally attached drive: we get 100 000 iops.
+
+----
+$  fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
+test: (g=0): rw=randrw, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=64
+fio-2.1.5
+Starting 1 process
+test: Laying out IO file(s) (1 file(s) / 1024MB)
+Jobs: 1 (f=1)
+test: (groupid=0, jobs=1): err= 0: pid=5451: Sat Nov 30 04:12:00 2019
+  read : io=524704KB, bw=411856KB/s, iops=102963, runt=  1274msec
+  write: io=523872KB, bw=411203KB/s, iops=102800, runt=  1274msec
+  cpu          : usr=28.91%, sys=63.71%, ctx=5080, majf=0, minf=5
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued    : total=r=131176/w=130968/d=0, short=r=0/w=0/d=0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: io=524704KB, aggrb=411855KB/s, minb=411855KB/s, maxb=411855KB/s, mint=1274msec, maxt=1274msec
+  WRITE: io=523872KB, aggrb=411202KB/s, minb=411202KB/s, maxb=411202KB/s, mint=1274msec, maxt=1274msec
+
+Disk stats (read/write):
+  nvme0n1: ios=108546/108561, merge=0/0, ticks=40192/9032, in_queue=48820, util=86.23%
+----
+
+
+A throughput optimised HDD will be able to handle significantly less iops: 66 iops 
+
+----
+$  fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
+test: (g=0): rw=randrw, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=64
+fio-2.1.5
+Starting 1 process
+Jobs: 1 (f=1): [m] [99.9% done] [768KB/732KB/0KB /s] [192/183/0 iops] [eta 00m:02s]
+test: (groupid=0, jobs=1): err= 0: pid=967: Fri Nov 29 17:35:59 2019
+  read : io=524704KB, bw=273928B/s, iops=66, runt=1961452msec
+  write: io=523872KB, bw=273493B/s, iops=66, runt=1961452msec
+  cpu          : usr=0.08%, sys=0.18%, ctx=235668, majf=0, minf=5
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued    : total=r=131176/w=130968/d=0, short=r=0/w=0/d=0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: io=524704KB, aggrb=267KB/s, minb=267KB/s, maxb=267KB/s, mint=1961452msec, maxt=1961452msec
+  WRITE: io=523872KB, aggrb=267KB/s, minb=267KB/s, maxb=267KB/s, mint=1961452msec, maxt=1961452msec
+
+Disk stats (read/write):
+  xvdba: ios=130360/130859, merge=641/1085, ticks=59917432/59357236, in_queue=119277180, util=100.00%
+----
+
+== Monitor a specific storage device in Real-Time
+
+First, you need to identify which storage device is used by Neo4j.
+
+----
+$ df /var/lib/neo4j/
+Filesystem     1K-blocks    Used Available Use% Mounted on
+/dev/sda1        4972896 3534496   1188180  75% /
+----
+
+You can use iostat which is provided in sysstat package.
+The command below will give you the disk activity for every devices every 3 seconds.
+
+----
+$ iostat -m 3
+Linux 3.10.0-1062.4.1.el7.x86_64 (node02) 	14/11/19 	_x86_64_	(1 CPU)
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.67    0.00    0.79    0.06    0.00   98.48
+
+Device:            tps    MB_read/s    MB_wrtn/s    MB_read    MB_wrtn
+sda             119.72         0.35         0.27        807        624
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.00    0.00    0.00    0.00    0.00  100.00
+
+Device:            tps    MB_read/s    MB_wrtn/s    MB_read    MB_wrtn
+sda               0.00         0.00         0.00          0          0
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.00    0.00    0.00    0.00    0.00  100.00
+
+Device:            tps    MB_read/s    MB_wrtn/s    MB_read    MB_wrtn
+sda               0.00         0.00         0.00          0          0
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.00    0.00    0.00    0.00    0.00  100.00
+----
+
+== Review abnormal error messages in the console 
+
+Run the command below:
+
+`$ dmesg | grep -v "eth0\|IPv6\|IPVS\|docker\|promiscuous"`
+
+If you see similar errors `INFO: task neo4j.FileIOHel:78205 blocked for more than 120 seconds.`
+You might want to review the storage configuration with your system administrator.
+
+----
+[Sun Oct 20 10:26:10 2019] INFO: task neo4j.FileIOHel:78205 blocked for more than 120 seconds.
+[Sun Oct 20 10:26:10 2019] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[Sun Oct 20 10:26:10 2019] neo4j.FileIOHel D ffff959abd738000     0 78205      1 0x00000080
+[Sun Oct 20 10:26:10 2019] Call Trace:
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90d7ceb4>] ? __radix_tree_lookup+0x84/0xf0
+[Sun Oct 20 10:26:10 2019]  [<ffffffff91167020>] ? bit_wait+0x50/0x50
+[Sun Oct 20 10:26:10 2019]  [<ffffffff91168ed9>] schedule+0x29/0x70
+[Sun Oct 20 10:26:10 2019]  [<ffffffff911669e1>] schedule_timeout+0x221/0x2d0
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90b01292>] ? ktime_get_ts64+0x52/0xf0
+[Sun Oct 20 10:26:10 2019]  [<ffffffff91167020>] ? bit_wait+0x50/0x50
+[Sun Oct 20 10:26:10 2019]  [<ffffffff911685ad>] io_schedule_timeout+0xad/0x130
+[Sun Oct 20 10:26:10 2019]  [<ffffffff91168648>] io_schedule+0x18/0x20
+[Sun Oct 20 10:26:10 2019]  [<ffffffff91167031>] bit_wait_io+0x11/0x50
+[Sun Oct 20 10:26:10 2019]  [<ffffffff91166b57>] __wait_on_bit+0x67/0x90
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90bb960e>] ? __find_get_pages+0x11e/0x1c0
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90bb5ab1>] wait_on_page_bit+0x81/0xa0
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90ac2f30>] ? wake_bit_function+0x40/0x40
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90bc722b>] truncate_inode_pages_range+0x42b/0x700
+[Sun Oct 20 10:26:10 2019]  [<ffffffffc025c167>] ? __xfs_trans_commit+0x157/0x260 [xfs]
+[Sun Oct 20 10:26:10 2019]  [<ffffffffc025c530>] ? xfs_trans_commit+0x10/0x20 [xfs]
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90c7005a>] ? __inode_wait_for_writeback+0x7a/0xf0
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90ac2f30>] ? wake_bit_function+0x40/0x40
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90bc756f>] truncate_inode_pages_final+0x4f/0x60
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90c5f16c>] evict+0x16c/0x180
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90c5f9bc>] iput+0xfc/0x190
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90c53a6e>] do_unlinkat+0x1ae/0x2d0
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90c4777e>] ? SYSC_newstat+0x3e/0x60
+[Sun Oct 20 10:26:10 2019]  [<ffffffff90c54b26>] SyS_unlink+0x16/0x20
+[Sun Oct 20 10:26:10 2019]  [<ffffffff91175ddb>] system_call_fastpath+0x22/0x27
+----
+
+== Additional links
+
+For Cloud environments, IO throttling can also cause performannce issues
+
+Azure:
+
+https://blogs.msdn.microsoft.com/mast/2014/08/02/how-to-monitor-for-storage-account-throttling/
+
+https://blogs.msdn.microsoft.com/mast/2017/09/29/monitor-alert-disk-vm-io-throttling-linux-vms-arm/
+
+AWS:
+
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/benchmark_procedures.html
+
+Note: The tests were done in November 2019.

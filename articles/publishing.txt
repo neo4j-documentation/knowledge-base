@@ -1,0 +1,2 @@
+curl -s -u "michael.hunger@neotechnology.com/token:PzUk52BeUVd7DEbB3eFsuJ8f67tAHay615rZyVmy" https://support.neo4j.com/api/v2/help_center/articles.json | jq '.articles[].title'
+https://developer.zendesk.com/rest_api/docs/core/introduction

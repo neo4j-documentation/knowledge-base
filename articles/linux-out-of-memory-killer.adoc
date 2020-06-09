@@ -1,0 +1,58 @@
+= Linux Out of Memory killer
+:slug: linux-out-of-memory-killer
+:author: José Rocha
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
+:tags: performance, memory, java, out-of-memory
+:public:
+:category: performance
+:environment: linux
+
+The Out Of Memory Killer or OOM Killer is a process that the linux kernel employs when the system is critically low on memory. This 
+situation occurs because the linux kernel has over allocated memory to its processes. 
+
+When a process starts it requests a block of memory from the kernel. This initial request is usually a large request that the process 
+will not immediately or indeed ever use all of. The kernel, aware of this tendency for processes to request redundant memory, over 
+allocates the system memory. This means that when the system has, for example, 2GB of RAM the kernel may allocate 2.5GB to processes. 
+
+Normally, this situation does not cause a problem. However, if enough processes begin to use all of their requested memory blocks 
+then there will not be enough physical memory to support them all. This means that the running processes require more memory than 
+is physically available. This situation is critical and must be resolved immediately.
+
+The solution that the linux kernel employs is to invoke the OOM Killer to review all running processes and kill one or more of them 
+in order to free up system memory and keep the system running.
+
+[NOTE]
+====
+The OOM Killer will only get invoked when the system is critically low on memory.
+====
+
+Due to its nature, Neo4j will always have a high memory footprint and it's always likely to be a candidate to be killed when the OOM
+Killer sweeps the running processes. While what gets killed often seems random or simply the highest memory consumer, the OOM Killer
+doesn't operate like that. Instead, it chooses which process to kill based on its `oom_score`. This is a value controled by the 
+operation system itself based on a number of criteria.
+
+You can check the `oom_score` of a process by looking at `/proc/$PID/oom_score`.
+
+While we can't truly prevent Neo4j from being killed if needed, we can adjust the `oom_score` to make its process less likely to be
+terminated by the OOM Killer. To do this, you can edit the following file:
+
+----
+/proc/$PID/oom_score_adj
+----
+
+[NOTE]
+====
+Files in /proc are not actual files, they're an interface to lower-levels of the operating system. Therefore you cannot edit them using `nano` or `vi`. Rather, you can `echo` the value into the file as such:
+
+----
+echo -100 > /proc/$PID/oom_score_adj
+----
+====
+
+You can adjust the value on this file, valid values are integers in the range of -1000 to 1000. The lower the value, the lower the 
+chance that it's going to be killed.
+
+Again this will not prevent Neo4j from being killed, but it will influence the likelihood of it happening.
+
+Be aware that if the process restarts, you will have to set the `oom_score_adj` again. If you want to implement this as a more 
+permanent solution it's recommended that you automate this adjustment whenever Neo4j starts, for its new PID.

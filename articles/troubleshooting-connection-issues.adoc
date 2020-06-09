@@ -1,0 +1,58 @@
+= Troubleshooting Connection Issues in Neo4j Browser and Cypher Shell
+:slug: troubleshooting-connection-issues
+:author: David Allen
+:neo4j-versions: 2.2, 2.3, 3.0, 3.1, 3.2, 3.3, 3.4
+:tags: https, cypher-shell, browser
+:category: browser
+:public:
+
+This page describes common issues users may encounter in connecting Neo4j Browser or cypher-shell to a Neo4j database,
+and how to address them.
+
+== Connection Timeout
+
+Symptom: connection attempts lag for a long time, and then fail with connection timed out errors.
+
+Example: 
+----
+$ cypher-shell -a 37.204.217.197 -u neo4j -p myPassword
+connection timed out: /37.204.217.197:7687
+----
+
+Troubleshooting steps:
+
+1. Ensure that the address is correct.
+2. Ensure that if the server is listening for bolt connections on a port other than 7687, that you pass the port explicitly
+to your client (e.g. cypher-shell) or other program you have written.
+3. Ensure that firewall rules do not prohibit traffic on the bolt port.
+
+Common causes of this error:
+
+1. A cloud instance of neo4j is launched with no security groups defined or port access.  Bolt is available on 
+at the right address, but firewall rules prevent access.  Packets are dropped, and so the result is a connection timeout.
+2. Non-standard configuration of neo4j which runs bolt on a port other than 7687, for example to comply with local network
+policies.
+3. The server is not yet available.  For a period of time while starting up, and particularly if the database is repairing
+files or migrating an old store, the bolt endpoint may not be available.  You will know that it is available when the logs
+contain a message that looks like this:  `2018-05-25 13:34:34.584+0000 INFO  Bolt enabled on 127.0.0.1:7687.`
+
+== ServiceUnavailable: WebSocket connection failure
+
+A similar message you might see is: `WebSocket connection failure. Due to security constraints in your web browser, the reason for the failure is not available to this Neo4j Driver`.
+
+Symptom:  you can connect to Neo4j Browser and enter credentials, but fail to connect with a message
+about WebSocket connection failures.
+
+image:https://imgur.com/3Y7NBDg.png[image,width=600]
+
+Explanation:  this is commonly seen with Firefox and some versions of Internet Explorer, when Neo4j Browser
+is used with an untrusted SSL certificate.  When users click to accept the exception and permit traffic, those
+browsers authorize that action for only the port that Neo4j Browser is running on, not for all ports on that
+host.  As a result, the browser's security policy fails the WebSocket connection to the bolt port.
+
+Available Resolutions:
+1. Use a signed SSL certificate
+2. Follow directions for your browser to trust the server's certificate for the bolt port, and then refresh the page.
+3. Use Chrome
+4. Set `dbms.connector.bolt.tls_level=OPTIONAL` in your neo4j config.  Be aware that bolt connections may not be
+encrypted, but this is a method of side-stepping web browser issues with the untrusted certificate.

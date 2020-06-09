@@ -1,0 +1,149 @@
+= Understanding how MERGE works
+:slug: understanding-how-merge-works
+:author: Andrew Bowman
+:neo4j-versions: 2.2, 2.3, 3.0, 3.1
+:tags: merge, cypher
+:public:
+:category: cypher
+
+== What is MERGE, and how does it work?
+
+The `MERGE` clause ensures that a pattern exists in the graph.
+Either the pattern already exists, or it needs to be created.
+
+In this way, it's helpful to think of MERGE as attempting a MATCH on the pattern, and if no match is found, a CREATE of the pattern.
+
+When the specified pattern is not present and needs to be created, any variables previously bound to existing graph elements will be reused in the pattern. All other elements of the pattern will be created.
+
+It's important to know which pattern elements will use existing graph elements and which will be created instead.
+
+For the following examples, we'll use a very simplistic graph of :Student, :Class, :ReportCard, and :Term nodes as follows.
+
+[source,cypher]
+----
+(:Student)-[:ENROLLED_IN]->(:Class)
+(:Student)-[:EARNED]->(:ReportCard)
+(:Class)-[:FOR_TERM]->(:Term)
+
+----
+
+== A MERGE without bound variables can create duplicate elements
+
+The most common MERGE mistake is attempting to MERGE a pattern with no bound variables when you want to use existing graph elements.
+
+For example, attempting to enroll an existing `student` in an existing `class`.
+
+[source,cypher]
+----
+MERGE (student:Student{id:123})-[:ENROLLED_IN]->(class:Class{name:'Cypher101'})
+----
+
+In the above query, `student` and `class` haven't been previously bound to any node, this is their first use in the query.
+
+If the given student is already enrolled in the given class, the variables will be bound to the existing nodes in the graph as expected.
+
+However, if the pattern doesn't already exist, all unbound elements of the pattern will be created. In this case, all of them;
+a new :Student node will be created with the given id, and a new :Class node will be created with the given name, and a new :ENROLLED_IN relationship will be created between these brand new nodes.
+
+If there is a unique constraint for :Student(id), then an error will be thrown. Otherwise, duplicate nodes will be created, which might escape notice, especially for novice users.
+
+== A MERGE with bound variables reuses existing graph elements
+
+To use the existing nodes and relationships in the graph, MATCH or MERGE on the nodes or relationships first, and then MERGE in the pattern using the bound variables.
+
+A correct version of the enrollment query from above will MATCH on the `student` and `class` first, and then MERGE the relationship.
+
+[source,cypher]
+----
+MATCH (student:Student{id:123})
+MATCH (class:Class{name:'Cypher101'})
+MERGE (student)-[:ENROLLED_IN]->(class)
+----
+
+== MERGE using combinations of bound and unbound variables for different use cases
+
+While the above approach is correct for that particular use case, it's not the right approach for all use cases.
+We may need to use combinations of bound and unbound variables in the MERGE for correct behavior.
+
+Consider a query creating report cards for students.
+
+If we reused the above approach, the query may look like this.
+
+[source,cypher]
+----
+MATCH (student:Student{id:123})
+MERGE (reportCard:ReportCard{term:'Spring2017'})
+MERGE (student)-[:EARNED]->(reportCard)
+----
+
+The problem in this query is that the same :ReportCard node is being reused for all students.
+If the query also needed to add grades to the :ReportCard, each subsequent entry would overwrite what was added before.
+If not caught, this approach would end up with all students having the exact same grades, the grades entered by the last student processed.
+
+What we really need is a separate :ReportCard per student. We can achieve this by binding the :Student node, but not the :ReportCard node.
+
+[source,cypher]
+----
+MATCH (student:Student{id:123})
+MERGE (student)-[:EARNED]->(reportCard:ReportCard{term:'Spring2017'})
+----
+
+Since the `student` variable is bound to a node, that node will be used if the pattern needs to be created, and the :ReportCard will be created just for this `student`, not shared among all students.
+
+=== Remember unbound relationships will be created too
+
+The above examples should be easy to understand for nodes, but remember they apply to relationships too. Unbound relationships in a pattern will be created if the entire pattern doesn't exist.
+
+Consider if we needed to enroll a :Student in a :Class for a specific :Term.
+
+[source,cypher]
+----
+MATCH (student:Student{id:123})
+MATCH (spring:Term{name:'Spring2017'})
+MATCH (class:Class{name:'Cypher101'})
+MERGE (student)-[:ENROLLED_IN]->(class)-[:FOR_TERM]->(spring)
+----
+
+This may look correct, and will behave correctly for the very first run, or for repeated runs for the same student, term and class, but not in the case where the query is run for different students but the same class and term. 
+
+This is because even if the the :FOR_TERM relationship exists between the class and the term, if the entire pattern doesn't match, such as when enrolling students in the class, the entire pattern will be created. If the query was run 30 times to enroll 30 students for the same class and term, there would be 30 :FOR_TERM relationships between the class and the term.
+
+To fix this, if it's known that the :FOR_TERM relationship already exists between each :Class and its :Term, then move that part of the pattern into the MATCH.
+
+[source,cypher]
+----
+MATCH (student:Student{id:123})
+MATCH (class:Class{name:'Cypher101'})-[:FOR_TERM]->(spring:Term{name:'Spring2017'})
+MERGE (student)-[:ENROLLED_IN]->(class)
+----
+
+
+=== Use ON MERGE and ON CREATE after MERGE to SET properties according to MERGE behavior
+
+Often after a MERGE we need to SET properties on elements of the pattern, but we may want to conditionally set these properties depending on if MERGE matched to an existing pattern, or had to create it.
+For example, if we have default property values we want to set on creation.
+
+The ON MERGE and ON CREATE clauses give us the control we need. This also makes it possible to re-run queries and ensure we aren't overriding existing properties with defaults.
+
+Here's an example when setting student report cards and grades, assuming `{grades}` is a map parameter of grades we want to set when creating a new :ReportCard node.
+
+[source,cypher]
+----
+MATCH (student:Student{id:123})
+MERGE (student)-[:EARNED]->(reportCard:ReportCard{term:'Spring2017'})
+ON CREATE SET reportCard += {grades}
+----
+
+=== MERGE acquires locks on nodes and relationships in the pattern when resulting in pattern creation
+
+When MERGE fails to find an existing pattern, it will acquire locks on all bound nodes and relationships in the pattern before creating the missing elements of the pattern.
+
+This is to ensure a MERGE or CREATE can't concurrently create the pattern (or alter the properties of an existing pattern to make it identical to the desired pattern) while the MERGE is executing, which would cause pattern duplication.
+
+MERGE uses double-checked locking to avoid race conditions where the pattern might get created in the time gap between when MERGE determines the pattern doesn't exist, and when locks are acquired.
+
+==== Note for Neo4j < 3.0.9 for 3.0.x versions, and < 3.1.2 for 3.1.x versions
+
+A bug in the cost planner for affected versions prevented double-checked locking on MERGE. This allowed race conditions which could result in duplicate patterns being created by concurrent MERGE operations, or other write operation which caused the previously non-existent pattern to exist.
+
+We recommend upgrading to a version which includes this bug fix.

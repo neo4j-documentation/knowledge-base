@@ -1,0 +1,81 @@
+= Understanding Neo4j Query Plan Caching
+:slug: understanding-neo4j-query-plan-caching
+:zendesk-id: 217144068
+:author: Dana Canzano
+:tags: cypher,configuration,performance
+:public:
+:neo4j-versions: 2.3
+:category: cypher
+
+
+This article is based on the behavior of Neo4j 2.3.2.
+Query plan caching is governed by three parameters, as defined in the `conf/neo4j.properties` file, which are detailed http://neo4j.com/docs/stable/configuration-settings.html#config_dbms.cypher.min_replan_interval[here].
+
+The three parameters which govern whether a Cypher statement is planned/replanned are:
+
+* query_cache_size
+* dbms.cypher.min_replan_interval
+* dbms.cypher.statistics_divergence_threshold
+
+**query_cache_size** - Defaults to 1000 and represents the number of query plans recorded in the cache.
+For example, if you restarted Neo4j and ran 1001 unique Cypher statements, each of these statements would be planned and the last 1000 would be recorded in the query plan cache.
+If you then re-ran the 1st Cypher statement it would be replanned since it is no longer in the query cache, as only Cypher statements 2 through 1001 are currently in the cache.
+
+`dbms.cypher.min_replan_interval` - Defaults to 1 second and describes the amount of time a Cypher statement will exist in the cache before it is replanned.
+For example, if a Cypher statement is planned at 09:02:00 and the `dbms.cypher.min_replan_interval` was defined to be 5 seconds, then resubmitting the same Cypher statement at 09:02:01 would not result in replanning.
+Not until 09:02:06 would the Cypher statement be eligible for replanning.
+
+`dbms.cypher.statistics_divergence_threshold` - Defaults to 0.5 (value to be between 0 and 1) and describes the percentage change of statistics for the objects related to the Cypher that would force a replan.
+For example, if more than 50% of the nodes with label `Movie` were changed, then running a Cypher statement involving this label would result in a replan.
+However running a Cypher statement that did not involve the label `Movie` would not result in a replan.
+
+Also relative to query cache you should be aware of the following:
+
+* If there are any schema changes, either by way of addition/removal of indexes or constraints, all query plans are immediately invalidated.
+* Cypher supports querying with parameters.
+This means developers don’t have to resort to string building to create a query.
+* In addition to that, it also makes caching of execution plans much easier for Cypher.
+
+More details are described
+http://neo4j.com/docs/stable/cypher-parameters.html[here].
+
+Additionally, if you should see in the `graph.db/messages.log` a message similar to:
+
+----
+2016-03-08 09:43:16.854+0000 INFO [o.n.c.i.ServerExecutionEngine] Discarded stale query from the query cache: CYPHER 2.3 match n return n ... ... ...
+----
+
+this indicates a plan which was previously in the query plan cache and has since been replanned.
+This message would not be encountered if the query plan had never been generated previously.
+
+For this message to occur, the following conditions must be met:
+
+a) At least one transaction has to happen in between seeing the query
+again +
+b) At least `dbms.cypher.min_replan_interval` seconds must have passed +
+c) ​More than​ `dbms.cypher.statistics_divergence_threshold` percent of the statistics used by the query must have changed (edited)
+
+For example, to generate the above message one could define:
+
+----
+dbms.cypher.min_replan_interval=0s
+dbms.cypher.statistics_divergence_threshold=0
+----
+
+If you then issue 2 Cypher statements, X and Y, in the following order:
+
+1.  statement 1: X
+2.  statement 2: Y
+3.  statement 3: X
+
+and Y modifies the statistics used by X, then we will see the message above in the messages.log.
+
+For example, if statement X is `MATCH n RETURN n` and statement Y is
+`CREATE ()`, then:
+
+1.  statement 1 results in X being placed in the query cache
+2.  statement 2 results in Y being placed in the query cache
+3.  statement 3 will replan statement X since more
+
+than `dbms.cypher.min_replan_interval` has elapsed and statement Y changed the statistics used by statement X
+

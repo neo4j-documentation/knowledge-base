@@ -1,0 +1,161 @@
+<div class="paragraph">
+<p>When running Neo4j Docker, it will run as <code>neo4j</code> user inside the container. But to run docker as a different user one can specify the <code>--user</code> argument.
+Documentation has a section for running as non-root user:</p>
+</div>
+<div class="paragraph">
+<p><a href="https://neo4j.com/docs/operations-manual/3.4/installation/docker/#docker-user" class="bare">https://neo4j.com/docs/operations-manual/3.4/installation/docker/#docker-user</a></p>
+</div>
+<div class="paragraph">
+<p>but would like to elaborate on the same in this KB article.</p>
+</div>
+<div class="paragraph">
+<p>When using the <code>--user</code> flag needs to have a valid, non-root user value provided. Our Docker container assumes/requires that the user is a) not root b) has write access to data and logs directories and has read access to conf directory. It is important to note that if you are passing 0:0 or 0 or root etc. as --user, it will still not use root to run neo4j but the container will use its own internal neo4j user and neo4j user group (these happen to currently have uid 101 and gid 101 but that should not be relied upon). The Docker entrypoint is specifically written to avoid running the neo4j docker image as root.</p>
+</div>
+<div class="paragraph">
+<p>So best approach here is to create a User and group and pass that on to the Docker input --user.</p>
+</div>
+<div class="paragraph">
+<p>create a user neo4j without a home directory</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>sudo useradd -M neo4j</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>prevent neo4j from logging in</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>sudo usermod -L neo4j</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Create data dir.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>data_dir="/neo4j/data"
+sudo mkdir -p /neo4j/data
+sudo chown -R neo4j /neo4j/data
+sudo chgrp -R neo4j /neo4j/data</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note we only give group read permissions here</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>sudo chmod -R u+rwX,g+rX,o-wrx /neo4j/data</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We do not recommend any application other than neo4j writing to the data dir. This can corrupt the data store.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>sudo mkdir -p /neo4j/conf
+sudo chown -R neo4j /neo4j/conf
+sudo chgrp -R neo4j /neo4j/conf</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Group gets write permissions here</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>sudo chmod -R u+rX,g+rwX,o-wrx /neo4j/conf</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>N.b. if you make external changes to the conf dir you must restart the docker image to pickup new configuration (conf is copied from the mounted volume on startup)</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>sudo mkdir -p /neo4j/plugins
+sudo chown -R neo4j /neo4j/plugins
+sudo chgrp -R neo4j /neo4j/plugins</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Group gets write permissions here</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>sudo chmod -R u+rwX,g+rwX,o-wrx /neo4j/plugins # N.b. if you make external changes to the plugins dir you must restart neo4j before it will pickup new plugins</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s assume that the logs dir is being used by multiple applications n.b. if something interferes with neo4j writing logs it can crash the neo4j process.
+Create a logs group for all things log related</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>sudo groupadd logs</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Add neo4j to logs group</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>sudo usermod -a -G logs neo4j
+sudo mkdir -p /logs/neo4j
+sudo chown -R root /logs/neo4j
+sudo chgrp -R logs /logs/neo4j
+sudo chmod -R u+rwX,g+rwX,o-wrx /logs/neo4j</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If docker does not run as root</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>docker_user=root
+sudo usermod -a -G logs "${docker_user}"
+sudo usermod -a -G neo4j "${docker_user}"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Add ourselves to the neo4j group so <code>/neo4j/*</code> dirs created above can be read and editted.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>current_user=$(id -un)
+sudo usermod -a -G neo4j "${current_user}"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Start a new shell to pick up this group assignment</p>
+</div>
+<div class="paragraph">
+<p>Note docker doesnt pull in secondary groups automatically so one has to do this explicitly</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>groups=( $( id --real --groups neo4j ) )
+docker run \
+    --publish=7474:7474 --publish=7687:7687 \
+    --volume=/neo4j/data:/data \
+    --volume=/neo4j/plugins:/plugins \
+    --volume=/neo4j/conf:/conf \
+    --volume=/logs/neo4j:/logs \
+    --user="$(id -u neo4j):$(id -g neo4j)" \
+    --group-add=$groups \
+    neo4j:3.4</code></pre>
+</div>
+</div>
+<hr>
+<div class="ulist">
+<ul>
+<li>
+<p>Last Modified: 2018-11-30 15:09:09 CET by Rohan Kharwar.</p>
+</li>
+<li>
+<p>Relevant for Neo4j Versions: 3.2+.</p>
+</li>
+<li>
+<p>Relevant keywords startup, permissions.</p>
+</li>
+</ul>
+</div>

@@ -1,0 +1,78 @@
+= How to monitor if a follower is in sync with Leader (Causal Cluster)
+:slug: how-to-monitor-if-a-follower-is-in-sync-with-leader-causal-cluster
+:author: José Rocha
+:neo4j-versions: 3.1, 3.2, 3.3, 3.4
+:tags: server,cluster,causal cluster,leader,follower,writes
+:public:
+:category: cluster
+
+To monitor if a Follower is in sync with its Leader, or know how much it is lagging behind, it is possible to check the *Last Commited Transaction Id* from Leader and Follower.
+
+Last Commited Transaction Id can be assessed in one of the following ways:
+
+* From the Neo4j Browser
+* Via the Neo4j Metrics
+* Via the JMX MBeans
+
+*1. Checking Last Transaction Id from the Neo4j Web Interface*
+
+From the Neo4j Browser:
+
+* type `:sysinfo` and hit enter
+* from the _"Transactions"_ frame, identify the parameter _"Last Tx Id"_
+
+You can also call the `dbms.queryJmx` procedure in the following way:
+
+----
+call dbms.queryJmx("org.neo4j:instance=kernel#0,name=Transactions") yield attributes 
+return attributes["LastCommittedTxId"]
+----
+
+*2. Checking Last Commited Transaction Id via the Neo4j Metrics*
+
+Assuming Neo4j's csv metrics are enabled already, you can analyse the following csv file: `neo4j.transaction.last_committed_tx_id.csv`.
+
+
+[NOTE]
+====
+From 3.4 onwards metrics are enabled by default. If you are running any version prior to 3.4, you need to enable the metrics in your `neo4j.conf` file on all instances. Please refer to https://neo4j.com/docs/operations-manual/current/monitoring/metrics/#metrics-enable in order to do so.
+====
+
+
+*3. Checking Last Commited Transaction Id via the JMX MBeans*
+
+Please check:
+
+* LastCommittedTxId
+
+You can do this using curl if you prefer:
+
+----
+curl -v http://localhost:7474/db/manage/server/jmx/domain/org.neo4j/instance%3Dkernel%230%2Cname%3DTransactions
+----
+
+
+[NOTE]
+====
+For more information on the supported Neo4j JMX MBeans and how to connect to the JMX monitoring programmatically or via JConsole, please refer to https://neo4j.com/docs/java-reference/current/jmx-metrics/
+====
+
+
+*Determining how much a Follower is lagging behind its Leader*
+
+To determine how much a Follower is lagging behind its Leader, you can compare the Last Commited Transaction Id (assessed in any of the methods described above) from Leader and Follower:
+
+----
+(Last Commited Transaction Id)_leader - (Last Commited Transaction Id)_follower
+----
+
+The higher the difference, the more the Follower is lagging behind (in terms of commited transactions). Because data propagation depends on a combination of different factors such as size of transactions, concurrency, hardware, network latency, etc, it's virtually impossible to correlate all of this into a time unit.
+
+
+[NOTE]
+====
+**Important Note**: One of Neo4j's Causal Cluster requirement is to safeguard data. The Core Servers do so by replicating all transactions using the Raft protocol. This ensures that the data is safely durable before confirming transaction commit to the end user application. In practice this means once a majority of Core Servers in a cluster (`N/2+1`) have accepted the transaction, it is safe to acknowledge the commit to the end user application. This safety requirement has an impact on write latency so make sure to take this into consideration when monitoring and determining whether there is an issue or not.
+
+You can read more about Neo4j's Causal Clustering here: https://neo4j.com/docs/operations-manual/current/clustering/introduction/
+====
+

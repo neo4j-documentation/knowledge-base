@@ -1,0 +1,34 @@
+= How to properly shutdown a Neo4j database after receiving the message *took more than 120 seconds to stop*
+:slug: how-to-properly-shutdown-a-neo4j-database
+:author: Ali Maddahian
+:neo4j-versions: 3.1,3.2,3.3,3.4,3.5
+:tags: installation, server
+:category: operations
+:public:
+
+The neo4j script under the `bin/` directory of any standard Neo4j install is the primary means of shutting down a running Neo4j instance. That script accepts a `stop` argument that will try to shutdown the running instance by sending a `SIGTERM` signal that the JVM interprets as a shutdown command and runs the installed shutdown hooks, which Neo4j implements to ensure a clean shutdown.
+
+When running `bin/neo4j stop` a message appears saying that the process is stopping. Then it waits for the process to exit, by default for `2` minutes, controlled by the environmental variable `$NEO4J_SHUTDOWN_TIMEOUT` (with the timeout set in seconds). The shell script will exit with a status code of 0 if the process exits before the `$NEO4J_SHUTDOWN_TIMEOUT` period or it will print a failure message with the PID of the Neo4j process and will return status code `1`.
+
+It is important to note that in either case, the Neo4j process will continue running. The reason is usually a checkpoint operation that takes longer than usual. If this happens, then the current state of the Neo4j process can still be inquired through use of the `bin/neo4j status` command. This will return status code `0` if the process is running and print its `PID` or it will return `3` if it's not running.
+
+The above allow two methods of checking the state of a Neo4j process that has been asked to shutdown.
+
+One is to set the `$NEO4J_SHUTDOWN_TIMEOUT` environment variable to something larger than `120` seconds. This is preferred if the expected time to shutdown is roughly known and the simplicity of a terminating command is desired.
+
+The other is to use the exit code of the `bin/neo4j status` command to execute a control loop after the `bin/neo4j stop` command returns with a non `0` status (indicating a still running process). In this case, it may make sense to set the `$NEO4J_SHUTDOWN_TIMEOUT` to something small, to jump to the control loop as soon as possible. For example
+
+----
+export NEO4J_SHUTDOWN_TIMEOUT=2 # in seconds
+
+if [[! "${bin/neo4j stop}"]]; then
+  while [["${bin/neo4j status}"]];
+    sleep 1
+    echo "Still waiting..."
+  done;
+fi
+
+
+else, echo "Done, process is now shutdown, continue with whatever you want to do"
+----
+

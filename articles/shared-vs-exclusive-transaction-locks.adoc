@@ -1,0 +1,63 @@
+= Shared vs Exclusive Transaction locks
+:slug: shared-vs-exclusive-transaction-locks
+:author: Umar Muzammil
+:neo4j-versions: 3.4, 3.5
+:tags: lock, transaction, deadlock, shared, exclusive
+:public:
+:category: performance
+
+This document describes the meaning of a shared lock as seen by transactions and the difference between a shared and exclusive lock.
+
+A "shared lock" means multiple transactions can be holding the same lock at the same time, where "same lock" is a 
+combination of resource type and resource id. For NODE resource types, the resource id would be the node id for instance. 
+So multiple transactions can _share_ the lock. This is in contrast to an _exclusive_ lock, where only one transaction can be 
+holding the lock at any given time. Hence they're exclusive. So there can be multiple holders of a shared lock, or a single 
+holder of an exclusive lock. Shared locks mostly taken for index or constraint read purposes. They can be taken both during query 
+planning, and during query execution. 
+
+Shared locks are taken when we want to read something and at the same time prevent other transactions from writing to, or 
+otherwise modifying that object.
+
+In the screenshot below, the Cypher statement produces a shared-lock:
+----
+MATCH (a:Actor)
+WHERE a.name = 'Doris Day'
+set a.died= 2019
+----
+
+Below code can be used to watch another transaction that is running:
+
+In one window:
+
+----
+MATCH (a:Actor)
+WHERE a.name = 'Doris Day'
+SET a.died = 2000
+with a
+call apoc.util.sleep(200000)
+RETURN a.died
+----
+
+And in another window:
+
+----
+call dbms.listTransactions() yield currentQueryId , currentQuery
+with currentQueryId, currentQuery
+WHERE currentQuery STARTS WITH "MATCH (a:Actor)"
+WITH currentQueryId
+call dbms.listActiveLocks(`currentQueryId`) YIELD mode, resourceType
+RETURN mode, resourceType
+----
+ 
+ 
+image::https://imgur.com/oI2r89x.png[Shared Lock]
+
+The above cypher MATCH statement modifies the node, so an exclusive lock is taken on the node. The SHARED LABEL locks are for the
+_schema_ of the database. They will prevent other transactions from modifying the schema in a way that involves those labels, 
+such as creating a new uniqueness constraint on the Actor label.
+
+Further notes:
+
+- Exclusive lock cannot be acquired if that node or relationship has an existing shared lock.
+- Transactions trying to read or modify a node with exclusive lock will wait for any existing exclusive lock to be released before they can be acquired. Hence the lock acquisition time comes into play, governing timeouts upon failure to acquire lock with a given time, configurable in neo4j.conf by `dbms.lock.acquisition.timeout`.
+- A limit on the maximum transaction runtime, is configurable in neo4j.conf via the `dbms.transaction.timeout` which can be used as a means to release any acquired exclusive and shared locks by transactions, within a specified time frame.

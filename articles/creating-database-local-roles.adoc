@@ -1,0 +1,167 @@
+= Creating and configuring database-local roles
+:slug: creating-database-local-roles
+:author: Andrew Bowman
+:neo4j-versions: 4.0
+:tags: security, rbac, multi-database
+:public:
+:category: security
+
+Neo4j 4.0 introduced advanced security features in the form of https://neo4j.com/docs/cypher-manual/4.0/administration/security/[role-based access controls], much needed, especially with the introduction of multiple database functionality.
+
+These controls can be accessed by administrators on the system database, present on every Neo4j instance.
+
+The system database comes with https://neo4j.com/docs/cypher-manual/4.0/administration/security/users-and-roles/#administration-security-roles-show[several built-in roles],
+but it is not completely clear on the means to grant these kinds of privileges to users constrained to specific databases.
+
+This article seeks to explain the global nature of these roles and provide some examples of how to make the equivalent of these built-in roles at the local database level.
+
+
+== Built-in roles are global and apply to all databases
+
+A common but wrong assumption is that a role can be assigned to a user on a database, such as assigning the reader role to user_a on database db1.
+But roles and the databases for which they apply are not independent of each other.
+Each role includes within itself not just its privileges, but also the databases for which it has access.
+Privileges themselves can be scoped to specific databases.
+
+So the databases for which the built-in roles apply are already set and immutable:
+They include global database access, and their privileges apply to every database, past, present, and future.
+A user granted the reader role is a reader for every database that will ever be created on that dbms.
+
+The same is true for the other built-in roles. They aren't meant to be used at a local database level.
+
+When it comes to per-database access and roles, it is best to think in terms of privileges, and not the built-in roles.
+So don't think in terms of granting the reader role to user_a on database db1, but instead think about creating some new role that has read privileges on db1, and access on db1, and grant that new role to user_a.
+
+
+=== We can copy built-in roles and adjust their database access privileges
+
+Instead of creating new roles from scratch, we can use the built-in roles as a template, when all we need is the equivalent of a built-in role scoped down to a specific database or databases.
+
+We do this by creating a new role https://neo4j.com/docs/cypher-manual/4.0/administration/security/users-and-roles/#administration-security-roles-create[as a copy of an existing role].
+Then we can revoke global database access, then grant access to the database or databases that the role should have access to.
+
+So to create the equivalent of the reader role but to database db1, and grant it to user_a, we would do the following from the system database:
+
+[source,cypher]
+----
+CREATE ROLE db1_reader AS COPY OF reader;
+REVOKE GRANT ACCESS ON DATABASES * FROM db1_reader;
+GRANT ACCESS ON DATABASE db1 TO db1_reader;
+GRANT ROLE db1_reader TO user_a;
+----
+
+Of course, user_a and database db1 must exist first for this to be successful.
+
+This grants privileges equivalent to the reader role, but constraints the user's access to only database db1.
+
+=== Be aware that privileges from multiple roles can combine
+
+It's important to note that the db1_reader role doesn't actually have reader privileges scoped to only db1.
+They still have full read privileges across any and all databases (as copied from the built-in reader role), it's just that currently, their role only allows access on db1. We had only revoked the ACCESS from all database, not the READ privilege.
+
+If the user was granted another role that granted access privileges on a different database and didn't constrain their privileges in some way,
+then the global read privileges inherent in the db1_reader role would allow them to be a reader of the new database.
+
+Let's illustrate that by adding a new role db2_accessor, and granting it to user_a:
+
+[source,cypher]
+----
+CREATE ROLE db2_accessor;
+GRANT ACCESS ON DATABASE db2 TO db2_accessor;
+GRANT ROLE db2_accessor TO user_a;
+----
+
+Even though the db2_accessor role merely gives access to the database, no permissions for reading, writing, or anything else, because of the global read privileges from db1_reader, user_a can read everything on db2.
+
+Let's check user_a's privileges to verify:
+
+[source,cypher]
+----
+SHOW USER user_a PRIVILEGES;
+----
+
+----
+╒═════════╤══════════╤════════════════╤═══════╤═════════════════╤══════════════╤════════╕
+│"access" │"action"  │"resource"      │"graph"│"segment"        │"role"        │"user"  │
+╞═════════╪══════════╪════════════════╪═══════╪═════════════════╪══════════════╪════════╡
+│"GRANTED"│"read"    │"all_properties"│"*"    │"NODE(*)"        │"db1_reader"  │"user_a"│
+├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
+│"GRANTED"│"traverse"│"graph"         │"*"    │"NODE(*)"        │"db1_reader"  │"user_a"│
+├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
+│"GRANTED"│"read"    │"all_properties"│"*"    │"RELATIONSHIP(*)"│"db1_reader"  │"user_a"│
+├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
+│"GRANTED"│"traverse"│"graph"         │"*"    │"RELATIONSHIP(*)"│"db1_reader"  │"user_a"│
+├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
+│"GRANTED"│"access"  │"database"      │"db1"  │"database"       │"db1_reader"  │"user_a"│
+├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
+│"GRANTED"│"access"  │"database"      │"db2"  │"database"       │"db2_accessor"│"user_a"│
+└─────────┴──────────┴────────────────┴───────┴─────────────────┴──────────────┴────────┘
+----
+
+=== We can mask privileges with DENY
+
+The ability for privileges to combine isn't necessarily an obstacle. Sometimes it can be very useful.
+
+For example, what if we're fine with having this combined read access, but we want to make sure no matter what database we're using, that this user can't read or match to SSN properties on :Person nodes.
+We can add a special role just for this restriction.
+
+[source,cypher]
+----
+CREATE ROLE ssn_blind;
+DENY MATCH {ssn, SSN} ON GRAPH * NODES Person TO ssn_blind;
+GRANT ROLE ssn_blind TO user_a;
+----
+
+
+
+=== Scoping privileges narrowly keeps permissions predictable
+
+If we wanted the tightest level of security, scoping privileges such that granting of a new role (and access of a new database) won't give unintentionally wide privileges,
+then we need to abandon the idea of copying the built-in roles when creating new ones. Their privileges are database-wide, which may be too permissive for what we want.
+
+Instead, we need to grant the privileges manually and scope them to the database or databases in question.
+
+Let's drop the db1_reader role and recreate it with more narrowly scoped privileges:
+
+[source,cypher]
+----
+CREATE OR REPLACE ROLE db1_reader;
+GRANT ACCESS ON DATABASE db1 TO db1_reader;
+GRANT MATCH {*} ON GRAPH db1 to db1_reader;
+GRANT ROLE db1_reader TO user_a;
+----
+
+The https://neo4j.com/docs/cypher-manual/4.0/administration/security/subgraph/#administration-security-subgraph-match[MATCH privilege] is shorthand for both READ and TRAVERSE privileges, so this saves us a line.
+
+
+Now let's check user_a's privileges again:
+
+[source,cypher]
+----
+SHOW USER user_a PRIVILEGES;
+----
+
+----
+╒═════════╤══════════╤════════════════╤═══════╤═════════════════╤══════════════╤════════╕
+│"access" │"action"  │"resource"      │"graph"│"segment"        │"role"        │"user"  │
+╞═════════╪══════════╪════════════════╪═══════╪═════════════════╪══════════════╪════════╡
+│"GRANTED"│"read"    │"all_properties"│"db1"  │"NODE(*)"        │"db1_reader"  │"user_a"│
+├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
+│"GRANTED"│"traverse"│"graph"         │"db1"  │"NODE(*)"        │"db1_reader"  │"user_a"│
+├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
+│"GRANTED"│"read"    │"all_properties"│"db1"  │"RELATIONSHIP(*)"│"db1_reader"  │"user_a"│
+├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
+│"GRANTED"│"traverse"│"graph"         │"db1"  │"RELATIONSHIP(*)"│"db1_reader"  │"user_a"│
+├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
+│"GRANTED"│"access"  │"database"      │"db1"  │"database"       │"db1_reader"  │"user_a"│
+├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
+│"GRANTED"│"access"  │"database"      │"db2"  │"database"       │"db2_accessor"│"user_a"│
+├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
+│"DENIED" │"read"    │"property(SSN)" │"*"    │"NODE(Person)"   │"ssn_blind"   │"user_a"│
+├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
+│"DENIED" │"read"    │"property(ssn)" │"*"    │"NODE(Person)"   │"ssn_blind"   │"user_a"│
+└─────────┴──────────┴────────────────┴───────┴─────────────────┴──────────────┴────────┘
+----
+
+We can see that although user_a has access to both db1 and db2 databases, the read and traverse privileges we granted to db1_reader are scoped just to db1.
+User_a can access db2, but can't actually do anything there until we grant them more privileges on one of their existing roles, or via a new role.

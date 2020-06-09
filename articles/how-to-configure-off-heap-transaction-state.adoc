@@ -1,0 +1,27 @@
+= How to configure off-heap transaction state
+:slug: how-to-configure-off-heap-transaction-state
+:author: Andrei Koval
+:neo4j-versions: 3.5,4.0
+:tags: memory, performance
+:public:
+:category: operations
+
+WARNING: This feature is experimental in 3.5, on by default in 4.0.
+
+Commencing with Neo4j 3.5, it is possible to store some of transactions' data in off-heap memory. This can help to reduce GC 
+pressure and/or prevent OOM crashes in a limited set of use cases, such as:
+
+* Creating/removing huge number of entities in a single transaction
+* Creating/updating huge number of properties in a single transaction, especially if those are large strings
+
+There are two relevant configuration parameters, both of which static and cannot be changed at run time.
+
+=== dbms.tx_state.memory_allocation
+
+This parameter controls whether transaction state should be stored on- or off-heap. Possible values are `ON_HEAP` and `OFF_HEAP`.
+Default value is `ON_HEAP`.
+
+=== dbms.tx_state.max_off_heap_memory
+
+This parameter allows to set a global limit on amount of off-heap memory that can be used
+for storing transaction state data. Zero means "unlimited". Default value is `2G`.

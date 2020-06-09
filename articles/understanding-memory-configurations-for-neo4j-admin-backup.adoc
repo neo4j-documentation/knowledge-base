@@ -1,0 +1,58 @@
+= Understanding memory configurations for neo4j-admin backup
+:slug: understanding-memory-configurations-for-neo4j-admin-backup
+:author: Dana Canzano
+:neo4j-versions: 3.2
+:tags: neo4j-admin, backup
+:public:
+:category: operations
+
+When using https://neo4j.com/docs/operations-manual/current/backup/perform-backup/#backup-commands[`bin\neo4j-admin backup`] to backup 
+a Neo4j database, Neo4j Support recommends explicitly defining the JVM heap size and pagecache memory to be used by the backup JVM
+process.
+If these are not defined then when `neo4j-admin backup` is executed, the JVM will allocate a default heap size and the pagecache will
+use the value defined
+in the dbms.memory.pagecache.size setting from conf/neo4j.conf.  In most cases the conf/neo4j.conf defines these parameters 
+such that they consume over 60% of total RAM.  As such, if `neo4j-admin backup` were to allocate the same values for heap and pagecache
+as the running Neo4j process, we would consume all available RAM leading to backup failure and out of memory conditions.
+
+To specify the JVM heap for `neo4j-admin backup`, set the environment variable *HEAP_SIZE*, for example:
+
+----
+export HEAP_SIZE=2G
+----
+
+To specify the pagecache allocation for `neo4j-admin backup`, 
+
+* Neo4j 3.3.1 forward 
+As a result of https://github.com/neo4j/neo4j/pull/10463[PR 10463], specify the pagecache value on the command line 
+through `--pagecache=XXM`
++
+replacing XX with the about of megabytes to allocate for the pagecache.  The --pagecache command line argument overrides any 
+and all other defined pagecache settings in any neo4j.conf files.
+
+* Neo4j 3.2.x through Neo4j 3.3.0 
++
+first create a directory specific for the backup config file and then set the environment variable NEO4J_CONF:
++
+----
+export NEO4J_CONF=/tmp/backup/
+----
++
+Then, in /tmp/backup create a file named neo4j.conf with the following content:
++
+----
+dbms.memory.pagecache.size=12G
+----
++
+For environments that were installed through Debian (i.e. apt-get install neo4j-enterprise) you will also need to add
++
+----
+dbms.directories.lib=/usr/share/neo4j/lib
+----
++
+to this neo4j.conf file.
+
+
+Be sure not to exceed the total physical RAM on the server between the Neo4j database plus the backup process.
+
+

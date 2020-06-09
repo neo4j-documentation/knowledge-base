@@ -1,0 +1,116 @@
+= Using Cypher to generate Cypher statements to recreate indexes and constraints
+:slug: using-cypher-to-generate-cypher-statements-to-recreate-indexes-and-constraints
+:author: Dana Canzano
+:neo4j-versions: 3.0, 4.0
+:tags: indexing, constraint, cypher
+:public:
+:category: cypher
+
+The following can be used to extract index defintions and constraint defintions from an existing database and the resultant
+output can be played back on another Neo4j database.
+For example with the `:play movies` dataset as when run from the Neo4j Browser, we can define the following indexes and constraints
+
+----
+// create a schema index on :Movie(title)
+// 4.0 syntax
+create index movieTitles for (n:Movies) on (n.title); 
+//
+// or 3.x syntax and a schema index on :Person(name)
+create index on :Person(name);
+//
+// create a constraint on :Movie such that no 2 Movies have the same tagline
+create constraint on (n:Movie) assert (n.tagline) is unique;
+----
+
+and with the above dataset the following is produced
+
+*3.x*   ( note the output only includes 2 indexes since the first index statement above is in 4.x format and will not run on 3.x)
+
+----
+// all indexes
+call db.indexes();
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| description                | indexName       | tokenNames | properties  | state    | type                   | progress | provider                              | id | failureMessage |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| "INDEX ON :Person(name)"   | "Unnamed index" | ["Person"] | ["name"]    | "ONLINE" | "node_label_property"  | 100.0    | {version: "1.0", key: "native-btree"} | 1  | ""             |
+| "INDEX ON :Movie(tagline)" | "index_3"       | ["Movie"]  | ["tagline"] | "ONLINE" | "node_unique_property" | 100.0    | {version: "1.0", key: "native-btree"} | 3  | ""             |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+2 rows available after 244 ms, consumed after another 12 ms
+
+// all constraints
+call db.constraints();
++----------------------------------------------------------------+
+| description                                                    |
++----------------------------------------------------------------+
+| "CONSTRAINT ON ( movie:Movie ) ASSERT movie.tagline IS UNIQUE" |
++----------------------------------------------------------------+
+
+1 row available after 13 ms, consumed after another 1 ms
+
+
+----
+
+*4.0.x*
+
+----
+// all indexes
+call db.indexes();
++---------------------------------------------------------------------------------------------------------------------------------------------------+
+| id | name                  | state    | populationPercent | uniqueness  | type    | entityType | labelsOrTypes | properties  | provider           |
++---------------------------------------------------------------------------------------------------------------------------------------------------+
+| 3  | "constraint_e7afa4cc" | "ONLINE" | 100.0             | "UNIQUE"    | "BTREE" | "NODE"     | ["Movie"]     | ["tagline"] | "native-btree-1.0" |
+| 2  | "index_5c0607ad"      | "ONLINE" | 100.0             | "NONUNIQUE" | "BTREE" | "NODE"     | ["Person"]    | ["name"]    | "native-btree-1.0" |
+| 1  | "movieTitles"         | "ONLINE" | 100.0             | "NONUNIQUE" | "BTREE" | "NODE"     | ["Movies"]    | ["title"]   | "native-btree-1.0" |
++---------------------------------------------------------------------------------------------------------------------------------------------------+
+
+3 rows available after 16 ms, consumed after another 1 ms
+
+// all constriants
+call db.constraints();
++------------------------------------------------------------------------------------------+
+| name                  | description                                                      |
++------------------------------------------------------------------------------------------+
+| "constraint_e7afa4cc" | "CONSTRAINT ON ( movie:Movie ) ASSERT (movie.tagline) IS UNIQUE" |
++------------------------------------------------------------------------------------------+
+
+1 row available after 10 ms, consumed after another 6 ms
+
+// statement to drop and create said indexes and constraints
+----
+
+
+To export the DROP AND CREATE statement for indexes and constraints one can run
+
+*3.x* 
+To export the DROP AND CREATE statement for indexes and constraints one can run
+
+----
+CALL db.indexes() YIELD description
+RETURN 'CREATE ' + description + ';'   ;
+----
+
+
+To extract Cypher `CREATE CONSTRAINT` statements run:
+
+----
+CALL db.constraints() YIELD description
+RETURN 'CREATE ' + description + ';' ;
+----
+
+
+*4.0.x* 
+----
+ call db.schemaStatements();
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| name                  | type         | createStatement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | dropStatement                           |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| "movieTitles"         | "INDEX"      | "CALL db.createIndex('movieTitles', ['Movies'], ['title'], 'native-btree-1.0', {`spatial.cartesian-3d.min`: [-1000000.0, -1000000.0, -1000000.0],`spatial.cartesian.min`: [-1000000.0, -1000000.0],`spatial.wgs-84.min`: [-180.0, -90.0],`spatial.cartesian-3d.max`: [1000000.0, 1000000.0, 1000000.0],`spatial.cartesian.max`: [1000000.0, 1000000.0],`spatial.wgs-84-3d.min`: [-180.0, -90.0, -1000000.0],`spatial.wgs-84-3d.max`: [180.0, 90.0, 1000000.0],`spatial.wgs-84.max`: [180.0, 90.0]})"                               | "DROP INDEX `movieTitles`"              |
+| "constraint_e7afa4cc" | "CONSTRAINT" | "CALL db.createUniquePropertyConstraint( 'constraint_e7afa4cc', ['Movie'], ['tagline'], 'native-btree-1.0', {`spatial.cartesian-3d.min`: [-1000000.0, -1000000.0, -1000000.0],`spatial.cartesian.min`: [-1000000.0, -1000000.0],`spatial.wgs-84.min`: [-180.0, -90.0],`spatial.cartesian-3d.max`: [1000000.0, 1000000.0, 1000000.0],`spatial.cartesian.max`: [1000000.0, 1000000.0],`spatial.wgs-84-3d.min`: [-180.0, -90.0, -1000000.0],`spatial.wgs-84-3d.max`: [180.0, 90.0, 1000000.0],`spatial.wgs-84.max`: [180.0, 90.0]} )" | "DROP CONSTRAINT `constraint_e7afa4cc`" |
+| "index_5c0607ad"      | "INDEX"      | "CALL db.createIndex('index_5c0607ad', ['Person'], ['name'], 'native-btree-1.0', {`spatial.cartesian-3d.min`: [-1000000.0, -1000000.0, -1000000.0],`spatial.cartesian.min`: [-1000000.0, -1000000.0],`spatial.wgs-84.min`: [-180.0, -90.0],`spatial.cartesian-3d.max`: [1000000.0, 1000000.0, 1000000.0],`spatial.cartesian.max`: [1000000.0, 1000000.0],`spatial.wgs-84-3d.min`: [-180.0, -90.0, -1000000.0],`spatial.wgs-84-3d.max`: [180.0, 90.0, 1000000.0],`spatial.wgs-84.max`: [180.0, 90.0]})"                             | "DROP INDEX `index_5c0607ad`"           |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+3 rows available after 24 ms, consumed after another 7 ms
+----
+
+

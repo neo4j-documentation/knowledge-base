@@ -1,0 +1,62 @@
+= Importing Data to Neo4j in the Cloud
+:slug: data-import-for-cloud
+:author: Jennifer Reif
+:twitter: @jmhreif
+:neo4j-versions: 3.4, 3.5
+:tags: import, cypher, cloud
+:public:
+:category: import-export
+
+Loading data in a Neo4j instance that is in the cloud is very similar to running Neo4j using any other method. However, there are a few small things to look out for and keep in mind when importing data to a 'cloud graph'. We will discuss the main ones in this article.
+
+* Configuration and access
+* Using the offline importer
+* Cloud disk planning
+
+The specifics of differences of running Neo4j in the Cloud are documented in our https://neo4j.com/developer/neo4j-cloud-vms/[developer guides^]. Anything not listed there would indicate is does not differ from other Neo4j implementations.
+
+=== Configuration and Access
+
+When you set up and deploy a cloud instance, the default, out-of-the-box security settings on some clouds may prevent traffic through the firewall to the data source you intend to use. This means that many external data sources and networks might be locked out from communicating with the Neo4j cloud instance. To remedy that, you will need to adjust the firewall settings on your cloud machine to allow traffic. How to do this varies on your cloud provider. For steps to change firewall settings, please consult your cloud provider’s documentation.
+
+==== Plugins
+
+Some Neo4j plugins like https://neo4j.com/developer/neo4j-apoc/[APOC^] and https://neo4j.com/docs/graph-algorithms/current/[graph algorithms^] are included as defaults in cloud installations. Other plugins can be installed manually, as needed. However, for using data import procedures in APOC, not all images have file imports from a local disk configured. These security settings could prevent you from using some procedures that would load a local file.
+
+If you execute one of these procedures that is blocked, you could see an error message similar to the one below.
+
+[source,cypher]
+----
+Neo.ClientError.Procedure.ProcedureCallFailed: Failed to invoke procedure apoc.load.json: Caused by: java.lang.RuntimeException: Import from files not enabled, please set apoc.import.file.enabled=true in your neo4j.conf
+----
+
+To alter these settings and allow any blocked procedures to run and access files, you can review the https://neo4j-contrib.github.io/neo4j-apoc-procedures/[APOC documentation^] for configuration settings and whitelisting options.
+
+=== Offline Data Import
+
+The neo4j-admin import tool is helpful for loading massive amounts of data into a new, empty database at incredible speeds by ignoring the usual transaction batching that occurs when a database is running and handling other daily requests. Using non-transaction loading makes the tool very fast, but means that the normal ACID process is circumvented for performance’s sake.
+
+If done accurately, this process is very simple and efficient. One small difference running the neo4j-admin import tool on a cloud instance of Neo4j compared with other deployments is how to stop and start the database. The cloud providers use `systemd` with Neo4j installed as a service, so you will need to stop the systemd service before using the neo4j-admin import. Your command steps to stop and start will look like the ones below.
+
+[source,bash]
+----
+systemctl stop neo4j
+#run neo4j-admin import command
+systemctl start neo4j
+----
+
+Further information on how the system service works with Neo4j in Cloud VMs can be found in one of our https://neo4j.com/developer/neo4j-cloud-vms/[developer guides^].
+
+Running offline data import should be used with caution. As a warning, users should never (ever!) use the offline data import while the database instance is running. Doing so will result in data corruption and error messages that are difficult to diagnose.
+
+For more information on the neo4j-admin import tool, check out the https://neo4j.com/docs/operations-manual/current/tools/import/[Operations Manual^].
+
+=== Disk Planning for the Cloud
+
+Importing data to Neo4j (especially large quantities of it) requires some disk space. The defaults initiated in your cloud instances may not be enough to handle large file imports or streamed imports from other systems.
+
+If the disk is under-allocated, the disk space will run out during the load, and the database will crash. To avoid this, you’ll need to increase your disk space. But, how much might you need?
+
+You will need some disk space to store any files (if using flat file import) and some space for the loading process. As a safe estimate, we recommend 2-3x the size of the data you are planning to load. For instance, if you have 50GB of CSV, you should likely allocate 100GB+ of disk.
+
+Of course, each data set may have varying complexity, but these numbers should cover most cases. As always, if you have any issues or questions, feel free to reach out to us on the https://community.neo4j.com/[Neo4j Community Site^]. We are happy to work with you to find the best solution!

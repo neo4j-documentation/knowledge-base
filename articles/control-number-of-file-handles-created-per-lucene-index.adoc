@@ -1,0 +1,40 @@
+= Control number of file handles created per Lucene Index
+:slug: control-number-of-file-handles-created-per-lucene-index
+:author: Umar Muzammil
+:neo4j-versions: 3.2, 3.3, 3.4
+:tags: indexing, lucence, open files, cpu, memory
+:category: operations
+:public:
+
+In the more recent Neo4j versions (3.4 onwards), the number of file handles opened by Neo4j may seem to increase compared with that in older versions.
+Native indexes require a per-index constant number of file handles, and this number scales as a function
+of the number of CPU cores available on the system. 
+
+This is because certain index implementations, e.g. lucene+native-1.0, uses more file descriptors and for a high number of indexes 
+(1000+ is more than avarage), hitting 60K open file descriptors limit becomes likely. This is because, in order to optimize I/O 
+performance, we open multiple channels to all the files. The lucene+native combination, creates files for both index
+engines to be prepared to handle both, even if one of these isn't used. While the consumed disk space is negligible, it's 
+still a couple of extra file descriptors, per index, that gets used. Currently, there is no way to toggle this off but a
+pure native index option in future may address this.
+
+The Lucene based indexes require a per-index number of file handles that scales as a function of the number of open transactions that interact with indexes. e.g. in a case of 72 cpu cores and for 
+100 native indexes, the number of file handles will top out at 64 file handles per index. It may be useful, firstly to determine the current number of schema indexes (the number of rows from CALL db.indexes()) as well
+as the current default index provider. This is set by the value of `dbms.index.default_schema_provider` in neo4j.conf, e.g. 
+lucene+native-1.0 or native-btree-1.0.
+
+The number of file descriptors will most likely spike during high load, so even if the database manages to start it can 
+still fail during runtime due to that limit, so it is recommended to keep a margin there. This is because the index creates 
+a lot of smaller files during transaction execution, which is then merged to a single large file in a background thread. 
+Generally, this merging is faster than the rate of transactions, but there is still a bit of lag before those files get merge
+and this temporarily increases the number of open files.
+
+The impact of this increased number of open files however, is highly depending on the OS and hardware. If required, one can 
+tweak the striping factor with an undocumented feature flag, e.g.
+
+`-Dorg.neo4j.io.pagecache.implSingleFilePageSwapper.channelStripePower=2`
+
+The default value is calculated from the number of available CPU cores, rounded up to the closest number of the ones listed above. The integer value of the above parameter,  is the exponent to which 2 is raised. Therefore, if channelStripePower is 5, then you will get 2^5 = 32 stripes aka. file descriptors for every individual mapped file. One can set it to 0 to have only one file descriptor per mapped file. Setting it to 1 will open 2 file descriptors, 2 will open 4, 3 opens 8, and so on. Note that setting `channelStripePower=0` can have a performance penalty, which is why it is not the default value. Lowering this setting might impact performance, especially on Windows, but on e.g. macOS, you can probably get away with lowering it. As every hardware is different, it is best to trial using various values to see with what works for a given hardware setup.
+
+References:
+
+https://github.com/neo4j/neo4j/issues/11739

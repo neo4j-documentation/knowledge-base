@@ -1,0 +1,55 @@
+= How Neo4j Browser uses bolt+routing
+:slug: how-neo4j-browser-bolt-routing
+:author: José Rocha
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
+:tags: connection,tls,routing
+:public:
+:category: drivers
+
+There are two kinds of Bolt drivers specified by URI scheme: the *bolt://* scheme is used to create a direct driver and the *bolt+routing://* scheme is used to create a routing driver.
+
+Neo4j Browser will always:
+
+- Use a direct driver for user administration frames
+- Use a direct driver to populate :sysinfo and the member specific items in the information panel e.g. version, cluster role etc
+
+When using bolt+routing and the provided URI points to a Core Causal Cluster member Neo4j Browser will:
+
+- Use a routing driver for all cypher queries submitted via the editor (including calls to user admininstration procedures)
+- Use a routing driver to populate the metadata (labels, relationship types, properties) in the information panel
+
+If the provided URI points to a Read-Replica Causal Cluster member, Neo4j Browser will:
+
+- Use a direct driver for all cypher queries submitted via the editor
+- Use a direct driver to populate the metadata (labels, relationship types, properties) in the information panel
+
+Please note that in order for bolt+routing to work correctly the current user must exist on all members in the cluster with the same authentication credentials.
+
+## Troubleshooting
+### ServiceUnavailable: WebSocket connection failure
+Symptom: you can connect to Neo4j Browser and enter credentials, but fail to connect with a message about WebSocket connection failures.
+
+It looks like this: https://imgur.com/3Y7NBDg.png
+
+Explanation: this is commonly seen with Firefox and some versions of Internet Explorer, when Neo4j Browser is used with an untrusted
+SSL certificate. When users click to accept the exception and permit traffic, those browsers authorize that action for only the port
+that Neo4j Browser is running on, not for all ports on that host. As a result, the browser's security policy fails the WebSocket
+connection to the bolt port.
+
+Available Resolutions:
+
+1. Use a signed SSL certificate
+2. Follow directions for your browser to trust the server's certificate for the bolt port, and then refresh the page.
+3. Use Chrome
+4. Set `dbms.connector.bolt.tls_level=OPTIONAL` in your neo4j config. Be aware that bolt connections may not be encrypted, but this
+is a method of side-stepping web browser issues with the untrusted certificate.
+
+If using a signed SSL certificate is not an option for you, you must configure your browser to trust the unsigned certificate both on 
+port 7473 (HTTPS) and 7687 (bolt). Configuring trust just for HTTPS is insufficient for browsers that enforce trust per-port, instead 
+of per-host (such as Firefox). Consult the help documentation for your browser to determine how to do this, as it varies depending on
+your browser and operating system.
+
+## Failed to Establish Connection in (5000)ms.
+When a driver attempts to connect to the server, it has a default amount of time that it will wait for a response from the server before giving up. When you get this message, it generally means that you did make a connection to the server, but the server isn't responsive within that timeout window. It may not be 5000ms, this is a configurable driver setting, and will depend on which language driver you're using, and your local configuration.
+
+A common reason why this error occurs is that your Neo4j instance is under heavy load. For example if you're running a query that is soon going to result in an Out of Memory error, it would be possible to run into this error. Another possibility is extremely high network latency between your machine and the Neo4j instance, for example if you're on a low quality wifi link.

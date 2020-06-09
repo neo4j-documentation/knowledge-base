@@ -1,0 +1,36 @@
+= Why did I get the “Kernel API returned non-existent relationship type: -1” exception? 
+:slug: kernel-api-returned-non-existent-relationship-type-exception
+:author: Vivek Saran
+:neo4j-versions: 3.3, 3.4, 3.5
+:tags: kernel, exception, relationships, transaction,bolt
+:public:
+:category: drivers
+
+In rare situations, the Neo4j Bolt driver throws an IllegalStateException. The top part of the stack appears as:
+ 
+----
+java.lang.IllegalStateException: Kernel API returned non-existent relationship type: -1
+at org.neo4j.kernel.impl.factory.GraphDatabaseFacade.getRelationshipTypeById(GraphDatabaseFacade.java:991)
+----
+
+Under the covers, this is what happens. The `getRelationshipTypeById(int type)` method is trying to search a relationship with `type =
+-1`. The value of `-1` is used as a token-value for the id of the relationship when it does not exist. When the embedded Java API does
+not find the relationship with an id, it simply passes -1 to this method, and the call that throws the exception is
+`getRelationshipTypeById(-1)`.
+
+The above scenario occurs when read transactions conflict with overlapping delete transactions. The conflict sometimes happens because
+the transactions in Neo4j use a `read-committed` isolation level.  Because the isolation level is read-committed, the read queries are
+not isolated from write queries.
+
+If your result set includes relationships, and those relationships are deleted before, or while the result is streamed back over the 
+bolt, you will encounter the `Kernel API returned non-existent relationship type: -1` exception.
+
+Here is a link describing the https://neo4j.com/docs/java-reference/current/transactions/#transactions-isolation[Isolation Levels in
+Neo4j].
+
+ 
+The good news is that in 3.5.5, a fix was introduced to provide better messaging for this issue. Here is the related text from the
+release notes for 3.5.5:
+_____
+Fix a number of cases where unhelpful exceptions were thrown, when a committed write transaction that performs deletes or removals cause conflicts in an overlapping read transaction. We now throw IllegalStateException from the embedded API and TransientException (which tells clients to retry their transactions) from the driver (Bolt) API.
+_____

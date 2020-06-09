@@ -1,0 +1,112 @@
+= HA Proxy Configuration for Online Backup
+:slug: ha-proxy-configuration-for-online-backup
+:author: Dave Gordon
+:neo4j-versions: 2.3, 3.0, 3.1
+:tags: cluster, backup, ha-proxy
+:public:
+:category: cluster
+
+=== What are we trying to achieve?
+
+Online backup should be scheduled to run periodically on a production cluster. You only need to run it on one instance, since 
+each has its own full copy of the database. Because a full backup also runs a consistency check, and the copy itself does use some 
+system resources, it is recommended to run this on a slave instance (in HA mode) or a follower or read-replica (in CC mode).
+
+For https://neo4j.com/docs/operations-manual/current/backup/perform-backup/#backup-incremental[incremental backups] to work,
+you need to take a backup from the same instance each time and have transaction logs from the last backup.
+If you do not run from the same instance the store won't match and it will fallback to taking a full backup. 
+If you want to control which instance you take the backup from, you would need to modify this example or just take a backup
+directly to that instance without a proxy in between. If you are OK to fallback to full backup, this approach may 
+work for you.
+
+=== Causal Clustering: Directing online backup to a follower or read-replica
+
+The sample configuration below defines a front-end where the backup utility will connect to the running database, and a set of instances 
+to check whether they are a slave currently. We assume that online backup is enabled in the `conf/neo4j.conf` file as follows:
+
+----
+online_backup_enabled=true 
+online_backup_server=0.0.0.0:6362
+----
+
+The haproxy.cfg file for Causal Clustering backup from a Follower would look like this:
+
+----
+defaults
+  mode http
+  timeout connect 5000ms
+  timeout client 30000ms
+  timeout server 30000ms
+
+# Available at http://localhost:8080/haproxy?stats
+listen admin
+  balance
+  mode http
+  bind *:8080
+  stats enable
+
+frontend neo4j-backup
+  mode tcp
+  bind *:6362
+  default_backend cores-backup
+
+backend cores-backup
+  balance roundrobin
+  option httpchk GET /db/server/core/read-only HTTP/1.0
+  mode tcp
+
+  server neo4j-1 neo4j-1:6362
+  server neo4j-2 neo4j-2:6362
+  server neo4j-3 neo4j-3:6362
+----
+
+To backup from a read-replica, replace the `option httpchk` line with:
+
+----
+option httpchk GET /db/manage/server/read-replica/available HTTP/1.0
+----
+
+=== HA: Directing online backup to a slave
+
+The haproxy.cfg file for HA mode would look like this:
+
+----
+defaults
+  mode http
+  timeout connect 5000ms
+  timeout client 30000ms
+  timeout server 30000ms
+
+# Available at http://localhost:8080/haproxy?stats
+listen admin
+  balance
+  mode http
+  bind *:8080
+  stats enable
+
+frontend neo4j-backup
+  mode tcp
+  bind *:6362
+  default_backend slaves-backup
+
+backend slaves-backup
+  balance roundrobin
+  option httpchk GET /db/manage/server/ha/slave HTTP/1.0
+  mode tcp
+
+  server neo4j-1 neo4j-1:6362
+  server neo4j-2 neo4j-2:6362
+  server neo4j-3 neo4j-3:6362
+----
+
+Assuming the haproxy DNS name is something like `neo4j-backup-slaves`, the backup command would look like the following:
+
+----
+$ ./bin/neo4j-admin backup --name=backup.db --backup-dir /tmp/backups --from=neo4j-backup-slaves:6362
+----
+
+Or the now deprecated `neo4j-backup` tool:
+
+----
+$ ./bin/neo4j-backup -to /tmp/backups -host neo4j-backup-slaves -port 6362
+----

@@ -1,0 +1,47 @@
+= Neo4j Streams - Kafka Integration - List of Must Gather for Troubleshooting
+:slug: neo4j-streams-kafka-integration-list-of-mustgather-for-troubleshooting
+:author: Daniel Terlizzi
+:neo4j-versions: 3.5, 3.4
+:tags: troubleshooting
+:public:
+:category: operations
+
+When troubleshooting issues on Neo4j Streams, use the below list of must gather information points to help investigating.
+
+1. Which Plugin/Module are you using?
+  a. Neo4j Streams Source
+  b. Neo4j Streams Sink
+  c. Neo4j Streams Procedure
+  d. Kafka Connect Sink. In case of using Sink, also provide the chosen data format (JSON or AVRO).
+
+2. List of plugin configuration:
+    - If using Neo4j Streams then provide the list of properties used to configure sink into neo4j.conf file
+    - If using Kafka Connect then provide the *.json or the *.properties file used to create the plugin instance into the Kafka Connect framework
+    
+3. Apache Kafka Version
+    - Go to Apache Kafka or Confluent Platform (depending on which distribution you are using) installation folder and then into /bin folder. Run the following command and provide the output: ./kafka-configs.sh --version
+      
+4. Provide the Neo4j/Kafka Connect debug Log: If you are using the Neo4j plugin we need the `neo4j.log` file otherwise the Kafka Connect log file. The Kafka Connect log file is under the folder <kafka_connect_home>/logs/connectDistributed.out
+   
+5. Kafka configuration
+    - The configuration used to instantiate the Kafka Cluster configuration
+    
+6. (OPTIONAL) Kafka metrics
+    - Broker metrics
+    - Producer metrics
+    - Consumer metrics
+    - Zookeeper metrics
+    - By default metrics logs are under the server.log file
+    
+7. (OPTIONAL) Neo4j metrics
+    - The CSV file
+
+
+
+Reference:
+
+Neo4j Streaming Data Integrations User Guide
+https://neo4j.com/docs/labs/neo4j-streams/current/
+
+Neo4j metrics output facilities
+https://neo4j.com/docs/operations-manual/current/monitoring/metrics/

@@ -1,0 +1,122 @@
+= Deploying Neo4j on AWS Using CloudFormation
+:slug: deploy-aws-cloudformation
+:author: David Allen
+:neo4j-versions: 3.4, 3.5
+:tags: cloud, aws, deployment
+:category: cluster
+:public:
+
+This page describes how to use CloudFormation to deploy Neo4j clusters on AWS, using Virtual
+Machines.
+
+== Basics
+
+The Neo4j CloudFormation templates allow deploying causal clusters of any size, with
+almost any machine type, as Virtual Machines on AWS.  The templates are based on top 
+of the https://neo4j.com/developer/neo4j-cloud-vms/[Neo4j Cloud VMs] which have been
+made available for Amazon (AMIs).
+
+== AWS Marketplace
+
+Neo4j Enterprise Causal Cluster is already available in AWS Marketplace and can be
+found under https://aws.amazon.com/marketplace/pp/B07D441G55?qid=1544721936903&sr=0-1&ref_=srh_res_product_title[this link].
+
+The CloudFormation templates discussed in this article are the same as those that drive
+this marketplace listing.  As a result, if you do not require any modifications to the
+CloudFormation template, it may be even easier to simply use the Marketplace option,
+which is BYOL, meaning that it does not charge any additional money per hour.
+
+This article is for those customers who need to customize the default deploy options.
+
+== Availability
+
+Templates in JSON format have been made available in the public S3 bucket named
+s3://neo4j-cloudformation.  Two types of templates are available; one for a stand-alone
+single instance Neo4j install, and one for a causal cluster setup.  The remainder of this
+article will discuss the causal cluster setup.   The stand-alone instance follows the 
+same general set of rules and architecture, and differs only in that it creates a single
+VM instead of a configurable number of VMs.
+
+Templates are made available for many, (but not all) versions of Neo4j.  As an example,
+full public URL of CloudFormation template for 3.5.12 is https://s3.amazonaws.com/neo4j-cloudformation/neo4j-enterprise-stack-3.5.12.json.
+
+The basics of template structure is the same from version to version, the primary difference
+is the Neo4j version of the AMI used.
+
+== Architecture
+
+The deployment architecture that the CloudFormation templates follow can be seen here:
+
+image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/aws-ec2-diagram.png[]
+
+In general, a new AWS VPC is created, with cores and read replicas round-robined across
+three subnets, each placed in a different availability zone, all within the same
+region on AWS.  A limitation of the CloudFormation template is that it can only be
+used in regions with >= 3 availability zones to allow for this spreading; in the event
+of an AZ outage, the database will remain available.
+
+== Customer VPCs
+
+The most likely reason you may need to modify the template for your own needs is to 
+place a Neo4j cluster into an existing VPC.
+
+The CloudFormation template does not at present allow (by default) placement of new clusters into 
+existing VPCs, because there are too many factors to consider to make this a reliable
+operation, including number of free IP addresses in subnets, existing routing rules, 
+and other factors.   It is absolutely possible to do this, it just requires your
+organization's customization to ensure that these factors have been considered.
+
+Here's a short checklist of things to check in the template:
+
+- Association of Virtual Machines to subnets
+- Likely no need to create an internet gateway
+
+== Usage
+
+To create a cloudformation stack from a JSON file, customize this command, substituting
+parameters as you see fit:
+
+----
+aws cloudformation create-stack \
+   --stack-name StackyMcGrapherston \
+   --template-body file://neo4j-enterprise-stack.json \
+   --parameters ParameterKey=ClusterNodes,ParameterValue=3 \
+                ParameterKey=InstanceType,ParameterValue=m3.medium \
+                ParameterKey=NetworkWhitelist,ParameterValue=0.0.0.0/0 \
+                ParameterKey=Password,ParameterValue=s00pers3cret \
+                ParameterKey=SSHKeyName,ParameterValue=my-ssh-key-name \
+                ParameterKey=VolumeSizeGB,ParameterValue=37 \
+                ParameterKey=VolumeType,ParameterValue=gp2 \
+  --capabilities CAPABILITY_NAMED_IAM
+----
+
+This command will create a 3-node causal cluster running on m3.medium machines,
+open to the entire internet (because we allowed a network whitelist of 0.0.0.0/0).
+It will initialize the database with the given neo4j user password, and allow direct
+SSH access with the specified SSH key.  Each node will be allocated 37GB of GP2 
+storage.
+
+For further parameters that are available, consult the parameters at the top of the
+template.  Other options include the ability to create a number of read replicas.
+
+== Ongoing Management
+
+CloudFormation does not automate operations of the cluster itself, or provide much in
+the way of autoscaling.  As a result, once the infrastructure is deployed, management
+and custom configuration is left to operators with SSH access.
+
+== Backing Code
+
+The code for building any version of Neo4j as an AMI or CloudFormation template is in a
+https://github.com/neo-technology/neo4j-cloud-launcher[private GitHub repository].  Customer
+access may be granted upon request, but the repository will not be made public.
+
+The finished CloudFormation templates themselves can be hard to work with because of how
+CloudFormation operates.  For example, CloudFormation does not natively support creating
+a variable number of resources (such as a user inputted number of core nodes in your cluster)
+and so the finished template contains code to create up to 9 core nodes, with conditionals
+depending on what the user selected.  In the GitHub repository, we use a templating 
+language called jinja to generate the CloudFormation templates, making them easier 
+to read and manage in a modular way.   If substantial modifications are needed, you
+may wish to consider working off of these Jinja templates rather than the raw CloudFormation
+templates.

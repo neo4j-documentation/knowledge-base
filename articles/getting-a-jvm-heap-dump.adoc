@@ -1,0 +1,78 @@
+= Getting a JVM heap dump 
+:slug: getting-a-jvm-heap-dump
+:author: Umar Muzammil
+:neo4j-versions: 3.4,3.5
+:tags: jvm, memory, heap, dump
+:public:
+:category: operations
+
+This document provides the process of creating a heap-dump on a java machine to investigate potential memory leaks.
+
+Although a heap dump will be auto generated when OutOfMemoryError is thrown by specifying `-XX:+HeapDumpOnOutOfMemoryError` VM option, 
+we can use the `jmap` tool to print shared object memory maps or heap memory details of a given process or core file or a remote debug server. 
+If the given process is running on a 64-bit VM, you may need to specify the -J-d64 option, e.g.:
+
+----
+jmap -J-d64 -heap <pid>
+----
+
+To get a list of Java processes running on a machine, use the `jps` or `jcmd` commands.
+
+In Windows Systems where dbgeng.dll is not present, 'Debugging Tools For Windows' needs to be installed to have these tools
+working. Also, PATH environment variable should contain the location of jvm.dll used by the target process or the location 
+from which the Crash Dump file was produced. For example, set `PATH=<jdk>\jre\bin\client;%PATH%`
+
+When no option is used jmap prints shared object mappings. An example of whats normally required for our analysis is:
+
+----
+jmap -dump:[live,]format=b,file=<filename>.bin <pid>
+----
+
+The above will dump the Java heap in binary format to filename. If the optional `live` suboption is used, live objects 
+in the heap are dumped. 
+
+
+Viewing heap dumps:
+===================
+
+To browse heap dumps generated as above, one can use jhat (Java Heap Analysis Tool) to read the generated file.
+
+Some useful options to use with jmap are:
+
+* -heap prints a heap summary instead of a binary dump.
+* -histo[:live] prints a histogram of the heap.
+* -F can be used with jmap -dump or jmap -histo option if the pid does not respond.
+
+We can use the jhat command to parse a java heap dump file and launch a webserver to view heap dumps over a web browser. 
+The default port is 7000, but we can change this by using the `-port` option 
+
+Syntax:
+
+----
+jhat [ options ] <heap-dump-file>
+----
+
+e.g.
+`jhat -port 7001 -debug 1`
+
+where -port determines the browser port the output can be viewed and -debug <int> determines the level of debug detail presented.
+
+
+We can also use the `jconsole` tool to view cpu, memory and heap utilisation in a graphical format.
+
+----
+jconsole [ options ] [ connection ... ]
+----
+
+e.g. 
+`jconsole -interval=5 <pid> 127.0.0.1:7474`
+
+where -interval=n determines the report refresh interval in seconds, <pid> is the process id of the target JVM 
+(the JVM must be running with the same user id as that running the jconsole)
+
+
+References:
+
+https://docs.oracle.com/javase/7/docs/technotes/tools/share/jmap.html
+https://docs.oracle.com/javase/7/docs/technotes/tools/share/jhat.html
+https://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html

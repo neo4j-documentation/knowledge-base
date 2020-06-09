@@ -1,0 +1,19 @@
+= How do I configure init and max java heap when running bin/neo4j-backup
+:slug: how-do-i-configure-init-and-max-java-heap-when-running-bin-neo4j-backup
+:author: Dana Canzano
+:neo4j-versions: 2.2, 2.3, 3.0, 3.1
+:tags: backup, heap, out-of-memory, operations
+:public:
+:category: operations
+
+When running `$NEO4J_HOME/bin/neo4j-backup` if a Java out of heap/memory error occurs you may want define the init and max 
+Java heap to be used by `neo4j-backup`. The default behavior is to allow the JVM to define the init and max heap as as described 
+https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/parallel.html#default_heap_size[here].
+
+To define the init and max heap, before running `$NEO4J_HOME/bin/neo4j-backup` define the environment varaible `JAVA_OPTS`, for example:
+
+----
+export JAVA_OPTS='-Xms2048m -Xmx2048m'
+----
+
+which will set the init and max Java heap to 2GB.

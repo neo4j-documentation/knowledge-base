@@ -1,0 +1,27 @@
+= How to implement a primary key property for a label
+:slug: how-to-implement-a-primary-key-property-for-a-label
+:zendesk-id: 216779428
+:author: Dana Canzano
+:tags: cypher
+:public:
+:category: cypher
+:neo4j-versions: 3.4,3.5
+
+Commencing with Neo4j 2.3.x it is possible to create the equivalent of a primary key on a property of a label.
+For example the following Cypher 
+
+[source,cypher]
+----
+CREATE CONSTRAINT ON (book:Book) ASSERT book.isbn IS UNIQUE
+CREATE CONSTRAINT ON (book:Book) ASSERT exists(book.isbn)
+----
+
+will create two constraints on the property `isbn` of nodes with label `Book` and ensure that when a new Book node is created, its `isbn` must be defined, and that it must be unique across all nodes with the `Book` label.
+
+
+[NOTE]
+====
+Property existence constraints are only available in the Neo4j Enterprise Edition.
+Databases with property existence constraints cannot be opened using Neo4j Community Edition.
+====
+

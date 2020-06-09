@@ -1,0 +1,32 @@
+= Will execution_guard_enabled work in my release of Neo4j?
+:slug: will-execution-guard-enabled-work-in-my-release-of-neo4j
+:zendesk-id: 217442648
+:author: Dave Gordon
+:neo4j-versions: 2.0,2.1,2.2,2.3,3.0,3.1
+:tags: server,configuration
+:promoted: false
+:public:
+:category: operations
+
+*Background*
+
+From the beginning, the execution guard was never meant to be used by the general public. However, the feature was there in the product, though undocumented, and it did work for the purpose of preventing long running queries from utilizing significant resources and causing other downstream effects.
+So it was blogged about, and utilized by users looking for that functionality.
+
+*Explanation*
+
+If you are running Neo4 2.1.x or previous versions it will still work.
+If you are running 2.2.x through 3.0.x it will not work, unless you are using the core Java API.
+If you are running 3.1.x please see https://neo4j.com/docs/operations-manual/current/monitoring/query-management/#transaction-timeout[dbms.transaction.timeout]
+
+Why?
+
+Cypher used the core Java API behind the scenes until 2.2, so the execution guard was actually implemented at that layer.
+When we made a big change in 2.2 to allow Cypher to use the lower level, more efficient Cursor API, Cypher queries were no longer subject to honoring the execution guard.
+As the execution guard was an undocumented, unsupported "feature", it was left alone.
+
+Want to see this feature back in the product? Send us a message at our Public Slack channel for product feedback:
+
+https://neo4j-users.slack.com/messages/product-feedback/
+
+

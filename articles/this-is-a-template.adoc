@@ -1,0 +1,38 @@
+= Error neo4j.pid: No such file or directory
+:slug: this-is-a-template
+:author: Your Name
+:neo4j-versions: 2.3, 3.0
+:tags: logging, server
+//:public:
+//:private:
+// category see https://github.com/neo-technology-field/knowledge-base/blob/master/kb-categories.txt
+:category: category
+
+In certain situations when starting Neo4j server you may encounter an error `Error neo4j.pid: No such file or directory` 
+and the Neo4j Server will not start up. 
+There is another scenario where Neo4j process is running i.e. one can run the command `ps -ef | grep -i neo4j` 
+and can see the Neo4j process, however when `neo4j status` is executed it indicates that Neo4j is stopped. 
+
+To fix this issue we need to identify where the `neo4j.pid` file should reside.
+For Linux Debian and RPM based install this normally resides in `/var/run/neo4j/` directory. 
+However for Neo4j tarball install this resides in `<NEO4J_HOME>/run/` directory. 
+
+Identify the neo4j process by running the command
+
+----
+ps -ef | grep -i neo4j
+----
+
+Get the neo4j process id. Create the `neo4j.pid` file and save the process id in that file. 
+Change the Ownership and Group of the file to `neo4j:neo4j`. 
+Then run the below command
+
+----
+neo4j status
+----
+
+This should show the the Neo4j process is running. 
+You can then gracefully stop neo4j service and restart it. 
+
+----
+Note: This is only in case Neo4j process is started using the `neo4j` script. If the Neo4j process is started as a service then you will need to execute `sudo service neo4j status` or `sudo systemctl status neo4j`.

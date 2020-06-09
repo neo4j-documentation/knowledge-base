@@ -1,0 +1,25 @@
+= Explanation of error "WebSocket connection failure. Due to security constraints in your web browser, the reason for the failure is not available to this Neo4j Driver...
+:slug: explanation-of-error-websocket-connection-failure
+:author: Dana Canzano
+:neo4j-versions: 3.0
+:tags: browser, bolt, websocket
+:public:
+:category: browser
+
+In Neo4j 3.0 and its implementation of the Bolt protocol, if a remote browser connects to Neo4j (http://<remote_neo4j_host>:7474) and attempts to authenticate, the following error may be encountered:
+
+[red]#WebSocket connection failure.
+Due to security constraints in your web browser, the reason for the failure is not available to this Neo4j Driver.
+Please use your browsers development console to determine the root cause of the failure.
+Common reasons include the database being unavailable, using the wrong connection URL or temporary network problems.
+If you have enabled encryption, ensure your browser is configured to trust the certificate Neo4j is configured to use.
+WebSocket readyState is: 3#
+
+This error can be resolved by editing the file `$NEO4J_HOME/conf/neo4j.conf` and uncommenting:
+
+----
+# To have Bolt accept non-local connections, uncomment this line:
+dbms.connector.bolt.address=0.0.0.0:7687
+----
+
+

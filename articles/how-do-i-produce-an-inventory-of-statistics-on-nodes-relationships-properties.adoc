@@ -1,0 +1,34 @@
+= How do I produce an inventory of statistics on nodes, relationships, properties
+:slug: how-do-i-produce-an-inventory-of-statistics-on-nodes-relationships-properties
+:zendesk-id: 216552128
+:author: Dana Canzano
+:tags: cypher
+:public:
+:category: cypher
+:neo4j-versions: 3.4,3.5
+Using the following Cypher
+
+[source,cypher]
+----
+MATCH (n) WHERE rand() <= 0.1
+WITH labels(n) as labels, size(keys(n)) as props, size((n)--()) as degree
+RETURN
+DISTINCT labels,
+count(*) AS NumofNodes,
+avg(props) AS AvgNumOfPropPerNode,
+min(props) AS MinNumPropPerNode,
+max(props) AS MaxNumPropPerNode,
+avg(degree) AS AvgNumOfRelationships,
+min(degree) AS MinNumOfRelationships,
+max(degree) AS MaxNumOfRelationships
+----
+
+will produce an 'inventory' of the nodes within the graph and statistics related to number of Nodes per label, average number of properties, minimum number of properties, maximum number of properties, average number of relationships, minimum number of relationships and maximum number of relationships.
+This Cypher can be used to help in the understanding in terms of performance and/or database growth.
+
+This above Cypher does perform an entire graph traversal and then will 'sample' out 90% of the nodes by way of inclusion of 'rand()<= 0.1'.
+As a result the numbers returned are effectively a 10% sample of the graph.
+
+With Neo4j 3.0, the above query is included as a Favorite within the browser and is defined under Data Profiling / What kind of nodes exist.
+
+

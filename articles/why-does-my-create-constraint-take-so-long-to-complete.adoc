@@ -1,0 +1,24 @@
+= Why does my CREATE CONSTRAINT take so long to complete
+:slug: why-does-my-create-constraint-take-so-long-to-complete
+:author: Dana Canzano
+:neo4j-versions: 2.3, 3.0
+:tags: logging, server
+:public:
+:category: operations
+
+When creating a constraint, for example
+
+----
+CREATE CONSTRAINT ON (n:ZipCode) ASSERT n.name IS UNIQUE; 
+----
+
+this will require a lock on all nodes with the label the constraint is being created for, in this case ZipCode
+
+If you have another transaction which was opened prior to the CREATE CONSTRAINT Cypher statement and it has a lock on the same Node label, for example
+
+----
+Begin
+create (n:ZipCode {name:'94401'}) return n;
+----
+
+then the CREATE CONSTRAINT will not progress until the open transaction is comitted/rolled back.

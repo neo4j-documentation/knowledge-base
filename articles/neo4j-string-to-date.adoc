@@ -1,0 +1,98 @@
+= Neo4j: Convert string to date
+:slug: neo4j-string-to-date
+:author: Mark Needham
+:neo4j-versions: 3.4,3.5
+:tags: cypher
+:public:
+:category: cypher
+
+Neo4j 3.4 saw the https://neo4j.com/blog/neo4j-graph-database-3-4-ga-release/[introduction of the temporal date type^], and while there is now powerful in built functionality, converting strings to dates is still a challenge.
+
+If our string is in the format `yyyy-MM-dd` we can call the https://neo4j.com/docs/cypher-manual/current/functions/temporal/date/index.html[`date`^] function with that string and have it converted to a date automatically:
+
+[source,cypher]
+----
+RETURN date("2019-06-04") AS date
+----
+
+Executing this query will return the following result:
+
+[opts="header"]
+|====
+|date
+|"2019-06-04"
+|====
+
+But what if our string is in a different format, say `dd/MM/yyyy`?
+Let's try and create a date from such a string:
+
+[source,cypher]
+----
+RETURN date("04/06/2019") AS date
+----
+
+Executing this query will return the following result:
+
+[source,text]
+----
+Text cannot be parsed to a Date
+"04/06/2019"
+ ^
+----
+
+One way we can solve this problem is by manually parsing our string into its different components using the https://neo4j.com/docs/cypher-manual/3.5/functions/string/#functions-split[`split`^] function.
+We can then create a date from those components:
+
+[source,cypher]
+----
+WITH [item in split("20/07/2018", "/") | toInteger(item)] AS dateComponents
+RETURN date({day: dateComponents[0], month: dateComponents[1], year: dateComponents[2]}) AS date
+----
+
+Executing this query will return the following result:
+
+[opts="header"]
+|====
+|date
+|"2018-07-20"
+|====
+
+Alternatively we can use the APOC library's https://neo4j.com/docs/labs/apoc/current/temporal/datetime-conversions/[`apoc.date.parse`^] function to massage our data into a supported format.
+This function gives us a flexible way for handling different date and time patterns.
+
+The following query:
+
+* Uses the `apoc.date.parse` function to convert our `dd/MM/yyyy` date string into a timestamp in milliseconds
+* Creates a datetime from that timestamp
+* Creates a date from that datetime
+
+[source,cypher]
+----
+WITH apoc.date.parse("31/05/2019", "ms", "dd/MM/yyyy") AS ms
+RETURN date(datetime({epochmillis: ms})) AS date
+----
+
+
+Executing this query will return the following result:
+
+[opts="header"]
+|====
+|date
+|"2019-05-31"
+|====
+
+We could also use this function to parse a longer date format:
+
+[source,cypher]
+----
+WITH apoc.date.parse("Tue, 10 September 2019", "ms", "EEE, dd MMMMM yyyy") AS ms
+RETURN date(datetime({epochmillis: ms})) AS date
+----
+
+Executing this query will return the following result:
+
+[opts="header"]
+|====
+|date
+|"2019-09-10"
+|====

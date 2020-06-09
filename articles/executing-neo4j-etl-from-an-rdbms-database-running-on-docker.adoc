@@ -1,0 +1,166 @@
+= Executing Neo4j ETL from an RDBMS database running on Docker
+:slug: executing-neo4j-etl-from-an-rdbms-database-running-on-docker
+:author: Umar Muzammil
+:neo4j-versions: 3.3, 3.4
+:tags: import, export, etl, rdbms, docker, sql
+:public:
+:category: import-export
+:environment: docker
+
+Following provides some examples of importing a test csv data into Neo4j, using the Neo4j ETL tool's command line interface
+with the source RDBMS database running on docker. Examples herein are specific to tests conducted on a MAC OSX host machine, but 
+processes for other OS's will be similar.
+
+== Step 1: Setup 
+
+Get the ETL CLI Tool as a zip or tar.gz. The command-line tool is available at https://github.com/neo4j-contrib/neo4j-etl/releases/latest. 
+If using ETL as a Neo4j Desktop application, add the ETL license key available from dev-rel, to the Neo4j Desktop Application.
+
+Get the latest mssqljdbc driver version:
+https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-2017,relevant 
+to the source rdbms database. Sql-jdbc versions 6.0, 6.2 and 6.4 were successfully used for this testing.
+
+== Step 2:  Setup a test RDBC database. 
+
+In this case, MSSQL Server is used. Others are very similar.
+
+Either run MSSQL server as a docker container, or as a standalone application. This document's scope is limited to docker. 
+Server appliacation UIs present a much straightforward process, however, availability and installation of these may not always
+be desired.
+
+- Install docker. Here's the installation process: 
+
+https://docs.docker.com/docker-for-mac/install/#install-and-run-docker-for-mac
+
+- Pull the mssql server container image: `sudo docker pull microsoft/mssql-server-linux:2017-latest`
+
+- Run the mssql server container: 
+
+----
+sudo docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Neo4j1234' \
+   -p 1433:1433 --name sql1 \
+   -d microsoft/mssql-server-linux:2017-latest
+----
+
+This should create and initialize a mssql server container called `sql1` on localhost:1433. The password should follow 
+MSSQL Server default password policy, (unless a different policy is specified) otherwise the container won't start.
+ 
+- Check that the container is up and running: `sudo docker ps -a`. Logs can be viewed by `docker logs sql1`
+ 
+- Connect to the mssql server within the sql1 container created above: `sudo docker exec -it sql1 "bash"` you'll have to 
+enter your bash password.
+ 
+- Launch the sqlcmd utility to execute TSQL queries within the container: `/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Neo4j1234`
+ 
+- Once within sqlcmd, issue tsql to create a database, a schema and a temp table using the schema.
+
+----
+ > CREATE DATABASE TestDB ↵
+ > Go ↵
+ created
+ > SELECT Name from sys.Databases ↵
+ > Go ↵
+----
+ 
+- Verify that TestDB created above is in the list of dbs
+ 
+----
+ > CREATE SCHEMA testschema ↵
+ > Go ↵
+----
+
+- Confirm that schema has been created:
+
+----
+> SELECT * FROM sys.schemas ↵
+> Go ↵
+----
+
+- Create a temporary table using the testschema created above. Columns within the table will be determined by what 
+data is to be imported within this table before it eventually gets exported to Neo4j using the ETL tool. In this case, 
+a csv with random weather data was uploaded to the following table (this article later explains how to do that).
+
+----
+> CREATE TABLE testschema.weather  
+(ID int,  
+StationCode nvarchar(50),
+Date date,
+StationName nvarchar(50),
+Tmax float,
+Tmin float,
+Tobs float,
+Latitude float,
+Longitude float,
+Fy int) ↵
+> Go ↵
+----
+
+- Some test data (or your actual data) now needs to be imported to the weather table (or your desired table) created above. 
+To do this in docker, from outside of the sqlcmd prompt, (perhaps from a separate terminal window), 
+execute: `docker cp /Users/user/Desktop/weather.txt sql1:/` where weather.txt in this case is the file name of the csv to be
+imported, /Users/user/Desktop/ is the directory path of that file and `sql1` is the name of the docker container. This should
+copy over the weather.txt file from the host OS into the docker container.
+ 
+- SQL's Bulk Insert procedure can then be used to map and import the csv to the weather table in our `TestDB`. To do so, 
+execute the following from the sqlcmd prompt within the sql1 container:
+
+----
+> BULK INSERT testschema.weather from '/weather.txt' with (FIRSTROW=2, fieldterminator = ',', rowterminator = '0x0a') ↵
+> Go ↵
+----
+
+== Step 3: Export the relational data to Neo4j using the Neo4j ETL cli
+
+Use Neo4j ETL to import contents of the testschema.weather sql table into the Neo4j graph.db. The correct version of the jdbc 
+driver will additionally be required for this step. Following was tested using mssql-jdbc versions 6.0, 6.2 and 6.4. 
+The ETL process essentially requires the jdbc jar file (mssql-jdbc-6.2.2.jre8.jar in this case) and its path to be specified.
+
+- Using the Neo4j ETL CLI tool, first, a mapping file needs to be generated. In this case, its named mssql_TestDB_mapping and 
+chosen to be located at /$NEO4j_HOME/import. Additional options e.g. "Multiline support" can be specified for the import, just
+so neo4j-import can deal with csv lines with newlines in fields. The path to that options file must be specified in the import 
+command. Here's an example command used to generate the import mapping file:
+
+----
+./neo4j-etl generate-metadata-mapping \
+--rdbms:url "jdbc:sqlserver://localhost:1433;databaseName=TestDB" \
+--rdbms:schema "TestDB.testschema" \
+--rdbms:user sa \
+--rdbms:password Neo4j1234 \
+--output-mapping-file "/$NEO4j_HOME/import/mssql_TestDB_mapping.json" \
+--debug \
+--force \
+--using "bulk:neo4j-import" \
+--options-file "/$NEO4j_HOME/import/import-tool-options.json" \
+--driver "/$NEO4j_HOME/import/jdbc drivers/6.2/sqljdbc_6.2/enu/mssql-jdbc-6.2.2.jre8.jar" \
+--mapping-file "/$NEO4j_HOME/import/mssql_TestDB_mapping"
+----
+
+- This is followed by executing the actual import, based on the mapping file generated in the previous step:
+
+----
+./neo4j-etl export \
+--rdbms:url "jdbc:sqlserver://localhost:1433;databaseName=TestDB" \
+--rdbms:user "sa" \
+--rdbms:password "Neo4j1234" \
+--destination "/$NEO4j_HOME/data/databases/graph.db" \
+--import-tool "/$NEO4j_HOME/bin" \
+--csv-directory "/$NEO4j_HOME/import/csv-008" \
+--debug \
+--force \
+--using "bulk:neo4j-import" \
+--options-file "/$NEO4j_HOME/import/import-tool-options.json" \
+--driver "/$NEO4j_HOME/drivers/jdbc drivers/6.2/sqljdbc_6.2/enu/mssql-jdbc-6.2.2.jre8.jar"\
+--mapping-file "/$NEO4j_HOME/import/mssql_TestDB_mapping.json" \
+--rdbms:schema "TestDB.testschema"
+----
+
+That should be it! 
+
+Additional resources are below:
+
+Resources:
+
+* https://neo4j-contrib.github.io/neo4j-etl/
+* https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-linux-2017
+* https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-2017
+* https://docs.microsoft.com/en-gb/sql/t-sql/statements/statements?view=sql-server-2017

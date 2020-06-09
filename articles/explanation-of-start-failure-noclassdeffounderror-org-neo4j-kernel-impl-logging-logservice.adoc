@@ -1,0 +1,53 @@
+= Explanation of start failure "java.lang.NoClassDefFoundError: org/neo4j/kernel/impl/logging/LogService"
+:slug: explanation-of-start-failure-noclassdeffounderror-org-neo4j-kernel-impl-logging-logservice
+:author: Dana Canzano
+:neo4j-versions:  3.5
+:tags: upgrade, apoc, logService, start
+:public:
+:category: operations
+
+Upon starting Neo4j 3.5 if one encounters the following error in the `logs/neo4j.log`
+
+----
+Caused by: org.neo4j.kernel.lifecycle.LifecycleException: Component 'org.neo4j.kernel.extension.GlobalKernelExtensions@14c16d' failed to initialize. Please see the attached cause exception "org.neo4j.kernel.impl.logging.LogService".
+        at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.init(LifeSupport.java:434)
+        at org.neo4j.kernel.lifecycle.LifeSupport.init(LifeSupport.java:66)
+        at org.neo4j.kernel.lifecycle.LifeSupport.start(LifeSupport.java:102)
+        at org.neo4j.graphdb.facade.GraphDatabaseFacadeFactory.initFacade(GraphDatabaseFacadeFactory.java:203)
+        ... 9 more
+Caused by: java.lang.NoClassDefFoundError: org/neo4j/kernel/impl/logging/LogService
+        at java.lang.Class.getDeclaredMethods0(Native Method)
+        at java.lang.Class.privateGetDeclaredMethods(Class.java:2701)
+        at java.lang.Class.privateGetPublicMethods(Class.java:2902)
+        at java.lang.Class.getMethods(Class.java:1615)
+        at sun.misc.ProxyGenerator.generateClassFile(ProxyGenerator.java:451)
+        at sun.misc.ProxyGenerator.generateProxyClass(ProxyGenerator.java:339)
+        at java.lang.reflect.Proxy$ProxyClassFactory.apply(Proxy.java:639)
+        at java.lang.reflect.Proxy$ProxyClassFactory.apply(Proxy.java:557)
+        at java.lang.reflect.WeakCache$Factory.get(WeakCache.java:230)
+        at java.lang.reflect.WeakCache.get(WeakCache.java:127)
+        at java.lang.reflect.Proxy.getProxyClass0(Proxy.java:419)
+        at java.lang.reflect.Proxy.newProxyInstance(Proxy.java:719)
+        at org.neo4j.kernel.impl.util.DependenciesProxy.dependencies(DependenciesProxy.java:55)
+        at org.neo4j.kernel.extension.AbstractKernelExtensions.getKernelExtensionDependencies(AbstractKernelExtensions.java:111)
+        at org.neo4j.kernel.extension.AbstractKernelExtensions.init(AbstractKernelExtensions.java:59)
+        at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.init(LifeSupport.java:413)
+        ... 12 more
+Caused by: java.lang.ClassNotFoundException: org.neo4j.kernel.impl.logging.LogService
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:381)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
+        at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:338)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+        ... 28 more
+----
+
+this is usually indicative of a incompatible APOC jar file installed into `$NEO4J_HOME/plugins`.  With Neo4j 3.5.0 the correct APOC 
+jar to use so as to avoid this error is  
+
+----
+ls -al apoc*
+-rw-rw-r-- 1 neo4j neo4j 12880869 Nov 30 11:49 apoc-3.5.0.1-all.jar
+----
+
+This jar is available at https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/tag/3.5.0.1[here]
+

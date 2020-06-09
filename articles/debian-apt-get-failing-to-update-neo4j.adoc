@@ -1,0 +1,24 @@
+= Debian: apt-get failing to update Neo4j
+:slug: debian-apt-get-failing-to-update-neo4j
+:zendesk-id: 226773367
+:author: John Forrest
+:neo4j-versions: 
+:tags: debian,ubuntu
+:public:
+:category: installation
+
+The common cause is an out of date gpg key.
+
+To update then run the following command:
+
+----
+wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
+----
+
+See also the information on: https://debian.neo4j.com
+
+You can get more information about running Neo4j on Debian at: https://neo4j.com/docs/operations-manual/current/deployment/single-instance/debian/.
+
+If you continue to have issues please consult https://community.neo4j.com and contact Neo4j support.
+
+

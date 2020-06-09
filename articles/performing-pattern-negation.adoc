@@ -1,0 +1,123 @@
+= Performing pattern negation to multiple nodes
+:slug: performing-pattern-negation
+:author: Andrew Bowman
+:neo4j-versions: all
+:tags: performance, cypher
+:public:
+:category: cypher
+
+Some use cases require matching to nodes which aren't connected to any of some other set of nodes.
+We'll discuss both incorrect and correct approaches to this kind of query.
+
+For our examples we'll use a recipe graph, where the primary structure is as follows:
+
+[source,cypher]
+----
+(:Recipe)-[:INCLUDES]->(:Ingredient)
+----
+
+The use case is, provided a list of ingredient names to exclude, to match to recipes which do not contain any of those ingredients.
+
+
+== Incorrect approach: leave nodes on their own rows when testing for exclusion
+
+A common incorrect approach does not use collections, but assumes (wrongly) that the pattern negated treats the variable values as a collection.
+
+[source,cypher]
+----
+MATCH (excluded:Ingredient)
+WHERE excluded.name in $excludedIngredients
+MATCH (r:Recipe)
+WHERE NOT (r)-[:INCLUDES]->(excluded)
+RETURN r
+----
+
+For a single excluded ingredient, the above query will work just fine.
+
+However, when `$excludedIngredients` contains several entries, this query may fail to produce correct results.
+
+The reason is because each excluded ingredient is on its own record/row, and will be tested individually, which will mean some recipes that have one of the excluded ingredients, but not all, will not be filtered correctly.
+
+For example, let's say the parameters are as follows: `{excludedIngredients:['eggs', 'walnuts']}`
+
+Let's say a `Chocolate Cake` :Recipe is being evaluated, which contains eggs, but not walnuts.
+
+Because each excluded ingredient is on its own record, if we inspected the built-up records at the time of evaluation, it may look like this:
+
+[opts=header,cols="m,m"]
+|===
+| excluded.name | r.name
+| eggs | Chocolate Cake
+| walnuts | Chocolate Cake
+|===
+
+The build up records are for each single ingredient with each recipe that contains it.
+These are not arranged into collections automatically (that would require use of `collect()`)
+
+Each record will be independently evaluated: `WHERE NOT (r)-[:INCLUDES]->(excluded)`
+
+The first record will be evaluated, and as the `Chocolate Cake` contains eggs, the record will be eliminated.
+
+The second record will be evaluated, and as the `Chocolate Cake` does not contain walnuts, the record is kept.
+
+The Chocolate Cake :Recipe will be returned as a result, which is clearly incorrect.
+
+== Correct approach: collect nodes to exclude, and use WHERE NONE() on the collection to drive exclusion
+
+The correct approach is to use collection membership to drive the exclusion. There are actually many similar correct queries that start from this approach, some with varying efficiency, depending on the actual graph:
+
+[source,cypher]
+----
+MATCH (excluded:Ingredient)
+WHERE excluded.name in $excludedIngredients
+WITH collect(excluded) as excluded
+MATCH (r:Recipe)-[:INCLUDES]->(i)
+WITH excluded, r, collect(i) as ingredients
+WHERE NONE (i in ingredients where i in excluded)
+RETURN r
+----
+
+We can do the same thing using pattern comprehension to expand and collect all at once.
+
+[source,cypher]
+----
+MATCH (excluded:Ingredient)
+WHERE excluded.name in $excludedIngredients
+WITH collect(excluded) as excluded
+MATCH (r:Recipe)
+WITH excluded, r, [(r)-[:INCLUDES]->(i) | i] as ingredients
+WHERE NONE (i in ingredients where i in excluded)
+RETURN r
+----
+
+Or we can avoid collecting ingredients for each recipe and instead use NONE() to exclude the pattern of the relationship having any of the excluded ingredients.
+
+[source,cypher]
+----
+MATCH (excluded:Ingredient)
+WHERE excluded.name in $excludedIngredients
+WITH collect(excluded) as excluded
+MATCH (r:Recipe)
+WHERE NONE(i in excluded WHERE (r)-[:INCLUDES]->(i))
+RETURN r
+----
+
+== Another correct approach: use OPTIONAL MATCH to members of the excluded collection, and exclude non-null values
+
+An alternate approach doesn't use WHERE NONE(), but instead uses an OPTIONAL MATCH from a :Recipe, but only to the nodes we want to exclude.
+
+If there isn't a match to any of the excluded nodes, the newly introduced variable `i` will be null, and we can filter with another WHERE clause to get only those rows.
+
+[source,cypher]
+----
+MATCH (excluded:Ingredient)
+WHERE excluded.name in $excludedIngredients
+WITH collect(excluded) as excluded
+MATCH (r:Recipe)
+OPTIONAL MATCH (r)-[:INCLUDES]->(i)
+WHERE i in excluded
+WITH r
+WHERE i IS NULL
+RETURN r
+----
+

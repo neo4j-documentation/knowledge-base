@@ -1,0 +1,22 @@
+= Where is my neo4j.log in Ubuntu Linux?
+:slug: where-is-my-neo4jlog-in-ubuntu-linux
+:author: Dave Gordon
+:neo4j-versions: 3.2, 3.3
+:tags: logging, linux, ubuntu
+:public:
+:category: operations
+:environment: linux
+
+In most Neo4j server environments, all logs will be found in *NEO4J_HOME/logs*. However, when Neo4j is running as a service on a Ubuntu (debian) 
+Linux environment, usually installed via `apt-get install neo4j` or similar, the neo4j.log is not present.
+
+To get the contents of this, since neo4j.log just contains STDOUT content, simply look for the neo4j service log contents using `journalctl`:
+
+----
+neo4j@ubuntu:/var/log/neo4j$ journalctl -u neo4j -b > neo4j.log
+neo4j@ubuntu:/var/log/neo4j$ vi neo4j.log
+----
+
+For a complete reference of where logs and other files are located in various environments, please refer to the official documentation:
+
+https://neo4j.com/docs/operations-manual/current/configuration/file-locations/

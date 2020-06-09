@@ -1,0 +1,39 @@
+= Enabling Transaction Timeout Within Application
+:slug: enabling-transaction-timeout-within-application
+:author: Rohan Kharwar
+:neo4j-versions: 3.4, 3.5
+:tags: transaction,timeout, java, drivers
+:public:
+:category: drivers
+
+There is a `dbms.transaction.timeout` global setting on Neo4j that can be set in `neo4j.conf` file so if any query from any user exceeds the timeout threshold specified, that query is terminated. 
+
+But how do you achieve this from within an application?
+Neo4j Java Driver API provides the class `TransactionConfig` that has a method called `Timeout(<time in seconds>)` that would allow transaction timeout to be set within the application.
+
+More information on the api can be found here:
+https://neo4j.com/docs/api/java-driver/current/org/neo4j/driver/v1/TransactionConfig.html
+
+Below is an example of the same. 
+
+Here we are defining the TransactionConfig and using it for explicit transactions.
+
+
+----
+    TransactionConfig config = TransactionConfig.builder()
+        .withTimeout(Duration.ofSeconds(4))
+        .withMetadata(metadata)
+        .build();
+----
+
+Defining the TransactionConfig and setting the timeout to 4 seconds.
+Using the configuration in explicit transactions. 
+
+
+----
+    try ( Transaction tx = session.beginTransaction(config))
+----
+
+So if this transaction exceeds 4 seconds it will be terminated. 
+
+Similarly one can implement TransactionConfig to work with autocommit transactions and transaction functions. 

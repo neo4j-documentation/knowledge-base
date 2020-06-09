@@ -1,0 +1,70 @@
+= Setting Max Open File Limits on Mac OSX
+:slug: setting-max-open-file-limits-on-osx
+:author: Umar Muzammil
+:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:tags: open-files
+:category: installation
+:public:
+:environment: osx
+
+This document provides a process for setting soft and hard max open file limits on MAC OSX. Each thread created by a user
+process will require availability in max open file limits.
+
+----
+Caused by: java.io.IOException: Too many open files
+----
+
+It should be ensured the user running the the neo4j process has the open file limits correctly set. The below process was 
+tested on OSX 10.12.x (Sierra) and Mojave (10.14.x) to change file limits. The same is also reported to work for Yosemite 
+and El Capitan OSX versions, but do note that the process may differ for other OSX versions.
+
+1) In /Library/LaunchDaemons create a file named limit.maxfiles.plist and paste the following in (You can change the two 
+numbers 64000 and 200000 in this case, which are the soft and hard limits, respectively as required). One can check soft 
+limit by _ulimit -Sn_ and hard limit as _ulimit -Hn_ :
+
+----
+<?xml version="1.0" encoding="UTF-8"?>  
+  <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"  
+          "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+  <plist version="1.0">  
+    <dict>
+      <key>Label</key>
+      <string>limit.maxfiles</string>
+      <key>ProgramArguments</key>
+      <array>
+        <string>launchctl</string>
+        <string>limit</string>
+        <string>maxfiles</string>
+        <string>64000</string>
+        <string>200000</string>
+      </array>
+      <key>RunAtLoad</key>
+      <true/>
+      <key>ServiceIPC</key>
+      <false/>
+    </dict>
+  </plist> 
+----
+
+2) Change the owner of your new file:
+
+----
+sudo chown root:wheel /Library/LaunchDaemons/limit.maxfiles.plist
+----
+
+3) Load these new settings:
+
+----
+sudo launchctl load -w /Library/LaunchDaemons/limit.maxfiles.plist
+----
+
+4) Finally, check that the limits are correct:
+
+----
+launchctl limit maxfiles
+----
+
+5) In some cases a machine restart may be required for above to take effect.
+
+References:
+https://gist.github.com/tombigel/d503800a282fcadbee14b537735d202c

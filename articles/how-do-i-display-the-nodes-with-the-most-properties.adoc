@@ -1,0 +1,36 @@
+= How do I display the nodes with the most properties
+:slug: how-do-i-display-the-nodes-with-the-most-properties
+:zendesk-id: 214935268
+:neo4j-versions: 2.3, 3.0
+:author: Dana Canzano
+:tags: cypher
+:public:
+:category: cypher
+
+
+To display the nodes with the most properties defined, run the following Cypher:
+
+[source,cypher]
+----
+MATCH (n)
+RETURN labels(n), keys(n), size(keys(n)), count(*)
+ORDER BY size(keys(n)) DESC
+----
+
+Representative output is similar to:
+
+[opts="header"]
+|====
+|labels(n)|keys(n)|size(keys(n))|count(*)
+|[Movie]|[TotalRevenue, year_of_release, name, id]|4|1
+|[Movie]|[TotalRevenue, name, id]|3|2
+|[Artist]|[name, year]|2|4
+|====
+
+The first row of output indicates that there is a Label named `Movie`, which has 4 properties (`TotalRevenue`, `year_of_release`, `name`, `id`) and there is 1 node defined with that Label and those properties.
+
+The second row of output indicates that there is a Label named Movie which has 3 properties (`TotalRevenue`, `name`, `id`) and there are 2 nodes defined as such.
+
+The third row of output indicates that there is a Label named `Artists` which has 2 properties (`name`, `year`) and there are 4 nodes defined as such.
+
+

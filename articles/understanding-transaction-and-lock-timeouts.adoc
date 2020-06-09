@@ -1,0 +1,48 @@
+= Understanding transaction and lock timeouts
+:slug: understanding-transaction-and-lock-timeouts
+:author: Andrew Bowman
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3
+:tags: cypher, performance, apoc
+:public:
+:category: operations
+
+One way to handle runaway queries is to impose a time limit that will terminate a query when exceeded.
+There are some subtleties here that need to be understood to ensure proper behavior and avoid confusion.
+
+== Defining a transaction timeout
+
+You can set `dbms.transaction.timeout` in your neo4j.conf file.
+The value must be a duration followed by a time unit (ms, s, m, h; default is s).
+
+`dbms.transaction.timeout=2m`
+
+While this will adequately handle and terminate an executing query that exceeds the timeout, there may be some cases where a query or transaction seems to hang indefinitely, the timeout seemingly not enforced.
+
+Debug logs may report termination of the query, but often after a long time has elapsed:
+
+`WARN  [o.n.k.g.TimeoutGuard] Transaction timeout. (Overtime: 523299 ms)`
+
+== A separate timeout must be set on lock acquisition
+
+The main reason for such behavior is that a transaction might be stuck waiting on a lock.
+A transaction in such a state is waiting for a lock to be released by another transaction, and not executing code.
+This includes code that checks to see if the transaction has been marked for termination (as a result of exceeding the transaction timeout).
+
+In Neo4j 3.2, a new configuration option was introduced:
+
+`dbms.lock.acquisition.timeout`.
+
+This terminates a transaction exceeding the timeout while acquiring a lock.
+
+It's highly recommended that when you set the transaction timeout that you set the lock acquisition timeout as well.
+
+== APOC can be used to execute a timeboxed query
+
+Using `apoc.cypher.runTimeboxed()` from APOC Procedures, you can execute a dynamic read-only cypher query that will auto-terminate when the given millisecond limit is reached.
+
+[source,cypher]
+----
+CALL apoc.cypher.runTimeboxed("MATCH (n:Person{name:'Keanu Reeves'})-[*]-(other)
+ RETURN count(*) as allPathsCount",
+ {}, 20000)
+----

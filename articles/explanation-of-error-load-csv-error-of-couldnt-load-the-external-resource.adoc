@@ -1,0 +1,92 @@
+= Explanation of error LOAD CSV error of "Couldn't load the external resource ..."
+:slug: explanation-of-error-load-csv-error-of-couldnt-load-the-external-resource
+:author: Dana Canzano
+:neo4j-versions: 2.3, 3.0
+:tags: LOAD CSV, user-agent
+:public:
+:category: cypher
+
+When running a `LOAD CSV` Cypher statement, for example
+
+----
+LOAD CSV WITH HEADERS FROM "http://10.12.1.2/Neo4j/cities.csv" AS row WITH row create (c:cities {name:row.city});
+----
+
+whether through `bin/neo4j-shell` or the browser at http://localhost:7474 this may result in an error as follows
+
+----
+ Couldn't load the external resource at: http://10.12.1.2/Neo4j/cities.csv. See debug.log for more details, reference 8a28b268-948d-43fa-8d6d-b1afb0130276
+----
+
+And the `data/graph.db/messages.log` (2.x) or `$NEO4J_HOME/log/debug.log` (3.x) will include a stack trace similar to
+
+----
+2016-05-11 13:50:32.508+0000 ERROR [o.n.b.v.r.i.ErrorReporter] Client triggered an unexpected error [ExternalResourceFailed]: Couldn't load the external resource at: http://10.12.1.2/Neo4j/cities.csv. See debug.log for more details, reference 8a28b268-948d-43fa-8d6d-b1afb0130276.
+2016-05-11 13:50:32.508+0000 ERROR [o.n.b.v.r.i.ErrorReporter] Client triggered an unexpected error [ExternalResourceFailed]: Couldn't load the external resource at: http://10.12.1.2/Neo4j/cities.csv, reference 8a28b268-948d-43fa-8d6d-b1afb0130276. Couldn't load the external resource at: http://10.12.1.2/Neo4j/cities.csv
+org.neo4j.kernel.impl.query.QueryExecutionKernelException: Couldn't load the external resource at: http://mvabl.com/Neo4j/languages.csv
+        at org.neo4j.cypher.internal.javacompat.ExecutionEngine.executeQuery(ExecutionEngine.java:69)
+        at org.neo4j.bolt.v1.runtime.internal.CypherStatementRunner.run(CypherStatementRunner.java:73)
+        at org.neo4j.bolt.v1.runtime.internal.StandardStateMachineSPI.run(StandardStateMachineSPI.java:110)
+        at org.neo4j.bolt.v1.runtime.internal.SessionStateMachine$State$2.runStatement(SessionStateMachine.java:122)
+        at org.neo4j.bolt.v1.runtime.internal.SessionStateMachine.run(SessionStateMachine.java:653)
+        at org.neo4j.bolt.v1.runtime.internal.concurrent.SessionWorkerFacade.lambda$run$3(SessionWorkerFacade.java:68)
+        at org.neo4j.bolt.v1.runtime.internal.concurrent.SessionWorker.execute(SessionWorker.java:116)
+        at org.neo4j.bolt.v1.runtime.internal.concurrent.SessionWorker.executeBatch(SessionWorker.java:102)
+        at org.neo4j.bolt.v1.runtime.internal.concurrent.SessionWorker.run(SessionWorker.java:82)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: org.neo4j.cypher.LoadExternalResourceException: Couldn't load the external resource at: http://10.12.1.2/Neo4j/cities.csv
+        at org.neo4j.cypher.internal.compatibility.exceptionHandlerFor3_0$.loadExternalResourceException(CompatibilityFor3_0.scala:84)
+        at org.neo4j.cypher.internal.compatibility.exceptionHandlerFor3_0$.loadExternalResourceException(CompatibilityFor3_0.scala:61)
+        at org.neo4j.cypher.internal.frontend.v3_0.LoadExternalResourceException.mapToPublic(CypherException.scala:110)
+        at org.neo4j.cypher.internal.compatibility.exceptionHandlerFor3_0$.runSafely(CompatibilityFor3_0.scala:122)
+        at org.neo4j.cypher.internal.compatibility.CompatibilityFor3_0$ExecutionPlanWrapper.run(CompatibilityFor3_0.scala:199)
+        at org.neo4j.cypher.internal.PreparedPlanExecution.execute(PreparedPlanExecution.scala:27)
+        at org.neo4j.cypher.internal.ExecutionEngine.execute(ExecutionEngine.scala:111)
+        at org.neo4j.cypher.internal.javacompat.ExecutionEngine.executeQuery(ExecutionEngine.java:65)
+        ... 9 more
+Caused by: org.neo4j.cypher.internal.frontend.v3_0.LoadExternalResourceException
+        at org.neo4j.cypher.internal.compiler.v3_0.spi.CSVResources.openStream(CSVResources.scala:117)
+        at org.neo4j.cypher.internal.compiler.v3_0.spi.CSVResources.getCsvIterator(CSVResources.scala:55)
+        at org.neo4j.cypher.internal.compiler.v3_0.pipes.LoadCSVPipe$$anonfun$internalCreateResults$1.apply(LoadCSVPipe.scala:108)
+        at org.neo4j.cypher.internal.compiler.v3_0.pipes.LoadCSVPipe$$anonfun$internalCreateResults$1.apply(LoadCSVPipe.scala:103)
+        at scala.collection.Iterator$$anon$12.nextCur(Iterator.scala:434)
+        at scala.collection.Iterator$$anon$12.hasNext(Iterator.scala:440)
+        at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:408)
+        at org.neo4j.cypher.internal.compiler.v3_0.pipes.EmptyResultPipe.internalCreateResults(EmptyResultPipe.scala:31)
+        at org.neo4j.cypher.internal.compiler.v3_0.pipes.PipeWithSource.createResults(Pipe.scala:126)
+        at org.neo4j.cypher.internal.compiler.v3_0.pipes.PipeWithSource.createResults(Pipe.scala:123)
+        at org.neo4j.cypher.internal.compiler.v3_0.executionplan.DefaultExecutionResultBuilderFactory$ExecutionWorkflowBuilder.createResults(DefaultExecutionResultBuilderFactory.scala:94)
+        at org.neo4j.cypher.internal.compiler.v3_0.executionplan.DefaultExecutionResultBuilderFactory$ExecutionWorkflowBuilder.build(DefaultExecutionResultBuilderFactory.scala:64)
+        at org.neo4j.cypher.internal.compiler.v3_0.executionplan.InterpretedExecutionPlanBuilder$$anonfun$getExecutionPlanFunction$1.apply(ExecutionPlanBuilder.scala:164)
+        at org.neo4j.cypher.internal.compiler.v3_0.executionplan.InterpretedExecutionPlanBuilder$$anonfun$getExecutionPlanFunction$1.apply(ExecutionPlanBuilder.scala:148)
+        at org.neo4j.cypher.internal.compiler.v3_0.executionplan.InterpretedExecutionPlanBuilder$$anon$1.run(ExecutionPlanBuilder.scala:123)
+        at org.neo4j.cypher.internal.compatibility.CompatibilityFor3_0$ExecutionPlanWrapper$$anonfun$run$1.apply(CompatibilityFor3_0.scala:200)
+        at org.neo4j.cypher.internal.compatibility.CompatibilityFor3_0$ExecutionPlanWrapper$$anonfun$run$1.apply(CompatibilityFor3_0.scala:200)
+        at org.neo4j.cypher.internal.compatibility.exceptionHandlerFor3_0$.runSafely(CompatibilityFor3_0.scala:117)
+        ... 13 more
+Caused by: java.io.IOException: Server returned HTTP response code: 403 for URL: http://10.12.1.2/Neo4j/cities.csv
+        at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1840)
+        at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1441)
+        at org.neo4j.cypher.internal.compiler.v3_0.spi.CSVResources.openStream(CSVResources.scala:109)
+        ... 30 more
+----
+
+From the stack trace the reference to
+
+----
+Server returned HTTP response code: 403 for URL: http://10.12.1.2/Neo4j/cities.csv
+----
+
+is indicating that the WebServer at 10.12.1.2 received the request but returned status code 403 (Permission Denied).
+
+When a request is submitted to the WebServer, the user-agent of that request is defined as "Java/1.8.0_91".
+Below is the single line logging for said request in a Apache WebServer Common Log Format.
+The last field represents the user-agent of the request.
+
+----
+192.168.1.176 - - [16/May/2016:08:34:15 -0400] "GET /Neo4j/cities.csv HTTP/1.1" 404 511 "-" "Java/1.8.0_91"
+----
+
+In the above case, the WebServer was explicitly blocking any request with the user-agent "Java/1.8.0_91".
+Once this was addressed the `LOAD CSV` command was then successful.
+

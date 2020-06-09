@@ -1,0 +1,12 @@
+= Change logging levels in Neo4j Embedded
+:slug: change-logging-levels-in-neo4j-embedded
+:zendesk-id: 206058878
+:author: Dave Gordon
+:category: operations
+:tags: logging, embedded, configuration
+
+In order to change the default logging levels in a Neo4j embedded instance, you must edit/define the configuration file, which is XML.
+In particular the file is `neo4j-logback.xml`.
+
+The `neo4j-logback.xml` file must be located in the classpath, so that `org.neo4j.kernel.logging.LogbackService` can find and read the configuration.
+

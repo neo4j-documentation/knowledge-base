@@ -1,0 +1,83 @@
+= Parsing of quotes for LOAD CSV and/or Import
+:slug: parsing-of-quotes-for-load-csv-and-or-import
+:author: Dana Canzano
+:neo4j-versions: 3.1,3.2,3.3,3.4,3.5
+:tags: load-csv, quotes,csv
+:public:
+:category: import-export
+
+When using http://neo4j.com/docs/developer-manual/current/cypher/clauses/load-csv/[LOAD CSV] or
+https://neo4j.com/docs/operations-manual/current/tools/import/[neo4j-admin import] if your data contains quotes they must be properly
+escaped to be imported otherwise one might encounter the error
+
+*neo4j-admin import error*
+----
+./neo4j-admin import --database=hr.db --nodes:Staff hr.csv
+Neo4j version: 3.3.0
+Importing the contents of these files into /home/neo4j/neo4j-enterprise-3.3.0/data/databases/hr.db:
+Nodes:
+  :Staff
+  /home/neo4j/neo4j-enterprise-3.3.0/bin/hr.csv
+
+Available resources:
+  Total machine memory: 4.95 GB
+  Free machine memory: 4.46 GB
+  Max heap memory : 989.88 MB
+  Processors: 1
+  Configured max memory: 3.14 GB
+
+Nodes, started 2017-12-07 14:35:45.158+0000
+[*>:??----------------------------------------------------------------------------------------]    0 ∆    0
+Done in 159ms
+Error in input data
+Caused by:ERROR in input
+  data source: BufferedCharSeeker[source:/home/neo4j/neo4j-enterprise-3.3.0/bin/hr.csv, position:59, line:2]
+  in field: name:string:2
+  for header: [id:int, name:string, supervisor:int]
+  raw field value: 2
+  original error: At /home/neo4j/neo4j-enterprise-3.3.0/bin/hr.csv:2 -  there's a field starting with a quote and whereas it ends that quote there seems to be characters in that field after that ending quote. That isn't supported. This is what I read: 'Bill"'
+----
+
+
+*LOAD CSV error*
+----
+LOAD CSV WITH HEADERS FROM "file:///hr.csv" AS row FIELDTERMINATOR ','  CREATE (n:Staff { staffid: toInt(row.id), staff_name: row.name});
+At /home/neo4j/neo4j-enterprise-3.3.0/import/hr.csv:2 -  there's a field starting with a quote and whereas it ends that quote there seems to be characters in that field after that ending quote. That isn't supported. This is what I read: 'Bill"'
+----
+
+For the above case my hr.csv is defined as 
+
+----
+id:int,name:string,supervisor:int
+1,Emil Eifrem,1
+2,"Bill" William Smith,1
+3,Dana Canzano,2
+----
+
+And the failure is with parsing line 2 and as a result of the line starting with a `"`.   In order to import the above into Neo4j and 
+have line 2 be recognized as `"Bill" William Smith` the data needs to be reformatted to
+
+----
+id:int,name:string,supervisor:int
+1,Emil Eifrem,1
+2,"""Bill"" William Smith",1
+3,Dana Canzano,2
+----
+
+The data will then successfully import as evidence
+
+----
+neo4j> match (n) return n;
++-----------------------------------------------------------------+
+| n                                                               |
++-----------------------------------------------------------------+
+| (:Staff {name: "Emil Eifrem", id: 1, supervisor: 1})            |
+| (:Staff {name: "\"Bill\" William Smith", id: 2, supervisor: 1}) |
+| (:Staff {name: "Dana Canzano", id: 3, supervisor: 2})           |
++-----------------------------------------------------------------+
+----
+
+
+Note this same syntax structure of the CSV data relative to inclusion of quoted data is also successfully processed by
+https://office.microsoft.com/excel/[MS Excel], https://www.openoffice.org/[Open Office Calc]
+

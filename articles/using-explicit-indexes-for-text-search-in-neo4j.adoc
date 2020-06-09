@@ -1,0 +1,77 @@
+= Using explicit indexes for text search
+:slug: using-explicit-indexes-for-text-search-in-neo4j
+:author: Dave Gordon
+:neo4j-versions: 3.4, 3.5
+:outdated: true
+:tags: fulltext, indexing
+:public:
+:category: cypher
+
+[NOTE]
+Please note that in Neo4j 3.5 FullText search is available in Neo4j as part of Cypher stored procedures. More documentation is found here:
+https://neo4j.com/docs/cypher-manual/3.5/schema/index/#schema-index-fulltext-search.
+
+As of Neo4j 3.4.x, the schema index is optimal for indexing exact property values, but does not support "fuzzy" or full-text search.
+However, legacy indexing does allow for optimization for these types of queries, relying on auto-indexes or explicit indexes.
+In Neo4j version 3.4, addtional support for explicit indexes using built-in stored procedures was added to leverage text search in Neo4j for nodes and/or relationships.
+
+Below is an example on how to do textual search on Node properties. 
+
+Create and add the nodes to the index:
+
+----
+match (n:Movie) 
+with n
+call db.index.explicit.addNode("MovieTitle",n,"title",n.title) yield success return count(*)
+----
+
+Verify the index was created by running the following command:
+
+----
+
+call db.index.explicit.list
+
+Outputs:
+╒══════╤════════════╤════════════════════════════════════╕
+│"type"│"name"      │"config"                            │
+╞══════╪════════════╪════════════════════════════════════╡
+│"NODE"│"MovieTitle"│{"type":"exact","provider":"lucene"}│
+└──────┴────────────┴────────────────────────────────────┘
+----
+
+Run the query to find the names of the movies starting with `The`:
+
+----
+call db.index.explicit.searchNodes('MovieTitle','title:The*')
+
+Outputs:
+╒════════════════════════════════════════════════════════════════════════════════════════════════════════════╤════════╕
+│"node"                                                                                                      │"weight"│
+╞════════════════════════════════════════════════════════════════════════════════════════════════════════════╪════════╡
+│{"title":"The Matrix Revolutions","tagline":"Everything that has a beginning has an end","released":2003}   │1.0     │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────┤
+│{"title":"The Da Vinci Code","tagline":"Break The Codes","released":2006}                                   │1.0     │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────┤
+│{"title":"The Green Mile","tagline":"Walk a mile you'll never forget.","released":1999}                     │1.0     │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────┤
+│{"title":"The Devil's Advocate","tagline":"Evil has its winning ways","released":1997}                      │1.0     │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────┤
+│{"title":"The Polar Express","tagline":"This Holiday Season… Believe","released":2004}                      │1.0     │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────┤
+│{"title":"The Replacements","tagline":"Pain heals, Chicks dig scars... Glory lasts forever","released":2000}│1.0     │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────┤
+│{"title":"The Matrix","tagline":"Welcome to the Real World","released":1999}                                │1.0     │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────┤
+│{"title":"The Matrix Reloaded","tagline":"Free your mind","released":2003}                                  │1.0     │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────┤
+│{"title":"The Birdcage","tagline":"Come as you are","released":1996}                                        │1.0     │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────┴────────┘
+----
+
+If more data is added associated to that index it does not automatically update the nodes to the index. Those additional nodes needs to be added to the index as follows:
+
+----
+match (n:Movie) 
+with n
+call db.index.explicit.addNode("MovieTitle",n,"title",n.title) yield success return count(*)
+----

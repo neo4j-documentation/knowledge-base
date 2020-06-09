@@ -1,0 +1,58 @@
+= How to resolve Python Bolt Driver when executed gives an error "("Failed to establish connection to {!r}".format(address))"
+:slug: resolve-python-bolt-driver-error-connection
+:author: Rohan Kharwar
+:neo4j-versions: neo4j-python-driver 1.2
+:tags: python, bolt
+:public:
+:category: drivers
+
+Take the example of Python with the latest Bolt driver 1.2.
+
+Here is the sample code
+
+[source,python]
+----
+from neo4j.v1 import GraphDatabase
+uri = "bolt://localhost:7687"
+driver = GraphDatabase.driver(uri, auth=("neo4j", "Password"))
+----
+
+and when run it gives the following error:
+
+----
+Traceback (most recent call last):
+  File "/Users/rk/Documents/Work/Python-Bolt/boltTest.py", line 3, in <module>
+    driver = GraphDatabase.driver(uri, auth=("neo4j", "Password"))
+  File "/Library/Python/2.7/site-packages/neo4j/v1/api.py", line 112, in driver
+    return driver_class(uri, **config)
+  File "/Library/Python/2.7/site-packages/neo4j/v1/direct.py", line 56, in __init__
+    pool.acquire()
+  File "/Library/Python/2.7/site-packages/neo4j/v1/direct.py", line 37, in acquire
+    return self.acquire_direct(resolved_addresses[0])
+  File "/Library/Python/2.7/site-packages/neo4j/bolt/connection.py", line 386, in acquire_direct
+    connection = self.connector(address)
+  File "/Library/Python/2.7/site-packages/neo4j/v1/direct.py", line 55, in <lambda>
+    pool = DirectConnectionPool(lambda a: connect(a, security_plan.ssl_context, **config), self.address)
+  File "/Library/Python/2.7/site-packages/neo4j/bolt/connection.py", line 457, in connect
+    raise ServiceUnavailable("Failed to establish connection to {!r}".format(address))
+neo4j.exceptions.ServiceUnavailable: Failed to establish connection to ('::1', 7687, 0, 0)
+----
+
+There are two options to resolve this
+
+* Either change the `localhost` to `127.0.0.1` and then run it with the current settings.
+  As shown below
+
+   from neo4j.v1 import GraphDatabase
+   uri = "bolt://127.0.0.1:7687"
+   driver = GraphDatabase.driver(uri, auth=("neo4j", "Password"))
+
+* Second option is to set the following parameter in `conf/neo4j.conf` file as shown below. We are defining it to connect from any address i.e. 0.0.0.0. Restart the database and then run it as 
+ 
+    //Set in conf/neo4j.conf file 
+    dbms.connector.bolt.listen_address=0.0.0.0:7687
+
+   //Run the code as
+   from neo4j.v1 import GraphDatabase
+   uri = "bolt://localhost:7687"
+   driver = GraphDatabase.driver(uri, auth=("neo4j", "Password")) 

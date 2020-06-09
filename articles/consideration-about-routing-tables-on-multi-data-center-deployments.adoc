@@ -1,0 +1,50 @@
+= Consideration about routing tables on multi-data center deployments
+:slug: consideration-about-routing-tables-on-multi-data-center-deployments
+:author: José Rocha
+:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:tags: drivers, routing
+:public:
+:category: drivers
+
+Using the official Neo4j drivers means that you can take advantage of the full cluster routing capabilities of the drivers. This means 
+your requests will be routed automatically to the appropriate instance:
+
+* If your request is a write: it will be routed to the Leader instance
+* If your request is a read: it will be routed to a Follower/Read Replica instance
+
+[NOTE]
+====
+Community drivers also exist for many languages, but vary greatly in terms of feature sets, maturity, and support. To find out more 
+about community drivers, visit https://neo4j.com/developer/language-guides/.
+====
+
+Routing drivers with routing context are an available option when using drivers of version 1.3 or above together with a Neo4j Causal 
+Cluster of version 3.2 or above. In such a setup, a routing driver can include a preferred routing context via the query part of the 
+bolt+routing URI. In the standard Neo4j configuration, routing contexts are defined on server side by means of server policies. Thus 
+the driver communicates the routing context to the cluster in the form of a server policy. It then obtains refined routing information 
+back from the cluster, based on the server policy.
+
+When deploying a multi-data center cluster we often wish to take advantage of locality to reduce latency and improve performance. We 
+therefore highly recommend configuring the server groups in a way they can map to data centers, availability zones, or any other 
+significant topological elements from the operator's domain.
+
+However, even after you correctly configure your server groups, you may observe a higher latency in some requests. If you're
+experiencing this, probably it's due to the routing table population. When we get the routing table from the Core servers we do so in 
+a random way, not obeying server policies. The reason behind this design is because we want to prevent situations where an instance 
+repeatedly sends stale routing information.
+
+The drivers pull new routing information in 3 occasions: 
+
+* Driver object creation:
+	
+ - `driver driverObj = new driver( "bolt+routing://server:7687?policy=EU" )`
+
+* Failed connections
+	
+ - When there's a failed connection, the driver marks the routing table as stale and pulls a new one from a random Core.
+
+* TTL 
+
+ - When the TTL expires. The default value is 300s but you can adjust this by setting `causal_clustering.cluster_routing_ttl` in
+ `neo4j.conf`
+

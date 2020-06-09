@@ -1,0 +1,81 @@
+= How to write a Cypher query to return the top N results per category
+:slug: how-to-write-a-cypher-query-to-return-the-top-n-results-per-catgeory
+:author: Dana Canzano
+:neo4j-versions: 2.3, 3.0, 3.1
+:tags: cypher, grouping
+:public:
+:category: cypher
+
+The following Cypher describes how you can display the Top 5 test scores within an entire :Score population broken 
+out by a field_of_study property. 
+
+----
+create (n:Score {student_id: 'DC001', score: 89, field_of_study: 'chemistry'});
+create (n:Score {student_id: 'MK812', score: 97, field_of_study: 'chemistry'});
+create (n:Score {student_id: 'JT909', score: 77, field_of_study: 'chemistry'});
+create (n:Score {student_id: 'SA743', score: 84, field_of_study: 'chemistry'});
+create (n:Score {student_id: 'EH331', score: 68, field_of_study: 'chemistry'});
+
+create (n:Score {student_id: 'AE034', score: 89, field_of_study: 'economics'});
+create (n:Score {student_id: 'DC001', score: 91, field_of_study: 'economics'});
+create (n:Score {student_id: 'JF623', score: 74, field_of_study: 'economics'});
+create (n:Score {student_id: 'TP810', score: 77, field_of_study: 'economics'});
+create (n:Score {student_id: 'BB317', score: 82, field_of_study: 'economics'});
+create (n:Score {student_id: 'AH042', score: 61, field_of_study: 'economics'});
+create (n:Score {student_id: 'RV448', score: 59, field_of_study: 'economics'});
+
+----
+
+running
+
+----
+match (n:Score) 
+with n order by n.score desc
+with n.field_of_study as class,collect(n.student_id + '('+ n.score +')') as student
+return class,student[0..5]
+order by class
+----
+
+will return output of
+
+----
+class               student[0..5]
+chemistry	    [MK812(97), DC001(89), SA743(84), JT909(77), EH331(68)]
+economics	    [DC001(91), AE034(89), BB317(82), TP810(77), JF623(74)]
+----
+
+and in the above the students score has been appended to their student_id value by way of the reference `'('+ n.score +')'`.
+
+The Cypher can also be written as
+
+----
+match (n:Score) 
+with n order by n.score desc
+with n.field_of_study as class,collect({student_id:n.student_id, score:n.score}) as student
+return class,student[0..5]
+order by class
+----
+
+will produce the same output but the Top 5 students will be listed in a map of author and score: and thus
+
+----
+╒═══════════╤══════════════════════════════╕
+│"class"    │"student[0..5]"               │
+╞═══════════╪══════════════════════════════╡
+│"chemistry"│[{"student_id":"MK812","score"│
+│           │:"97"},{"student_id":"DC001","│
+│           │score":"89"},{"student_id":"SA│
+│           │743","score":"84"},{"student_i│
+│           │d":"JT909","score":"77"},{"stu│
+│           │dent_id":"EH331","score":"68"}│
+│           │]                             │
+├───────────┼──────────────────────────────┤
+│"economics"│[{"student_id":"DC001","score"│
+│           │:"91"},{"student_id":"AE034","│
+│           │score":"89"},{"student_id":"BB│
+│           │317","score":"82"},{"student_i│
+│           │d":"TP810","score":"77"},{"stu│
+│           │dent_id":"JF623","score":"74"}│
+│           │]                             │
+└───────────┴──────────────────────────────┘
+----

@@ -1,0 +1,72 @@
+= Causal Cluster FAQ for heavy workloads 
+:slug: causal-cluster-faq-for-heavy-workloads
+:author: José Rocha
+:category: cluster
+:neo4j-versions: 3.1, 3.2, 3.3, 3.4
+:tags: causal-cluster, leader, follower, writes, latency, bookmark
+:public:
+
+*Lagging of follower instances and what causes it?*
+
+The main reason for followers to fall behind is highly concurrent and continuous read/write workloads. This can cause the instances get overwhelmed which causes some extra latency in propagating the data to the followers (mainly due to lack of available threads to do so). 
+
+*How can I have a general expectation regarding latency?*
+
+We don't have numbers, nor do we have tools to know the expected latency (in time) because this depends on a combination of different factors such as size of transactions, concurrency, volume of workload, hardware, network latency, etc. It's virtually impossible to correlate all of this and come up with general expectations regarding latency.
+
+We use transaction IDs to determine how far (in transaction number) a follower is behind its leader. You can check this KB article on link:https://support.neo4j.com/hc/en-us/articles/360005861574-How-to-monitor-if-a-follower-is-in-sync-with-Leader-Causal-Cluster-[How to monitor if a Follower is in sync with the Leader]
+
+[NOTE]
+====
+Causal Clustering relies on the Raft protocol to ensure that the data is safely durable before confirming transaction commit. In practice this means a majority of Core Servers in your cluster will already have (accepted) that transaction thus making it closer to the Leader in terms of sync due to the nature of the Raft protocol (you can have a look at this: http://thesecretlivesofdata.com/raft/ which explains the raft protocol in an interactive way).
+====
+
+One way to measure the lag would be to set up a simple test case with 2 clients using bookmarks whilst under heavy load. This test case would have client 1 write to the database and use a bookmark, recording the time of commit; then have client 2 try to read the data using the same bookmark and record the time it took for the data to be available. Measuring this with different workloads will give you an idea of what to expect and how that value changes with your load.
+
+[INFO]
+====
+You can read more about causal chaining and bookmarks in link:https://neo4j.com/docs/developer-manual/3.4/drivers/sessions-transactions/#driver-transactions-causal-chaining[our documentation]
+====
+
+*Should I consider using the leader for read-only transactions*
+
+This question arises because of the usage of explicit write transactions for reads, in order to get routed directly to the leader and thus getting the most up-to-date data faster.
+
+While this may seem like a way to work around latency issues, our best practices are very straightforward in this aspect: use write transactions for writes; read transactions for reads. Using write transactions for reads means that the leader is being used to serve most (or all!) of your requests. This will cause even more stress on the leader, consequently increasing the possibility of the leader getting overwhelmed and ultimately causing even more lag on the followers.
+
+If your leader is always under constant heavy load, this alone may increase the latency. Distributing the load across the cluster is the recommended approach. The less work the leader has to do the faster it propagates the data to the rest of the instances in the cluster. This means that the followers will have the data more promptly, making it feasible to use followers for reads and the leader only for writes - as per the best practices.
+
+*How to minimize the impact of lagging on followers?*
+
+There are 2 main things you should aim to do in order to minimise the lagging:
+
+- Lower the number of concurrent transactions because this is effectively what makes the followers fall behind.
+- Decrease transaction size. Obviously larger transactions will take longer to commit, not only on the leader but also on the follower instances which may also cause lagging
+
+We're constantly working towards improving all areas of Neo4j and this is one is no exception. Recent deliveries have features that improve the expecience in situations of heavy workloads such as:
+
+- Cache pre-warming: to enable instances to have their cache warmed on startup, preventing the new instances from falling behind immediately after joining the cluster due to not having the cache as ready as the Leader (thus increasing query duration and lagging possibility)
+
+- Improvements in raft consensus: this significantly improves write performance across the cluster for large transactions. We can now process much larger transactions at the same rate as smaller ones.
+
+- Transaction state consumes less memory (moving transactions off-heap, working together with native indexing): to put less stress on the JVM making the overall system more stable and less prone to GC pauses and lagging
+
+- Bolt thread pooling: to limit and push-back the number of active threads on the leader. This is what will make a more significant impact on this behaviour because this is the way we now have to throttle the load on the leader. With this feature, we can play around with the config settings in order to achieve the maximum possible throughput, without putting the leader in a situation that it cannot even propagate the data across the cluster. You can read more about the bolt thread pooling feature and how to configure it link:https://neo4j.com/docs/operations-manual/3.4/performance/bolt-thread-pool-configuration/[here].
+
+All of these features are now available in version 3.4 (you can check the release notes link:https://neo4j.com/release-notes/neo4j-3-4-0/[here]). If your use case entails a constant, heavy, concurrent workload then you should consider upgrading to 3.4 which will definitely improve the performance.
+
+*Should I use causal chaining/bookmarks? (and its impact on propagation time)*
+
+In order to better understand this topic, we recommend having a look at our documentation first, namely link:https://neo4j.com/docs/operations-manual/current/clustering/introduction/[an introduction to Neo4j Causal Clustering].
+
+In a short explanation, we can say that - when invoked - causal consistency ensures that a client is guaranteed to read at least its own writes. The way to enforce this is by using bookmarks, and these come into play when executing a transaction. The client can ask for a bookmark which it then presents as a parameter to subsequent transactions. Using that bookmark, the cluster can ensure that only servers which have processed the client’s bookmarked transaction will run its next transaction.
+
+This will not have an impact on data propagation. Your data will be propagated the same way, as per the Raft protocol rules (see the link mentioned above). Having said that, depending on your use case requirements, you may need to make a design choice:
+
+- If you absolutely need to read your own writes, using bookmarks will ensure that. Your subsequent requests will be served by an instance that has the data corresponding to the bookmark used on the write. You will take a hit on data access time because you need to wait for the information to be available.
+An example of this can be a comment on a news feed: you write a comment to the database and you absolutely need that information to pop up straight after.
+
+- Not using bookmarks means that subsequent reads may or may not have the latest data. You will have a faster access to data but since you do not provide the means for a casual chain, the data you read might not be up to date and you may retrieve unwanted results.
+An example of this might be an online store's (non-real-time) recommendation system: you will be recommended products based on your past purchases and if you purchase something new, you will update the database. However, that newly added information will only be used to recommend products for a future purchase.
+
+You need to decide whether your use case requires this causal chain to ensure truly consistent results or does it require the fastest data access, even though it may not be the most up to date? Or maybe some clients require a stronger consistency than others? As said above, this is a design choice and one must choose what fits the use case better.

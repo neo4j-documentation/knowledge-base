@@ -1,0 +1,132 @@
+== Neo4j Knowledge Base
+
+This repository is a knowledge base for Neo4j
+
+It contains articles that cover questions, problems, and issues with Neo4j.
+
+There are articles marked `:public:` which will be published for everyone to see under https://neo4j.com/developer/kb/
+
+*All articles* marked `:public:` or `:private:` will be published in the ZenDesk knowledge base: https://support.neo4j.com/hc/en-us/sections/200574983-Knowledge-Base
+
+=== Intent / Workflow
+
+If you answer questions on Neo4j in support, on Stackoverflow, Google Group, Slack or Twitter, 
+please make sure to rather link to an up-to-date article originated in the Knowledge Base than writing an answer from scratch.
+
+This will also prevent *out of date content* accumulate in other places where it might get a high Google Rank without us having any means to update or clarify it.
+
+If there is no up to date article for a topic of general interest, please create one, if there is an article but it is outdated, please update the article and also update the `neo4j-versions` attribute.
+
+The goal is to start this as a GitHub repository but going forward to render it as part of the documentation / developer pages.
+
+Also all code that will be included should be tested by a build process / being pulled out of test cases.
+
+=== Structure
+
+Each article is written in AsciiDoc.
+
+You can start by copying the link:./template.adoc[template article] or this https://gist.github.com/jexp/56f7689897847c9c02de50f902991674[template gist].
+
+Feel free to add / edit articles directly on GitHub, but make sure to send a *Pull Request* so the updates are reviewed before being made public.
+
+You can use prose, headlines, sections, images, source-code blocks, links to GH repositories and other resources.
+
+[NOTE]
+But please keep it reasonably short and to the point.
+
+Public articles must be marked with a `:public:` flag.
+
+It contains some additional fields:
+
+* `:author:` (optionally `:twitter:`)
+* `:neo4j-versions:`, e.g. 3.5, 4.0
+* `:category:`, e.g.  drivers
+* `:tags:`, e.g. `cypher,tuning`
+* `:environment:` e.g. windows
+
+==== File Names & Slugs
+
+All articles need to have a `:slug:` attribute so that we can tie them to the appropriate post/article on Wordpress / Zendesk.
+
+All article file-names should contain no spaces and have all lowercase words in the filename, e.g. `how-to-run-consistency-check.adoc`.
+If an article is added and it has spaces in it's filename, the `noSpaces.sh` script in the `/articles` directory will make a spaceless name for it using the slug in the article. 
+
+If a slug is changed, the URL for the article will be changed and any former links to the article will be **broken**.
+
+For Wordpress this isn't a problem, but for Zendesk it means that the article will be deleted and the article ID won't be recoverable, leaving links perminently broken.
+
+The *slug* has to be all lowercase characters and hyphens to make it a good URL.
+No spaces, no uppercase, no leading/trailing/double hyphens.
+
+When slugs are invalid no documents will be deployed until the slugs are fixed.  You can find out if slugs failed on the link:https://snap-ci.com/neo-technology-field/knowledge-base/branch/master[Snap CI] build.  It is suggested that you subscribe to notifications for the builds so that you can get E-Mailed whenever a build fails and whenever it starts again.
+
+==== Versions
+
+* 3.4, 3.5, 4.0, 4.1
+
+Optionally add minor versions / milestones as additonal versions separated with comma / in the prose if relevant.
+
+==== Tag Taxonomy
+
+See link:./kb-categories.txt[]
+
+=== Code Snippets
+
+If you use code-snippets, please make sure to mark them with the correct source, e.g. `[source,cypher]`, `[source,java]`.
+
+For Cypher you can also provide a setup section or file as part of the repository.
+
+Feel also free to use graph-gist syntax here, e.g. `//setup, //graph, //graph_result, //table`, so that we can chose to render the files as graphgists.
+
+For code snippets you can include http://asciidoctor.org/docs/user-manual/#by-tagged-regions[tagged sections] from either a runnable project in a sub-directory in any programming-language or another github-repository.
+
+[NOTE]
+Make sure to update those code examples alongside with the article.
+
+==== Code Snippets Example
+
+[source,asciidoc]
+----
+ [source,java]
+ ----
+ include::sources/java/src/test/java/example/CreateData.java[tags=create_data]
+ ----
+----
+
+[source,java]
+----
+package example;
+
+import org.neo4j.*;
+
+public class CreateDataTest {
+   @Test public void createData() {
+//tag::create_data[]
+      try (Transaction tx = db.beginTx()) {
+		 Node n = tx.createNode(Labels.Person);
+		 n.setProperty("name","Emil");
+		 Node m = tx.createNode(Labels.Person);
+		 m.setProperty("name","Peter");
+		 n.createRelationshipTo(m,Types.KNOWS);
+         // calling success is important to mark the transaction successful
+		 tx.commit();
+      }
+//end::create_data[]
+   }
+}
+----
+
+Will result in:
+
+[source,java]
+----
+try (Transaction tx = db.beginTx()) {
+   Node n = tx.createNode(Labels.Person);
+   n.setProperty("name","Emil");
+   Node m = tx.createNode(Labels.Person);
+   m.setProperty("name","Peter");
+   n.createRelationshipTo(m,Types.KNOWS);
+   // calling success is important to mark the transaction successful
+   tx.commit();
+}
+----

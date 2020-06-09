@@ -1,0 +1,92 @@
+= Limiting MATCH results per row
+:slug: limiting-match-results-per-row
+:author: Andrew Bowman
+:neo4j-versions: 3.1, 3.0, 2.3, 2.2
+:tags: cypher, limit
+:public:
+:category: cypher
+
+Since `LIMIT` applies to the total number of rows of the query, it can't be used in cases when matching from multiple nodes where the limit must be per row.
+
+Take an example case using the Movies database.
+
+If you needed a query to get all the actors from The Matrix, and for each actor, get 3 movies that actor has acted in, a first (incorrect) attempt might look like this:
+
+[source,cypher]
+----
+MATCH (:Movie{title:'The Matrix'})<-[:ACTED_IN]-(p:Person)
+MATCH (p)-[:ACTED_IN]->(m)
+RETURN p, m LIMIT 3
+----
+
+The above query won't return the desired results. The `LIMIT` will instead make the query return only 3 rows total.
+
+=== Some solutions to apply a limit to match results per-row
+
+==== Take the interested slice of a collection
+
+One common solution is to `collect()` and take the interested slice:
+
+[source,cypher]
+----
+MATCH (:Movie{title:'The Matrix'})<-[:ACTED_IN]-(p:Person)
+MATCH (p)-[:ACTED_IN]->(m)
+RETURN p, collect(m)[..3] AS movies
+----
+
+In Neo4j 3.1.x and newer you can use pattern comprehension as a shorthand approach:
+
+[source,cypher]
+----
+MATCH (:Movie{title:'The Matrix'})<-[:ACTED_IN]-(p:Person)
+RETURN p, [(p)-[:ACTED_IN]->(m) | m][..3] as movies
+----
+
+If only one element in the collection is needed, the `head()` function can be used to get the first element from the pattern comprehension:
+
+[source,cypher]
+----
+MATCH (:Movie{title:'The Matrix'})<-[:ACTED_IN]-(p:Person)
+RETURN p, head([(p)-[:ACTED_IN]->(m) | m]) as movie
+----
+
+While this works when there are few relationships per node, it may become infeasible on supernodes with larger numbers of relationships, as it must expand all `:ACTED_IN` relationships before collecting.
+
+==== Use apoc.cypher.run() to execute a limited subquery
+
+Neo4j doesn't currently offer native subquery support aside from pattern comprehension, but even those don't support `LIMIT`.
+
+However, in Neo4j 3.0.x and newer, using link:https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC Procedures], you can use `apoc.cypher.run()` to execute a subquery with a `LIMIT`, which performs the way we want since it executes per-row.
+
+[source,cypher]
+----
+MATCH (:Movie{title:'The Matrix'})<-[:ACTED_IN]-(p:Person)
+CALL apoc.cypher.run('
+ WITH {p} AS p
+ MATCH (p)-[:ACTED_IN]->(m)
+ RETURN m LIMIT 3',
+ {p:p}) YIELD value
+RETURN p, value.m AS movie
+----
+
+This approach is efficient since by using `LIMIT` we don't have to pay the cost of expanding all `:ACTED_IN` relationships, we only need to expand 3 per row.
+
+==== Use APOC path expander using end node or termination filters and `limit` param
+
+With Neo4j 3.1.3 and higher, and link:https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC Procedures] 3.1.3.6 and higher, you can use use new path expander features to limit expansion to certain nodes.
+
+The `limit` param is only usable with path expander procedures that take a config map, and only when using the end node (`>`) or termination label filters (`/`):
+
+* `apoc.path.expandConfig()`
+* `apoc.path.subgraphNodes()`
+* `apoc.path.subgraphAll()`
+* `apoc.path.spanningTree()`
+
+Using this approach, the query becomes:
+
+[source,cypher]
+----
+MATCH (:Movie{title:'The Matrix'})<-[:ACTED_IN]-(p:Person)
+CALL apoc.path.subgraphNodes(p, {relationshipFilter:'ACTED_IN>', labelFilter:'/Movie', limit:3}) YIELD node
+RETURN p, node as movie
+----

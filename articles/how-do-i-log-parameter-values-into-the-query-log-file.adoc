@@ -1,0 +1,57 @@
+= How do I log parameter values into the query.log file
+:slug: how-do-i-log-parameter-values-into-the-query-log-file
+:author: Dana Canzano
+:neo4j-versions: 3.0
+:tags: logging, parameters query-log
+:public:
+:category: operations
+
+Neo4j 3.0 introduces the ability to log the value of query parameters in the `log/query.log` file.
+The settings to control this feature are located in the `conf/neo4j.conf` file.
+To enable query logging with parameters, one must first enable query logging via the `conf/neo4j.conf` parameter:
+
+----
+dbms.logs.query.enabled=true
+----
+
+Second, to enable the logging of parameters one should set:
+
+----
+dbms.logs.query.parameter_logging_enabled=true
+----
+
+*Note: By default `dbms.logs.query.parameter_logging_enabled` is set to `true`.*
+
+Once these two settings are defined/enabled (and Neo4j is restarted to apply the change), when a Cypher statement is submitted using parameters, the parameter values will appear at the end of the line.
+
+For example submitting:
+
+----
+{
+  "statements" : [ {
+    "statement" : "CREATE (n) RETURN id(n)"
+  }, {
+    "statement" : "CREATE (n {props}) RETURN n",
+    "parameters" : {
+      "props" : {
+        "name" : "My Node"
+      }
+    }
+  } ]
+}
+----
+
+will result in the following log entry
+
+----
+2016-04-29 18:03:31.679+0000 INFO  86 ms: server-session        http    192.168.1.220   /db/data/transaction - CREATE (n {props}) RETURN n - {props: {name: My Node}}
+----
+
+where the trailing `{props: {name: My Node}}` represents the parameter value(s) passed.
+
+If you were to define `dbms.logs.query.parameter_logging_enabled=false`, then the above line would appear as:
+
+----
+2016-04-29 18:02:23.868+0000 INFO  2 ms: server-session http    192.168.1.220   /db/data/transaction - CREATE (n {props}) RETURN n
+----
+

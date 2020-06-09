@@ -1,0 +1,76 @@
+= What Works with the BI Connector
+:slug: what-works-with-the-bi-connector
+:author: Shashi Dookhee
+:neo4j-versions: 3.5, 4.0
+:tags: jdbc, sql, tableau, visualization, bi-connector
+:public:
+:category: tools
+
+This article provides an overview of what third-party applications to expect the BI connector work with.
+
+== Prerequisites
+
+Ensure that you are running Neo4j server 3.5.x or 4.x, and have installed at least version 3.5.0.9 or 4.0.0.4 of the APOC library respectively.
+
+== General overview
+
+The Neo4j BI connector is a JDBC-compliant driver for third-party tools that allows those tools to execute SQL queries directly against a Neo4j server. Other than the prerequisite of APOC (see above), the connector should be seamless for end users.
+
+In principle the connector will work as a data source with any JDBC-compliant application. One thing to note though is that this connector is currently READ ONLY. This means that only select-style queries will work - INSERT, UPDATE or DELETE will NOT work.
+
+== Functions and procedures
+
+As the connector translates SQL to Cypher "under the covers", it does not support standard Cypher built-in functions or procedure calls from the SQL layer. However, there are a few functions that are supported at the driver level, as follows:
+
+* CURDATE() - This will return the current date in m/d/yyyy format.
+* CURRENT_TIMESTAMP() - This will return the current datetime in "m/d/yyyy HH:MM:SS [AM|PM]" format.
+* NOW() - This will return the current datetime in "m/d/yyyy HH:MM:SS [AM|PM]" format.
+
+== Known working applications
+
+The following tools have been tested to work with the connector:
+
+* Tableau Desktop
+* Tableau Server 
+* SQuirreL SQL
+* SQLLine
+
+== Expected to work applications
+
+* TIBCO SpotFire Server
+* Looker Server
+* Looker Hosted
+* Oracle Analytics Cloud
+* MicroStrategy Secure Analytics
+* ThoughtSpot
+* IBM Cognos
+* SAP Business Objects
+
+== Applications not yet supported
+
+Due to ODBC and/or cloud requirements, the following applications will likely not work natively:
+
+* Microsoft PowerBI
+* Qlik Sense (any version)
+* TIBCO SpotFire Desktop
+* TIBCO SpotFire Cloud
+* Looker Cloud
+* Domo
+
+== Bridge software
+
+Some BI tools recommend the use of bridge software (e.g. TIQ Java Service Connector for Qlik). However, we have not tested this configuration, and cannot confirm that it will work without issues (functional or performance).
+
+== Support
+
+The BI connector is a Neo4j supported plugin under existing customer contracts. However, we do NOT support the actual tools (e.g. Tableau), so any support cases must validate that the issue raised by the customer is related specifically to the connector and/or Neo4j server - and not the tool they are using it with. This can generally be confirmed by executing the SQL query the tool is attempting within a JDBC-compliant SQL client, such as SQuirreL SQL.
+
+Additionally, connector support will be limited to Monday to Friday, 9AM to 6PM, Pacific Standard Time.
+
+== Things to watch out for
+
+For performance reasons ensure that the Neo4j server has adequate resources. The driver may "overfetch" data depending on the query, so adequate resources (especially memory) would make a noticeable impact.
+
+== Further reading
+
+See the detailed user guide contained within the distribution package for more information.

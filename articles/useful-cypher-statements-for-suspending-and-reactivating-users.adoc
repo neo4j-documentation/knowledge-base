@@ -1,0 +1,48 @@
+= Useful Cypher statements for suspending and reactivating users
+:slug: useful-cypher-statements-for-suspending-and-reactivating-users
+:author: Dana Canzano
+:neo4j-versions: 3.1
+:tags: suspend, activate, security, user
+:public:
+:category: operations
+
+Commencing with Neo4j 3.1 and implementaion of https://neo4j.com/docs/operations-manual/current/security/authentication-authorization/native-user-role-management/[native database users]
+it is possible to suspend a user, thus preventing the user from further authenticating in.
+
+To view all suspended users run the following Cypher
+
+----
+call dbms.security.listUsers() yield username, flags 
+with username,flags 
+where 'is_suspended' in flags
+return username
+----
+
+Further if you encounter the need to suspend all users, for example to prevent all database access during a weekend maintenance period, 
+the following Cypher can be used to generate Cypher statements which can then be used to suspend and subsequently reactivate all users.
+
+*  Build the Cypher statements to activate all currently 'active' users
+
+----
+// users with no  is_suspended flag and build the statement to activate the user and not force a password change
+call dbms.security.listUsers() yield username, flags with username, flags 
+where not 'is_suspended' in flags  
+return 'call dbms.security.activateUser(\'' + username + '\',false);'
+----
+
+*  Build the Cypher statements to suspend all currently 'active' users
+
+----
+// users with no  is_suspended flag
+call dbms.security.listUsers() yield username, flags with username, flags 
+where not 'is_suspended' in flags  
+return 'call dbms.security.suspendUser(\'' + username + '\');'
+----
+
+
+Finally at the time of the maintenance window one would first run the generated Cypher statements from above to suspend all users.  
+Note it is not possible to suspend the user you are currently logged in as and as such you may see a call dbms.security.suspendUser
+result in failure error message of 'Suspending yourself (user 'neo4j') is not allowed.'
+
+At the completion of the maintenance window, one would then run the generated Cypher statement to activate all the 
+currrently defined suspended users.

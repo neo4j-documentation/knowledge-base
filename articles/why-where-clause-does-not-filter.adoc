@@ -1,0 +1,98 @@
+= Why doesn't my WHERE clause work?
+:slug: why-where-clause-does-not-filter
+:author: Andrew Bowman
+:neo4j-versions: 3.2, 3.1, 3.0, 2.3, 2.2
+:tags: cypher, where
+:public:
+:category: cypher
+
+It can be frustrating when it seems like a WHERE clause isn't working.
+You can use these approaches to figure out what's wrong.
+
+
+==== Check for WHERE clauses following OPTIONAL MATCH
+
+WHERE clauses can't be used on their own, they are always paired with a MATCH, WITH, or OPTIONAL MATCH, and it is this pairing that defines behavior when a WHERE clause evaluates to false.
+
+`WITH ... WHERE` and `MATCH ... WHERE` apply the WHERE clause to all result rows, and this is usually how most users expect WHERE to behave, removing rows when the WHERE evaluates to false.
+
+However, `OPTIONAL MATCH ... WHERE` behaves differently because OPTIONAL MATCH never removes rows.
+When using OPTIONAL MATCH, if the given pattern does not match, or its WHERE clause evalutes to false, then newly-introduced variables in the pattern become null for the given row.
+Rows are never removed, and existing variables remain unchanged, which can give the impression that the WHERE clause isn't working at all, when the real problem is that it's being applied to the wrong thing.
+
+[source,cypher]
+----
+MATCH (m:Movie)
+OPTIONAL MATCH (m)<-[:WORKED_ON]-(a:Animator)
+WHERE m.releaseYear > 1999 AND a IS NOT NULL
+RETURN m, collect(a) as animators
+----
+
+In the above example, it may look like this is a query to get movies released after 1999 and animators on the movie where an animator worked on the movie, but that's incorrect.
+The WHERE clause will only affect the OPTIONAL MATCH, so all movies will be returned, none will be filtered out, but the animators collection will only be populated on movies released after 1999.
+
+To fix the query, we need to move the WHERE elsewhere so it's associated with a MATCH or a WITH so it filters out rows as required:
+
+[source,cypher]
+----
+MATCH (m:Movie)
+OPTIONAL MATCH (m)<-[:WORKED_ON]-(a:Animator)
+WITH m, a
+WHERE m.releaseYear > 1999 AND a IS NOT NULL
+RETURN m, collect(a) as animators
+----
+
+
+
+
+==== Check for misspellings or case mismatches in your WHERE clause
+
+Typos and misspelled elements can easily throw off WHERE clauses, and this includes mismatches in case.
+
+Node labels, relationship types, variables, and both property keys and values are all case-sensitive, so make sure you're being consistent and correct in your cases.
+
+[source,cypher]
+----
+MATCH (m:Movie)
+WHERE NOT (m)<-[:worked_on]-(a:animator) AND m.ReleaseYear > 1999
+RETURN m
+----
+
+The above query doesn't have any spelling errors, but it has different case in the relationship type, node label, and property key than what's actually in the graph, which will throw off the WHERE clause significantly.
+
+==== Check if an assumed numeric property is actually a string
+
+In circumstances where numeric comparisons or matches seem to be failing, it helps to make sure the properties you're comparing against are actually numbers.
+
+In text result views, string values will have quotes around them, while numeric values will not.
+
+Be especially mindful during imports, especially CSV imports, as all values are interpreted as strings. You'll need to use `toInteger()` and `toFloat()` to cast strings to numeric values, to avoid this problem.
+
+==== Check for leading or trailing whitespace in property keys and values
+
+Leading or trailing whitespace in properties can make it seem like WHERE clauses aren't working, and this is often an issue with the data in the graph rather than the query itself.
+
+[source,cypher]
+----
+MATCH (m:Movie)<-[:ACTED_IN]-(p:Person)
+WHERE p.name = 'Keanu Reeves'
+RETURN m
+----
+
+The above query looks fine, and may be completely correct. However, if the node's name property actually happens to be "Keanu Reeves " with a trailing space, the query won't work.
+
+It's often a good idea to double-check expected string values on your nodes and relationships to see if unexpected whitespace is the problem.
+If using the Neo4j browser, the text results view is usually the best way to easily detect extra whitespace.
+Querying using `STARTS WITH`, `ENDS WITH`, or `CONTAINS` can also help test assumptions about your property values.
+
+Extra whitespace in property keys is rarer, but can happen, such as when importing data from badly formatted files.
+
+For example, if we tried to import a csv file with the following header:
+
+
+`nickName, firstName,lastName&nbsp;`
+
+
+There is some leading whitespace before `firstName`, and trailing whitespace after `lastName`.
+When imported, the property keys themselves will include leading and trailing whitespace, so the actual property keys become "nickName", " firstName" and "lastName ", and may quickly become a source of confusion, if undetected.
+

@@ -1,0 +1,42 @@
+= Load CSV data in Neo4j from CSV files on Amazon S3 Bucket
+:slug: load-csv-data-from-csv-files-on-aws-s3-bucket
+:author: Rohan Kharwar
+:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:tags: aws, s3, import, cli
+:public:
+:category: import-export
+
+Neo4j provides LOAD CSV cypher command to load data from CSV files into Neo4j or access CSV files via HTTPS, HTTP and FTP.
+But how do you load data from CSV files available on AWS S3 bucket as access to files requires login to AWS account and have file access?
+That is possible by making use of presign URL for the CSV file on S3 bucket.
+
+We will quickly walk through on how to create a presign URL for a file on AWS S3 bucket.
+We will need https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html[aws] command line utility for it.
+Once the `aws` command line utility is installed, setup the aws command line using `aws configure` command.
+
+----
+Rohans-MacBook-Pro-2:bin rohankharwar$ aws configure
+AWS Access Key ID [****************KSRQ]:
+AWS Secret Access Key [****************t9gZ]:
+Default region name [us-east]: us-east-2
+Default output format [None]:
+----
+
+For this example the `actors.csv` file is available in `rohank` S3 bucket.
+Run the below command to create the presign URL for `actors.csv` file.
+
+----
+aws s3 presign s3://rohank/actors.csv
+----
+
+The command will create and output the following presign URL
+
+----
+https://rohank.s3.amazonaws.com/actors.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAICM6A3RO53KOKSRQ%2F20190404%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20190404T215301Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=61cb485af12daa60bb8cb7a91fb503797311c8e178d9bfa3c7ff49770e4535b5
+----
+
+Then use the URL to access the file from S3 bucket using LOAD CSV as
+
+----
+LOAD CSV WITH HEADERS FROM "https://rohank.s3.amazonaws.com/actors.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAICM6A3RO53KOKSRQ%2F20190404%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20190404T215301Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=61cb485af12daa60bb8cb7a91fb503797311c8e178d9bfa3c7ff49770e4535b5" as row return count(row)
+----

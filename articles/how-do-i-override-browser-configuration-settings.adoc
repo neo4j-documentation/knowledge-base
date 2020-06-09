@@ -1,0 +1,66 @@
+= How do I override browser configuration settings
+:slug: how-do-i-override-browser-configuration-settings
+:author: Dana Canzano
+:neo4j-versions: 3.2
+:tags: browser, configuration
+:public:
+:category: browser
+
+Commencing with Neo4j 3.2.2 one can override default configuration settings of the browser whereby a number of these settings
+are defined under the left frame and through the 'gears' icon.  
+
+To implement said functionality you would first need to know the name of the parameter which defines the functionality.  This 
+can be displayed by running from the browser
+
+----
+:config 
+----
+
+and sample output is as follows
+
+----
+{
+  "cmdchar": ":",
+  "maxHistory": 30,
+  "theme": "normal",
+  "useBoltRouting": false,
+  "initCmd": ":play start",
+  "initialNodeDisplay": 300,
+  "maxNeighbours": 100,
+  "showSampleScripts": true,
+  "browserSyncDebugServer": null,
+  "maxRows": "5000",
+  "shouldReportUdc": true,
+  "autoComplete": true,
+  "scrollToTop": true,
+  "maxFrames": 30,
+  "editorAutocomplete": true
+}
+----
+
+This can be changed globally for all users of the browser or one can also override these setting at the Cypher prompt through
+the browser.
+
+The following describes how to change Max Frames from 50 to 10 and the Theme to Outline
+
+==== Globally
+
+To make the changes globally modify the `$NEO4J_HOME/conf/neo4j.conf` and add the following
+
+----
+browser.post_connect_cmd=config {maxFrames:10, theme: "outline"}
+----
+
+which would change the maxFrames from its default of 50 to 10 and then restart Neo4j.
+
+
+==== Browser Instance
+
+Within the browser at the Cypher prompt enter
+
+----
+:config {maxFrames:10, theme: "outline"}
+----
+
+Once making the change, rerunning :config should report that maxFrames has been set to 10, and the Theme is defined to 'Outline'
+and the Gears Icon should reflect this change.

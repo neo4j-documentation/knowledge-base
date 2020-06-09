@@ -1,0 +1,87 @@
+= Using APOC to parse JSON results from Trello API
+:slug: using-apoc-to-parse-json-results-from-trello-api
+:author: Dana Canzano
+:neo4j-versions: 3.0, 3.1
+:tags: apoc, json,import
+:public:
+:category: import-export
+
+Prior to Neo4j 3.0, if you wanted to parse the JSON results from a call to a Web API, it would require you use one of the 
+database drivers to fetch and parse the JSON data. This is described https://neo4j.com/blog/cypher-load-json-from-url/[here].
+
+With the inclusion of stored procedures as part of Neo4j 3.0.x and the https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC] procedure package, one can read the JSON data and create nodes and relationships in the graph.  The following describes how this is accomplished when using the https://developers.trello.com/[Trello API]. Trello is a collaboration tool that organizes your projects into boards. In one glance, Trello shows you what's being worked on, who's working on what, and where something is in a process. The Trello
+https://trello.com/guide/board_basics.html[taxonomy] includes boards, lists, and cards where tasks are recorded.
+
+When using the Trello API you must register an API key and token as they are required to access the URL. The key and token can be created  https://trello.com/app-key[here]. In the example below, the generated key and token are:   
+
+----
+key=00981709d8fa49b9fb3c66f41178c14h
+token=06128ee9bb10787d6fdee4942c12b5de5f39be11794fcb0604e072e1940475e2
+----
+
+And the goal of the Cypher in this example is to create a Graph Model similar to:
+
+image:http://i.imgur.com/aMp0GUV.png[image]
+
+To produce such a data model we are going to interact with the Trello API https://developers.trello.com/advanced-reference/member#get-1-members-idmember-or-username-actions[/1/member/me/actions?filter=createCard] which will return a
+JSON result representing the detail on when cards were created. Additionally, the inclusion of the 'me' value in the URL indicates
+to only retrieve createCards actions that I have taken.
+
+
+----
+   {
+        "id": "56f29d59ef82d7312c56710f",
+        "idMemberCreator": "5637836872deaba954947610",
+        "data": {
+            "board": {
+                "name": "New Features Board",
+                "id": "563ce96c73ae60bc1a3d40"
+                "shortLink": "bYO0FVJ7Q",
+            },
+            "list": {
+                "name": "Inbox",
+                "id": "55f7f0db68294b2a319c0519"
+            }card": {
+                "shortLink": "OwUvlhf7",
+                "idShort": 464,
+                "name": "request for support of Java8",
+                "id": "734"
+            }
+        },
+        "type": "createCard",
+        "date": "2014-01-15T13:42:49.055Z",
+        "memberCreator": {
+            "id": "123",
+            "avatarHash": "1f5a1bc9710166186f6fdd8c8b806c58",
+            "fullName": "Dana Canzano",
+            "initials": "DC",
+            "username": "danacanzano"
+        }
+    },
+
+----
+
+The following Cypher will process the JSON results of the `/1/member/me/actions` request:
+
+----
+WITH "https://api.trello.com/1/member/me/actions?filter=createCard&limit=1000&key=00981709d8fa49b9fb3c66f41178c14h&token=06128ee9bb10787d6fdee4942c12b5de5f39be11794fcb0604e072e1940475e2" AS url
+CALL apoc.load.json(url) YIELD value AS action
+WITH action, action.memberCreator AS m, action.data AS d
+MERGE (u:User {id:m.id}) ON CREATE SET u.initials = m.initials, u.name = m.fullname, u.user = m.username
+MERGE (b:Board {id: d.board.id}) ON CREATE SET b = d.board
+MERGE (c:Card {id: d.card.id}) ON CREATE SET c = d.card
+MERGE (u)-[r:CREATED]->(c) ON CREATE SET r.id = action.id, r.date_created=apoc.date.parse(action.date,'s',"yyyy-MM-dd'T'HH:mm:ss'Z'")
+MERGE (c)-[:IN_BOARD]->(b)
+RETURN count(*);
+----
+
+And then one can run 
+
+----
+MATCH (u:User)-[r:CREATED]->(c:Card)-[r2:IN_BOARD]->(b:Board) 
+RETURN u.user AS Author, r.date_created,c.name AS CardName ,b.name AS BoardName
+----
+
+This is helpful in attempting to find metrics about the author/creator of Trello cards.
+
+The above is but one example of the Trello API and all data represented above is not actual data but representations.

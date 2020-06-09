@@ -1,0 +1,34 @@
+= How do I convert a property representing a date timestamp to another timezone
+:slug: how-do-i-convert-a-property-representing-a-date-timestamp-to-another-timezone
+:neo4j-versions: 3.4, 3.5
+:tags: cypher, temporal, timezone
+:author: Dana Canzano
+:public:
+:category: cypher
+
+https://neo4j.com/docs/cypher-manual/3.5/syntax/temporal/[Temporal datatype] support was introduced with with Neo4j 3.4 and as a result it 
+is possible to record a date timestamp with timezone as a property value.
+
+The following Cypher can be used to convert a date timestamp with timezone from one timezone to another
+
+----
+MATCH (n:Person) 
+       where    exists(n.date_enrolled)
+       return   n.date_enrolled,
+                datetime({datetime:datetime(n.date_enrolled), timezone:'America/New York'}) as EST limit 1;
+----
+
+For example using the following data
+
+----
+CREATE (n:Person) set n.date_enrolled='2019-02-26T01:23:40Z'
+----
+
+in this case the property date_enrolled is recorded as a string and represents 2019-02-26 at time 01:23:40 UTC
+
+and the above `MATCH` statement will return
+
+----
+n.date_enrolled       | EST
+"2019-02-26T01:23:40Z"│"2019-02-25T20:23:40[America/New_York]"     
+----

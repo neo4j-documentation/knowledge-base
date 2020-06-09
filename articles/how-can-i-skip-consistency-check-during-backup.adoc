@@ -1,0 +1,24 @@
+= Retired: How can I skip Consistency Check during Backup? 
+:slug: how-can-i-skip-consistency-check-during-backup
+:zendesk-id: 206061227
+:author: Dave Gordon
+:tags: backup, consistency, performance
+:neo4j-versions: 2.1, 2.2, 2.3
+:public:
+:category: operations
+
+Backups in Neo4j automatically run a consistency check against the backed-up store. 
+The backup itself does not take overly long, but the consistency check can take much more time to complete, depending on the store. 
+
+In some cases, you want to skip the check on backup, with the option to run it manually at some other (more convenient) time. 
+To do this, run the `neo4j-backup` tool with the `-verify false` option:
+
+----
+./bin/neo4j-backup -from single://127.0.0.1 -to /tmp/foo -verify false
+----
+
+Now, if you skip the consistency check during backup and run it manually later, you have the option to try to tune it to run faster.
+
+The instructions and configuration options are documented in a separate article link:run consistency check manually.adoc[here].
+
+

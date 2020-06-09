@@ -1,0 +1,27 @@
+= Explanation of error "Unrecognized transaction id. Transaction may have timed out and been rolled back"
+:slug: explanation-of-error-unrecognized-transaction-id-transaction-may-have-timed-out-and-been-rolled-back
+:zendesk-id: 216757677
+:author: Dana Canzano
+:tags: cypher,http
+:public: 3.0,3.1,3.2,3.3,3.4,3.5
+:category: operations
+
+When submitting a request via the http://neo4j.com/docs/stable/rest-api-transactional.html[Neo4j Transactional Cypher HTTP endpoint], one may encounter the following error
+
+----
+Unrecognized transaction id.
+Transaction may have timed out and been rolled back
+----
+
+This error may occur as a result of the transactions expiration date/time being met.
+By default, http://neo4j.com/docs/stable/server-configuration.html#_important_server_configuration_parameters[org.neo4j.server.transaction.timeout] describes the number of seconds whereby inactivity in a transaction will result in the transaction automatically rolling back.
+The default is 60 seconds but can be overridden by adding
+
+`org.neo4j.server.transaction.timeout=XXX`
+
+where XXX represents number of seconds, to the conf/neo4j-server.properties and then restarting neo4j via `bin/neo4j restart`.
+
+Alternatively one can either, keep the transaction open by periodically performing a keep-alive via the REST API and as described via http://neo4j.com/docs/stable/rest-api-transactional.html#rest-api-reset-transaction-timeout-of-an-open-transaction[ /db/data/transaction/XXX], or committing the transaction sooner by http://neo4j.com/docs/stable/rest-api-transactional.html#rest-api-commit-an-open-transaction[/db/data/transaction/XXX/commit] where XXX represents the transaction number
+
+Note `bin/neo4j-shell` does not utilize the REST API and as such the `org.neo4j.server.transaction.timeout` has no effect on transactions created within a begin commit within `neo4j-shell`.
+

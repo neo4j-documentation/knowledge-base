@@ -1,0 +1,40 @@
+= How to log to neo4j.log in a Server Plugin
+:slug: how-to-log-to-neo4jlog-in-a-server-plugin
+:author: Dave Gordon
+:neo4j-versions: 3.0, 3.1
+:tags: java api, logging, plugin
+:public:
+:category: development
+
+As part of the major changes in 3.0, the way to log to the user log, now neo4j.log (in server mode), has changed. To log within a Server Plugin follow these steps:
+
+. Include these packages: 
++
+----
+import org.neo4j.logging.Log;
+import org.neo4j.logging.LogService;
+import org.neo4j.kernel.internal.GraphDatabaseAPI;
+----
++
+. In the method for the Server Plugin, you need the following code to use the logger:
++
+----
+@PluginTarget(GraphDatabaseService.class)
+    public Iterable<String> getAllLabels(@Source GraphDatabaseService graphDb) {
+        LogService logService = ((GraphDatabaseAPI)graphDb).getDependencyResolver().resolveDependency( LogService.class );
+        Log log = logService.getUserLog( getClass() );
+----
++
+. Now log using the appropriate method for the `log` object:
++
+----
+log.info( "Hello world!" );
+log.debug( "Hello debuggers!" );
+----
+
+We get a log that contains lines like this:
+
+----
+2016-12-05 17:33:21.223+0000 INFO  Hello world!
+2016-12-05 17:33:21.345+0000 DEBUG  Hello debuggers!
+----

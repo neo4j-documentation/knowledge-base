@@ -1,0 +1,27 @@
+= Proper File Permissions on Neo4j Server
+:slug: proper-file-permissions-on-neo4j-server
+:zendesk-id: 206292307
+:author: Dave Gordon
+:neo4j-versions: 2.x,3.1,3.2,3.3,3.4,3.5
+:tags: file-system, permissions, operations, server, startup, unix, installation
+:public:
+:environment: unix
+:category: installation
+
+When installing Neo4j Server, keep in mind that the `bin/neo4j` executable will need to be run by some OS system user, and that user will need write permissions to some files/directories, specifically to the `data` directory.
+That user will also need execute permissions on other files, such as those in `/bin`.
+
+It is recommended to either choose or create a user who will own and manage the Neo4j Server.
+This user should own the entire `neo4j` directory, so make sure to untar/unzip it as this user, and not with `sudo` (UNIX/Linux/OSx), etc.
+
+What happens if `data` is not writable by the `neo4j` user?
+
+Neo4j won't be able to write anything either to the store or its log files.
+As a result any logs would be appended to the `console.log`.
+The following error message would indicate a possible permissions issue:
+
+----
+2015-05-19 19:32:16.220+0000 INFO [Cluster] Write transactions to database disabled
+----
+
+

@@ -1,0 +1,86 @@
+= Understanding Neo4j's data on disk
+:slug: understanding-data-on-disk
+:author: José Rocha
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
+:tags: disk
+:public:
+:category: performance
+
+Neo4j database files are persisted to storage for long term durability. Data related files located in data/databases/graph.db (v3.x+) by default in the Neo4j data directory. Below will give you an idea of the type of files you'll find, prefaced with neostore.* and what data they are storing:
+
+* nodestore* Stores node related data from your graph
+* relationship* Stores data related to the relationships created and defined in your graph
+* property* Stores the key/value properties from your database
+* label* Stores index related label data from your graph
+
+Since Neo4j is a schema-less database, we use fixed record lengths to persist data and follow offsets in these files to know how to fetch data to answer queries. The following table illustrates the fixed sizes Neo4j uses for the type of Java objects being stored:
+
+----
+Store File                        | Record size   | Contents
+----------------------------------------------------------------------------------------------------------------------------
+neostore.nodestore.db             | 15 B          | Nodes
+neostore.relationshipstore.db     | 34 B          | Relationships
+neostore.propertystore.db         | 41 B          | Properties for nodes and relationships
+neostore.propertystore.db.strings | 128 B         | Values of string properties
+neostore.propertystore.db.arrays  | 128 B         | Values of array properties
+Indexed Property                  | 1/3 * AVG(X)  | Each index entry is approximately 1/3 of the average property value size
+----
+
+.Some considerations about properties:
+* The property record has a payload of 32bytes, which is divided into four 8B blocks. Each field can hold either a key or a value, or both a key and a value.
+* the key and type occupies 3.5 bytes (key 4bit, type 24bit)
+* boolean, byte, short, int, char, float are fitted in the remaining bytes of that same block
+* a small long is also fitted in the same block
+* a big long or a double are stored in a separate block (meaning two blocks used by that property)
+* a reference to the string store or array store is fitted in the same block as the key
+* a short string or short array is stored in the same record if it fits in the remaining blocks (including the remaining bytes of the key-block)
+* long strings/arrays that do not fit in 8B blocks will have a pointer to a record on the string/array store (128B)
+* ... other types get more involved!
+
+Data stored on disk is all linked lists of fixed size records. Properties are stored as a linked list of property records, each holding a key and value and pointing to the next property. Each node and relationship references its first property record. The Nodes also reference the first relationship in its relationship chain. Each Relationship references its start and end node. It also references the previous and next relationship record for the start and end node respectively.
+
+{nbsp} +
+
+A basic example disk space calculation could be something like:
+
+[NOTE]
+====
+For the sake of simplicity, we assume a 1:1 property to property record ratio meaning one single property will always be 41B. Obviously, as per the considerations above, this may not be as trivial in real life scenarios.
+====
+
+
+.Scenario #1 - Initial status
+* Node count: 4M nodes
+** Each node has 3 properties (12M properties total)
+* Relationship count: 2M relationships
+** Each relationship has 1 property (2M properties total)
+
+{nbsp} +
+
+.This is translated to the following size on disk:
+* Nodes: 4.000.000x15B = 60.000.000B (60MB)
+* Relationships: 2.000.000x34B = 68.000.000B (68MB)
+* Properties: 14.000.000x41B = 574.000.000B (574MB)
+* TOTAL: **703MB**
+
+{nbsp} +
+
+.Scenario #2 - 4x growth + added properties + indexes on all properties
+* Node count: 16M nodes
+** Each node has 5 properties (80M properties total)
+* Relationship count: 8M relationships
+** Each relationship has 2 properties (16M properties total)
+
+{nbsp} +
+
+.This is translated to the following size on disk:
+* Nodes: 16.000.000x15B = 240.000.000B (240MB)
+* Relationships: 8.000.000x34B = 272.000.000B (272MB)
+* Properties: 96.000.000x41B = 3.936.000.000B (3936MB)
+* Indexes: 4448MB * ~33% = 1468MB
+* TOTAL: **5916MB**
+
+{nbsp} +
+{nbsp} +
+
+You can take these values to have an idea of what to expect regarding disk size and growth.

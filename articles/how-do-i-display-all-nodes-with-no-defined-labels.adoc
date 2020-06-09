@@ -1,0 +1,19 @@
+= How do I display all nodes with no defined labels
+:slug: how-do-i-display-all-nodes-with-no-defined-labels
+:zendesk-id: 215953117
+:author: Dana Canzano
+:tags: cypher
+:public:
+:category: cypher
+
+Although assigning a node one or more labels provides many benefits (i.e. performance gains from index usage, ability to group nodes into sets, etc), it is possible to create a node without any labels.
+
+The following Cypher can be used to identify all nodes in the graph which have no label defined:
+
+----
+MATCH (n) WHERE size(labels(n)) = 0 RETURN n
+----
+
+Label usage is detailed https://neo4j.com/docs/getting-started/current/graphdb-concepts/#graphdb-labels[here].
+
+

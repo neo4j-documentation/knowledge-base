@@ -1,0 +1,25 @@
+= Using AWS CLI to upload/download files to Amazon S3 bucket
+:slug: using-aws-cli-to-upload-download-files-to-amazon-s3-buck
+:author: Dana Canzano
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
+:tags: AWS, S3, upload, download
+:public:
+:category: operations
+
+If one has installed the https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html[AWS CLI] 
+
+To download a file from a S3 bucket anonymously run
+
+----
+aws s3 cp s3://<AWS instance name>/<bucket_Name>/<file> <file> --no-sign-request
+----
+
+
+and/or to upload to a Neo4j S3 buck anonymously run
+
+----
+aws s3 cp <file> s3://<AWS Instance name>/<file> --acl=bucket-owner-full-control --no-sign-request
+----
+
+replacing <AWS Instance name> with the name of the AWS S3 instance, <file> with the name of the file on your server, and <bucket_Name> 
+with the name of the bucket provided by Neo4j

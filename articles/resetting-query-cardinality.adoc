@@ -1,0 +1,37 @@
+= Resetting query cardinality
+:slug: resetting-query-cardinality
+:author: Andrew Bowman
+:neo4j-versions: 3.1, 3.0, 2.3, 2.2
+:tags: cypher, cardinality
+:public:
+:category: cypher
+
+As queries execute, they build up result rows. Cypher executes operations per-row.
+When a query is made up of completely separate parts, unrelated to each other, and you don't want to split the single query into multiple queries, you sometimes need a way to reset cardinality back to 1 to avoid executing an operation multiple times.
+
+For example, using the Movies graph, let's write a query to label actors, and then create a new `:Movie` node.
+
+[source,cypher]
+----
+MATCH (p:Person)
+WHERE (p)-[:ACTED_IN]->(:Movie)
+SET p:Actor
+
+CREATE (:Movie{title:'The Animatrix'})
+----
+
+When run all in a single query, you'll see that multiple 'The Animatrix' nodes were created, not just one. This is because the `CREATE` clause executes per row, and we have one row for each `:Actor` just before the `CREATE` executes.
+
+While you could get around the extra node creations by using `MERGE` instead of `CREATE`, you still pay the cost of executing multiple redundant `MERGE` operations per row, db hits that are completely unnecessary.
+
+To reset cardinality back to 1 before the next part of the query, you'll need to use `WITH DISTINCT` on some arbitrary value.
+
+[source,cypher]
+----
+MATCH (p:Person)
+WHERE (p)-[:ACTED_IN]->(:Movie)
+SET p:Actor
+
+WITH DISTINCT 1 AS ignored
+CREATE (:Movie{title:'The Animatrix'})
+----

@@ -1,0 +1,44 @@
+= Preserving the Neo4j pagecache across database restarts
+:slug: preserving-the-neo4j-pagecache-across-database-restarts
+:author: Dana Canzano
+:neo4j-versions: 3.4
+:tags: page-cache
+:public:
+:category: operations
+
+Commencing with Neo4j 3.4 and as a result of https://github.com/neo4j/neo4j/pull/10957[PR 10957], and when using Neo4j Enterprise the 
+Neo4j pagecache will be preserved across database restarts and as such a need to pre-warm the pagecache may no longer be needed.
+
+As a result of the PR, at every 60 seconds we will record the pages of the Neo4j pagecache and store this data at `graph.db/profile`.
+Contents of this directory are similar to
+
+----
+ls -al
+total 80
+drwxrwxr-x 2 neo4j neo4j 4096 Apr 18 12:12 .
+drwxrwxr-x 6 neo4j neo4j 4096 Apr 18 12:06 ..
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.counts.db.a.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 18 12:11 neostore.counts.db.b.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   24 Apr 19 08:31 neostore.labelscanstore.db.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.labeltokenstore.db.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.labeltokenstore.db.names.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   28 Apr 19 08:31 neostore.nodestore.db.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.nodestore.db.labels.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.propertystore.db.arrays.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   29 Apr 19 08:31 neostore.propertystore.db.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.propertystore.db.index.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.propertystore.db.index.keys.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.propertystore.db.strings.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.relationshipgroupstore.db.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.relationshipstore.db.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.relationshiptypestore.db.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.relationshiptypestore.db.names.cacheprof
+-rw-rw-r-- 1 neo4j neo4j   21 Apr 19 08:31 neostore.schemastore.db.cacheprof
+----
+
+Since each file represents a gzipped bitmap of which pages are in-memory for a given file (i.e. each 8 KiB page is represented by one
+bit) we expect the above files to remain relatively small in size.
+
+Also, the `graph.db/profiles` will be included in backups and thus upon restore and Neo4j start, the pagecahce will be
+reloaded based upon the state of the pagecache at time of backup.

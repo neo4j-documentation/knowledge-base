@@ -1,0 +1,17 @@
+= How do I zoom in/out within the graph visualization of the browser?
+:slug: how-do-i-zoom-in-out-within-the-graph-visualization-of-the-browser
+:author: Dana Canzano
+:neo4j-versions: 3.0
+:tags: browser, zoom
+:public:
+:category: browser
+
+Within the graph visualization pane of the browser (reached locally at http://localhost:7474), to zoom in/out of the graph display one first needs to select *Full Screen* mode. The zoom in/out controls are located in the bottom-right corner.
+
+To enter *Full Screen* mode, within the graph visualization pane click the icon depicted in the example below:
+
+image:http://i.imgur.com/LWpSo1j.png[image]
+
+To zoom in/out, click the icon depicted in the example below:
+
+image:http://imgur.com/IyCh5Ec.png[image]

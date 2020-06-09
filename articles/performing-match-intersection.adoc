@@ -1,0 +1,101 @@
+= Performing match intersection
+:slug: performing-match-intersection
+:author: Andrew Bowman
+:neo4j-versions: 3.2, 3.1, 3.0, 2.3, 2.2
+:tags: cypher, intersection
+:public:
+:category: cypher
+
+Match intersection is a common use case where you're searching for nodes which have relationships to all of a set of input nodes.
+
+For the rest of the article we'll use the built-in movies graph for demonstration. The example use case will be:
+
+`Given a list of actor names, find movies featuring all the given actors.`
+
+A common first (and wrong) approach is something like this:
+
+[source,cypher]
+----
+WITH ['Keanu Reeves', 'Hugo Weaving', 'Emil Eifrem'] as names
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WHERE p.name in names
+RETURN m
+----
+
+The above query returns movies featuring at least one of the given actors, not movies with all the given actors.
+
+We need alternate approaches to get the correct results.
+
+==== Filter to the nodes in common by the count of input nodes in the match
+
+We can make some changes to the above query to get the relevant set of :Movie nodes.
+
+The idea here is that in our match, the :Movie nodes we want will have the same number of distinct matched actors as the size of our input collection.
+
+[source,cypher]
+----
+WITH ['Keanu Reeves', 'Hugo Weaving', 'Emil Eifrem'] as names
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WHERE p.name in names
+WITH m, size(names) as inputCnt, count(DISTINCT p) as cnt
+WHERE cnt = inputCnt
+RETURN m
+----
+
+By filtering down based upon the distinct nodes matched, we're able to get the correct answer even if there are multiple relationships of the same type between the nodes in our match.
+
+This is typically the most efficient approach for finding match intersections, but it requires that all inputs in the input list are distinct.
+
+
+==== Use WHERE ALL() to ensure all nodes in a list have a relationship to another node
+
+An alternate (but typically less efficient) approach is to collect input nodes, and use the `WHERE ALL()` predicate to ensure all the collected nodes have a relationship to the common node.
+
+
+[source,cypher]
+----
+WITH ['Keanu Reeves', 'Hugo Weaving', 'Emil Eifrem'] as names
+MATCH (p:Person)
+WHERE p.name in names
+WITH collect(p) as persons
+MATCH (m:Movie)
+WHERE ALL(p in persons WHERE (p)-[:ACTED_IN]->(m))
+RETURN m
+----
+
+The problem with this approach is that there is a performance hit proportional to the number of :Movie nodes, since the last MATCH starts from all :Movie nodes.
+
+We can improve this query somewhat by starting from :Movie nodes matched from one of our input nodes, though this increases the complexity of the query:
+
+[source,cypher]
+----
+WITH ['Keanu Reeves', 'Hugo Weaving', 'Emil Eifrem'] as names
+MATCH (p:Person)
+WHERE p.name in names
+WITH collect(p) as persons
+WITH head(persons) as head, tail(persons) as persons
+MATCH (head)-[:ACTED_IN]->(m:Movie)
+WHERE ALL(p in persons WHERE (p)-[:ACTED_IN]->(m))
+RETURN m
+----
+
+==== Use APOC to intersect result lists
+
+Some use cases might introduce extra complexity. Perhaps we want result nodes to intersect with results from another matched pattern, or with a different collection of results.
+In these cases, we might simply use a WHERE clause to enforce the additional pattern, or list membership.
+
+But when there are several lists requiring intersection, this can become tougher to perform with Cypher alone.
+
+When using Neo4j 3.0.x or higher, using the `reduce()` function along with an intersection function from link:https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC Procedures], we can perform intersections across multiple lists.
+
+[source,cypher]
+----
+WITH ['Keanu Reeves', 'Hugo Weaving', 'Emil Eifrem'] as names
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WHERE p.name in names
+WITH p, collect(m) as moviesPerActor
+WITH collect(moviesPerActor) as movies
+WITH reduce(commonMovies = head(movies), movie in tail(movies) |
+ apoc.coll.intersection(commonMovies, movie)) as commonMovies
+RETURN commonMovies
+----

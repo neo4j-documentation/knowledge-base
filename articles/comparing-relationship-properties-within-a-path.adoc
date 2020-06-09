@@ -1,0 +1,74 @@
+= Comparing relationship properties within a path
+:slug: comparing-relationship-properties-within-a-path
+:author: Michael Hunger
+:category: cypher
+:tags: cypher, path, relationships, properties
+:neo4j-versions: 2.2, 2.3, 3.0
+:public:
+
+You want to compare relationship-properties of a path, either by a global value or parameter, or with each other within a path.
+
+.Basic model:
+[source,cypher]
+----
+(:Person {person_id:'123'})-[:FRIEND {date:'1972-01-01'}]->(m:Person {person_id:'456'})
+----
+
+Make sure to have an **constraint OR index** on your nodes:
+
+.Constraint
+[source,cypher]
+----
+CREATE CONSTRAINT ON (p:Person) ASSERT p.person_id IS UNIQUE
+----
+
+.Index
+[source,cypher]
+----
+CREATE INDEX ON :Person(person_id);
+----
+
+If you have your time in `yyyy-mm-dd` you can compare them directly: (with 2 digits aka `01`) i.e. `'2012-01-10' > '2011-08-31'` )
+
+[source,cypher]
+----
+WITH '1962-01-01' AS maxdate
+MATCH (n:Person)-[f1:FRIEND]-()-[f2:FRIEND]-(m:Person)
+WHERE n.person_id='180' AND f1.date < maxdate AND f2.date < maxdate
+RETURN m;
+----
+
+You can also use the short form: `(n:Person {person_id:'180'})`:
+
+If you want to have a general expression on relationships in a path, use a variable `rels` (which is then a collection) within your variable-length-path pattern:
+
+[source,cypher]
+----
+WITH '1962-01-01' AS maxdate
+MATCH (n:Person {person_id:'180'})-[rels:FRIEND*2]-(m:Person)
+WHERE ALL(r IN rels WHERE r.date < maxdate)
+RETURN m;
+----
+
+You can also use `rels(path)` function.
+
+[source,cypher]
+----
+WITH '1962-01-01' AS maxdate
+MATCH path = (n:Person {person_id:'180'})-[:FRIEND*2]-(m:Person)
+WHERE ALL(r in rels(path) WHERE r.date < maxdate)
+RETURN m;
+----
+
+Or if the relationships of a path are in relation to each other:
+
+[source,cypher]
+----
+WITH '1962-01-01' AS maxdate
+MATCH (n:Person  {person_id:'180'})-[rels:FRIEND*2]-(m:Person)
+WHERE ALL(idx in range(0, size(rels)-2) WHERE (rels[idx]).date < maxdate AND (rels[idx]).date < (rels[idx+1]).date)
+RETURN m;
+----
+
+Original question was on http://stackoverflow.com/questions/37360903/match-foaf-but-constrain-path-by-date-specifically-in-a-sequential-manner-in[StackOverflow]
+

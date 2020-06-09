@@ -1,0 +1,88 @@
+= Troubleshooting Neo4j Desktop Issues on Linux
+:slug: troubleshooting-neo4j-desktop-linux
+:author: Angelo Gazzola
+:neo4j-versions: Neo4j Desktop 1.x
+:tags: desktop, linux
+:category: desktop
+:public:
+
+This page describes common issues users may encounter when running Neo4j Desktop on Linux.
+
+== Error: The SUID sandbox helper binary was found, but is not configured correctly.
+
+----
+The SUID sandbox helper binary was found, but is not configured correctly.
+Rather than run without sandboxing I'm aborting now. 
+You need to make sure that /tmp/.mount_neo4j-0qHCJ1/chrome-sandbox is owned by root and has mode 4755.
+----
+
+=== Explanation
+
+Neo4j Desktop is an Electron app. 
+
+Electron is using a feature from the Linux kernel that is disabled in some distributions (eg. Debian). 
+
+They have a fallback binary for these cases but it seems like electron-builder is packaging it with the wrong permissions, hence the permission error you got. 
+
+https://github.com/electron/electron/issues/17972#issuecomment-516957971[This comment^] explains the issue more in detail.
+
+=== Solution
+
+Execute Neo4j Desktop (as a regular user) with the --no-sandbox flag, or run
+this command to enable the kernel feature Electron is using:
+
+----
+sysctl kernel.unprivileged_userns_clone=1
+----
+
+
+
+== Error: The name org.freedesktop.secrets was not provided by any .service files
+
+----
+App initialization error: Error: The name org.freedesktop.secrets was not provided by any .service files {
+  constructor: 'Error',
+  stack: 'Error: The name org.freedesktop.secrets was not provided by any .service files'
+}
+----
+
+=== Explanation:
+
+Neo4j Desktop uses the system keyring to store credentials.
+On Linux (https://github.com/atom/node-keytar/issues/74[regardless of distribution or desktop environment^]) this is `gnome-keyring`. 
+On previous versions not having `gnome-keyring` would make the application fail to start.
+Now it switches to the built-in keyctl utility if it can't find `gnome-keyring`.
+
+=== Solution:
+
+Update to the latest Neo4j Desktop or install and enable `gnome-keyring`.
+
+
+== Error: spawn keyctl ENOENT
+
+----
+Error: spawn keyctl ENOENT
+----
+
+=== Explanation
+
+`keyctl` is a key management utility used as a fallback when `gnome-keyring` is not available as the system keyring. 
+
+This utility is included in the core packages of most distributions, but if you see this error it means you don't have it installed.
+
+=== Solution
+
+Install the `keyutils` or `gnome-keyring`.
+
+
+== Error: Neo4j Desktop is not showing in the applications menu.
+
+Neo4j Desktop is not showing in the applications menu.
+
+=== Explanation
+
+Neo4j Desktop is distributes as an AppImage.
+
+=== Solution
+
+https://github.com/TheAssassin/AppImageLauncher#installation[Install AppImageLauncher^] and integrate the Neo4j Desktop AppImage.

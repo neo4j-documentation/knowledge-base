@@ -1,0 +1,145 @@
+= Getting "Permission Denied" errors after using neo4j-admin commands
+:slug: permission-denied-errors-after-neo4j-admin
+:author: Dave Shiposh
+:neo4j-versions: 3.4, 3.5
+:tags: permissions, rpm, neo4j-admin,linux,debian
+:category: operations
+:environment: linux,debian
+:public:
+
+If you have leveraged Debian or RPM Packages to install Neo4j on Linux (or used one of the Public Cloud Marketplace offerings), you need to be careful of file and folder permissions.
+The installs create a user: "neo4j" that owns all the files for the Neo4j Installation:
+
+----
+sudo ls -l /var/lib/neo4j/data/databases/
+total 4
+drwxr-xr-x 4 neo4j neo4j 4096 Sep 18 17:59 graph.db
+-rw-r--r-- 1 neo4j neo4j    0 Sep 18 17:59 store_lock
+----
+
+Many operational tasks are achieved with the `neo4j-admin` utility.  As this utility reads and writes to/from the file system, special
+care must be taken to ensur its run with the correct permissions.  
+
+As an example, consider a backup taken as follows:
+
+----
+sudo neo4j-admin backup --from=localhost --name=graph.db_backup --backup-dir=/tmp
+....................  10%
+....................  20%
+....................  30%
+....................  40%
+....................  50%
+....................  60%
+....................  70%
+....................  80%
+....................  90%
+Checking node and relationship counts
+Backup complete.
+----
+
+Note that `sudo` was leveraged, meaning that this will be run as root.  We can see this in the backup location:
+
+----
+ls -l /tmp/graph.db_backup/
+total 372
+-rw-r--r-- 1 root root 58959 Sep 18 18:09 debug.log
+-rw-r--r-- 1 root root 57805 Sep 18 18:07 debug.log.1568830062412
+-rw-r--r-- 1 root root 58726 Sep 18 18:07 debug.log.1568830143398
+drwxr-xr-x 2 root root  4096 Sep 18 18:07 index
+drwxr-xr-x 2 root root  4096 Sep 18 18:07 metrics
+-rw-r--r-- 1 root root  8192 Sep 18 18:07 neostore
+-rw-r--r-- 1 root root    96 Sep 18 18:07 neostore.counts.db.a
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.id
+-rw-r--r-- 1 root root 40960 Sep 18 18:09 neostore.labelscanstore.db
+-rw-r--r-- 1 root root     0 Sep 18 18:07 neostore.labeltokenstore.db
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.labeltokenstore.db.id
+-rw-r--r-- 1 root root  8192 Sep 18 18:07 neostore.labeltokenstore.db.names
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.labeltokenstore.db.names.id
+-rw-r--r-- 1 root root     0 Sep 18 18:07 neostore.nodestore.db
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.nodestore.db.id
+-rw-r--r-- 1 root root  8192 Sep 18 18:07 neostore.nodestore.db.labels
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.nodestore.db.labels.id
+-rw-r--r-- 1 root root     0 Sep 18 18:07 neostore.propertystore.db
+-rw-r--r-- 1 root root  8192 Sep 18 18:07 neostore.propertystore.db.arrays
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.propertystore.db.arrays.id
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.propertystore.db.id
+-rw-r--r-- 1 root root     0 Sep 18 18:07 neostore.propertystore.db.index
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.propertystore.db.index.id
+-rw-r--r-- 1 root root  8192 Sep 18 18:07 neostore.propertystore.db.index.keys
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.propertystore.db.index.keys.id
+-rw-r--r-- 1 root root  8192 Sep 18 18:07 neostore.propertystore.db.strings
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.propertystore.db.strings.id
+-rw-r--r-- 1 root root  8192 Sep 18 18:07 neostore.relationshipgroupstore.db
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.relationshipgroupstore.db.id
+-rw-r--r-- 1 root root     0 Sep 18 18:07 neostore.relationshipstore.db
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.relationshipstore.db.id
+-rw-r--r-- 1 root root     0 Sep 18 18:07 neostore.relationshiptypestore.db
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.relationshiptypestore.db.id
+-rw-r--r-- 1 root root  8192 Sep 18 18:07 neostore.relationshiptypestore.db.names
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.relationshiptypestore.db.names.id
+-rw-r--r-- 1 root root  8192 Sep 18 18:07 neostore.schemastore.db
+-rw-r--r-- 1 root root     9 Sep 18 18:09 neostore.schemastore.db.id
+-rw-r--r-- 1 root root   106 Sep 18 18:09 neostore.transaction.db.0
+drwxr-xr-x 2 root root  4096 Sep 18 18:07 profiles
+----
+
+If an administrator were to at some point restore with this backup:
+
+----
+sudo neo4j-admin restore --from=/tmp/graph.db_backup --database=graph.db --force=true
+----
+
+The restored database folder and files would now be owned by root:
+
+----
+sudo ls -l /var/lib/neo4j/data/databases/
+total 4
+drwxr-xr-x 5 root  root  4096 Sep 18 18:12 graph.db
+-rw-r--r-- 1 neo4j neo4j    0 Sep 18 17:59 store_lock
+----
+
+Attempting to start the Neo4j Service would now fail, with an error similar to:
+
+----
+Starting Neo4j.
+Sep 18 18:13:55 proddb1-ubuntu neo4j[6805]: 2019-09-18 18:13:55.143+0000 INFO  ======== Neo4j 3.5.9 ========
+Sep 18 18:13:55 proddb1-ubuntu neo4j[6805]: 2019-09-18 18:13:55.163+0000 INFO  Starting...
+Sep 18 18:13:56 proddb1-ubuntu neo4j[6805]: 2019-09-18 18:13:56.624+0000 INFO  Initiating metrics...
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]: 2019-09-18 18:13:57.116+0000 ERROR Failed to start Neo4j: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@2b52c0d6' was successfully initial
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]: org.neo4j.server.ServerStartupException: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@2b52c0d6' was successfully initialized, but failed 
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.server.exception.ServerStartupErrors.translateToServerStartupError(ServerStartupErrors.java:45)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.server.AbstractNeoServer.start(AbstractNeoServer.java:187)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.server.ServerBootstrapper.start(ServerBootstrapper.java:124)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.server.ServerBootstrapper.start(ServerBootstrapper.java:91)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at com.neo4j.server.enterprise.CommercialEntryPoint.main(CommercialEntryPoint.java:22)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]: Caused by: org.neo4j.kernel.lifecycle.LifecycleException: Component 'org.neo4j.server.database.LifecycleManagingDatabase@2b52c0d6' was successfully initialized, but failed to sta
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.start(LifeSupport.java:473)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.kernel.lifecycle.LifeSupport.start(LifeSupport.java:111)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.server.AbstractNeoServer.start(AbstractNeoServer.java:180)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         ... 3 more
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]: Caused by: java.lang.RuntimeException: Error starting org.neo4j.graphdb.facade.GraphDatabaseFacadeFactory, /var/lib/neo4j/data/databases
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.graphdb.facade.GraphDatabaseFacadeFactory.initFacade(GraphDatabaseFacadeFactory.java:232)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at com.neo4j.commercial.edition.CommercialGraphDatabase.<init>(CommercialGraphDatabase.java:20)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at com.neo4j.server.database.CommercialGraphFactory.newGraphDatabase(CommercialGraphFactory.java:40)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.server.database.LifecycleManagingDatabase.start(LifecycleManagingDatabase.java:90)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.start(LifeSupport.java:452)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         ... 5 more
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]: Caused by: org.neo4j.kernel.lifecycle.LifecycleException: Component 'org.neo4j.kernel.NeoStoreDataSource@4b6166aa' was successfully initialized, but failed to start. Please see t
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.start(LifeSupport.java:473)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.kernel.lifecycle.LifeSupport.start(LifeSupport.java:111)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.kernel.impl.transaction.state.DataSourceManager.start(DataSourceManager.java:116)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.start(LifeSupport.java:452)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.kernel.lifecycle.LifeSupport.start(LifeSupport.java:111)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.graphdb.facade.GraphDatabaseFacadeFactory.initFacade(GraphDatabaseFacadeFactory.java:227)
+Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         ... 9 more
+----
+
+The recommended approach to all `neo4j-admin` commands, such as `backup`, `restore`, `store-info`, `import` is to leverage `sudo -u neo4j`:
+
+----
+sudo -u neo4j neo4j-admin backup --from=localhost --name=graph.db_backup_with_user --backup-dir=/tmp
+
+
+sudo -u neo4j neo4j-admin restore --from=/tmp/graph.db_backup --database=graph.db --force=true
+----
+

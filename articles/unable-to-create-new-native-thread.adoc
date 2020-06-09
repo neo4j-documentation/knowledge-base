@@ -1,0 +1,28 @@
+= java.lang.OutOfMemoryError: unable to create new native thread 
+:slug: unable-to-create-new-native-thread
+:author: Dave Gordon
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3
+:tags: out-of-memory, bolt, exception
+:public:
+:category: drivers
+
+When a client application establishes a session with a Neo4j server via the bolt or bolt+routing protocols, the server allocates a thread 
+to serve as the server-side bolt worker to handle that connection. *There is no server-side limitation on the number of bolt worker threads 
+that the Neo4j server will spawn*, so it is possible for the JVM to run out of native threads. The exact number depends on server hardware 
+specifications, but is likely in the thousands. 
+
+If you find an exception of the type `java.lang.OutOfMemoryError: unable to create new native thread` in the debug.log or neo4j.log on the 
+Neo4j server, this is almost certainly a result of clients not properly closing sessions within your application code.
+
+----
+2017-12-14 00:00:35.710+0000 ERROR [o.n.b.t.SocketTransportHandler] Fatal error occurred when handling a client connection: unable to 
+create new native thread unable to create new native thread
+java.lang.OutOfMemoryError: unable to create new native thread
+----
+
+The remedy for this is to examine your application code for anywhere that you are creating Session objects, and verify that they follow the 
+guidance from the documentation. For example, if you are using the Neo4j Java Driver, use _try-with-resources_:
+
+*Neo4j-Java-Driver GH Project:* https://github.com/neo4j/neo4j-java-driver/blob/1.6/examples/src/main/java/org/neo4j/docs/driver/SessionExample.java#L38
+
+*Developer Documentation:* http://neo4j.com/docs/developer-manual/current/drivers/sessions-transactions/#driver-sessions

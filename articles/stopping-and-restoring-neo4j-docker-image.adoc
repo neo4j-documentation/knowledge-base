@@ -1,0 +1,47 @@
+= Stopping the Neo4j docker image in order to restore from a backup
+:slug: stopping-and-restoring-neo4j-docker-image
+:author: Umar Muzammil
+:neo4j-versions: 3.1, 3.2, 3.3
+:tags: docker, restore, backup
+:public:
+:environment: docker
+:category: operations
+
+In a https://neo4j.com/docs/operations-manual/current/installation/docker/[`neo4j docker installation`], the https://neo4j.com/docs/operations-manual/current/backup/restore-backup/[`neo4j-admin restore`] requires the neo4j service to be stopped as one can't do a restore on a running database. Subsequently, running as a docker image, stopping neo4j server could be done using a `Ctrl-C` (from within the docker terminal) or `docker stop <container id>` from a separate terminal window. However, it would terminate the container itself as the container is simply an instance of the neo4j application. In such case, a restore using `./neo4j-admin restore` would not be a workable option.
+
+Following is a workaround to doing a `neo4-admin restore` in docker:
+
+1. Get the container name by executing `docker ps`
+
+2. Backup neo4j by executing `docker exec --interactive --tty <container id> bin/neo4j-admin backup` replacing <container id> with the id fetched as above.
+
+3. Prior to restore, the neo4j instance needs to be stopped. If executing from the same terminal as the docker process, use `Ctrl-C` which will stop the neo4j docker container process. Else, if neo4j container was created indicating --dettach, then `Ctrl-C` won't work and one would need to stop the container via a docker cmd from a separate terminal. To do this from a separate terminal, execute `docker stop <container id>`
+
+4. Replace the graph.db folder with that from the backup created earlier.
+
+5. Start container and it should come up with the restored db.
+
+----
+docker run \
+    --publish=7474:7474 --publish=7687:7687 \
+    --volume=$HOME/neo4j/data:/data \
+    --volume=$HOME/neo4j/logs:/logs \
+    neo4j:3.3.0
+----
+
+Alternatively, one can specify `--dbms.active_database=new.db` as a startup option as
+
+----
+docker run \
+    --publish=7474:7474 --publish=7687:7687 \
+    --volume=$HOME/neo4j/data:/data \
+    --volume=$HOME/neo4j/logs:/logs \
+    --dbms.active_database=new.db
+    neo4j:3.3.0`
+----
+
+Following are a few items noticed as part of the testing:
+
+ - At the time of writing this KB, neo4j Community Edition doesn't support online backups. Enterprise version can be installed using `--neo4j:3.3.0-enterprise` instead of the `--neo4j:3.3.0` (which by default will install Community edition.
+ 
+ - For a docker setup, the /data, /conf and /logs directories specified at the container spin-up, are persistent to disk. Replacing graph.db on a running instance will continue showing the un-restored version of the database, unless the neo4j instance is restarted.

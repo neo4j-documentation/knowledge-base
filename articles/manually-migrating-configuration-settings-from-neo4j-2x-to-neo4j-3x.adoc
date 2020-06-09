@@ -1,0 +1,195 @@
+= Manually Migrating Configuration Settings from Neo4j 2.x to Neo4j 3.x
+:slug: manually-migrating-configuration-settings-from-neo4j-2x-to-neo4j-3x
+:author: Dave Gordon
+:neo4j-versions: 3.0, 3.1
+:tags: configuration, upgrade, migration
+:public:
+:category: operations
+
+One of the major changes in Neo4j 3.0 was the reworking of configuration files and the individual configuration setting naming convention to make it more consitent and managable going forward. A config-migrator tool is supplied in Neo4j 3.0 to assist in automating this. However, for some users, this is not an option or not ideal. For those users, the following reference table lists the previous configuration setting name, the new name, and the resulting change from the pre-3.0 setting.
+
+Note that the configuration files `conf/neo4j.properties` and `conf/neo4j-server.properties` were merged into a single `conf/neo4j.conf` in Neo4j 3.0. Configuration setting names in `conf/neo4j-wrapper.conf` were also changed, but most remain in that same configuration file (which is being merged into neo4j.conf in Neo4j 3.1).
+
+
+[options="header"]
+|=======================
+|Pre 3.0 Name|3.0 Name|Net Change
+|consistency_check_execution_order|--|Removed
+|consistency_check_report_file|--|Removed
+|dbms.querylog.filename|--|Derived
+|ha.cluster_join_timeout|--|Replaced with ha.join_timeout
+|ha.server_type|--|Merged into dbms.mode
+|logging.threshold_for_rotation|--|Removed
+|neo_store|--|Removed
+|org.neo4j.server.database.location|--|Removed
+|org.neo4j.server.db.tuning.properties|--|Removed
+|org.neo4j.server.http.log.config|--|Removed
+|org.neo4j.server.http.unsafe.content_log.enabled|--|Removed
+|org.neo4j.server.properties|--|Removed
+|org.neo4j.server.webadmin.rrdb.location|--|Removed
+|org.neo4j.server.webserver.https.cert.location|--|Replaced by dbms.directories.certificates
+|org.neo4j.server.webserver.https.key.location|--|Replaced by dbms.directories.certificates
+|org.neo4j.server.webserver.https.keystore.location|--|Removed
+|org.neo4j.server.webserver.statistics|--|Removed
+|relationship_grab_size|--|Removed
+|store.internal_log.location|--|Removed
+|wrapper.user|--|Removed
+|dbms.security.allow_outgoing_browser_connections|browser.allow_outgoing_connections|Renamed
+|dbms.browser.credential_timeout|browser.credential_timeout|Renamed
+|dbms.browser.remote_content_hostname_whitelist|browser.remote_content_hostname_whitelist|Renamed
+|dbms.browser.store_credentials|browser.retain_connection_credentials|Renamed
+|cypher_parser_version|cypher.default_language_version|Renamed
+|dbms.cypher.forbid.exhaustive.shortestpath|cypher.forbid_exhaustive_shortestpath|Renamed
+|dbms.cypher.hints.error|cypher.hints_error|Renamed
+|dbms.cypher.min_replan_interval|cypher.min_replan_interval|Renamed
+|dbms.cypher.planner|cypher.planner|Renamed
+|dbms.cypher.statistics_divergence_threshold|cypher.statistics_divergence_threshold|Renamed
+|dbms.active_database|dbms.active_database|--
+|allow_store_upgrade|dbms.allow_format_migration|Renamed
+|node_auto_indexing|dbms.auto_index.nodes.enabled|Renamed
+|node_keys_indexable|dbms.auto_index.nodes.keys|Renamed
+|relationship_auto_indexing|dbms.auto_index.relationships.enabled|Renamed
+|relationship_keys_indexable|dbms.auto_index.relationships.keys|Renamed
+|online_backup_server|dbms.backup.address|Renamed
+|online_backup_enabled|dbms.backup.enabled|Renamed
+|dbms.checkpoint.interval.time|dbms.checkpoint.interval.time|--
+|dbms.checkpoint.interval.tx|dbms.checkpoint.interval.tx|--
+|org.neo4j.server.webserver.address|dbms.connector.*|Converteded to dbms.connector.*
+|org.neo4j.server.webserver.https.enabled|dbms.connector.*|Converteded to dbms.connector.*
+|org.neo4j.server.webserver.https.port|dbms.connector.*|Converteded to dbms.connector.*
+|org.neo4j.server.webserver.port|dbms.connector.*|Converteded to dbms.connector.*
+|--|dbms.connector.<n>.address|--
+|--|dbms.connector.<n>.enabled|--
+|dbms.connector.<n>.tls.level|dbms.connector.<n>.tls_level|Renamed
+|--|dbms.directories.bin|Added
+|dbms.directories.data|dbms.directories.data|--
+|dbms.security.load_csv_file_url_root|dbms.directories.import|Renamed
+|--|dbms.directories.lib|Added
+|--|dbms.directories.logs|Added
+|metrics.csv.path|dbms.directories.metrics|Renamed
+|dbms.plugin.directory|dbms.directories.plugins|Renamed
+|wrapper.pidfile|dbms.directories.run|Converteded to directory and rename
+|index_background_sampling_enabled|dbms.index_sampling.background_enabled|Renamed
+|index_sampling_buffer_size|dbms.index_sampling.buffer_size|Renamed
+|index_sampling_update_percentage|dbms.index_sampling.update_percentage|Renamed
+|lucene_searcher_cache_size|dbms.index_searcher_cache_size|Renamed
+|wrapper.java.additional|dbms.jvm.additional|Renamed
+|store.internal_log.level|dbms.logs.debug.level|Renamed
+|store.internal_log.rotation_delay|dbms.logs.debug.rotation.delay|Renamed
+|store.internal_log.max_archives|dbms.logs.debug.rotation.keep_number|Renamed
+|store.internal_log.rotation_threshold|dbms.logs.debug.rotation.size|Renamed
+|--|dbms.logs.gc.enabled|Converted from wrapper.java.additional
+|--|dbms.logs.gc.options|Converted from wrapper.java.additional
+|--|dbms.logs.gc.rotation.keep_number|Converted from wrapper.java.additional
+|--|dbms.logs.gc.rotation.size|Converted from wrapper.java.additional
+|org.neo4j.server.http.log.enabled|dbms.logs.http.enabled|Renamed
+|--|dbms.logs.http.rotation.keep_number|Added
+|--|dbms.logs.http.rotation.size|Added
+|dbms.querylog.enabled|dbms.logs.query.enabled|Renamed
+|dbms.querylog.max_archives|dbms.logs.query.rotation.keep_number|Renamed
+|dbms.querylog.rotation.threshold|dbms.logs.query.rotation.size|Renamed
+|dbms.querylog.threshold|dbms.logs.query.threshold|Renamed
+|wrapper.java.initmemory|dbms.memory.heap.initial_size|Renamed
+|wrapper.java.maxmemory|dbms.memory.heap.max_size|Renamed
+|dbms.pagecache.memory|dbms.memory.pagecache.size|Renamed
+|dbms.pagecache.swapper|dbms.memory.pagecache.swapper|Renamed
+|org.neo4j.server.database.mode|dbms.mode|Renamed
+|query_cache_size|dbms.query_cache_size|Renamed
+|read_only|dbms.read_only|Renamed
+|dense_node_threshold|dbms.relationship_grouping_threshold|Renamed
+|allow_file_urls|dbms.security.allow_csv_import_from_file_urls|Renamed
+|dbms.security.auth_enabled|dbms.security.auth_enabled|--
+|--|dbms.security.ha_status_auth_enabled|--
+|org.neo4j.server.rest.security_rules|dbms.security.http_authorization_classes|Renamed
+|remote_shell_enabled|dbms.shell.enabled|Renamed
+|remote_shell_host|dbms.shell.host|Renamed
+|remote_shell_port|dbms.shell.port|Renamed
+|remote_shell_read_only|dbms.shell.read_only|Renamed
+|remote_shell_name|dbms.shell.rmi_name|Renamed
+|org.neo4j.server.webserver.maxthreads|dbms.threads.worker_count|Renamed
+|org.neo4j.server.transaction.timeout|dbms.transaction_timeout|Renamed
+|keep_logical_logs|dbms.tx_log.rotation.retention_policy|Renamed
+|logical_log_rotation_threshold|dbms.tx_log.rotation.size|Renamed
+|neo4j.ext.udc.enabled|dbms.udc.enabled|Renamed
+|org.neo4j.server.thirdparty_jaxrs_classes|dbms.unmanaged_extension_classes|Renamed
+|wrapper.name|dbms.windows_service_name|Renamed
+|ha.allow_init_cluster|ha.allow_init_cluster|--
+|ha.branched_data_policy|ha.branched_data_policy|--
+|ha.broadcast_timeout|ha.broadcast_timeout|--
+|ha.configuration_timeout|ha.configuration_timeout|--
+|ha.com_chunk_size|ha.data_chunk_size|Renamed
+|ha.default_timeout|ha.default_timeout|--
+|ha.election_timeout|ha.election_timeout|--
+|ha.heartbeat_interval|ha.heartbeat_interval|--
+|ha.heartbeat_timeout|ha.heartbeat_timeout|--
+|ha.cluster_server|ha.host.coordination|Renamed
+|ha.server|ha.host.data|Renamed
+|ha.initial_hosts|ha.initial_hosts|--
+|ha.internal_state_switch_timeout|ha.internal_role_switch_timeout|Renamed
+|ha.join_timeout|ha.join_timeout|--
+|ha.learn_timeout|ha.learn_timeout|--
+|ha.leave_timeout|ha.leave_timeout|--
+|ha.max_concurrent_channels_per_slave|ha.max_channels_per_slave|Renamed
+|ha.paxos_timeout|ha.paxos_timeout|--
+|ha.phase1_timeout|ha.phase1_timeout|--
+|ha.phase2_timeout|ha.phase2_timeout|--
+|ha.pull_apply_batch_size|ha.pull_batch_size|Renamed
+|ha.pull_interval|ha.pull_interval|--
+|ha.state_switch_timeout|ha.role_switch_timeout|Renamed
+|ha.server_id|ha.server_id|--
+|ha.lock_read_timeout|ha.slave_lock_timeout|Renamed
+|ha.slave_only|ha.slave_only|--
+|ha.read_timeout|ha.slave_read_timeout|Renamed
+|ha.tx_push_factor|ha.tx_push_factor|--
+|ha.tx_push_strategy|ha.tx_push_strategy|--
+|consistency_check_graph|tools.consistency_checker.check_graph|Renamed
+|consistency_check_indexes|tools.consistency_checker.check_indexes|Renamed
+|consistency_check_label_scan_store|tools.consistency_checker.check_label_scan_store|Renamed
+|consistency_check_property_owners|tools.consistency_checker.check_property_owners|Renamed
+|dbms.cypher.compiler_tracing|unsupported.cypher.compiler_tracing|Renamed
+|dbms.cypher.idp_solver_duration_threshold|unsupported.cypher.idp_solver_duration_threshold|Renamed
+|dbms.cypher.idp_solver_table_threshold|unsupported.cypher.idp_solver_table_threshold|Renamed
+|dbms.cypher.non_indexed_label_warning_threshold|unsupported.cypher.non_indexed_label_warning_threshold|Renamed
+|dbms.cypher.runtime|unsupported.cypher.runtime|Renamed
+|array_block_size|unsupported.dbms.block_size.array_properties|Renamed
+|label_block_size|unsupported.dbms.block_size.labels|Renamed
+|string_block_size|unsupported.dbms.block_size.strings|Renamed
+|dbms.webadmin.enabled|unsupported.dbms.console_module.enabled|Renamed
+|org.neo4j.server.manage.console_engines|unsupported.dbms.console_module.engines|Renamed
+|store.interval.log.rotation|unsupported.dbms.counts_store_rotation_timeout|Renamed
+|dbms.internal.derived.directories.database|unsupported.dbms.directories.database|Renamed
+|edition|unsupported.dbms.edition|Renamed
+|ephemeral|unsupported.dbms.ephemeral|Renamed
+|execution_guard_enabled|unsupported.dbms.executiontime_limit.enabled|Renamed
+|org.neo4j.server.webserver.limit.executiontime|unsupported.dbms.executiontime_limit.time|Renamed
+|gc_monitor_threshold|unsupported.dbms.gc_monitor_threshold|Renamed
+|gc_monitor_wait_time|unsupported.dbms.gc_monitor_wait_time|Renamed
+|rebuild_idgenerators_fast|unsupported.dbms.id_generator_fast_rebuild_enabled|Renamed
+|forced_kernel_id|unsupported.dbms.kernel_id|Renamed
+|lock_manager|unsupported.dbms.lock_manager|Renamed
+|store.internal_log.debug_contexts|unsupported.dbms.logs.debug.debug_loggers|Renamed
+|org.neo4j.server.webserver.max.request.header|unsupported.dbms.max_http_request_header_size|Renamed
+|org.neo4j.server.webserver.max.response.header|unsupported.dbms.max_http_response_header_size|Renamed
+|dbms.pagecache.pagesize|unsupported.dbms.memory.pagecache.pagesize|Renamed
+|multi_threaded_schema_index_population_enabled|unsupported.dbms.multi_threaded_schema_index_population_enabled|Renamed
+|record_format|unsupported.dbms.record_format|Renamed
+|dump_configuration|unsupported.dbms.report_configuration|Renamed
+|dbms.security.auth_store.location|unsupported.dbms.security.auth_store.location|Renamed
+|org.neo4j.server.script.sandboxing.enabled|unsupported.dbms.security.script_sandboxing_enabled|Renamed
+|shutdown_transaction_end_timeout|unsupported.dbms.shutdown_transaction_end_timeout|Renamed
+|dbms.tracer|unsupported.dbms.tracer|Renamed
+|transaction_start_timeout|unsupported.dbms.transaction_start_timeout|Renamed
+|neo4j.ext.udc.first_delay|unsupported.dbms.udc.first_delay|Renamed
+|neo4j.ext.udc.host|unsupported.dbms.udc.host|Renamed
+|neo4j.ext.udc.interval|unsupported.dbms.udc.interval|Renamed
+|neo4j.ext.udc.reg|unsupported.dbms.udc.reg|Renamed
+|neo4j.ext.udc.source|unsupported.dbms.udc.source|Renamed
+|org.neo4j.server.webadmin.browser.uri|unsupported.dbms.uris.browser|Renamed
+|org.neo4j.server.webadmin.management.uri|unsupported.dbms.uris.management|Renamed
+|org.neo4j.server.webadmin.data.uri|unsupported.dbms.uris.rest|Renamed
+|experimental.use_read_locks_on_property_reads|unsupported.dbms.use_read_locks_on_property_reads|Renamed
+|unsupported_wadl_generation_enabled|unsupported.dbms.wadl_generation_enabled|Renamed
+|ha.cluster_name|unsupported.ha.cluster_name|Renamed
+|ha.instance_name|unsupported.ha.instance_name|Renamed
+|batch_inserter_batch_size|unsupported.tools.batch_inserter.batch_size|Renamed
+|=======================

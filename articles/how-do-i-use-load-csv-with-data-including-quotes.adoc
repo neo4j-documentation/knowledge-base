@@ -1,0 +1,30 @@
+= How do I use LOAD CSV with data including quotes
+:slug: how-do-i-use-load-csv-with-data-including-quotes
+:author: Dana Canzano
+:neo4j-versions: 2.3, 3.0
+:tags: LOAD CSV, quotes
+:public:
+:category: import-export
+
+When using *LOAD CSV* to read a file which includes data with double quote characters ("), the quotes need to be escaped as 2 double quote characters
+
+For example if your data file (courses.csv) included the following content
+
+----
+COURSE_ID|COURSE_TITLE
+1215,"""Graphs are EveryWhere"" : An Introduction to Neo4j"
+----
+
+and using the folloiwng LOAD CSV command
+
+----
+LOAD CSV WITH HEADERS FROM "file:///courses.csv" AS row CREATE (:Course { courseID: toInt(row.COURSE_ID), courseTitle: row.COURSE_TITLE});
+----
+
+
+the this would create a Course node with the following properties
+
+courseID = 1215 +
+courseTitle = "Graphs are Everywhere" : An Introduction to Neo4j
+
+

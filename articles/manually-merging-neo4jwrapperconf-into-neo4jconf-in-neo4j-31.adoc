@@ -1,0 +1,54 @@
+= Manually Merging neo4j-wrapper.conf into neo4j.conf in Neo4j 3.1
+:slug: manually-merging-neo4jwrapperconf-into-neo4jconf-in-neo4j-31
+:author: Dave Gordon
+:neo4j-versions: 3.1
+:tags: configuration, upgrade
+:public:
+:category: operations
+
+Neo4j 3.1 takes the configuration changes made in Neo4j 3.0 a step further, and ships with a single configuration file: `conf/neo4j.conf`. This is the result of merging the contents of `conf/neo4j.conf` and `conf/neo4j-wrapper.conf`. The upgrade does not merge these automatically, and `conf/neo4j-wrapper.conf` is deprecated but still supported until the end of 3.x. This, merging the two is optional at this point, but a good step to take in preparation for future versions. 
+
+One can simply copy the entire contents of `conf/neo4j-wrapper.conf` and paste them at the end of `conf/neo4j.conf`. Or, use the sample script below. Just copy the script, paste into a new file with execute privileges in `$NEO4J_HOME/bin`, and run it:
+
+----
+#!/usr/bin/env bash
+# This script will merge an existing neo4j.conf and neo4j-wrapper.conf
+# This script is designed to be run from the bin/ directory of Neo4j, and expects both neo4j.conf 
+# and neo4j-wrapper.conf to be located in the conf/ directory.
+# This is a sample script that is not part of the Neo4j project.
+# Please be sure to read, understand and adapt this script as appropriate for your environment
+
+set -o errexit -o nounset -o pipefail
+[[ "${TRACE:-}" ]] && set -o xtrace
+
+: "${NEO4J_BIN:=$(dirname "$0")}"
+readonly NEO4J_BIN
+. "${NEO4J_BIN}/neo4j-shared.sh"
+
+main() {
+  setup_environment
+  check_java
+  build_classpath
+  export NEO4J_HOME NEO4J_CONF
+  
+  NOW=$(date +"%s")
+  CONF_CONTAINS_WRAPPER=$(ls "${NEO4J_CONF}" | grep -x "neo4j-wrapper.conf" | wc -l | tr -d '[:space:]')
+  # Check if there is a neo4j-wrapper.conf in conf directory
+  if [ "$CONF_CONTAINS_WRAPPER" = "1" ]; then 
+  	# Make a copy of current neo4j.conf file
+    echo "Making backup of ${NEO4J_CONF}/neo4j.conf"
+    cp "${NEO4J_CONF}/neo4j.conf" "${NEO4J_CONF}/neo4j.conf.bak.${NOW}"
+    # Append neo4j-wrapper.conf to end of current neo4j.conf file
+    echo "Appending ${NEO4J_CONF}/neo4j-wrapper.conf to the end of ${NEO4J_CONF}/neo4j.conf"
+    echo "# Appended neo4j-wrapper.conf settings following this line" >> ${NEO4J_CONF}/neo4j.conf
+    cat "${NEO4J_CONF}/neo4j-wrapper.conf" >> ${NEO4J_CONF}/neo4j.conf
+    mv "${NEO4J_CONF}/neo4j-wrapper.conf" "${NEO4J_CONF}/neo4j-wrapper.conf.deprecated.${NOW}"
+    # Success!
+    echo "Successfully merged. Restart neo4j for changes to take effect." 	
+  else
+  	echo "No neo4j-wrapper.conf found, exiting"
+fi
+}
+
+main "$@"
+----

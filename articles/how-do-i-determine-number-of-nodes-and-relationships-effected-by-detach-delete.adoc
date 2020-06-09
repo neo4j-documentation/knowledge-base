@@ -1,0 +1,30 @@
+= How do I determine the number of nodes and relationships to be effected by a detach delete
+:slug: how-do-i-determine-number-of-nodes-and-relationships-effected-by-detach-delete
+:author: Dana Canzano
+:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:tags: delete
+:public:
+:category: cypher
+
+Prior to running a `match .... detach delete n;` which will find said nodes and delete all relationships associated with said nodes as well as delete the nodes themselves one might want to run a query to determine how many nodes/relationships will be effected.
+
+For example, using the `:play movies` database as part of the Neo4j Browser, if one runs
+
+[source,cypher]
+----
+match (n:Person) return count(n), sum ( size( (n)-[]->()));
+----
+
+this will report back
+
+image:https://imgur.com/SMbR6Ll.png[[image]
+
+which would indicate that if you are to then run  `match (n:Person) detach delete n;` this will effect 
+
+133 nodes and 253 relationships and as depicted
+
+image:https://imgur.com/acGdh8R.png[image]
+
+
+In this case the 133 nodes and 253 relationships is not a significantly large number.  
+However if the query wass to return tens of thousands of nodes and relationships to be effected one should reconsider the approach and follow the document entitled `Large Delete Transaction Best Practices in Neo4j`

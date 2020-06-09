@@ -1,0 +1,26 @@
+= How do I achieve the equivalent of a SQL Having clause with Cypher
+:slug: how-do-i-achieve-the-equivalent-of-a-sql-having-clause-with-cypher
+:author: Dana Canzano
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3
+:tags: sql
+:public:
+:category: cypher
+
+With a traditional SQL based database a HAVING clause will restrict aggregated values.  For example 
+
+----
+select zipcode, count(*) as population 
+from Person 
+group by zipcode
+having population>100000;
+----
+
+will return all zipcodes which have more than 100k residents.   
+To achieve the same in Cypher use the following
+
+----
+match (n:Person) 
+with n.zipcode as zip, count(*) as population 
+where population>100000
+return zip,population
+----

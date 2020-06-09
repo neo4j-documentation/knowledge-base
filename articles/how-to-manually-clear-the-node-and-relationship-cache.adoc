@@ -1,0 +1,28 @@
+= Retired: How to manually clear the Node and Relationship Cache
+:slug: how-to-manually-clear-the-node-and-relationship-cache
+:zendesk-id: 205747618
+:author: Dave Gordon
+:tags: performance, cache, warmup
+:neo4j-versions: 2.1, 2.2
+:outdated: true
+:public:
+:category: operations
+
+[NOTE]
+This is no longer applicable in Neo4j 2.3+
+The second level object cache was removed in favor of a more scalable off-heap page-cache.
+
+When troubleshooting transient issues or testing out queries on warm vs. cold cache, you may want to try clearing out the cache without necessarily restarting the Neo4j database.
+
+To achieve this, you need to trigger the `clear()` method on the JMX bean for relationship and/or node cache. 
+
+See http://neo4j.com/docs/stable/jmx-mxbeans.html#jmx-cache-relationshipcache for details.
+
+You can do this by connecting to your JVM using JConsole or JVisualVM, and navigating to the NodeCache and RelationshipCache JMX beans. 
+Once there, simply invoke the `clear()` method.
+
+Here is a screen capture of what JConsole looks like when executing this operation:
+
+image:http://imgur.com/NN28Uqg.png[]
+
+

@@ -1,0 +1,18 @@
+= Are my cluster transactions/messages encrypted.
+:slug: are-my-cluster-transactions-messages-encrypted
+:author: Dana Canzano
+:category: cluster
+:tags: causal-cluster, encryption
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4
+:public:
+
+For all versions prior to 3.3, there is no encryption done specifically on the contents being transferred.
+Furthermore, since it doesn't use REST or Bolt, there is no SSL/https configuration either.
+Transactions are propagated via transaction logs, which are a binary representation of the data and
+are not human-readable. However, that does not equate to encryption.
+
+A common way to solve this problem is to implement VPN tunneling between instances, 
+such that the data is transferred through a secure tunnel.
+
+Commencing with 3.3 we would recommend 
+https://neo4j.com/docs/operations-manual/3.4/clustering/causal-clustering/intra-cluster-encryption/[Intra-Cluster Encryption]

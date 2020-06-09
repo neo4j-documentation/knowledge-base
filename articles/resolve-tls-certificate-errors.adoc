@@ -1,0 +1,94 @@
+= Resolve TLS certificate errors
+:author: Jeremie Phoulchand
+:slug: resolve-tls-certificate-errors
+:neo4j-versions: 3.4, 3.5, 4.0
+:category: security
+:tags: tls, ssl, configuration
+:public:
+
+
+TLS encryption is required everywhere.
+This is a compilation of few errors you can expect while configuring your server.
+`openssl` command is required to diagnose or manipulate the certificates.
+
+== Check the permission on the folder
+
+neo4j might run as a systemd service with a non-priviledged user.
+The folder "$NEO4J_HOME/certificates/<POLICY_NAME>" specified in your configuration has to be writable by the neo4j user.
+
+== Check the private key
+
+The private key has to be in PKCS8 in 3.5.x, PEM format without any passphrase.
+PKCS12 will be supported in future releases.
+The command below should return the certificate without prompting for any password.
+
+----
+openssl rsa -in private.key -check 
+----
+
+You can remove the passphrase with:
+
+----
+openssl rsa -in private.key -out private_key_without_passphrase.key
+----
+
+
+== The folder "certificates/<POLICY_NAME>/trusted" can only contains valid certificates in DER format
+
+If you come across `signed overrun` errors.
+You might want to review each file including hidden ones in the trusted/revoked folder.
+
+----
+2019-10-24 15:17:36.595+0200 ERROR Failed to start Neo4j: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@6f36c2f0' was successfully initialized, but failed to start. Please see the attached cause exception "signed overrun, bytes = 918". Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@6f36c2f0' was successfully initialized, but failed to start. Please see the attached cause exception "signed overrun, bytes = 918".
+org.neo4j.server.ServerStartupException: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@6f36c2f0' was successfully initialized, but failed to start. Please see the attached cause exception "signed overrun, bytes = 918".
+at org.neo4j.server.exception.ServerStartupErrors.translateToServerStartupError(ServerStartupErrors.java:45)
+at org.neo4j.server.AbstractNeoServer.start(AbstractNeoServer.java:187)
+at org.neo4j.server.ServerBootstrapper.start(ServerBootstrapper.java:124)
+at org.neo4j.server.ServerBootstrapper.start(ServerBootstrapper.java:91)
+at com.neo4j.server.enterprise.CommercialEntryPoint.main(CommercialEntryPoint.java:22)
+Caused by: org.neo4j.kernel.lifecycle.LifecycleException: Component 'org.neo4j.server.database.LifecycleManagingDatabase@6f36c2f0' was successfully initialized, but failed to start. Please see the attached cause exception "signed overrun, bytes = 918".
+at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.start(LifeSupport.java:473)
+at org.neo4j.kernel.lifecycle.LifeSupport.start(LifeSupport.java:111)
+at org.neo4j.server.AbstractNeoServer.start(AbstractNeoServer.java:180)
+... 3 more
+Caused by: java.lang.RuntimeException: Failed to create trust manager based on: /neo4j/certificates/xxx/trusted
+at org.neo4j.kernel.configuration.ssl.SslPolicyLoader.load(SslPolicyLoader.java:222)
+at org.neo4j.kernel.configuration.ssl.SslPolicyLoader.create(SslPolicyLoader.java:99)
+at org.neo4j.graphdb.factory.module.edition.CommunityEditionModule.<init>(CommunityEditionModule.java:98)
+at org.neo4j.kernel.impl.enterprise.EnterpriseEditionModule.<init>(EnterpriseEditionModule.java:55)
+at com.neo4j.commercial.edition.CommercialEditionModule.<init>(CommercialEditionModule.java:48)
+at org.neo4j.graphdb.facade.GraphDatabaseFacadeFactory.initFacade(GraphDatabaseFacadeFactory.java:181)
+at com.neo4j.commercial.edition.CommercialGraphDatabase.<init>(CommercialGraphDatabase.java:20)
+at com.neo4j.server.database.CommercialGraphFactory.newGraphDatabase(CommercialGraphFactory.java:40)
+at org.neo4j.server.database.LifecycleManagingDatabase.start(LifecycleManagingDatabase.java:90)
+at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.start(LifeSupport.java:452)
+... 5 more
+Caused by: java.security.cert.CertificateException: Error loading certificate file: /neo4j/certificates/xxx/private.key
+at org.neo4j.kernel.configuration.ssl.SslPolicyLoader.createTrustManagerFactory(SslPolicyLoader.java:363)
+at org.neo4j.kernel.configuration.ssl.SslPolicyLoader.load(SslPolicyLoader.java:218)
+... 14 more
+Caused by: java.security.cert.CertificateParsingException: signed overrun, bytes = 918
+at sun.security.x509.X509CertImpl.parse(X509CertImpl.java:1788)
+at sun.security.x509.X509CertImpl.<init>(X509CertImpl.java:195)
+at sun.security.provider.X509Factory.engineGenerateCertificate(X509Factory.java:102)
+at java.security.cert.CertificateFactory.generateCertificate(CertificateFactory.java:339)
+at org.neo4j.kernel.configuration.ssl.SslPolicyLoader.createTrustManagerFactory(SslPolicyLoader.java:358)
+... 15 more
+2019-10-24 15:17:36.597+0200 INFO Neo4j Server shutdown initiated by request
+----
+
+== Self-signed certificate
+
+You can generate a key and a public certificate with the following command.
+
+----
+openssl req -x509 -newkey rsa:2048 -keyout private_key.pem -out public_cert.pem -days 30
+----
+
+You need to set the `dbms.ssl.policy.<policyname>.trust_all=true in neo4j.conf. 
+Please note that this is insecure.
+
+== CA signed certificate
+
+All certificates should be in DER encoded format in the trusted directory.
+The certificate chain has to be complete to allow the communication.

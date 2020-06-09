@@ -1,0 +1,176 @@
+= Upgrading your Causal Cluster from 3.1.x to 3.2.x
+:slug: upgrading-causal-cluster
+:author: Dave Shiposh
+:neo4j-versions: 3.1, 3.2
+:tags: upgrade, causal cluster
+:public:
+:category: cluster
+
+This article outlines possible steps to upgrade your Neo4j 3.1.2+ Causal Cluster to 3.2.2. For this upgrade path, Neo4j does not support rolling upgrades, so downtime is required to complete the process. However, the following procedure tries to minimize the downtime for both, reads and writes while retaining data safety/high availability where possible. This trade-off may not be the best for all setups.
+
+=== Assumptions
+
+- You have a working Neo4j Causal Cluster in Version 3.1.x where x>=2.
+- You have three core servers and no followers.
+- Your operating system is Linux.
+- The installation of Neo4j has been done by extracting the .tar.gz file.
+- You have licensed multi-data center operations, see http://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/multi-data-center/#multi-dc-licensing.
+- Your configuration, plugins and files in data/dbms/ are not changed while following the upgrade steps of this article (except for the adjustments described in the steps itself, of course).
+- Your free disk space is at least double the size of your current installation including your database files.
+
+
+=== Upgrade Steps
+
+
+Before following the below steps, read the complete article thoroughly and test the procedure in a pre-production environment.
+
+==== Step 0 - Preparation
+
+- Make sure you have access to the installation source of Neo4j 3.2.2.
+- Make sure your client applications have a good error handling in place, since they will receive execeptions during a short period of time.
+  E.g., when using the Java driver, you may want to configure it with `Config.build().withMaxTransactionRetryTime( .. ).toConfig()`.
+- Make sure your client applications differentiate between read and write transactions.
+  I.e., whenever you only read, use `session.readTransaction()` or set the access mode of your session to `AccessMode.READ`.
+- Make sure that all your plugins are compatible with the new version.
+- Make a backup of your database.
+
+==== Step 1 - Install Neo4j 3.2.2
+
+On each server:
+
+* Extract the neo4j-enterprise-3.2.2-unix.tar.gz file
+* Copy all files from the following directories from your old (and running) Neo4j insallation to the newly extracted (and still shutdown) installation (retain the directory structure):
+
+** files in conf/
+** files in data/dbms/
+** files in plugins/
+
+In the following, we are referring to `old` and `new` files or instances. The old files/instances are those of the Neo4j 3.1 installation, the new ones are those of the Neo4j 3.2 installation.
+
+==== Step 2 - Set Followers as "Follower Only"
+
+* Identify Leader and Follower instances of your old cluster installation. You may use one of the following commands:
+
+** `:sysinfo` in the Neo4j Browser or
+** `CALL dbms.cluster.overview()` via Cypher
+
+* Pick a Follower instance that is not already in "Follower Only" mode:
+    ** In the old neo4j.conf file of that instance
+      ** set/add `causal_clustering.refuse_to_be_leader=true` and
+      ** set/add `causal_clustering.multi_dc_license=true`.
+    ** Restart the instance, which will not be able to become a Leader any longer.
+    ** Wait until this instance is up and running again.
+    
+* Repeat Step 2 until all Followers (in our szenario two) are in "Follower Only" mode.
+
+During this step you may encounter a short (a few ms) delay in processing read requests. However, no downtime is expected if you have configured your application to retry transactions (see Step 0).
+After this step, we have a three instances cluster where only one instance is allowed to be the Leader. This reduces the high-availability for your writes. E.g., if the Leader now fails, reads are still processed, but no writes are possible.
+
+==== Step 3 - Shutdown Leader
+
+* Stop the old Leader.
+This step starts the downtime for writes!
+Reads are still processed through the two Follower instances.
+
+==== Step 4 - Copy database to the New Leader
+
+* On the old Leader instance:
+** Copy your (old) active database folder (by default: data/databases/graph.db) to the new 3.2.x installation (which has been setup in step 1).
+By copying the database folder, we still have the latest writes available for fallback.
+
+==== Step 5 - Configure 3.2.x for the Format Migration
+
+* On the Leader box in the new 3.2.x neo4j.conf file, make sure to have the following parameters set:
+** `dbms.allow_format_migration=true`
+** `dbms.mode=SINGLE`
+
+==== Step 6 - Upgrade the database files (Format Migration)
+
+* On the Leader box in the new installation:
+** Start up Neo4j 3.2.x.
+   Depending on the size of your database, this step may take a few moments to finish.
+** Check your logs/neo4j.log file for success. It should have the following line:
+  `2017-07-06 18:08:59.933+0000 INFO  Successfully finished upgrade of database`
+** Stop Neo4j 3.2.x.
+We now have a upgraded database which we use to seed the new cluster.
+
+==== Step 7 - Revert Configuration from Step 5
+
+* On the Leader box in the new conf/neo4j.conf file, make sure to have the following parameters set:
+** `dbms.allow_format_migration=false`
+** `dbms.mode=CORE`
+
+==== Step 8 - Seed the Cluster
+
+* Copy the newly upgraded database folder (by default: data/databases/graph.db) to the new installation of the Follower instances. I.e.:
+** Copy your new active database folder from the Leader box to one of the new Follower installations.
+** Copy your new active database folder from the Leader box to the other new Follower installation.
+
+==== Step 9 - Switch Versions
+
+Starting with one of the old Follower instances:
+
+* Stop the instance.
+
+Repeat this process for the second Follower instance.
+This is the beginning of the downtime for reads!
+
+* Now, start up the new cluster:
+** Start the new Leader instance.
+** Start the two new Follower instances.
+
+This procedure stops the downtime for reads and writes.
+
+==== Step 10 - Validate
+
+Validate that your cluster is healthy. `CALL dbms.cluster.overview()` may be used as a starting point.
+If you still have the Neo4j Browser open in a web browser, you may need to refresh the site.
+
+==== Step 11 - Backup
+
+* Take a full backup of your running database including the consistency check to validate the upgraded database.
+
+==== Step 12 - Remove 3.1.x
+
+* Remove your old installation files on all of your three servers.
+
+=== Fallback Scenarios
+
+The following sections describe the steps to revert your setup to its original state. Depending on when you decide to do the fallback, you will jump into one of the following sections and execute the steps described in there.
+
+==== Coming from Step 1 above
+
+* Remove the new installation files from all servers.
+
+==== Coming from Step 2 above
+
+* Follow the steps from section 'Coming from Step 1 above'.
+
+==== Coming from Step 3 above
+
+Starting with one of the old Follower instances:
+
+* In the old neo4j.conf file of that instance
+  ** set `causal_clustering.refuse_to_be_leader=false` or remove that parameter completely and
+  ** revert `causal_clustering.multi_dc_license` to its originally configured value.
+* Restart the (old) Follower instance.
+* Wait until this instance is up and running again.
+> Repeat this process for the second Follower instance.
+* Follow the steps from section 'Coming from Step 1 above'.
+
+==== Coming from Step 4, 5, 6, 7 or 8 above
+
+* Start the old Leader
+
+This step forms the end of the downtime for writes!
+
+* Follow the steps from section 'Coming from Step 3 above'.
+
+==== Coming from Step 9 or 10 above
+
+Be aware that you will lose writes, that have been committed to the new cluster when doing the following!
+
+* Stop the new Followers.
+* Stop the new Leader.
+* Start the old Leader.
+* Follow the steps from section 'Coming from Step 3 above'.

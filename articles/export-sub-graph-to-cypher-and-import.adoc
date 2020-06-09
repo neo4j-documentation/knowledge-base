@@ -1,0 +1,108 @@
+= Export a (sub)graph to Cypher script and import it again 
+:slug: export-sub-graph-to-cypher-and-import
+:author: Michael Hunger
+:tags: cypher, export, import
+:neo4j-versions: 3.0, 3.1, 2.3
+:public:
+:category: import-export
+
+Oftentimes you want to export a full (or partial) database to a file and import it again without copying the actual database files.
+If you want to do the latter, use `neo4j-admin dump/load`.
+
+Here are two ways on how to create a Cypher script file from your database or Cypher statement.
+This can also be used to downgrade (smaller) databases.
+
+== Format
+
+Some notes on the format written from these tools:
+
+* recreate indexes and constraints
+* simple statements per node (`CREATE`) / relationship (2x `MATCH` + `CREATE`)
+* optionally you can configure the export to use `MERGE` instead of `CREATE`
+* data creation in batches (by default 40k) optionally surrounded with `:begin`, `:commit`
+* uses existing constraints for node-lookup
+* if no constraint on that label exist, use an artificial constraint + property (`UNIQUE IMPORT LABEL`.`UNIQUE IMPORT ID`) where the property value is the node-id, on node creation
+* clean up artificial label + property + constraint at the end in batches
+
+== APOC
+
+You can install the https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC] procedure library.
+
+And then use the `apoc.export.cypher.*` procedures to create the `export.cypher` file from your graph or data.
+There is more in the https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_export_to_cypher_script[documentation] but below are some examples.
+
+Those procedures have config options to generate formats for different outputs and also to split nodes, relationships and schema scripts into different files.
+
+NOTE: Please note that you have to enable the capability to write and read files first in `neo4j.conf`.
+
+----
+apoc.export.file.enabled=true
+apoc.import.file.enabled=true
+----
+
+
+[source,cypher]
+----
+// exports the whole database incl. indexes as cypher statements to the provided file
+CALL apoc.export.cypher.all('/tmp/export.cypher',{format:'cypher-shell'})
+
+// exports given nodes and relationships incl. indexes as cypher statements to the provided file
+MATCH path = (p1:Person)-[r:KNOWS]->(p2:Person)
+WITH collect(p1)+collect(p2) as export_nodes, collect(r) as export_rels
+CALL apoc.export.cypher.data(export_nodes,export_rels,'/tmp/export.cypher',{format:'cypher-shell'})
+YIELD file, source, format, nodes, relationships, properties, time
+RETURN nodes, relationships, time;
+
+// exports given graph object incl. indexes as cypher statements to the provided file
+...
+CALL apoc.graph.fromPaths([paths],'export_graph',{}) YIELD graph
+CALL apoc.export.cypher.graph(graph,'/tmp/export.cypher',{format:'cypher-shell'}) YIELD time
+RETURN time;
+
+// exports nodes and relationships from the cypher statement incl. indexes as cypher statements to the provided file
+CALL apoc.export.cypher.query(
+'MATCH (p1:Person)-[r:KNOWS]->(p2:Person) RETURN *',
+'/tmp/export.cypher',{format:'cypher-shell'});
+----
+
+== Import with cypher-shell
+
+If you export the file with the `cypher-shell` format, it contains the right syntax to use for transactions in the shell.
+
+Then you can import them with https://neo4j.com/docs/operations-manual/current/tools/cypher-shell/[`cypher-shell`] too.
+
+`cat /tmp/export.cypher | ./bin/cypher-shell -u neo4j -p password`
+
+== Example for export file
+
+[source,cypher]
+----
+// create nodes
+:begin
+CREATE (:`UNIQUE IMPORT LABEL` {`UNIQUE IMPORT ID`:0});
+CREATE (:`User` {`age`:43, `name`:"User1"});
+:commit
+
+// add schema
+:begin
+CREATE INDEX ON :`User`(`age`);
+CREATE CONSTRAINT ON (node:`User`) ASSERT node.`name` IS UNIQUE;
+CREATE CONSTRAINT ON (node:`UNIQUE IMPORT LABEL`) ASSERT node.`UNIQUE IMPORT ID` IS UNIQUE;
+:commit
+
+// wait for index completion
+call db.awaitIndexes();
+
+// create relationships
+:begin
+MATCH (n1:`UNIQUE IMPORT LABEL`{`UNIQUE IMPORT ID`:0}), (n2:`User`{`name`:"User1"}) CREATE (n1)-[:`KNOWS` {`since`:2011}]->(n2);
+:commit
+
+// clean up temporary import keys (batched)
+:begin
+MATCH (n:`UNIQUE IMPORT LABEL`)  WITH n LIMIT 1000 REMOVE n:`UNIQUE IMPORT LABEL` REMOVE n.`UNIQUE IMPORT ID`;
+:commit
+:begin
+DROP CONSTRAINT ON (node:`UNIQUE IMPORT LABEL`) ASSERT node.`UNIQUE IMPORT ID` IS UNIQUE;
+:commit
+----

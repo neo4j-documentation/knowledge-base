@@ -1,0 +1,216 @@
+= Understanding non-existent properties and working with nulls
+:slug: understanding-non-existent-properties-and-null-values
+:author: Andrew Bowman
+:neo4j-versions: all
+:tags: cypher
+:public:
+:category: cypher
+
+In Neo4j, since there is no table schema or equivalent to restrict possible properties, non-existence and null are equivalent for node and relationship properties.
+That is, there really is no such thing as a property with a null value; null indicates that the property doesn't exist at all.
+
+This is in contrast with a relational db with a table schema, where a field exists for a row of a table even if the value for that column is null.
+
+As an example, if we had a graph of :Person nodes, the following two queries are considered the same:
+
+[source,cypher]
+----
+MATCH (p:Person)
+WHERE p.id = $personId
+RETURN NOT EXISTS(p.email)
+----
+
+[source,cypher]
+----
+MATCH (p:Person)
+WHERE p.id = $personId
+RETURN p.email IS NULL
+----
+
+It does not matter if the property in question is one that is used on other nodes (just missing on this one), or if it is a nonsensical or never-used property in the graph (such as `p.pinkElephant`). If the property doesn't exist, a NULL check as above will return true.
+
+Likewise, the following two queries result in the removal of the property:
+
+[source,cypher]
+----
+MATCH (p:Person)
+WHERE p.id = $personId
+SET p.email = null
+----
+
+[source,cypher]
+----
+MATCH (p:Person)
+WHERE p.id = $personId
+REMOVE p.email
+----
+
+This can be useful if you need a way to clear several properties dynamically from nodes, using a map to update node properties:
+
+[source,cypher]
+----
+WITH {email:null, dob:null} as clearProps
+MATCH (p:Person)
+WHERE p.id = $personId
+SET p += clearProps
+----
+
+==== NULL map values
+
+This also demonstrates that although non-existence and null node and relationship properties are equivalent, this does not hold true for maps or collections.
+A map with an entry with a null value, as above, is different than a map that is missing the entry.
+
+This differentiation can be especially useful when using map projection. Map projection is a map view of a node's properties, and can be used to force the display of a property for the returned data, even if the property doesn't exist on that node.
+
+For example, in this query, the email property in the returned node data may or may not be returned, depending on if the property exists on each returned node:
+
+[source,cypher]
+----
+MATCH (p:Person)
+RETURN p
+----
+
+
+But if we wanted the email property to always display, showing NULL if the property doesn't exist, we would use map projection like so:
+
+[source,cypher]
+----
+MATCH (p:Person)
+RETURN p {.*, .email}
+----
+
+
+==== NULL list values
+
+NULLs are also allowed in lists:
+
+[source,cypher]
+----
+RETURN [1,2,3,null,5]
+----
+
+However, aggregations over node or relationship properties skip or disregard null values:
+
+[source,cypher]
+----
+MATCH (p:Person)
+RETURN count(p.email) as emailCount
+----
+
+The count does not include null values.
+
+[source,cypher]
+----
+MATCH (p:Person)
+RETURN collect(p.email) as emails
+----
+
+This skips null values; the returned collection does not contain any nulls.
+
+==== Working with NULL in logical expressions and other contexts
+
+The Neo4j developers manual has an extensive section on https://neo4j.com/docs/developer-manual/current/cypher/syntax/working-with-null/[working with NULL] in logical expressions and details when expressions will return NULL.
+
+
+==== Use COALESCE() to use a default for a null value
+
+In some cases we may want to display a fallback default value when a property doesn't exist on a node or relationship.
+Or we may want to perform an equality or inequality comparison against a possible null value, and use a default if the value happens to be null.
+
+COALESCE() allows handling of these cases. It accepts any number of parameters, and returns the first non-null value encountered.
+
+[source,cypher]
+----
+MATCH (p:Person)
+RETURN collect(COALESCE(p.email, 'NOT SET')) as emails
+----
+
+Rather than ignoring the null values as before, we see 'NOT SET' included in the list.
+
+[source,cypher]
+----
+MATCH (p:Person)
+WHERE COALESCE(p.optedIn, false) <> true
+RETURN p
+----
+
+With COALESCE() we can treat a null as a different value for the purpose of comparison.
+Note that equality or inequality comparisons against null, such as `null <> true`, results in null, not a boolean, so COALESCE() is especially helpful here.
+
+[source,cypher]
+----
+MATCH (p:Person)
+RETURN COALESCE(p.email, p.backupEmail, p.backupBackupEmail, 'NOT SET') as email
+----
+
+Multiple fallbacks are allowed, the first non-null value will be used.
+
+==== Matching and Merging with NULL
+
+.Null node variables
+
+While you can perform a MATCH where a node variable in the match is null (such as from a failed OPTIONAL MATCH), you cannot CREATE or MERGE a pattern with a null node variable.
+
+When there are no :PinkElephant nodes, this works, but won't return records:
+
+[source,cypher]
+----
+OPTIONAL MATCH (node1:PinkElephant)
+WITH node1
+MATCH (node1)-[:ACTED_IN]->(m:Movie)
+RETURN node1
+----
+
+However both of these will throw errors:
+
+[source,cypher]
+----
+OPTIONAL MATCH (node1:PinkElephant)
+WITH node1
+MERGE (node1)-[:ACTED_IN]->(m:Movie)
+RETURN node1
+----
+
+and
+
+[source,cypher]
+----
+OPTIONAL MATCH (node1:PinkElephant)
+WITH node1
+CREATE (node1)-[:ACTED_IN]->(m:Movie)
+RETURN node1
+----
+
+.Null property values
+
+When we instead use null property values, we can MATCH or CREATE using a null property value, but we cannot use MERGE:
+
+These work:
+
+[source,cypher]
+----
+OPTIONAL MATCH (ele:PinkElephant)
+WITH ele
+MATCH (node1:Person{name:ele.name)-[:ACTED_IN]->(m:Movie)
+RETURN node1
+----
+
+and
+
+[source,cypher]
+----
+OPTIONAL MATCH (ele:PinkElephant)
+WITH ele
+CREATE (node1:Person{name:ele.name)-[:ACTED_IN]->(m:Movie)
+RETURN node1
+----
+
+but this throws an error:
+
+[source,cypher]
+----
+OPTIONAL MATCH (ele:PinkElephant)
+WITH ele
+MERGE (node1:Person{name:ele.name)-[:ACTED_IN]->(m:Movie)
+RETURN node1
+----

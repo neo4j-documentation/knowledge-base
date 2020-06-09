@@ -1,0 +1,36 @@
+= Docker "Permission Denied" Error
+:slug: docker-permission-denied
+:author: Rohan Kharwar
+:neo4j-versions: 3.1,3.2,3.3,3.4,3.5
+:tags: docker, permission denied, user
+:public:
+:category: operations
+
+When a docker instance is started, one could get a permission denied error such as
+
+----
+2018-06-14 23:20:50.962+0000 ERROR Failed to start Neo4j: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@7880cdf3' was successfully initialized, but failed to start. Please see the attached cause exception "/logs/debug.log (Permission denied)". Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@7880cdf3' was successfully initialized, but failed to start. Please see the attached cause exception "/logs/debug.log (Permission denied)".
+----
+
+and may fail to start.
+
+Docker used to run as root and now has been changed.  
+This change was introduced in 3.1.8, 3.2.9, 3.3.4 docker images and in 3.4 onwards. In order for any of the newer neo4j to continue having access to these older `logs`, `conf`, `data` 
+you will have to change the permissions of files created by the old version - in particular this applies to existing log and data files.
+
+Granting “everyone” access to the logs directory does circumvent the “Permission Denied” error. However, that is not a preferred solution. Our recommendation is either:
+
+A) give the user they are passing in to docker ownership or primary group on the logs dir along with read and write permissions
+   How to pass `--user` as parameter to docker can be found in the following KB article.
+   https://support.neo4j.com/hc/en-us/articles/360012923574-Running-Docker-as-Non-Root-User
+
+Or
+
+B) create a secondary group that has access to logs directory e.g. sudo groupadd logs and add the user they use to run neo4j to that group. If this is done, one has to pass the secondary groups in additionally to docker using the `--group-add` flag. 
+   For example:
+   
+[source,java]
+----
+group-add="$(getent group logs | cut -d ":" -f3)"
+----
+

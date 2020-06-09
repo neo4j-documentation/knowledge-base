@@ -1,0 +1,33 @@
+= Connecting via Bolt when using Tunnelling or NAT
+:slug: connecting-bolt-when-using-tunnelling-or-nat
+:author: Umar Muzammil
+:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:tags: bolt, host, url, nat, tunnel
+:category: server
+:public:
+
+This article aims to provide a method to connect to the Neo4j database over bolt, via Neo4j browser where the bolt host is different 
+from the IP of the instance itself and, in cases where the bolt host IP/port is dynamic.
+
+Unless `dbms.connector.bolt.advertised_address=<server-name>:<port>` is set, Neo4j browser uses the private IP of the instance as
+the bolt host IP, but e.g. when using an SSH tunnel to access a Neo4j instance, the client (e.g. Neo4j browser) uses a e.g. 
+127.0.0.1:port and changes a previously saved bolt host URL to use the instance IP instead, which wouldn’t connect.
+
+One workaround is to specify `dbms.connector.bolt.advertised_address=<server-name>:<port>` in neo4j.conf (where <server-name>:<port>
+is the DNS name and port of the desired bolt host). However, if the host/port in certain environments, is custom each time, hard
+coding it with neo4j.conf via the above configuration, may not be useable where bolt should listen on the IP/port where it is mapped
+via the SSH tunnel. Some clients within the firewall may not use tunnelling, hence setting up tunnelling for every client, to match 
+the hard coded address may not be desired.
+
+In such cases, providing a custom `dbms.connector.bolt.advertised_address=<server-name>:<port>` at the neo4j browser landing/connection
+page, may not always honour that value e.g. at page refresh, the browser may forget the input bolt URL and overwrite it with the default
+advertised address. 
+
+To prevent the user-specified configuration from being overwritten, a _connectUrl_ parameter can be passed along with the link to Neo4j 
+Browser:
+
+e.g. http://localhost:7474/browser/?connectURL=127.0.0.1:7687 or, e.g. http://browser.neo4j.com/?connectURL=neo4jdb.xxyyzz.com:26000.
+
+If a hosted Neo4j Browser was available on http://browser.neo4j.com, it would set the bolt url to http://neo4jdb.xxyyzz.com:26000 and try
+to connect. The connectURL parameter may therefore be useful for use-cases as ones described above, where clients use tunnelling, network
+address translation, and other non-conventional access methods.

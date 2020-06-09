@@ -1,0 +1,67 @@
+= Large Delete Transaction Best Practices in Neo4j
+:slug: large-delete-transaction-best-practices-in-neo4j
+:zendesk-id: 206103818
+:author: Dave Gordon
+:neo4j-versions: 2.3, 3.0, 3.1, 3.2, 3.3
+:tags: cypher,transaction,memory,garbage collection,heap
+:public:
+:category: operations
+
+In order to achieve the best performance, and avoid negative effects on the rest of the system, consider these best practices when processing large deletes.
+
+Start by identifying which situation you are in:
+
+* Deleting the entire graph database, so you can rebuild from scratch.
+* Deleting a large section of the graph, or a large number of nodes/relationships that are identified in a MATCH statement.
+* Depending on the situation, there may be a different recommendation. Going through them in order:
+
+When deleting the entire graph database, by far the best way is to simply stop the database, rename/delete the graph store 
+(`data/graph.db` (pre v3.x) or `data/databases/graph.db` (3.x forward) or similar) directory, and start the database.
+This will build a fresh, empty database for you.
+
+If you need to delete some large number of objects from the graph, one needs to be mindful of the not building up such a large single 
+transaction such that a Java out of heap error will be encountered.  Use the following example to delete subsets of the matched records
+in batches until the full delete is complete:
+
+
+
+With 3.x forward and using https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC]
+
+----
+call apoc.periodic.iterate("MATCH (n:Foo) where n.foo='bar' return n", "DETACH DELETE n", {batchSize:1000})
+yield batches, total return batches, total
+----
+
+Pre 3.x
+----
+// Find the nodes you want to delete
+MATCH (n:Foo) where n.foo = 'bar'
+
+// Take the first 10k nodes and their rels (if more than 100 rels / node on average lower this number)
+WITH n LIMIT 10000
+DETACH DELETE n
+RETURN count(*);
+----
+
+Run this until the statement returns 0 (zero) records.
+
+For versions before Neo4j 2.3 run:
+
+----
+// Find the nodes you want to delete
+MATCH (n:Foo) where n.foo = 'bar'
+
+// Take the first 10k nodes and their rels (if more than 100 rels / node on average lower this number)
+WITH n LIMIT 10000
+MATCH (n)-[r]-()
+DELETE n,r
+RETURN count(*);
+----
+
+
+In all of the examples we are performing a delete in batch sizes of 10k.   This may still lead to out of heap errors if the nodes
+eligible for delete have a significant number of relationsips.   For example if a node to be deleted as 1 million `:FOLLOWS`
+relationships then the delete of this single node will include the removal of this 1 node and the 1 million `:FOLLOWS` relationships.
+
+Also, please consider reviewing KB document `How to avoid using excessive memory on deletes involving dense nodes` for other 
+considerations

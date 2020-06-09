@@ -1,0 +1,182 @@
+= Understanding aggregations on zero rows
+:slug: understanding-aggregations-on-zero-rows
+:author: Andrew Bowman
+:neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5
+:tags: cypher
+:category: cypher
+
+Aggregations in Cypher can be tricky in some cases.
+Notably, when performing aggregation right after a MATCH where there are no matches, or after a filter operation that filters out all results. In some cases a query using aggregations in these situations may produce no results, which may be surprising for some users.
+
+Aggregations can be successfully performed on zero rows, when all previous results have been filtered out,
+but there are some aspects of this behavior, and limitations in usage, that need to be understood in order to perform these aggregations properly and get correct results.
+
+== A refresh on rows, operators, and aggregations
+
+Operators in Cypher produce rows, and they also execute per row.
+When there are no more rows (due to MATCH not finding matches, or WHERE clause filtering),
+then there is nothing left to execute upon, and remaining operations become no-op.
+
+One big exception to this are aggregation functions, most often `count()` and `collect()`.
+
+These functions are allowed because situations exist where we may want to count something where there are 0 occurrences, so a count() of 0 makes sense:
+
+[source,cypher]
+----
+MATCH (person:Person)
+WHERE person.nonExistentProperty = 123
+// after the WHERE, there are 0 rows
+RETURN count(person) as count
+// but when we apply the count(), we get a single row with 0
+----
+
+Likewise, we may want to collect() some things from matched paths when there are no paths, so an empty list makes sense:
+
+[source,cypher]
+----
+MATCH (person:Person)
+WHERE person.nonExistentProperty = 123
+// after the WHERE, there are 0 rows
+RETURN collect(person) as people
+// but when we apply the collect(), we get a single row with []
+----
+
+Usage of either of these have an input of 0 rows and produce an output of a single row with the count of 0 or the empty list.
+And now that we have a row to work with, subsequent operations in the query can execute (if we used a WITH instead of a RETURN).
+
+The other aggregation functions can produce similar results when run on 0 rows.
+
+`sum()` produces an output of 0, `stDev()` and `stDevP()` produce an output of 0.0, while `avg()`, `min()`, `max()`, `percentileDisc()` and `percentileCont()` produce `null`.
+
+== When non-aggregation terms are present, you cannot aggregate on 0 rows
+
+Aggregations only have meaning with respect to the non-aggregation terms present when the aggregation is performed.
+
+When only aggregations are present, then the context of the aggregation is with respect to all rows.
+
+When any other non-aggregation terms are present, then the aggregation is with respect to those combination of terms, AKA the grouping key.
+
+So for example, in the following query snippet the count() aggregation is with respect to a person, it's a count of the movies per person that acted in them:
+
+[source,cypher]
+----
+MATCH (person:Person)-[:ACTED_IN]->(movie:Movie)
+WITH person, count(movie) as actedMovieCount
+...
+----
+
+However this does require at least one row for the aggregation to work (we aggregate with respect to something).
+
+But in situations where we drop to 0 rows, there is no grouping key (no data for one at least), and so Cypher does not allow the aggregation to take place, and rows remain at 0.
+
+Let's consider a case where we're working with `:Movie` and `:Person` nodes.
+`:Movie` nodes have a title, but `:Person` nodes do not.
+
+Let's look at this query first:
+
+[source,cypher]
+----
+MATCH (person:Person)
+WHERE EXISTS(person.title)
+WITH count(person) as personCount
+MATCH (movie:Movie)
+WHERE EXISTS(movie.title)
+RETURN personCount, count(movie) as movieCount
+----
+
+This returns a `personCount` of 0, and a `movieCount` of 38.
+
+Here's the sequence of events:
+
+1.  `:Person` nodes were matched, but none have a `title` property.
+Rows go to 0.
+
+2. Next we count() the `person` nodes, and since there is only the single aggregation term, this emits a single row with a `personCount` of 0, which is correct.
+
+3. As we have a row to operate upon, the next MATCH can take place, and as all movies have the `title` property, what we get is a count of all movies, with respect to the earlier `personCount` entry.
+We get expected results.
+
+But what if we changeup the order of this query? What happens then?
+
+[source,cypher]
+----
+MATCH (movie:Movie)
+WHERE EXISTS(movie.title)
+WITH count(movie) as movieCount
+MATCH (person:Person)
+WHERE EXISTS(person.title)
+WITH movieCount, count(person) as personCount
+RETURN personCount, movieCount
+----
+
+We've swapped the order, so we match to and aggregate movies first, then match to and aggregate persons with respect to the earlier movieCount.
+
+Our result is:
+
+`(no changes, no records)`
+
+So what happened here?
+
+1.  `:Movie` nodes were matched, and they all have the `title` property.
+Rows go to 38, one per movie.
+
+2. Next we `count()` the `movie` nodes, which gives us a single row with a `movieCount` of 38.
+
+3. Our next MATCH is to :Person nodes that have a `title` property. No such nodes exist, so our single row is filtered out.
+We have no rows! Our `movieCount` data is gone (it was stored in that single row) so we can't reference it!
+
+4. We attempt to aggregate, getting the `count()` of people, but we have a grouping key, `movieCount`.
+Whatever data we might have had in this previously is gone, lost when the row was filtered out.
+We can't perform this aggregation since we have nothing to use for the grouping key (note that not having a grouping key is NOT the same as having a grouping key of `null` values).
+We can't run the aggregation. We don't output any rows.
+
+=== Avoiding the problem by using OPTIONAL MATCH or pattern comprehensions
+
+The problem happens when we aggregate with a grouping key when there are no rows present, so we can avoid the problem by avoiding going to 0 rows.
+
+One way we can do this is to use an OPTIONAL MATCH when we know there may be no matches, yet want to continue the query. This won't filter out rows, and our aggregation will emit expected results.
+
+If we're collecting results from an expansion, then we can use a pattern comprehension as a shortcut, as we'll get an empty collection if the pattern in the comprehension doesn't exist, again without filtering out the row.
+
+
+=== Why not just default to null for the grouping key when we have 0 rows?
+
+For some, the idea that we can't aggregate when we have a grouping key but 0 rows doesn't sit right.
+A common suggestion is: why not allow the aggregation (the same as if we didn't have a grouping key) and set the grouping key values to null?
+
+The short answer is that changing the data of what's in scope to null in these circumstances can lead to unexpected and drastically wrong results, especially when the query is allowed to keep executing on this bad data.
+The resulting query results may not be sane.
+
+For example, consider if we were using a variation on the earlier query to store some counts in a node for fast access later.
+We'll fix up the property used (`person.name` instead of `person.title`), but let's run this before we've added :Person nodes to our graph, we only have movie nodes:
+
+
+[source,cypher]
+----
+MATCH (movie:Movie)
+WHERE EXISTS(movie.title)
+WITH count(movie) as movieCount
+MATCH (person:Person)
+WHERE EXISTS(person.name)
+WITH movieCount, count(person) as personCount
+MERGE (count:CountTracker)
+SET count.personCount = personCount, count.movieCount = movieCount
+RETURN personCount, movieCount
+----
+
+Now we know from what we've covered that our rows will go to 0 when we match to :Person nodes, since there aren't any in the graph yet,
+and that as a result our aggregation where we `count(person)` will fail and we'll get 0 rows and nothing further in the query will be able to execute (no rows to execute upon).
+
+But what if Cypher nulled out the grouping key instead and allowed the query to continue? Then `movieCount` would go to null, and `personCount` would go to 0.
+Whatever personCount had before (assuming it had anything before) would be removed, because setting a property to null is the same as removing it.
+
+If this were a more complex query, consider the implications of having a value which you KNEW couldn't possibly be null suddenly get changed to null.
+Usage of that property could have entirely unexpected results. You might end up erasing properties if you set a property to the now null value.
+You might be relying on comparisons on the value, and now because it's a null the result of the comparison will be null (in Cypher inequalities with null result in null), and may propogate further depending on what you use that resulting value for.
+
+Thankfully you wouldn't run into trouble with a MATCH or a WHERE when comparing a property to `null`, since we require usage of `IS NULL` or `IS NOT NULL` for this check, using regular equality of a property value to null will always fail.
+
+However, it should be clear that setting the grouping key to null can have negative and unexpected consequences, especially if the values are used to write into the graph.
+If we don't return and inspect the output, it's possible for bad data to have been written to the graph, and who knows when that would be detected.
+
+For these reasons, we feel justified that it is more correct to stay at 0 rows in these situations than to suddenly and unexpectedly change variable values and let the query continue in a not-so-sane state.

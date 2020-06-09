@@ -1,0 +1,53 @@
+= Changes to metrics.csv reporting from 2.x to 3.x
+:slug: changes-to-metrics-csv-reporting-from-2-x-to-3-x
+:author: Dana Canzano
+:category: operations
+:tags: metrics, csv, monitoring
+:neo4j-versions: 2.3, 3.0
+:public:
+
+Metrics reporting is an Enterprise feature which upon enablement allows for the creation of .csv files at a specified interval to record key metrics.
+This is described in detail at http://neo4j.com/docs/operations-manual/current/monitoring/.
+
+Differences between 2.x and 3.x are as follows:
+
+=== File Name Changes
+* In 2.x all data was written to a single file named metrics.csv with multiple metrics per each line. When enabling all metrics, the contents of the metrics.csv would appear as follows
+
+----
+timestamp,datetime,neo4j.check_point.events,neo4j.check_point.total_time,neo4j.cluster.slave_pull_update_up_to_tx,neo4j.cluster.slave_pull_updates,neo4j.ids_in_use.node,neo4j.ids_in_use.property,neo4j.ids_in_use.relationship,neo4j.ids_in_use.relationship_type,neo4j.log_rotation.events,neo4j.log_rotation.total_time,neo4j.network.master_network_store_writes,neo4j.network.master_network_tx_writes,neo4j.network.slave_network_tx_writes,neo4j.page_cache.eviction_exceptions,neo4j.page_cache.evictions,neo4j.page_cache.flushes,neo4j.page_cache.page_faults,neo4j.page_cache.pins,neo4j.page_cache.unpins,neo4j.transaction.active,neo4j.transaction.committed,neo4j.transaction.peak_concurrent,neo4j.transaction.rollbacks,neo4j.transaction.started,neo4j.transaction.terminated,vm.gc.count.g1_old_generation,vm.gc.count.g1_young_generation,vm.gc.time.g1_old_generation,vm.gc.time.g1_young_generation,vm.memory.buffer.direct.capacity,vm.memory.buffer.direct.count,vm.memory.buffer.direct.used,vm.memory.buffer.mapped.capacity,vm.memory.buffer.mapped.count,vm.memory.buffer.mapped.used,vm.memory.pool.code_cache,vm.memory.pool.compressed_class_space,vm.memory.pool.g1_eden_space,vm.memory.pool.g1_old_gen,vm.memory.pool.g1_survivor_space,vm.memory.pool.metaspace,vm.thread.count +
+1462999417,2016-05-11 16:43:37,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,25,0,0,0,3,1,0,3,0,0,10,0,143,200704,4,200704,0,0,0,6481152,6456096,40894464,41358552,8388608,41533256,19
+1462999420,2016-05-11 16:43:40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,25,0,0,0,3,1,0,3,0,0,12,0,192,200704,4,200704,0,0,0,8297600,6933152,23068672,47649992,6291456,45081632,20
+1462999423,2016-05-11 16:43:43,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,25,0,0,0,3,1,0,3,0,0,12,0,192,200704,4,200704,0,0,0,8298368,6933152,23068672,47649992,6291456,45081920,20
+----
+
+* In 3.x each metric is written to its own file, rather than a single metrics.csv. For example the following files are created
+
+----
+neo4j.bolt.accumulated_processing_time.csv     neo4j.page_cache.page_faults.csv            neo4j.transaction.terminated_write.csv
+neo4j.bolt.accumulated_queue_time.csv          neo4j.page_cache.pins.csv                   vm.gc.count.g1_old_generation.csv
+neo4j.bolt.messages_done.csv                   neo4j.page_cache.unpins.csv                 vm.gc.count.g1_young_generation.csv
+neo4j.bolt.messages_received.csv               neo4j.server.threads.jetty.all.csv          vm.gc.time.g1_old_generation.csv
+neo4j.bolt.messages_started.csv                neo4j.server.threads.jetty.idle.csv         vm.gc.time.g1_young_generation.csv
+neo4j.check_point.events.csv                   neo4j.transaction.active.csv                vm.memory.buffer.direct.capacity.csv
+neo4j.check_point.total_time.csv               neo4j.transaction.active_read.csv           vm.memory.buffer.direct.count.csv
+neo4j.cypher.replan_events.csv                 neo4j.transaction.active_write.csv          vm.memory.buffer.direct.used.csv
+neo4j.ids_in_use.node.csv                      neo4j.transaction.committed.csv             vm.memory.buffer.mapped.capacity.csv
+neo4j.ids_in_use.property.csv                  neo4j.transaction.committed_read.csv        vm.memory.buffer.mapped.count.csv
+neo4j.ids_in_use.relationship.csv              neo4j.transaction.committed_write.csv       vm.memory.buffer.mapped.used.csv
+neo4j.ids_in_use.relationship_type.csv         neo4j.transaction.last_closed_tx_id.csv     vm.memory.pool.code_cache.csv
+neo4j.log_rotation.events.csv                  neo4j.transaction.last_committed_tx_id.csv  vm.memory.pool.compressed_class_space.csv
+neo4j.log_rotation.total_time.csv              neo4j.transaction.peak_concurrent.csv       vm.memory.pool.g1_eden_space.csv
+neo4j.network.master_network_store_writes.csv  neo4j.transaction.rollbacks.csv             vm.memory.pool.g1_old_gen.csv
+neo4j.network.master_network_tx_writes.csv     neo4j.transaction.rollbacks_read.csv        vm.memory.pool.g1_survivor_space.csv
+neo4j.network.slave_network_tx_writes.csv      neo4j.transaction.rollbacks_write.csv       vm.memory.pool.metaspace.csv
+neo4j.page_cache.eviction_exceptions.csv       neo4j.transaction.started.csv               vm.thread.count.csv
+neo4j.page_cache.evictions.csv                 neo4j.transaction.terminated.csv            vm.thread.total.csv
+neo4j.page_cache.flushes.csv                   neo4j.transaction.terminated_read.csv
+----
+
+=== Location
+
+* In 2.x the default path for the .csv files is in `data/graph.db`
+* In 3.x the default path for the .csv files is in `$NEO4J_HOME/metrics`
+

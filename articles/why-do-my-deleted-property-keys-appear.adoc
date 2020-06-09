@@ -1,0 +1,31 @@
+= Why do my deleted property keys appear?
+:slug: why-do-my-deleted-property-keys-appear
+:author: Dana Canzano
+:neo4j-versions: 3.3, 3.4, 3.5
+:tags: properties, browser
+:public:
+:category: browser
+
+When using the Neo4j Browser and selecting the left frame and top icon entitled `Database Information` or using the built in
+stored procedure `db.propertyKeys()` you may see property keys which are no longer associated with any nodes.   This is expected.
+For example, using the Neo4j Browser and connecting to an empty graph, if one then runs `:play movies` one can populate the graph with
+a sample dataset.   After the graph is populated if one then runs `match (n) detach delete n;` this will remove all
+nodes/relationships from the graph.   +
+However both the Browser and the stored procedure will display the property keys from the movie graph, regardless if they are
+associated with any nodes, for example
+
+
+image::https://imgur.com/F4vcMTi.png[image,role="popup-link"]
+
+Unlike `labels` and `relationship types` which have underlying meta-data that report the number of objects for each, there is no 
+meta-data for property keys.
+
+If you need to remove the property keys your options are either
+
+
+a. recreate the graph +
++
+or +
++
+b. use https://github.com/jexp/store-utils which is an offline process to read a graph.db and copy its (contents, nodes, relationships) 
+to a new graph.db and only include propertyKeys associated with nodes

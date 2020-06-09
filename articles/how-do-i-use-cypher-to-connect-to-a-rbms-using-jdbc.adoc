@@ -1,0 +1,81 @@
+= How do I use Cypher to connect to a RDBMS using JDBC
+:slug: how-do-i-use-cypher-to-connect-to-a-rbms-using-jdbc
+:author: Dana Canzano
+:neo4j-versions: 3.0
+:tags: logging,server,database
+:public:
+:category: import-export
+
+With the inclusion of java stored procedures in Neo4j 3.x, one can run Cypher to connect to a RDBMS using JDBC.  
+To do so one needs to download and install https://github.com/neo4j-contrib/neo4j-apoc-procedures.
+
+After installation of the Neo4j APOC kit, download the respective RDBMS JDBC driver .jar and install into $NEO4J_HOME\plugins\.
+The respective JDBC driver can be obtained from the RDBMS vendor. For example: 
+
+[width="40%",frame="topbot",options="header,footer"]
+|======================
+|Vendor | Download location | JDBC jar file
+|http://https://www.mysql.com/[MySQL]      |  https://dev.mysql.com/downloads/connector/j/   | mysql-connector-java-5.1.34.jar
+|https://www.postgresql.org/[Postgres]   |  https://jdbc.postgresql.org/  | postgresql-9.4.1209.jar
+|http://www.oracle.com/[Oracle] | http://www.oracle.com/technetwork/database/features/jdbc/ | ojdbc7.jar   
+|======================
+
+
+
+After installing APOC and copying the RDBMS vendor .jar to $NEO4J_HOME\plugins\, restart Neo4j.
+
+The apoc.load.jdbc stored procedure is used to connect over JDBC and takes 2 arguments,namely:
+
+ connection string
+ SQL statement or table
+ 
+The 'connection string' is vendor specific and as such one should consult the RDBMS vendor for syntax.
+The 'SQL statement or table name' could be for example 'select * from movies' or simply 'movies'.   
+Usage of a single table name would result in 'select * from <table name>'
+
+
+The following example would connect to a mysql database named proddb1 as user root with password=football and select all movies from the 'movies' table where the studio column was defined to be 'MGM Studios'.
+Using this data we would then create nodes in Neo4j for all the movies meeting this criteria and define the title property.
+
+----
+CALL apoc.load.jdbc('jdbc:mysql://localhost:3306/proddb1?user=root&password=football','select title from movies where studio=\'MGM Studios\'') YIELD row
+CREATE (n:Movies {name:row.title})
+----
+
+If running the above results in error message similar to:
+
+----
+No suitable driver found for jdbc:mysql://localhost:3306/proddb1?user=root&password=football
+----
+
+you may need to first manually load the driver by calling:
+
+----
+call apoc.load.driver('com.mysql.jdbc.Driver')
+----
+
+where 'com.mysql.jdbc.Driver' is the class name for the MySQL JDBC driver.
+
+
+If you want to hide/alias the connection string, this can be accomplished by adding to the conf/neo4j.conf a parameter similar to:
+
+----
+apoc.jdbc.myalias.url=jdbc:mysql://localhost:3306/proddb1?user=root&password=football
+----
+
+and now the above Cypher can be rewritten as: 
+
+----
+CALL apoc.load.jdbc('myalias','select title from movies where studio=\'MGM Studios\'') YIELD row
+CREATE (n:Movies {name:row.title})
+----
+
+
+It should be noted that the `apoc.load.jdbc` call is simply providing connectivity back to the RDBMS over JDBC.  
+The second argument can be any SQL statement, and that includes a SQL statement that may modify the source database through an UPDATE, DROP, TRUNCATE, etc.
+If required, you might want to connect to the RDBMS with a user who only has SELECT privileges.
+
+
+Also when loading data from JDBC, be mindful of datatypes and any necessary conversions; for example whereas MySQL supports a native DATE datatype, Neo4j does not.  
+For example, to get the column with DATE data type, convert the value to a String when importing into Neo4j.
+

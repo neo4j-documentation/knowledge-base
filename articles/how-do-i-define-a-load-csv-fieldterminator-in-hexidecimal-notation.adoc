@@ -1,0 +1,34 @@
+= How do I define a LOAD CSV FIELDTERMINATOR in hexidecimal notation
+:slug: how-do-i-define-a-load-csv-fieldterminator-in-hexidecimal-notation
+:author: Dana Canzano
+:neo4j-versions: 2.3, 3.0
+:tags: load-csv
+:public:
+:category: cypher
+
+
+When using https://neo4j.com/docs/developer-manual/current/cypher/#query-load-csv[LOAD CSV] one can define the field delimiter used, 
+whereby the default is the ',' character.
+
+If you want to override the default this can be accomplished via the paramter FIELDTERMINATOR, for example
+
+----
+LOAD CSV WITH HEADERS from 'file:///actors.csv' as row
+FIELDTERMINATOR ';'
+RETURN row.name;
+----
+
+will read a file named actors.csv and expect each field is delimited by the semi-colon character ';'
+
+One can also define the FIELDTERMINATOR as a hexidecimal representation of its http://www.asciitable.com/[ASCII] character.  This can be 
+helpful if you have choosen a field delimiter as a non-printable character, for example
+
+----
+LOAD CSV WITH HEADERS from 'file:///actors.csv' as row
+FIELDTERMINATOR '\u0080'
+RETURN row.name;
+----
+
+the usage of '\u' as a FIELDTERMINATOR needs to be a 4 character zero padded value. In the above example the field terminator is now defined to be hexidecimal value 80, which is decimal character 128 of the ASCII extended characters and represents the cedilla character.
+
+

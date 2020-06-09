@@ -1,0 +1,188 @@
+= An example of neo4j-import steps in a Causal Cluster environment
+:slug: an-example-of-neo4j-import-steps-in-a-causal-cluster-environment
+:author: Dana Canzano
+:category: cluster
+:tags: import, causal-cluster, ha
+:neo4j-versions: 3.1
+
+The following steps are provided to describe how to use neo4j-import in a Causal Cluster environment and was run from an 
+environment of a single linux host with 3 copies for Neo4j 3.1.2 installed in the following paths
+
+----
+~/HA/ha1/neo4j-enterprise-3.1.2
+~/HA/ha2/neo4j-enterprise-3.1.2
+~/HA/ha3/neo4j-enterprise-3.1.2
+----
+
+This is similar to the instructions for https://neo4j.com/docs/operations-manual/current/tutorial/local-causal-cluster/[Set up a local Causal Cluster]
+
+- validated a Causal Cluster would form (after configuring `$NEO4J_HOME/cond/neo4j.conf`) and ran 
+
+----
+~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j start; ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j start; 
+~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j start
+----
+
+this assumes the default database of graph.db
+
+Since starting a Causal Cluster takes a number of configurations I wanted to insure that it would at least start 
+and with an empty database.
+
+- stopped the causal cluster by by running
+
+----
+ ~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j stop;  ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j stop;
+ ~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j stop
+----
+
+which produced the following output
+ 
+----
+Stopping Neo4j..................................... stopped
+Stopping Neo4j.................................... stopped
+Stopping Neo4j..................................... stopped
+----
+
+- unbound each of the 3 causal cluster databases. (this is not necessary if you skip #1 and #2 but if you have failure
+further on with getting the cluster to form then you need to sort out if it is a cluster configuration issue or something about
+the database import). Further unbind is detailed 
+https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/setup-new-cluster/#unbind-instance-from-cluster[here]
+
+----
+neo4j@neo4j-CoreEdge:~/HA/ha2/neo4j-enterprise-3.1.2/conf$ ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j-admin unbind --database=graph.db
+neo4j@neo4j-CoreEdge:~/HA/ha2/neo4j-enterprise-3.1.2/conf$ ~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j-admin unbind --database=graph.db
+neo4j@neo4j-CoreEdge:~/HA/ha2/neo4j-enterprise-3.1.2/conf$ ~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j-admin unbind --database=graph.db
+----
+
+- created ~/HA/ha1/neo4j-enterprise-3.1.2/importer and added 3 files namely actors.csv, movies.csv, roles.csv and they are defined with
+content detailed https://neo4j.com/docs/operations-manual/current/tutorial/import-tool/[here]
+
+- ran neo4j-import and loaded the data into ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer
+
+----
+~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j-import --into ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer --nodes ~/HA/ha1/neo4j-enterprise-3.1.2/importer/movies.csv --nodes ~/HA/ha1/neo4j-enterprise-3.1.2/importer/actors.csv --relationships ~/HA/ha1/neo4j-enterprise-3.1.2/importer/roles.csv
+----
+
+and this produced the following output
+
+----
+WARNING: neo4j-import is deprecated and support for it will be removed in a future
+version of Neo4j; please use neo4j-admin import instead.
+
+Neo4j version: 3.1.2
+Importing the contents of these files into /home/neo4j/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer:
+Nodes:
+  /home/neo4j/HA/ha1/neo4j-enterprise-3.1.2/importer/movies.csv
+
+  /home/neo4j/HA/ha1/neo4j-enterprise-3.1.2/importer/actors.csv
+Relationships:
+  /home/neo4j/HA/ha1/neo4j-enterprise-3.1.2/importer/roles.csv
+
+Available resources:
+  Free machine memory: 5.01 GB
+  Max heap memory : 1.47 GB
+  Processors: 1
+
+Nodes
+
+Done in 100ms
+Prepare node index
+
+Done in 26ms
+Calculate dense nodes
+
+Done in 43ms
+Node --> Relationship Sparse
+
+Done in 10ms
+Relationship --> Relationship Sparse
+
+Done in 11ms
+Minority relationships
+
+Done in 32ms
+Count groups
+
+Done in 10ms
+Gather
+
+Done in 11ms
+Write
+
+Done in 10ms
+Node --> Group
+
+Done in 11ms
+Node counts
+
+Done in 53ms
+Relationship counts
+
+Done in 11ms
+
+IMPORT DONE in 1s 881ms.
+Imported:
+  6 nodes
+  0 relationships
+  15 properties
+Peak memory usage: 7.63 MB
+----
+
+- updated each of the 3 `$NEO4J_HOME/conf/neo4j.conf` and defined the
+
+----
+# The name of the database to mount
+dbms.active_database=graph.db.importer
+----
+
+as this represents the name of the database prepared from neo4j-import.
+
+- copy the graph.db.importer from instance 1 to instance 2 and 3 via a 
+----
+cp -R ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer ~/HA/ha2/neo4j-enterprise-3.1.2/data/databases/graph.db.importer
+cp -R ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer ~/HA/ha3/neo4j-enterprise-3.1.2/data/databases/graph.db.importer
+----
+
+- start all 3 instances as follows
+
+----
+~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j start;  ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j start; 
+~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j start
+----
+
+which produces the following output
+
+----
+Starting Neo4j.
+Started neo4j (pid 3976). It is available at http://0.0.0.0:7414/
+There may be a short delay until the server is ready.
+See /home/neo4j/HA/ha1/neo4j-enterprise-3.1.2/logs/neo4j.log for current status.
+Starting Neo4j.
+Started neo4j (pid 4040). It is available at http://0.0.0.0:7424/
+There may be a short delay until the server is ready.
+See /home/neo4j/HA/ha2/neo4j-enterprise-3.1.2/logs/neo4j.log for current status.
+Starting Neo4j.
+Started neo4j (pid 4104). It is available at http://0.0.0.0:7434/
+There may be a short delay until the server is ready.
+See /home/neo4j/HA/ha3/neo4j-enterprise-3.1.2/logs/neo4j.log for current status.
+----
+
+
+
+ran `match (n) return n limit 10` on each of the 3 instances and all reported a total of 6 nodes, which corresponds to the
+output of neo4j-import which reports
+
+----
+Imported:
+  6 nodes
+  0 relationships
+  15 properties
+----
+
+- From the leader I ran
+
+----
+create (n:Tester {id:105});
+----
+
+and validated it was created on the leader as well as the followers.

@@ -1,0 +1,67 @@
+= Achieving longestPath Using Cypher
+:slug: achieving-longestpath-using-cypher
+:author: Dave Gordon
+:category: cypher
+:tags: cypher, path, apoc
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
+:public:
+
+While Cypher is optimized for finding the shortest path between two nodes, with such functionality as `shortestPath()`, 
+it does not have the same sort of function for longest path. In some cases, you may want this, and not the shortest route.
+
+
+==== Root to leaf in a tree
+
+If you had a tree structure you wanted to do the longest path between a root node and a leaf node, and you don't know how many
+there are in between:
+
+[source,cypher]
+----
+MATCH p=(parent:Root)-[r:HAS_CHILD*1..10]->(child:Node)
+RETURN p
+----
+
+The problem with this is that it will give you all paths, one for each hop, until you get to the leaf node. What you want is just 
+the longest path to see how the parent and leaf child are connected. To do this efficiently, do the following:
+
+[source,cypher]
+----
+MATCH p=(parent:Root)-[:HAS_CHILD*1..10]->(child:Node)
+WHERE NOT (child)-[:HAS_CHILD]->()
+RETURN p
+----
+
+What the above query is doing: The variable length 1..10 will find all paths (there should be only one), for any Parent-Child path that spans at most 10 hops.
+The WHERE clause is needed to filter the paths to only those where the leaf child nodes have no outgoing :HAS_CHILD relationships (i.e. it finds the end of the chain).
+
+
+==== Longest path when there are multiple paths present
+
+If not using an acyclic tree structure, you may have several paths between two nodes, and you may want to get just the longest.
+We can do this by ordering by path length and only taking the longest path:
+
+[source,cypher]
+----
+MATCH p=(start:Node)-[:REL*1..10]->(end:Node)
+WHERE id(start) = 123 AND id(end) = 456
+RETURN p
+ORDER BY length(p) DESC
+LIMIT 1
+----
+
+
+==== Tips for making these queries more efficient
+
+With a fairly well connected graph, variable-length path queries like this may get increasingly expensive. Here are some tips to keep these performant.
+
+1. Constrain relationship type and direction - If possible, use only the relevant types needed, and use a directed relationship.
+This may cut down on the paths followed during expansion.
+
+2. Supply an upper bound for the variable-length pattern - Patterns without bounds may get out of hand in a well connected graph.
+Setting an upper bound can help constrain the work the query needs to perform.
+
+3. Use `all()` or `none()` in the WHERE clause following the MATCH -
+If predicates need to be evaluated during expansion, and they must apply to all nodes or relationships in the path, use `all()` or `none()` on the nodes or relationships from the path to evaluate during expansion rather than filtering after all paths are found.
+
+4. Use APOC path expanders for special cases or restrictions -
+For certain restrictions, such as not repeating nodes during expansion, you may want to use path expander procs from https://neo4j-contrib.github.io/neo4j-apoc-procedures/[APOC Procedures] to enforce different configurations of uniqueness during expansion.

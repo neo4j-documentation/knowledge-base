@@ -1,0 +1,33 @@
+= Startup failure due to misconfigured unmanaged extensions or plugins
+:slug: hosting-multiple-neo4j-instances-on-one-machine
+:author: Umar Muzammil
+:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:tags: unmanaged, extension, plugin, startup
+:public:
+:category: operations
+
+Occassionally, following upgrades, one might encounter Neo4j server initialisation failure due to an exception similar to:
+
+----
+2019-11-14 12:57:40.446+0000 ERROR Failed to start Neo4j: 
+Starting Neo4j failed: Component 'org.neo4j.server.AbstractNeoServer$ServerComponentsLifecycleAdapter@7f7eeaaf' was successfully
+initialized, but failed to start. Please see the attached cause exception "The ResourceConfig instance does not contain any root
+resource classes.". Starting Neo4j failed: Component 'org.neo4j.server.AbstractNeoServer$ServerComponentsLifecycleAdapter@7f7eeaaf' 
+was successfully initialized, but failed to start. Please see the attached cause exception "The ResourceConfig instance does not
+contain any root resource classes.".
+----
+
+This exception is usually thrown in following situations:
+
+When the plugins directory (by default set to $NEO4J_HOME/plugins), contains an invalid plugin JAR.
+When the JAR no longer corresponds to the newly upgraded Neo4j version.
+When the path defined by `dbms.unmanaged_extension_classes` is invalid or unreachable.
+When the unmanaged extension hosted at the path does not contain the required resource classes as highlighted by the exception.
+
+
+If using plugins (Neo4j or custom), e.g. using apoc, ensure that there is only one plugin version compatible with the currently
+installed Neo4j version. 
+
+Further, assuming that the present use of any configured unmanaged extensions is not required. Simplest workaround to achieve 
+server initialisation, halted by the above exception, is to comment this setting in neo4j.conf as `#dbms.unmanaged_extension_classes`.
+If the extension is indeed required, the configuration path and permissions must then be verified and finally the presence of the classes required for the extension to work.

@@ -1,0 +1,14 @@
+.idea
+*.iml
+*.ipr
+*.iws
+target
+*.class
+*.db
+neostore.*
+.env
+.DS_Store
+articles/kb-book.pdf
+articles/kb-book.txt
+articles/kb-book.html
+articles/book

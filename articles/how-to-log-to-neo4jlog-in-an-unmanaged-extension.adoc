@@ -1,0 +1,47 @@
+= How to log to neo4j.log in an Unmanaged Extension
+:slug: how-to-log-to-neo4jlog-in-an-unmanaged-extension
+:author: Dave Gordon
+:neo4j-versions: 3.0, 3.1
+:tags: java api, logging, extension
+:public:
+:category: development
+
+As part of the major changes in 3.0, the way to log to the user log, now neo4j.log (in server mode), has changed. To log within an Unmanaged Extension is quite straightforward:
+
+. Include this package: `import org.neo4j.logging.Log;`
+
+. In the method for the Unmanaged Extension, include `@Context Log log` as an argument:
+
+----
+@GET
+@Path("/friendOfFriend/{userId}")
+public Response getFofs(@PathParam("userId") String userId, @Context GraphDatabaseService db, @Context Log log) throws IOException {
+----
+
+. Now log using the appropriate method for the `log` object:
+
+----
+       // Method variables
+
+        try (Transaction tx = db.beginTx()) {
+           	// Get the user node
+            final Node user = db.findNode(Labels.Person, "userId");
+            // Let's write that to neo4j.log!
+            log.info("Found user node: " + user.toString());
+            
+            // Code to find fofs, and build result set formatted
+        }
+
+        // Return results, which are contained in method variable "results"
+        return Response.ok().entity(objectMapper.writeValueAsString(results)).build();
+        // Let's write to neo4j.log again!
+        log.debug("We are all done!");
+}
+----
+
+We get a log that contains lines like this:
+
+----
+2016-12-05 17:33:21.223+0000 INFO  Found user node: Node[63564]
+2016-12-05 17:33:21.345+0000 DEBUG  We are all done!
+----

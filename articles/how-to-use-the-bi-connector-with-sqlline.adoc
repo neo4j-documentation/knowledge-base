@@ -1,0 +1,57 @@
+= How to use the BI Connector on the Command Line
+:slug: how-to-use-the-bi-connector-with-sqlline
+:author: Shashi Dookhee
+:neo4j-versions: 3.5, 4.0
+:tags: jdbc, sql, tableau, visualization, bi-connector
+:public:
+:category: tools
+
+This article describes how to use the BI Connector integration with SQLLine.
+
+== Prerequisites
+
+Ensure that you are running Neo4j server 3.5.x or 4.x, and have installed at least version 3.5.0.9 or 4.0.0.4 of the APOC library respectively.
+
+== Building SQLLine
+
+Build the SQLLine package from source:
+
+----
+git clone https://github.com/julianhyde/sqlline.git
+cd sqlline
+mvn package
+----
+
+SQLLine comes with a shell script that knows how to launch it correctly. But before we run it directly, make sure that we have our Neo4j BI Connector JAR file in the right place. In this example, we’ll assume it’s in the SQLLine target folder (where the source build placed its JAR files) because that way it will automatically be on the classpath.
+
+
+== Configuring connection
+
+Set the environment variables for connection:
+
+----
+export URL="jdbc:neo4j://localhost:7687"
+export DRIVER=com.simba.neo4j.jdbc.Driver
+----
+
+== Connecting to the database
+
+Perform the connection:
+
+----
+$ bin/sqlline -d "$DRIVER" -u "$URL"
+Enter username for jdbc:neo4j://localhost:7687: neo4j
+Enter password for jdbc:neo4j://localhost:7687: *****
+Feb 06, 2020 7:56:55 AM com.simba.neo4j.shaded.neo4j.driver.internal.logging.JULogger info
+INFO: Direct driver instance 1540374340 created for server address localhost:7687
+----
+
+== Verifying connection
+
+Use the "!tables" command at the SQL prompt to get a list of tables. Perform a select query to verify the connection:
+
+image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/bi-connector/how-to-use-the-bi-connector-with-sqlline/fetching.png[Fetch Data]
+
+== Things to watch out for
+
+For performance reasons ensure that the Neo4j server has adequate resources. The driver may "overfetch" data depending on the query, so adequate resources (especially memory) would make a noticeable impact.

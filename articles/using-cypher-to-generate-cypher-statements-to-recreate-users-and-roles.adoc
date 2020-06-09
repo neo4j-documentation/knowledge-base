@@ -1,0 +1,51 @@
+= Using Cypher to generate Cypher statements to recreate Users and Roles
+:slug: using-cypher-to-generate-cypher-statements-to-recreate-users-and-roles
+:author: Dana Canzano
+:neo4j-versions: 3.1
+:tags: user, role, schema
+:public:
+:category: operations
+
+
+The following can be used to extract user and role defintions from an existing database and the resultant output can be played
+back on another Neo4j database.  
+
+
+----
+//export roles
+return '//export Roles' as output
+union all
+call dbms.security.listRoles() yield role return 'call dbms.security.createRole(\'' + role + '\');' as output
+union all 
+//export users
+return '//export Users' as output
+union all
+call dbms.security.listUsers() yield username return 'call dbms.security.createUser(\'' + username + '\',\'newpassword\');' as output
+union all
+// export user to role maps
+return '//export Roles to User map' as output
+union all
+call dbms.security.listRoles() yield role,users with role,users unwind users as user return 'call dbms.security.addRoleToUser(\'' + role + '\',' + user + '\');'  as output
+----
+
+The resultant output will default all users passwords to 'newpassword' and the user will be required to change their password on initial
+log on.
+Sample output is as follows: 
+
+----
+//export Roles
+call dbms.security.createRole('reader');
+call dbms.security.createRole('architect');
+call dbms.security.createRole('admin');
+call dbms.security.createRole('publisher');
+//export Users
+call dbms.security.createUser('neo4j_dba','newpassword');
+call dbms.security.createUser('neo4j','newpassword');
+//export Roles to User map
+call dbms.security.addRoleToUser('admin',neo4j');
+call dbms.security.addRoleToUser('admin',neo4j_dba');
+----
+
+
+The approach used above is similar to related knowledgebase document "Using Cypher to generate Cypher statements to recreate
+indexes and constraints"

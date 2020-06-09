@@ -1,0 +1,89 @@
+= Limiting Bolt Threads vs Connections
+:slug: limiting-bolt-threads-vs-connections
+:author: Umar Muzammil
+:neo4j-versions: 3.4, 3.5
+:tags: cpu, core, pid, thread, bolt, connection
+:public:
+:category: server
+
+Given high levels of read/write transaction requests, some ingress transactions may be rejected by the Neo4j server and the 
+below error may be reported in the Neo4j debug.log:
+
+----
+ERROR [o.n.b.r.MetricsReportingBoltConnection] Unable to schedule bolt session <session_id> for execution since there are no 
+available threads to serve it at the moment. You can retry at a later time or consider increasing max thread pool size for 
+bolt connector(s). Task java.util.concurrent.CompletableFuture$AsyncSupply@9bde0657 rejected from 
+org.neo4j.bolt.runtime.CachedThreadPoolExecutorFactory$ThreadPool@95fe540f[Running, pool size = 400, active threads = 400, 
+queued tasks = 0, completed tasks = 197942]
+----
+
+Whilst the above suggested bolt thread pool size, is configurable in neo4j.conf, one might expect the total number of bolt 
+connections to be equal to  active + idle bolt connections (as reported by metrics neo4j.bolt.connections_running and 
+neo4j.bolt.connections_idle), to always add up to less than the configured value of `dbms.connector.bolt.thread_pool_max_size`. 
+This however, is a misconception, which this article aims to address.
+
+Difference between a bolt thread and a bolt connection:
+=======================================================
+
+A bolt thread is a process executor part of the cpu allocated by the Neo4j server to execute a given task. A bolt connection is
+a request placed _to_ the Neo4j server, _from_ a client driver session. In a JVM server, acceptor threads on a listen socket accept 
+connections and put them into a connection queue. Request processing threads in a thread pool then pick up connections from the
+queue and service the requests. In the thread-per-request model, the thread is only associated while a request is being processed, 
+i.e. the service needs fewer threads to handle the same number of client connections. Since threads use significant resources, 
+that means that the service will be more scalable.
+
+The `dbms.connector.bolt.thread_pool_max_size` metric reports the maximum size of the bolt _thread_ pool, where limiting the 
+thread pool does not limit the total number of _connections_. A thread can handle numerous connections. The bolt thread pool size only limits how many bolt threads, neo4j server can concurrently handle. 
+If a connection is inactive, then no thread is assigned to that connection. Currently there is no limit for idle connections 
+on server. A _connection_ pool size limit is however configurable at the client during driver creation. Since by default there 
+is no upper limit for connections, the driver connection pool size can rise to the total available connections on the machine's
+CPU.
+
+What are idle bolt connections?
+===============================
+
+The metric name `neo4j.bolt.connections_idle` may suggest that the idle bolt connections are those opened up by a completed bolt 
+transaction but once that transaction completes, the thread is kept in an open but idle state till its closed off by the thread pool.
+
+Above is a misconception,  since setting `dbms.connector.bolt.thread_pool_max_size` in neo4j.conf, limits the peak concurrent thread's 
+connections that are being worked on (represented by the neo4j.bolt.connections_running metric). Yet idle connections, which are _not_ 
+being worked on, are _not_ limited by this config. A thread pool configuration (server side) cannot be used to regulate connections 
+(client side).
+
+
+Why is the idle connections metric named neo4j.bolt.connections_idle?
+=====================================================================
+
+Becuase those connections are established by drivers and drivers reuse connections over a driver's lifetime. The bolt connection 
+pool is a driver configuration. Thread pool is a server configuration to specify what it is the peek capacity to handle jobs from
+connections. If a connection has no jobs, then it is idle _on client side_. The server does not control these idle connections. Only driver can 
+close them. Further, the server does not have an upper limit of connection count and idle connections should not contribute to cpu
+usage.
+
+
+How might one control the maximum number of connections opened by the client side driver?
+=========================================================================================
+
+Driver connection limitations are configurable via the `MaxConnectionPoolSize`, MaxConnectionLifetime and ConnectionAcquisitionTimeout
+parameters. An example configuration for the Neo4j Java driver would be:
+
+----
+Config config = Config.builder()
+            .withMaxConnectionLifetime( 30, TimeUnit.MINUTES )
+            .withMaxConnectionPoolSize( 50 )
+            .withConnectionAcquisitionTimeout( 2, TimeUnit.MINUTES )
+            .build();
+    driver = GraphDatabase.driver( uri, AuthTokens.basic( user, password ), config );
+
+----
+
+
+References:
+
+https://neo4j.com/docs/operations-manual/4.0/performance/bolt-thread-pool-configuration/#_how_thread_pooling_works
+
+
+https://docs.oracle.com/cd/E19146-01/821-1834/gdpil/index.html
+
+
+https://stackoverflow.com/questions/15217524/what-is-the-difference-between-thread-per-connection-vs-thread-per-request

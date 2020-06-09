@@ -1,0 +1,104 @@
+= How do I compare two graphs for equality
+:slug: how-do-i-compare-two-graphs-for-equality
+:author: Dana Canzano
+:twitter:
+:neo4j-versions: 3.0
+:tags: apoc
+:public:
+:category: cypher
+
+If you are looking to compare 2 graphs (or sub-graphs) to determine if they are equivalent, the following Cypher will produce a md5sum of the nodes and properties to make that comparison. For example, you may wish to compare a test/QA instance with a production instance.
+
+Neo4j 3.1 forward
+
+[source,cypher]
+----
+MATCH (n:Movie)
+WITH n
+ORDER BY n.title
+WITH collect(properties(n)) AS propresult
+RETURN apoc.util.md5(propresult);
+----
+
+pre 3.1
+[source,cypher]
+----
+MATCH (n:Movie)
+WITH n
+ORDER BY n.title
+WITH collect(properties(n)) AS propresult
+CALL apoc.util.md5(propresult) YIELD value AS md5_property
+RETURN md5_property
+----
+
+and when run against the default Movie Graph which includes 38 nodes with a label of Movie, this returns:
+
+----
+md5_property                              
+3f8d4737d078783e12f7cf57a207dd67            
+----
+
+The above Cypher requires the installation of the http://neo4j-contrib.github.io/neo4j-apoc-procedures/[apoc stored procedures] set.
+
+In the above example, we are examining all nodes with the label *:Movie* and producing a md5sum of all properties those nodes, using that sum to produce a https://en.wikipedia.org/wiki/Md5sum[md5sum hash].
+
+To get correct results we need to order the nodes by a property value that is both defined for each node and unqiue. For this reason 
+you might want to use a property that is defined as a
+https://neo4j.com/docs/developer-manual/current/cypher/#constraints-create-node-property-existence-constraint[property existence constraint] and https://neo4j.com/docs/developer-manual/current/cypher/#query-constraints-unique-nodes[unique property constraint].
+
+For example if the *:Movie* nodes had multiple nodes with the same title property, and since the Cypher above is ordering by n.title, 
+then the results are passed to the md5 stored procedure in the order they are found. This is typically based upon the order the nodes were created. If you had two *:Movie* nodes with `title='The Matrix'` created with the following Cypher:
+
+[source,cypher]
+----
+CREATE (n:Movie {title:'The Matrix', genre:'Sci-Fi'})
+CREATE (n1:Movie {title:'The Matrix', genre:'Action'})
+----
+
+then simply running the Cypher to produce the md5 hash will produce a md5_property of:
+
+----
+md5_property
+5bc18a680ef59ba09466da4217166d30
+----
+
+However, if you reversed the order of the CREATE statements, like this:
+
+[source,cypher]
+----
+CREATE (n1:Movie {title:'The Matrix', genre:'Action'})
+CREATE (n:Movie {title:'The Matrix', genre:'Sci-Fi'})
+----
+
+the result of the same md5 hashing Cypher will yield a different md5_property:
+
+----
+md5_property
+c3c565b45457d2182731050e0cbab221
+----
+
+In the above example, so as to get the correct md5 values, regardless of the order of the creates, we need to run Cypher which
+will return data in a guarenteed order, using an ORDER BY clause:
+
+[source,cypher]
+----
+MATCH (n:Movie)
+WITH n
+ORDER BY n.name, n.genre
+WITH collect(properties(n)) AS propresult
+CALL apoc.util.md5(propresult) YIELD value AS md5_property
+RETURN md5_property
+----
+
+which will always return:
+
+----
+md5_property                               
+c3c565b45457d2182731050e0cbab221            
+----
+
+
+*NOTE: Additionally, we cannot simply collect(n) (i.e. the entire node) for internally it includes the internal
+node id (a unique internal identifier).*
+
+If you run the same Cypher on two separate environments and get the same md5 sums, the nodes can be proven to be the same in terms of defintion of labels and proerties.

@@ -1,0 +1,39 @@
+= How do i configure Neo4j so that data/graph.db/messages.log is automatically rotated
+:slug: how-do-i-configure-neo4j-so-that-data-graph-db-messages-log-is-automatically-rotated
+:zendesk-id: 215574128
+:author: Dana Canzano
+:tags: server,configuration
+:public:
+:neo4j-versions: 2.3
+:category: operations
+
+As tested and verified with Neo4j 2.3.0, the `data/graph.db/messages.log`, its size and number of rotated archives is governed by the following parameters in the `conf/neo4j.properties` file
+
+[width="100%",cols="34%,33%,33%",]
+|====
+|*Name* |*Description* |*Default*
+
+|http://neo4j.com/docs/stable/configuration-settings.html#config_store.internal_log.max_archives[store.internal_log.max_archives]
+|Maximum number of history files for the internal log. |7
+
+|http://neo4j.com/docs/stable/configuration-settings.html#config_store.internal_log.rotation_threshold[store.internal_log.rotation_threshold]
+|Threshold for rotation of the internal log. |20MB 
+|====
+
+// what's up with the ellipses?
+With the above default parameters one should expect to see no `data/graph.db/messages.log` exceed 20MB and we will keep up to 7 archives, namely `data/graph.db/messages.log.1`, `data/graph.db/messages.log.2` ... `data/graph.db/messages.log.7`.
+
+If you wish to change the defaults the `conf/neo4j.properties` file would need to include the new values for
+
+----
+store.internal_log.max_archives=<N number of archives>
+----
+// what's up with this line below? Why is the line above in a block and this one not?
+store.internal_log.rotation_threshold=< # of bytes before the file is
+rotated>
+
+and then issue a `bin/neo4j restart` for the new parameters to take effect.
+
+Prior to 2.3.0 one would need to use the linux built in functionality of `logrotate`
+
+

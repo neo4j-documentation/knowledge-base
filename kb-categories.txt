@@ -1,0 +1,90 @@
+
+these categories are mostly for pushing content to the new community.neo4j.com discourse forum
+in the asciidoc files there is a new variable
+
+:category: operations
+
+in case there is a different title in the UI, e.g. with spaces or special characters it's listed in parentheses
+category names will automatically be treated as lower-case
+
+
+== graph-platform (graph platform)
+
+etl
+procedures-apoc (procedures & apoc)
+desktop
+cypher
+cloud
+graph-algorithms (graph algorithms)
+operations
+import-export (import / export)
+installation
+modeling
+visualization
+cluster
+browser
+server
+documentation
+
+== integrations
+
+databases (other databases)
+orchestration
+stream-processing (stream processing)
+ai-ml-nlp (ai, ml, nlp)
+geospatial
+bi-visualization (bi & visualization)
+docker
+security
+environment
+
+
+development
+support
+performance
+modeling
+
+== drivers (drivers & stacks)
+
+python
+java
+spring-data-neo4j (spring data neo4j)
+javascript
+net=.net
+graphql-grandstack (graphql & grandstack)
+r
+go
+php
+ruby
+
+
+== Tags 
+
+can be selected from these lists, but also added to
+
+----
+procedures,gql,opencypher,merge,load-csv,parameters,quotes,constraint,temporal,query,property-keys,planning,match,delete,counts,where,functions,unwind,union,timezone,start,shortest-path,schema-index,profile,explain,path,optional,limit,intersection,hexadecimal,grouping,fulltext,conditional,cardinality,delimiter,metadata,cancel,cardinality,refactoring
+zoom,undefined,chrome,firefox,internet-explorer,edge,browser,sysinfo
+master,slave,leader,follower,read-replica,raft,causal-cluster,routing,multi-datacenter,ha,core,election,heartbeat,advertised-address,multi-database
+http,bolt,https,websocket,version,user-agent,url,ports,plugin,load-balancer,extension,enterprise,webserver,tunnel,network,service,service-id,nat,ip-address,hostname,host,rest,ha-proxy,server,unmanaged,plugin
+connection,bookmark,bolt,java,javascript,python,dotnet,timeout
+graph-apps
+
+graph-data-science,dijkstra,louvain,pagerank,wcc,scc,similarity
+tls,ssl,authentication,user,password,samaccountname,permissions,ldap,encryption,authorization,account,suspend,role,rbac,password-reset,cipher,certificate,activate
+sql,tableau,jdbc,csv,bi-connector,json,upload,download,s3,rdbms,linkurious
+
+linux,osx,windows,kubernetes,docker,unix,debian,ubuntu,cloud
+installation,backup,export,import,upgrade,configuration,logging,monitoring,consistency,startup,transaction-log,recovery,shutdown,query-log,pid,log,jmx,exception,error,dump,disk-space,cli,access-log,warning,tmp,segment,rpm,read-committed,pruning,plan-cache,permission-denied,open-files,noexec,neo4j.conf,migration,metrics.csv,heap-dump,growth,store-format,permissions,edition,deployment,debug.log,compaction,checkpoint,lucene,performance,etl,record-id,logs,cypher,offline,restore,troubleshooting,file-system,version,exception,scaling
+zendesk,trello,subscribe,sftp
+indexing,memory,disk,transaction,heap,page-cache,store,jvm,writes,oom,garbage-collection,filesystem,embedded,cpu,cache,warmup,thread,storage,lock,latency,hardware,deadlock,commit,java-api,workload
+schema,relationships,nodes,label,property,compare
+
+aura,aws,gcp,azure,pks
+get-started,introduction,app-development
+apoc,n10s,halin,soundex
+cypher-shell,neo4j-admin,etl-tool,maven,cli,shell,rsync,neo4j-shell,intellij,consistency-check,neo4j-import
+etl
+
+dependencies,visualization,debug
+----

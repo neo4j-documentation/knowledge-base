@@ -1,0 +1,31 @@
+= Access to the neo4j-shell in NEO4J CE 3.x
+:author: Michael Hunger
+:slug: using-neo4j-shell-neo4j-ce-3x
+:neo4j-versions: 3.0
+:tags: import,shell,cypher
+:public:
+:category: operations
+
+From Neo4j 3.0 access to `neo4j-shell` is no longer possible from the desktop-installers for Windows and OSX.
+
+To use `neo4j-shell`, you have to download the TAR/ZIP distribution from: http://neo4j.com/download/other-releases/
+
+For importing files that contain semicolon separated cypher commands, you can also use:
+
+* http://www.lyonwj.com/LazyWebCypher/[LazyWebCypher, a web based tool]
+* https://github.com/nicolewhite/cycli[CyCli-Shell (Python)] (`pip install cycli`)
+* https://cleishm.github.io/libneo4j-client/[libneo4j-client (Ansi-C)]
+
+
+The http://hub.docker.com/_/neo4j[official Neo4j-Docker image] can also come handy.
+
+----
+docker pull neo4j
+CONTAINER=$(docker run -d --name neo4j -p 7474:7474 -v /path/to/data:/data -v /path/to/csv-files:/var/lib/neo4j/import neo4j)
+echo "Running Neo4j as $CONTAINER, waiting for startup"
+sleep 10
+# to import a file from `/path/to/csv-files/import.cypher`
+docker exec $CONTAINER /var/lib/neo4j/bin/neo4j-shell -f /var/lib/neo4j/import/import.cypher
+# or for interactive mode
+docker exec -ti $CONTAINER /var/lib/neo4j/bin/neo4j-shell
+----

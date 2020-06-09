@@ -1,0 +1,180 @@
+= Analyzing a java heap dump
+:slug: analyzing-a-java-heap-dump
+:author: Jérémie Phoulchand
+:category: operations
+:tags: heap-dump, out-of-memory, monitoring
+:neo4j-versions: 3.4, 3.5
+:public:
+
+The purpose of this article is to help you go through the acquired heapdump with Eclipse MAT. It covers how to parse a large heap files and what to look for.
+
+When you experience an OutOfMemory exception, it will produce a .hprof file if you have the below settings in the neo4j.conf file:
+
+----
+dbms.jvm.additional=-XX:+HeapDumpOnOutOfMemoryError
+
+----
+
+Note: You can also add tweak the below settings to specify the directory path but ensure that you have enough disk space when such error occurs.
+
+----
+dbms.jvm.additional=-XX:HeapDumpPath=/var/tmp/dumps
+dbms.jvm.additional=-XX:OnOutOfMemoryError="tar cvzf /var/tmp/dump.tar.gz /var/tmp/dump;split -b 1G /var/tmp/dump.tar.gz;"
+----
+
+This file is the image of the heap part of the java process running on your system. The structure of the file depends on the JVM vendor you are running neo4j with.
+
+Oracle JDK, Open JDK will produce hprof files and can be analyzed with most available tools.
+For IBM heap dumps, you need to parse it with IBM heap analyzer or other proprietary tool.
+
+
+== Change the settings in MemoryAnalyzer.ini 
+
+=== On your local environment
+
+You need to allocate as much memory to the process as heap dump filesize you have.
+
+*IE: allocate 17GB if the heap is about 15GB.* 
+
+For large heap dumps (> 25G), see next section. 
+
+Edit MemoryAnalyzer.ini (on macOS, it is located in /Applications/mat.app/Contents/Eclipse/MemoryAnalyzer.ini)
+
+Add or change the settings:
+
+----
+-Xms10G
+-Xmx25G
+----
+
+=== On a remote machine
+
+It's better to upload it to an instance with a lot of disk and RAM on AWS/GCP/etc. 
+If you choose AWS, use a https://aws.amazon.com/ec2/spot/pricing/[spot instance].
+
+Then you need to attach the https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-using-volumes.html[EBS storage], create a 250GB volume, attach it to the EC2 instance.
+Format the volume and mount it on your Amazon Linux instance.
+
+Note down both instanceid and storageid to make sure the ressource have properly been discarded after usage.
+
+If the heap is about 61GB, you need twice as much disk space for parsing. As illustrated below:
+
+----
+$ du -ch java_pid19820*
+116M	java_pid19820.a2s.index
+5.6G	java_pid19820.domIn.index
+ 17G	java_pid19820.domOut.index
+ 61G	java_pid19820.hprof #original heap dump
+256K	java_pid19820.i2sv2.index
+ 11G	java_pid19820.idx.index
+ 29G	java_pid19820.inbound.index
+197M	java_pid19820.index
+4.5G	java_pid19820.o2c.index
+ 12G	java_pid19820.o2hprof.index
+ 11G	java_pid19820.o2ret.index
+ 29G	java_pid19820.outbound.index
+988K	java_pid19820.threads
+ 68K	java_pid19820_Component_Report_sel.zip
+180G	total
+----
+0. Pre-requisite Install java and make sure to have 250GB space available
+1. Download MemoryAnalyzer tool for linux: https://www.eclipse.org/mat/downloads.php[download]
+2. Unzip it in a directory
+3. Edit MemoryAnalyzer.ini to adjust both -Xms and -Xmx memory settings :
+----
+-startup
+plugins/org.eclipse.equinox.launcher_1.5.0.v20180512-1130.jar
+--launcher.library
+plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.700.v20180518-1200
+-vmargs
+-Xms30G
+-Xmx100G
+----
+
+=== Parse the file on a remote machine
+This step is optional if you run Eclipse MAT on your local machine and have enough resources.
+The index files will be created when opening the heapdump file if they are missing.
+
+==== Run ./ParseHeapDump.sh heapdump.hprof
+
+It is located in the folder mat of Eclipse Mat tar.gz installation file 
+
+==== Synchronize your local directory with the remote one
+
+To speed up things, you can use rsync over ssh.
+The advantage is that you can recover if you have a crash and -z flag enables compression.
+
+Example:
+----
+#on the remote machine
+mkdir ${REMOTE_DIR}/parsed_files
+mv *.index ${REMOTE_DIR}/parsed_files/
+
+#on your local machine
+rsync -P  -e "ssh -i ${PATH_TO_KEY}"  ec2-user@${REMOTE_IP}:${REMOTE_DIR}/heapdump.zip .
+rsync -Prz  -e "ssh -i ${PATH_TO_KEY}  ec2-user@${REMOTE_IP}:${REMOTE_DIR}/parsed_files/ .
+----
+
+== Open Eclipse MAT
+
+To open the heapdump, go to File > Open Heap Dump (Not Acquire Heap Dump) and browse to your heapdump location.
+
+No need to open an existing report, press cancel if you have a modal dialog. 
+
+In the Overview tab, left-click on the largest object(s)
+
+Choose "list objects" > "with outgoing references".
+
+image::https://s3.amazonaws.com/support.neotechnology.com/KBs/heapdump_overview.png[image,role="popup-link"]
+
+It will open a new tab with the list of all the elements.
+
+image::https://s3.amazonaws.com/support.neotechnology.com/KBs/heapdump_expand_outgoing_references.png[image,role="popup-link"]
+
+Expand the first level then expand everything at the second level.
+
+
+
+== Cypher query string 
+
+There are a lot of objects in a heap dump, no need to go through the Object[],byte[],Strings, etc.
+
+You might want to filter for the class that contain PreParsed.
+Once found, list their outgoing references to cross check of the one that has the most instances.
+A new tab will open and you will be able to see the rawStatement of the Cypher queries.
+
+image::https://s3.amazonaws.com/support.neotechnology.com/KBs/heapdump_cypher_string.png[image,role="popup-link"]
+
+== Check the thread dumps
+
+With thread dumps that has been taken before the heap dump
+
+The garbage collector will not be able to collect the thread objects until the threading system also dereferences the object, which won't happen if the thread is alive.
+
+So if you have a large amount of memory in the heap, there should be a potentially long running thread associated to your large object.
+
+To find it, look for the thread name in the thread dumps.
+
+----
+$ grep neo4j.BoltWorker-394 *
+
+5913-tdump-201903291746.log:"neo4j.BoltWorker-394 [bolt]" #620 daemon prio=5 os_prio=0 tid=0x00007fb737619800 nid=0x8cec waiting on condition [0x00007fb38d00f000]
+5913-tdump-201903291751.log:"neo4j.BoltWorker-394 [bolt] [/www.xxx.yyy.zzz:57570] " #620 daemon prio=5 os_prio=0 tid=0x00007fb737619800 nid=0x8cec runnable [0x00007fb38d00b000]
+5913-tdump-201903291756.log:"neo4j.BoltWorker-394 [bolt] [/www.xxx.yyy.zzz:57570] " #620 daemon prio=5 os_prio=0 tid=0x00007fb737619800 nid=0x8cec runnable [0x00007fb38d00b000]
+----
+
+Note that the thread dumps are included in the heap dump. They are available in plain text in the file but you don't have the STATE information in Eclipse Mat. You can have them with other tools such as jvisual vm.
+----
+$ head -10 java_pid19820.threads
+Thread 0x7fd64b0e1610
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.addConditionWaiter()Ljava/util/concurrent/locks/AbstractQueuedSynchronizer$Node; (AbstractQueuedSynchronizer.java:1855)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(J)J (AbstractQueuedSynchronizer.java:2068)
+  at java.util.concurrent.LinkedBlockingQueue.poll(JLjava/util/concurrent/TimeUnit;)Ljava/lang/Object; (LinkedBlockingQueue.java:467)
+  at com.hazelcast.util.executor.CachedExecutorServiceDelegate$Worker.run()V (CachedExecutorServiceDelegate.java:210)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(Ljava/util/concurrent/ThreadPoolExecutor$Worker;)V (ThreadPoolExecutor.java:1149)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run()V (ThreadPoolExecutor.java:624)
+  at java.lang.Thread.run()V (Thread.java:748)
+  at com.hazelcast.util.executor.HazelcastManagedThread.executeRun()V (HazelcastManagedThread.java:76)
+  at com.hazelcast.util.executor.HazelcastManagedThread.run()V (HazelcastManagedThread.java:92)
+  ```
+

@@ -1,0 +1,88 @@
+= How to check for time range overlap in Cypher
+:slug: how-to-check-time-range-overlap
+:author: Andrew Bowman
+:neo4j-versions: 3.4, 3.5, 4.0
+:tags: cypher, temporal, apoc
+:public:
+:category: cypher
+
+Neo4j 3.4 introduced temporal types into Cypher, so now we have dates, dateTimes, and their local versions, too, as well as durations.
+
+While we don't have a type for time ranges, we can use two temporal instants as the start and end of a range.
+
+While it's easy to check if a temporal instant falls within a time range, it's much more complicated to calculate whether two time ranges overlap.
+
+This article provides a simple logical formula for checking if two time ranges overlap, and gives examples of how to apply the formula in Cypher.
+
+We'll use a simple graph for our examples:
+
+[source,cypher]
+----
+CREATE (:Event {id:1, start:date(), end:date() + duration({days:5})}),
+       (:Event {id:2, start:date() + duration({days:3}), end:date() + duration({days:8})})
+----
+
+Event 2's start and end dates are each 3 days later than Event 1's. The events overlap.
+
+== A simplified formula for checking time range overlap
+
+There are 4 possible ways in which time ranges can overlap, excluding the cases where they are identical ranges or tangentially adjacent, one ending where the other begins (and we can use inclusive inequalities for these).
+
+While we won't cover the details, the point is that calculating overlap isn't usually trivial, it's easy to create a calculation that misses out on some kinds of overlap, leading to incorrect results.
+
+Thankfully there's https://stackoverflow.com/a/325964/92359[a logical reduction, proved here], that is relatively simple at the end:
+
+----
+Max(StartA, StartB) <= Min(EndA, EndB)
+----
+
+The latest of start times must occur before (or at the same time) as the earliest of the end times for the ranges to overlap.
+
+Cypher doesn't have a scaler min() and max() function we can use (they're both aggregation functions, not what we need to solve this), so we need an alternate approach.
+
+== A pure Cypher approach using CASE
+
+We can use CASE functionality to implement the scaler min() and max() operation.
+
+[source,cypher]
+----
+MATCH (e1:Event {id:1}), (e2:Event {id:2})
+WITH CASE WHEN e1.start >= e2.start THEN e1.start ELSE e2.start END as maxStart,
+     CASE WHEN e1.end <= e2.end THEN e1.end ELSE e2.end END as minEnd
+RETURN maxStart <= minEnd as rangesOverlap
+----
+
+The above returns true, so the ranges do overlap.
+
+We could use the CASE evaluations in the RETURN, but it is a bit easier to see and understand when we break up the min() and max() calculations from the application of the overlap formula.
+
+== An APOC approach using collection functions
+
+APOC Procedures has some functions for calculating the max and min of a collection, `apoc.coll.max()` and `apoc.coll.min()`.
+
+While these seem like the right tools for the job, one issue remains: as of April 2020, these functions don't yet work with temporal types, though a fix is coming.
+
+Here's what this would look like once the fix is in place:
+
+[source,cypher]
+----
+MATCH (e1:Event {id:1}), (e2:Event {id:2})
+RETURN apoc.coll.max([e1.start, e2.start]) <= apoc.coll.min([e1.end, e2.end]) as rangesOverlap
+----
+
+Until then, there is another workaround (aside from the pure Cypher case above) by comparing the epochMillis values, but that requires that we're working with dateTime types.
+If we just have dates, we can derive a dateTime from them with `dateTime({date:date()}) as dateTimeFromADate`.
+
+Since the example nodes created earlier were date types, we'll need to do that conversion:
+
+[source,cypher]
+----
+MATCH (e1:Event {id:1}), (e2:Event {id:2})
+WITH apoc.coll.max([dateTime({date:e1.start}).epochMillis, dateTime({date:e2.start}).epochMillis]) as maxStart,
+     apoc.coll.min([dateTime({date:e1.end}).epochMillis, dateTime({date:e2.end}).epochMillis]) as minEnd
+RETURN maxStart <= minEnd as rangesOverlap
+----
+
+You may think that this would be much easier if we just had an overlap() function of some sort we could call, which takes in the start and ends of the ranges, and we agree.
+
+We're working on an APOC function, which should simplify these checks considerably.

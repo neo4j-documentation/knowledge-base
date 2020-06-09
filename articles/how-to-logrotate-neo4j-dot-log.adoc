@@ -1,0 +1,38 @@
+= How to logrotate neo4j.log file
+:slug: how-to-logrotate-neo4j-dot-log
+:author: Christophe Willemsen
+:neo4j-versions: 3.0
+:tags: logs
+:public:
+:category: operations
+
+The neo4j.log file is a redirection to STDOUT. When you implement a default logrotate strategy,
+Neo4j will not be able to write to that file anymore after a rotation.
+
+=== Solution
+
+You can use "copytruncate" in your logrotate configuration file.
+
+.Example Logrotate Configuration
+[source,bash]
+----
+/usr/local/neo4j/logs/neo4j.log {
+	su neo4j neo4j
+	copytruncate
+	rotate 4
+	daily
+	compress
+	missingok
+	notifempty
+}
+----
+
+Note :
+
+There is a very small time slice between copying the file and truncating it, so
+some logging data might be lost. When this option is used, the create option will
+have no effect, as the old log file stays in place.
+
+=== References
+
+* http://www.delafond.org/traducmanfr/man/man8/logrotate.8.html[Logrotate Manual]

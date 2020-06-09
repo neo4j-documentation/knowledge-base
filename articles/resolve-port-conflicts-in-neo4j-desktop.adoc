@@ -1,0 +1,51 @@
+= Resolve Port Conflicts in Neo4j Desktop
+:slug: resolve-port-conflicts-in-neo4j-desktop
+:author: Umar Muzammil
+:neo4j-versions: Neo4j Desktop 1.x
+:tags: desktop
+:public:
+:category: desktop
+
+Occasionally upon upgrade or re-install, Neo4j Desktop may throw a repetitive port conflict exception for ports 7474, 7687, 
+7473, whilst providing a ”Fix Configuration" option. However, selecting this option does not resolve the port conflict in 
+certain cases. Attempting to start the database with the play button results in a port conflict notification prompting to 
+fix configuration. Clicking on fix configuration changes nothing and the database does not start up. 
+
+image::https://imgur.com/tpM1H1i.png[Desktop Port Conflict1]
+
+Database does start up using `bin\neo4j console` and is accessible via a standalone chrome browser, whilst launching the neo4j 
+browser throws the error suggesting invalid credentials, use :server connect. Issuing :server connect throws the error 
+credentials provided could not be used.
+
+image::https://imgur.com/A7QPEvS.png[Desktop Port Conflict2]
+
+First thing to check is whether the default/configured http, https, bolt ports are allowed in the OS firewall and/or antivirus.
+The second check is to do an `nc -l -p <port>` which will check the port availability locally and also whether the port is 
+already in use by another application/process. A variant of this is `nc -v <hostname> <port>` where neo4j server is on a 
+remote instance. For windows, one can use the built-in telnet tool via the command prompt e.g. as `telnet hostname.domain.com 7687`.
+
+Following above checks, it is worth attempting taking a backup of the .Neo4jDesktop directory at `/Users/⁨user/
+/⁨Library⁩/⁨Application Support/`⁩ on MacOSX or `%USERPROFILE%.Neo4jDesktop\ and %USERPROFILE%\AppData\Roaming\Neo4j Desktop\` 
+on Windows, then removing these directories, followed by a re-install of the desired Neo4j Desktop version and an OS restart.
+
+If port conflict persists, the next step in troubleshooting is to check for potential issues with the OS's `hosts` file. 
+Hosts file on Linux and Mac OS is found at (/etc/hosts). Windows has a hosts file as well, on Windows you can find it in 
+\Windows\System32\drivers\etc\. A quick check to test whether the OS is able to correctly resolve hostnames, one can execute 
+in cmd `tracert localhost`, which should print a single hop. The only line in the hosts file is the following line, and we 
+can comment out, delete or modify this line or file if needed . A sample output is:
+
+----
+$ traceroute localhost
+traceroute to localhost (127.0.0.1), 64 hops max, 52 byte packets
+ 1  localhost (127.0.0.1)  1.167 ms  0.112 ms  0.085 ms 
+----
+
+If the trace route returns an empty result, try commenting out everything related to localhost in the hosts file. Then try 
+running the command `tracert localhost` again. Following this, try starting a graph database in Desktop to see if the issue 
+has been resolved. The line in hosts file should be commented out when testing in Desktop.
+
+The above steps have been tested to alleviate port conflict issues encountered.
+
+
+References:
+https://www.makeuseof.com/tag/modify-manage-hosts-file-linux/

@@ -1,0 +1,224 @@
+= Working with streaks in Cypher
+:slug: working-with-streaks-in-cypher
+:author: Andrew Bowman
+:neo4j-versions: 4.0, 3.5, 3.4, 3.3, 3.2
+:tags: cypher, apoc
+:public:
+:category: cypher
+
+When using Cypher for data analysis, you might have a problem where you need to identify or filter based upon some kind of streak.
+
+For example, for a sports graph, you might want to know the maximum number of consecutive wins or losses for a team.
+
+In such a query, you've probably gotten to the point where your data is ordered and in a list, but you need to figure out how to get streak information from the list.
+
+== Using APOC to break up a list into consecutive streaks
+
+APOC Procedures has rich helper functions and procedures that let you query and manipulate collections and maps in all kinds of interesting ways.
+
+For this particular kind of problem, the collection procedure `apoc.coll.split()` will provide the quickest and easiest way to derive streak data.
+
+This procedure takes a list as input as well as a delimiter value, and splits around the delimiter values to provide the sublists.
+
+As an example, we'll use a literal list of boolean values symbolizing wins (true) vs losses (false), then split around the losses to get the lists of consecutive wins:
+
+[source,cypher]
+----
+WITH [true, false, true, false, true, true, true, true, false, false, false, true, true] as games
+CALL apoc.coll.split(games, false) YIELD value
+RETURN value
+----
+
+The output looks like this:
+
+----
+
+╒═════════════════════╕
+│"value"              │
+╞═════════════════════╡
+│[true]               │
+├─────────────────────┤
+│[true]               │
+├─────────────────────┤
+│[true,true,true,true]│
+├─────────────────────┤
+│[true,true]          │
+└─────────────────────┘
+----
+
+We can instead filter to get the maximum win streak:
+
+[source,cypher]
+----
+WITH [true, false, true, false, true, true, true, true, false, false, false, true, true] as games
+CALL apoc.coll.split(games, false) YIELD value as winStreak
+RETURN max(size(winStreak)) as longestWinStreak
+----
+
+This gives us a longest win streak of 4.
+
+=== A more complex example
+
+While actual graph data and queries aren't usually so simple, we can often simplify it in the query.
+
+Let's use a graph like this:
+
+----
+(:Team {name:string})-[:PLAYED {won:boolean}]->(:Game {date:date})
+----
+
+Here's a pared down example dataset you can test out yourself:
+
+----
+CREATE (p:Team{name:'Paris St-Germain'}) ,
+(d:Team{name:'Dijon'}),
+(b:Team{name:'Bordeaux'}),
+(a:Team{name:'Amiens SC'}),
+(o:Team{name:'Olympique Lyonnais'}),
+(n:Team{name:'Nantes'}),
+(mp:Team{name:'Montpellier'}),
+(l:Team{name:'Lille'}),
+(mo:Team{name:'Monaco'}),
+(se:Team{name:'Saint-Etienne'})
+
+CREATE (p)-[:PLAYED {won:true }]->(:Game {date:date('2020-02-29')})<-[:PLAYED {won: false}]-(d),
+(p)-[:PLAYED {won:true }]->(:Game {date:date('2020-02-23')})<-[:PLAYED {won: false}]-(b),
+(p)-[:PLAYED {won:false }]->(:Game {date:date('2020-02-15')})<-[:PLAYED {won: true}]-(a),
+(p)-[:PLAYED {won:true }]->(:Game {date:date('2020-09-02')})<-[:PLAYED {won: false}]-(o),
+(p)-[:PLAYED {won:true }]->(:Game {date:date('2020-04-02')})<-[:PLAYED {won: false}]-(n),
+(p)-[:PLAYED {won:true }]->(:Game {date:date('2020-01-02')})<-[:PLAYED {won: false}]-(mp),
+(p)-[:PLAYED {won:true }]->(:Game {date:date('2020-01-26')})<-[:PLAYED {won: false}]-(l),
+(p)-[:PLAYED {won:true }]->(:Game {date:date('2020-01-15')})<-[:PLAYED {won: false}]-(mo),
+(p)-[:PLAYED {won:false }]->(:Game {date:date('2020-12-01')})<-[:PLAYED {won: true}]-(a),
+(p)-[:PLAYED {won:true }]->(:Game {date:date('2020-12-21')})<-[:PLAYED {won: false}]-(se)
+----
+
+This dataset centers on Paris St-Germain, it doesn't have data about games played between the other teams.
+
+
+We can use the same approach as in our simpler example from before to calculate each team's longest consecutive win streak and order and limit the output accordingly:
+
+[source,cypher]
+----
+MATCH (team:Team)-[r:PLAYED]->(game:Game)
+WITH team, r, game
+ORDER BY game.date ASC
+WITH team, collect(r.won) as results
+CALL apoc.coll.split(results, false) YIELD value as winStreak
+WITH team, max(size(winStreak)) as longestStreak
+RETURN team.name as teamName, longestStreak
+ORDER BY longestStreak DESC
+LIMIT 3
+----
+
+Our results are:
+
+----
+╒══════════════════╤═══════════════╕
+│"teamName"        │"longestStreak"│
+╞══════════════════╪═══════════════╡
+│"Paris St-Germain"│4              │
+├──────────────────┼───────────────┤
+│"Amiens SC"       │2              │
+└──────────────────┴───────────────┘
+----
+
+We only see two results here because in our dataset none of the other teams won any games, so there's no streak to report.
+
+
+
+==== What if we also want the game data?
+
+While this gets us the top 3 teams by their longest streak of wins, we do lose the game data along the way.
+What if we want to know which teams they beat for each game in that single longest streak?
+
+We can preserve this data with a clever use of CASE. Instead of just using `collect(r.won) as results`, we can use CASE to project some custom data in the event that the team won, but only output `false` when the team lost.
+This still allows us a common value to split around to find streaks, but each element of the streak is now as rich as we need it to be.
+
+That said, we do need to adjust how we calculate the longestStreak, as the `max()` function will otherwise cause us to lose the streak data that we still want at the end.
+
+Here's a modefied query that should do the trick:
+
+[source,cypher]
+----
+MATCH (team:Team)-[r:PLAYED]->(game:Game)<-[:PLAYED]-(opponent)
+WITH team, r, game, opponent
+ORDER BY game.date ASC
+WITH team, collect(CASE WHEN r.won THEN opponent ELSE false END) as results
+CALL apoc.coll.split(results, false) YIELD value as winStreak
+WITH team, winStreak, size(winStreak) as streakLength
+ORDER BY streakLength DESC
+WITH team, collect(winStreak)[0] as streak, max(streakLength) as longestStreak
+WITH team, longestStreak, streak
+ORDER BY longestStreak DESC
+LIMIT 3
+RETURN team.name as teamName, longestStreak, [opponent IN streak | opponent.name] as beat
+----
+
+And the query results:
+
+----
+╒══════════════════╤═══════════════╤══════════════════════════════════════════════════╕
+│"teamName"        │"longestStreak"│"beat"                                            │
+╞══════════════════╪═══════════════╪══════════════════════════════════════════════════╡
+│"Paris St-Germain"│4              │["Bordeaux","Dijon","Nantes","Olympique Lyonnais"]│
+├──────────────────┼───────────────┼──────────────────────────────────────────────────┤
+│"Amiens SC"       │2              │["Paris St-Germain","Paris St-Germain"]           │
+└──────────────────┴───────────────┴──────────────────────────────────────────────────┘
+----
+
+Note the use of CASE on a win to do a custom projection of the opponent faced in the game:
+
+----
+collect(CASE WHEN r.won THEN opponent ELSE false END) as results
+----
+
+Since we need to preserve the streak data, we have to do a sort, picking the top streak by length by collecting and only keeping the streak at the head of the list.
+
+Lastly, we leave property projection until the end, after we've limited to the top 3 teams by their longest streaks so we avoid property access for data will only be filtered out.
+
+==== One last helper function to simplify
+
+It's a pain to have to add our own ordering and take the top of the collection in the middle of that query.
+The simplicity we had when we only needed the `max()` on the streakLength was nice.
+
+Fortunately there is a relatively new APOC aggregation function that can help us keep that simplicity and avoid doing our own sorting and collecting.
+
+`apoc.coll.maxItems()` (there's an `apoc.coll.minItems()` too) lets us take the max of some value, but keep the items associated with that maximum value.
+
+Let's add that to the query:
+
+[source,cypher]
+----
+MATCH (team:Team)-[r:PLAYED]->(game:Game)<-[:PLAYED]-(opponent)
+WITH team, r, game, opponent
+ORDER BY game.date ASC
+WITH team, collect(CASE WHEN r.won THEN opponent ELSE false END) as results
+CALL apoc.coll.split(results, false) YIELD value as winStreak
+WITH team, apoc.agg.maxItems(winStreak, size(winStreak), 1) as longestStreakData
+WITH team, longestStreakData.items[0] as streak, longestStreakData.value as longestStreak
+ORDER BY longestStreak DESC
+LIMIT 3
+RETURN team.name as teamName, longestStreak, [opponent IN streak | opponent.name] as beat
+----
+
+The results remain the same as before.
+
+The maxItems() aggregation function call is here:
+
+----
+WITH team, apoc.agg.maxItems(winStreak, size(winStreak), 1) as longestStreakData
+----
+
+This takes the item, the value (for which we will want the max), and optionally a limit to the number of items with the same value.
+It is possible that a single team may have multiple win streaks of the same length, but for our case we're only interested in the first we find,
+so we'll limit it to one streak per team and disregard any others.
+
+Note that we do still need to take the head of the list on the next line
+
+----
+longestStreakData.items[0] as streak
+----
+
+This is because as we just mentioned, the function has the capability of getting all (or some optionally limited) number of items that share the same max value (other streaks of the same length),
+so `items` from the result is a list type, and we only want the single value present, which is our streak of opponents we beat.

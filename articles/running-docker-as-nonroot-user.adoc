@@ -1,0 +1,123 @@
+= Running Docker as Non-Root User
+:slug: running-docker-as-nonroot-user
+:author: Rohan Kharwar
+:neo4j-versions: 3.2,3.3,3.4,3.5,4.0
+:tags: startup, permissions, docker
+:category: installation
+:public:
+:environment: docker
+
+When running Neo4j Docker, it will run as `neo4j` user inside the container. But to run docker as a different user one can specify the `--user` argument. 
+Documentation has a section for running as non-root user:
+
+https://neo4j.com/docs/operations-manual/3.4/installation/docker/#docker-user
+
+but would like to elaborate on the same in this KB article. 
+
+When using the `--user` flag needs to have a valid, non-root user value provided. Our Docker container assumes/requires that the user is a) not root b) has write access to data and logs directories and has read access to conf directory. It is important to note that if you are passing 0:0 or 0 or root etc. as --user, it will still not use root to run neo4j but the container will use its own internal neo4j user and neo4j user group (these happen to currently have uid 101 and gid 101 but that should not be relied upon). The Docker entrypoint is specifically written to avoid running the neo4j docker image as root.
+
+So best approach here is to create a User and group and pass that on to the Docker input --user. 
+
+create a user neo4j without a home directory
+
+----
+sudo useradd -M neo4j
+----
+
+prevent neo4j from logging in
+
+----
+sudo usermod -L neo4j
+----
+
+Create data dir.
+
+----
+data_dir="/neo4j/data"
+sudo mkdir -p /neo4j/data
+sudo chown -R neo4j /neo4j/data
+sudo chgrp -R neo4j /neo4j/data
+----
+
+Note we only give group read permissions here
+
+----
+sudo chmod -R u+rwX,g+rX,o-wrx /neo4j/data 
+----
+
+We do not recommend any application other than neo4j writing to the data dir. This can corrupt the data store.
+
+----
+sudo mkdir -p /neo4j/conf
+sudo chown -R neo4j /neo4j/conf
+sudo chgrp -R neo4j /neo4j/conf
+----
+
+Group gets write permissions here
+
+----
+sudo chmod -R u+rX,g+rwX,o-wrx /neo4j/conf 
+----
+
+N.b. if you make external changes to the conf dir you must restart the docker image to pickup new configuration (conf is copied from the mounted volume on startup)
+
+----
+sudo mkdir -p /neo4j/plugins
+sudo chown -R neo4j /neo4j/plugins
+sudo chgrp -R neo4j /neo4j/plugins
+----
+
+Group gets write permissions here
+
+----
+sudo chmod -R u+rwX,g+rwX,o-wrx /neo4j/plugins # N.b. if you make external changes to the plugins dir you must restart neo4j before it will pickup new plugins
+----
+
+Let's assume that the logs dir is being used by multiple applications n.b. if something interferes with neo4j writing logs it can crash the neo4j process.
+Create a logs group for all things log related
+
+----
+sudo groupadd logs
+----
+
+Add neo4j to logs group
+
+----
+sudo usermod -a -G logs neo4j
+sudo mkdir -p /logs/neo4j
+sudo chown -R root /logs/neo4j
+sudo chgrp -R logs /logs/neo4j
+sudo chmod -R u+rwX,g+rwX,o-wrx /logs/neo4j
+----
+
+If docker does not run as root
+
+----
+docker_user=root
+sudo usermod -a -G logs "${docker_user}"
+sudo usermod -a -G neo4j "${docker_user}"
+----
+
+Add ourselves to the neo4j group so `/neo4j/*` dirs created above can be read and editted. 
+
+----
+current_user=$(id -un)
+sudo usermod -a -G neo4j "${current_user}"
+----
+
+Start a new shell to pick up this group assignment
+
+Note docker doesnt pull in secondary groups automatically so one has to do this explicitly
+
+----
+groups=( $( id --real --groups neo4j ) )
+docker run \
+    --publish=7474:7474 --publish=7687:7687 \
+    --volume=/neo4j/data:/data \
+    --volume=/neo4j/plugins:/plugins \
+    --volume=/neo4j/conf:/conf \
+    --volume=/logs/neo4j:/logs \
+    --user="$(id -u neo4j):$(id -g neo4j)" \
+    --group-add=$groups \
+    neo4j:3.4
+----

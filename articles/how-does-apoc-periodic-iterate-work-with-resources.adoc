@@ -1,0 +1,21 @@
+= How does apoc.periodic.iterate work with resources?
+:slug: how-does-apoc-periodic-iterate-work-with-resources
+:author: Daniel Terlizzi
+:category: cypher
+:tags: apoc, procedures
+:neo4j-versions: 3.4, 3.5
+:public:
+
+How does apoc.periodic.iterate work?
+
+For example, when running call apoc.periodic.iterate("MATCH (n) RETURN n", "DETACH DELETE n", {batchSize:1000}) does it append a LIMIT to the MATCH RETURN so that it only returns the batchSize or does it return everything but it just passes batchSize number of rows to the DETACH DELETE?
+
+It does not do a limit. It executes the “MATCH (n) RETURN n” just as it is.  The key to remember is that there is a stream of results to be consumed. It does not create a huge result set which could affect the heap.  There is a method called iterateAndExecuteBatchedInSeparateThread which uses a separate thread and “consumes” from that stream in chunks, as specified in the parameters.   
+
+The first argument is prefixed to enforce usage of slotted runtime since compiled runtime collects the results in a in-memory structure. This is not desired for huge result sets, hence we ensure the first bit is streamed. That stream is populating lists of batchSize elements. These are handed over to the second statement as parameter. In the example the second argument will be on the fly changed to UNWIND $_batch as n DETACH DELETE n. So there's no explicit limit, but an implicit one due to the UNWIND. You can switch that list collection off with {iterateList:false} and fire the second statement for each result of the first.
+
+The query will only return to the client after the original query completes, so there is only the one round trip. What happens is that the results are being streamed in batches and need to be consumed. This operation occurs via a separate thread and will only absorb a limited amount of memory, so the resources are not exhausted. The external connection will stay open until everything is processed up until the last batch was pulled into memory even if not yet consumed via streaming at which point the connection is closed.
+
+Link to the code is here:
+
+https://github.com/neo4j-contrib/neo4j-apoc-procedures/blob/3.5/src/main/java/apoc/periodic/Periodic.java#L273

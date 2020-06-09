@@ -1,0 +1,86 @@
+= How do I recover from No space left on device
+:slug: how-do-recover-from-no-space-left-on-device
+:author: Dana Canzano
+:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:tags: disk,disk-space
+:public:
+:category: operations
+
+If one does not routinely monitor the disk space usage on a Neo4j server one may encounter a 'No space left on device' 
+(for linux implementation) or a 'Low Disk Space' (Windows Implementations). 
+For linux implementations one should proactively monitor disk space and this can be accomplished similar to what is described
+https://www.cyberciti.biz/tips/shell-script-to-watch-the-disk-space.html[here].
+
+Once you have encountered either, the following 
+steps should be considered so as to free up enough space to start the database and allow recovery to complete. It should be 
+noted that as you have consumed all the disk space, you cannot simply compress files to find more space, since that would
+require writing to the full file system.
+
+1.  graph.db path +
+*DO NOT* manually delete files in your database path, where the default location is `$NEO4J_HOME/data/databases/graph.db` and also 
+noted by `conf/neo4j.conf` parameter of https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.directories.data[dbms.directories.data].
+Although this path may contain the most data, do not manually remove files from this path, as manually removing files will more than
+likely corrupt the database and/or prevent future starts. +
+However if you have another file system on the Neo4j installation which has more free space it is possible to either move the 
+directory in whole to the other file system or commencing with Neo4j 3.4 one can configure https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.directories.tx_log[dbms.directories.tx_log] and this parameter describes 
+where the `data/databases/graph.db/neostore.transaction*` files are recorded.
+For example if your current Neo4j installation is at `/home/software/`, which is where the disk full occurred, and there is another
+filesystem, for example `/home/disk2` which has a signficiant amount of space one can reconfigure the conf/neo4j.conf parameter of
+`dbms.directories.tx_log` to a value of `/home/disk2/tx_logs` and copy the current and existing
+`data/databases/graph.db/neostore.transaction*` files to `/home/disk2/tx_logs` so as to free up space on `/home/software`.  One
+could also do the same with regards to copying all of `data/databases/graph.db` from `/home/software` to `/home/disk2` and in 
+turn update `conf/neo4j.conf` parameter of `dbms.directories.data`. +
++
+Under no circumstances should you delete/modify files in the path of graph.db and/or the location of transaction logs specified by
+configuration dbms.directories.tx_log
+
+2.  Local backup copies +
+Consider if you have written the results of `neo4j-admin backup` to the local file system. If so, and if that copy is not going to
+be necessary to restore service, can the files be moved/removed from the file system?
+
+3.  Prior versions of Neo4j software +
+If you have completed multiple upgrades of Neo4j in the past, it may be the case that you have left the prior version software on the file system.   
+For example if you typically install software into `/usr/software/` and have upgraded from Neo4j 3.2.1 to Neo4j 3.5.0, you may  
+have a `/usr/software/neo4j-enterprise-3.2.1` and `/usr/software/neo4j-enterprise-3.5.0`. If such an older environment exists and
+provided you are successfully running on the newer version, you may consider moving/removing the prior version, in this 
+example `/usr/software/neo4j-enterprise-3.2.1`
+
+4. Log files +
+During the normal course of Neo4j operation, diagnostic logs are written to $NEO4J_HOME/logs/ and specifically `debug.log`, 'neo4j.log',
+`query.log`  (provided dbms.logs.query.enabled=true) and `security.log` (provided dbms.security.auth_enabled=true), and where the 
+debug.log can be the largest of these files. Given these files are diagnostic logs you may consider moving/removing/truncating these log files.
+
+5. Plugins
+Your `$NEO4J_HOME/plugins` may contain custom plugins (JARs) for Neo4j. Check to see that your plugins are not writing to this path,
+or if they are, ensure they are properly managing their log files. Additionally, you might consider removing/moving the apoc* jar 
+as it can be easily restored.
+
+6. Prune transaction log files through the Neo4j product +
+If you have freed up a reasonable amount of space, prior to start you may want to configure the `conf/neo4j.conf' parameter of https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.tx_log.rotation.retention_policy[dbms.tx_log.rotation.retention_policy] 
+to a very small value (example `dbms.tx_log.rotation.retention_policy=100M`).  In doing so after a sucessful start and then
+subsequent checkpoint (which defaults to every 900s), a transaction log pruning/rotation will occur and it should remove all 
+but the last transaction log.  If you do not want to wait those 900s (15 minutes) and if you are running Neo4j 3.5.6 or 
+later one can manually force a checkpoint by calling stored procedure `dbms.checkpoint()`;  +
+One issue with this approach is that more than likely upon your next backup, if it is an incremental backup, it  will revert to a full
+backup since the transaction logs between the last backup and the next backup are not without a gap. If this approach is taken, after
+sufficient disk space has been freed up the `dbms.tx_log.rotation.retention_policy` parameter should be reverted back to the value it
+was previously set to.
+
+7. Metrics
+Commencing with Neo4j 3.5.0 logging of metrics as CSV files is enabled by default and the .CSV files are recorded in the location as 
+described by conf/neo4j.conf parameter of `dbms.directories.metrics` which defaults to $NEO4J_HOM]E/metrics.   Additionally,
+conf/neo4j.conf parameters of https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_metrics.csv.rotation.keep_number[metrics.csv.rotation.keep_number] and https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_metrics.csv.rotation.size[metrics.csv.rotation.size] describe the number of CSV to keep for a given metric as well as the rotation size for said metric.
+
+
+
+8. Prepare for growth +
+Even after freeing up sufficient space you will still need to prepare for the future in terms of making sure you have sufficient 
+disk space for continued database growth. This is more an OS-related responsibility but should not be overlooked.
+
+9. Ask for guidance from Neo4j
+If you are still unable to free up space, ask for guidance from Neo4j.
+
+
+After Neo4j has safely restarted it is strongly encouraged that you run a database consistency check.  This can be performed
+by either running a backup `bin/neo4j-admin backup .... ..... --check-consistency=true` on a running instance or on a stopped 
+Neo4j database by running `bin/neo4j-admin check-consistency --database=graph.db`

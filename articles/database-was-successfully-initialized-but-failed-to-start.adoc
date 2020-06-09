@@ -1,0 +1,17 @@
+= Database was successfully initialized, but failed to start
+:slug: database-was-successfully-initialized-but-failed-to-start
+:author: Daniel Terlizzi
+:neo4j-versions: 3.5, 3.4
+:tags: configuration
+:public:
+:category: operations
+
+Sometimes when the database does not start it could be something as simple as unnecessary characters in the neo4j.conf file. For example if you add space and/or tab characters to below setting:
+
+`dbms.ssl.policy.client_policy.private_key=/var/lib/neo4j/certificates/client_policy/neo4j.key`
+
+The database will fail to start and show you this message:
+
+`Caused by: org.neo4j.kernel.lifecycle.LifecycleException: Component 'org.neo4j.server.database.LifecycleManagingDatabase@691eb782' was successfully initialized, but failed to start. Please see the attached cause exception "/var/lib/neo4j/certificates/client_policy/neo4j.key (No such file or directory)".`
+
+Make sure to edit the neo4j.conf file with a text file editor and not a word processor to reduce the risk of such issues.

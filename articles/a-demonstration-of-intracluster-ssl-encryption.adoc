@@ -1,0 +1,192 @@
+= A demonstration of IntraCluster SSL Encryption
+:slug: a-demonstration-of-intracluster-ssl-encryption
+:author: Umar Muzammil
+:category: cluster
+:tags: ssl, tls, certificate, causal-cluster, encryption
+:neo4j-versions: 3.4, 3.5
+:public:
+
+This document provides a step-by-step demonstration of the process to deploy a Self-Signed SSL Certificate, to member 
+instances of a Causal Cluster, aimed at achieving intra-cluster encryption. The steps can be outlined as:
+
+	•	Generate and install cryptographic objects
+	•	Create an SSL policy
+	•	Configure Causal Clustering with the SSL policy
+	•	Validate the secure operation of the cluster
+ 
+These are further described in the NEO4J operations manual:
+https://neo4j.com/docs/operations-manual/current/clustering/intra-cluster-encryption/#intra-cluster-encryption-example-deployment
+
+Lets go through the demonstration of creation, deployment and verification of the SSL certificate.
+
+*INSTALL OPENSSL*
+
+A certificate can be signed by a trusted Certificate Authority (CA) or, as in this case, be a self-signed one. Lets first 
+see how we can create a self-signed certificate with OpenSSL. We'll first need to install OpenSSL in order to create a 
+self-signed certificate. While Linux distributions usually have OpenSSL pre-installed, this is not the case for Windows, 
+where this can be achieved using a Windows binary. Some sample binaries are available at the below links:
+
+https://wiki.openssl.org/index.php/Binaries
+https://www.cloudinsidr.com/content/how-to-install-the-most-recent-version-of-openssl-on-windows-10-in-64-bit/
+
+
+On OSX, one can install OpenSSL using macports, as described here: https://www.macports.org/install.php
+
+For purposes of this demonstration, homebrew was used as below:
+
+----
+brew install openssl
+----
+
+Once installed, the version and installation directory, amongst other installation features, can be checked by running `brew info openssl`,
+or `openssl version -a`:
+
+----
+MacBook-Pro:bin $ openssl version -a
+OpenSSL 1.0.2o  27 Mar 2018
+built on: reproducible build, date unspecified
+platform: darwin64-x86_64-cc
+options:  bn(64,64) rc4(ptr,int) des(idx,cisc,16,int) idea(int) blowfish(idx) 
+compiler: /usr/bin/clang -I. -I.. -I../include  -fPIC 
+-fno-common -DOPENSSL_PIC -DZLIB -DOPENSSL_THREADS -D_REENTRANT -DDSO_DLFCN -DHAVE_DLFCN_H -arch x86_64 -O3 -DL_ENDIAN -Wall
+-DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_MONT5 -DOPENSSL_BN_ASM_GF2m -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM
+-DMD5_ASM -DAES_ASM -DVPAES_ASM -DBSAES_ASM -DWHIRLPOOL_ASM -DGHASH_ASM -DECP_NISTZ256_ASM
+OPENSSLDIR: "/opt/local/etc/openssl"
+----
+
+*CREATE THE SSL CERTIFICATE AND KEY*
+
+We can then add the installation directory to PATH as `echo 'export PATH="/usr/local/opt/openssl/bin:$PATH"' >> ~/.bash_profile` 
+
+Lets finally get to creating our certificate and key:
+
+In terminal, change the current directory to the openssl installation directory (in this case, /opt/local/bin) and run the 
+command below:
+
+----
+sudo openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days XXX
+----
+or, for a relatively smaller key length:
+----
+sudo openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days XXX
+----
+
+Below describes each parameter used in the openssl command above:
+
+- req: PKCS#10 certificate request and certificate generating utility.
+- x509: outputs a self signed certificate instead of a certificate request.
+- newkey: creates a new certificate request and a new private key. Note the rsa:nbits, where nbits is the number of bits, 
+generates an RSA key nbits in size.
+- keyout: gives the filename to write the newly created private key to.
+- out: specifies the output filename to write to or standard output by default.
+- days: when the -x509 option is being used this specifies the number of days to certify the certificate for (default is 30 days).
+
+Below is the output of the executed openssl generation command:
+
+----
+MacBook-Pro:bin $ sudo openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
+Password:
+Generating a 4096 bit RSA private key
+..................................................................................................................................................++
+................................................................................................++
+writing new private key to 'key.pem'
+Enter PEM pass phrase:
+Verifying - Enter PEM pass phrase:
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+Country Name (2 letter code) [AU]:UK
+State or Province Name (full name) [Some-State]:London
+Locality Name (eg, city) []:London
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Neo4j
+Organizational Unit Name (eg, section) []:CS
+Common Name (e.g. server FQDN or YOUR name) []:CS
+Email Address []:myemail@email.com
+----
+
+Above creates the cert.pem and key.pem files in the current directory. 
+
+Below commands then generate the public.crt and private.key files, using the .pem files created above:
+
+----
+sudo openssl x509 -outform der -in cert.pem -out public.crt
+openssl rsa -in key.pem -out private.key
+----
+
+*DEPLOYING THE SSL CERTIFICATE AND KEY*
+
+Place the above created private.key in $NEO4J_HOME/certificates/cluster and public.crt in $NEO4J_HOME/certificates/cluster/trusted, 
+then add the following to neo4j.conf of each instance in the cluster:
+
+----
+causal_clustering.ssl_policy=cluster
+dbms.ssl.policy.cluster.base_directory=Absolute_Path_Of_$NEO4J_HOME/certificates/cluster
+dbms.ssl.policy.default.base_directory=Absolute_Path_Of_$NEO4J_HOME/certificates/cluster
+dbms.ssl.policy.default.trusted_dir=Absolute_Path_Of_$NEO4J_HOME/certificates/cluster/trusted
+dbms.ssl.policy.default.revoked_dir=Absolute_Path_Of_$NEO4J_HOME/certificates/cluster/revoked
+dbms.ssl.policy.default.client_auth=NONE
+dbms.ssl.policy.cluster.ciphers=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+dbms.ssl.policy.cluster.client_auth=REQUIRE
+----
+
+*VALIDATE THE INTRACLUSTER ENCRYPTION*
+
+We're now ready to initialise all cluster instances. Once these are initialised and available, we can then verify our SSL encryption
+by using the nmap tool (deployed alongside openssl), to check the available SSL ciphers as below:
+
+----
+MacBook-Pro:bin $ nmap --script ssl-enum-ciphers -p 7470 localhost
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-05-30 12:39 BST
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.00022s latency).
+Other addresses for localhost (not scanned): ::1
+
+PORT     STATE SERVICE
+7470/tcp open  unknown
+| ssl-enum-ciphers: 
+|   TLSv1.2: 
+|     ciphers: 
+|       TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 (secp256r1) - A
+|       TLS_RSA_WITH_AES_256_CBC_SHA256 (rsa 2048) - A
+|       TLS_DHE_RSA_WITH_AES_256_CBC_SHA256 (dh 2048) - A
+|       TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 (secp256r1) - A
+|       TLS_RSA_WITH_AES_128_CBC_SHA256 (rsa 2048) - A
+|       TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 (dh 2048) - A
+|       TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (secp256r1) - A
+|       TLS_RSA_WITH_AES_256_GCM_SHA384 (rsa 2048) - A
+|       TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 (dh 2048) - A
+|       TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (secp256r1) - A
+|       TLS_RSA_WITH_AES_128_GCM_SHA256 (rsa 2048) - A
+|       TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 (dh 2048) - A
+|     compressors: 
+|       NULL
+|     cipher preference: server
+|_  least strength: A
+
+Nmap done: 1 IP address (1 host up) scanned in 0.54 seconds
+
+----
+
+Where port 7470 in this case is the `dbms.connector.https.advertised_address:port`. An additional confirmation would be to find debug messages
+similar to the following, in the Neo4j debug.log:
+
+----
+2019-05-30 11:34:47.666+0000 DEBUG [io.netty.handler.codec.http.websocketx.WebSocket08FrameDecoder] Decoding WebSocket Frame opCode=2
+2019-05-30 11:34:47.666+0000 DEBUG [io.netty.handler.codec.http.websocketx.WebSocket08FrameDecoder] Decoding WebSocket Frame length=101
+2019-05-30 11:34:47.666+0000 DEBUG [io.netty.handler.codec.http.websocketx.WebSocket08FrameDecoder] Decoding WebSocket Frame opCode=2
+2019-05-30 11:34:47.666+0000 DEBUG [io.netty.handler.codec.http.websocketx.WebSocket08FrameDecoder] Decoding WebSocket Frame length=943
+2019-05-30 11:34:47.695+0000 DEBUG [io.netty.handler.codec.http.websocketx.WebSocket08FrameEncoder] Encoding WebSocket Frame opCode=2 length=8298
+2019-05-30 11:34:47.695+0000 DEBUG [io.netty.handler.codec.http.websocketx.WebSocket08FrameEncoder] Encoding WebSocket Frame opCode=2 length=114435
+2019-05-30 11:34:47.695+0000 DEBUG [io.netty.handler.codec.http.websocketx.WebSocket08FrameEncoder] Encoding WebSocket Frame opCode=2 length=2730
+2019-05-30 11:34:47.696+0000 DEBUG [io.netty.handler.codec.http.websocketx.WebSocket08FrameEncoder] Encoding WebSocket Frame opCode=2 length=31010
+2019-05-30 11:34:47.696+0000 DEBUG [io.netty.handler.codec.http.websocketx.WebSocket08FrameEncoder] Encoding WebSocket Frame opCode=2 length=113
+----
+
+References:
+https://neo4j.com/docs/operations-manual/current/security/ssl-framework/#term-ssl-cryptographic-objects
+https://www.macports.org/install.php
+https://wiki.openssl.org/index.php/Binaries
+https://www.cloudinsidr.com/content/how-to-install-the-most-recent-version-of-openssl-on-windows-10-in-64-bit/

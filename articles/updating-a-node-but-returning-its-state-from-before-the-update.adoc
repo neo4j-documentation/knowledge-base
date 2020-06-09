@@ -1,0 +1,68 @@
+= Updating a node but returning its state from before the update
+:slug: updating-a-node-but-returning-its-state-from-before-the-update
+:author: Andrew Bowman
+:neo4j-versions: 3.1, 3.0, 2.3
+:tags: cypher
+:public:
+:category: cypher
+
+Some use cases require updating node (or relationship) properties, but returning the node (or relationship) as it was prior to the update.
+
+You'll need to get a 'snapshot' of the node before the update, and return that snapshot instead of the node itself.
+
+==== Neo4j 3.1 and above
+
+You can use map projection to get your node snapshot:
+
+[source,cypher]
+----
+MATCH (p:Person{name:'Keanu Reeves'})
+WITH p, p {.*} as snapshot
+SET p.name = 'The One'
+RETURN snapshot
+----
+The returned map result will still have the name property set to 'Keanu Reeves'.
+
+Note that the result is a map, not a node, so node id and labels are not included in the returned data.
+
+====== Returning an explicit null value
+
+If you need to explicitly show a missing field (in the snapshot) as a null value in Neo4j 3.1 or above, you can also solve this with map projection by explicitly including the field in the projection.
+
+[source,cypher]
+----
+MATCH (p:Person{name:'Keanu Reeves'})
+WITH p, p {.*, .lastUpdated} as snapshot
+SET p.lastUpdated = TIMESTAMP()
+RETURN snapshot
+----
+If the `lastUpdated` property didn't exist on the node, it will still be returned in the map with a null value instead of not appearing at all.
+
+==== Neo4j 3.0 and below
+
+Map projection isn't available, so use `properties()` instead.
+
+[source,cypher]
+----
+MATCH (p:Person{name:'Keanu Reeves'})
+WITH p, properties(p) as snapshot
+SET p.name = 'The One'
+RETURN snapshot
+----
+The returned map result will still have the name property set to 'Keanu Reeves'.
+
+Note that the result is a map, not a node, so node id and labels are not included in the returned data.
+
+====== Returning an explicit null value
+
+If you need to explicitly show a missing field (in the snapshot) as a null value in Neo4j 3.0, you'll need to use the map helper functions of link:https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC Procedures].
+
+[source,cypher]
+----
+MATCH (p:Person{name:'Keanu Reeves'})
+WITH p, properties(p) as props
+CALL apoc.map.setKey(props, 'lastUpdated', null) YIELD value as snapshot
+SET p.lastUpdated = timestamp()
+RETURN snapshot
+----
+If the `lastUpdated` property didn't exist on the node, it will still be returned in the map with a null value instead of not appearing at all.

@@ -1,0 +1,79 @@
+= Redirect Neo4j logs to sysout (using rsyslog)
+:slug: redirect-neo4j-logs-to-sysout-using-rsyslog
+:author: Jose Rocha
+:neo4j-versions: 2.2, 2.3, 3.0, 3.1, 3.2
+:tags: logging
+:public:
+:category: operations
+:environment: unix
+
+Sometimes - due to organizational requirements, security, indexing or plain convenience - we want to output all of our application logs to Linux's sysout. While Neo4j doesn't offer this feature, we can use RSYSLOG (www.rsyslog.com) to achieve that and we can do this in 6 easy steps.
+
+== Steps:
+[.result]
+====
+. Install rsyslog dependencies
+. Install rsyslog
+. Edit rsyslog.conf to accept arbitrary files to be added
+. Create configuration file for rsyslog to read from Neo4j
+. Restart rsyslog
+. Check the results
+====
+
+=== 1. Install rsyslog dependencies
+Installing rsyslog requires installing a lot of dependencies. In our test environment, we had to install the following dependencies/libraries: libee, libstr, libjson0, libjson0-dev, uuid, libgcrypt11-dev, python-docutils, zlib1g-dev
+
+You should refer to rsyslog's installation guide (http://www.rsyslog.com/newbie-guide-to-rsyslog) and check the _Preliminary actions_ chapter.
+
+Installing these dependencies may involve following the step-by-step instruction on the _Preliminary actions_ chapter, or use the command `sudo apt-get install <dependency>`. Nevertheless, for rsyslog to install correctly, all dependencies must be installed.
+
+[NOTE]
+====
+Since it depends on what you have installed in your machine, you'll only know if you're missing some dependencies when actually installing rsyslog. If this happens, install the dependency and try again.
+====
+
+
+=== 2. Install rsyslog
+Now that you've installed all required dependencies mentioned in the rsyslog guide, you can proceed to the installation of rsyslog itself. You can again refer to rsyslog's installation guide (http://www.rsyslog.com/newbie-guide-to-rsyslog) and follow the _How to install rsyslog_ steps. However, to get rsyslog to work with arbitrary files, you need to explicitly install that module. In the step-by-step guide in rsyslog's website, on step 4 (_Type “./configure –prefix=/usr”_), you need to run the following command instead:
+
+`./configure --prefix=/usr **--enable-imfile**`
+
+Failing to do this will result in a successful installation but the module we will be using **won't** be installed so the redirection **will not work**.
+
+=== 3. Edit rsyslog.conf
+Now that rsyslog is intalled, we need to edit rsyslog.conf to work with arbitrary files. To do so, we must edit the file `/etc/rsyslog.conf` and add the following line to the _MODULES_ section of the file:
+
+`$ModLoad imfile`
+
+This will enable the usage of rsyslog with any file you define.
+
+[NOTE]
+====
+Also make sure the following line is not commented: `$IncludeConfig /etc/rsyslog.d/*.conf`. We will need this for the next step.
+====
+
+=== 4. Create neo4j.conf file
+We are now going to create the configuration file that enables the redirection from Neo4j's logs to sysout.
+
+Create a new file on `/etc/rsyslog.d` (ie: neo4j_debug.conf), edit it and add the following to the file (I will use as example the debug.log of version 3.0.7):
+----
+$InputFileName /neo/neo4j-enterprise-3.0.7/logs/debug.log
+$InputFileTag neo4j_debug
+$InputFileStateFile neo4j_debug
+$InputFileSeverity info
+$InputFileFacility local7
+$InputRunFileMonitor
+$InputFilePersistStateInterval 1000
+----
+(while I used version 3.0.7 on $InputFileName, you should use the full path to your desired log file)
+
+
+=== 5. Restart rsyslog
+Everything is now configured and we just need to restart rsyslog service:
+
+`service rsyslog restart`
+
+=== 6. Check the results
+If everything was successful, we should have Neo4j's debug.log now being replayed in the sysout file. You can verify this by verifying the sysout file itself (`/var/log/syslog`).
+
+You can redirect as many files you want. In order to do so, you only need follow step 4 and create a new .conf file for the new log you wish to be redirected.

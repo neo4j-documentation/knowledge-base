@@ -1,0 +1,48 @@
+= Dump the Contents of a Transaction Log
+:slug: dump-the-contents-of-a-transaction-log
+:zendesk-id: 205527958
+:author: Dave Gordon
+:neo4j-versions: 3.0,3.1,3.2,3.3,3.4,3.5
+:tags: transaction log
+:public:
+:category: operations
+
+If there is a need to look through the transaction logs, particularly to see if/when a node or relationship (or property) with a given ID was touched, you will need to dump the log using the `DumpLogicalLog` tool. 
+
+The tools are available separately at https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.neo4j%22%20AND%20a%3A%22neo4j-tools[the Maven Central Repository] prior to version 3.5.x.  Download (or build) the correct tools jar for your Neo4j Version from there.
+
+Starting with version 3.5.x, you can find the jar in the http://m2.neo4j.com/enterprise[Private Repository]
+The username and password can be found https://support.neo4j.com/hc/en-us/articles/360012742113-Dependency-location-for-Neo4j-Enterprise-Edition-artifacts[here].
+
+Place the jar in `$NEO4J_HOME\lib` and given a log file of neostore.transaction.db.1, run:
+
+----
+java -cp 'lib/*:system/lib/*:/usr/share/neo4j/lib/*' org.neo4j.tools.dump.DumpLogicalLog ./data/graph.db/neostore.transaction.db.1 > /tmp/dumptxlog_1.log
+----
+
+Once dumped, you can search for a node ID, etc.
+
+----
+=== ./data/databases/graph.db/neostore.transaction.db.0[LogHeader{logFormatVersion=6, logVersion=0, lastCommittedTxId=1}] ===
+Start[master=-1,me=-1,time=2019-01-29 00:14:49.524+0000/1548720889524,lastCommittedTxWhenTransactionStarted=1,additionalHeaderLength=8,[-75, 113, -36, 24, -49, -11, -31, -102],position=LogPosition{logVersion=0, byteOffset=16},checksum=-162089288840]
+Command[ -PropertyKey[0,no use,nameId=-1,propCount=0]
+         +PropertyKey[0,in use,nameId=1,propCount=0,DynamicRecord[1,used=true,(4),type=-1,data=byte[99,111,100,101],start=true,next=-1]]]
+Commit[txId=2, 2019-01-29 00:14:49.543+0000/1548720889543]
+Start[master=-1,me=-1,time=2019-01-29 00:14:49.500+0000/1548720889500,lastCommittedTxWhenTransactionStarted=1,additionalHeaderLength=8,[-57, 79, -16, 29, 38, 48, 89, -74],position=LogPosition{logVersion=0, byteOffset=134},checksum=-160313975075]
+Command[ -Property[0,used=false,prev=-1,next=-1,node=0, (blocks not loaded)]
+         +Property[0,used=true,prev=-1,next=-1,node=0,PropertyBlock[blocks=1,SHORT_STRING,key=0,value=A]]]
+Command[ -Node[0,used=false,rel=-1,prop=-1,labels=Inline(0x0:[]),light,secondaryUnitId=-1]
+         +Node[0,used=true,rel=-1,prop=0,labels=Inline(0x0:[]),light,secondaryUnitId=-1]]
+...
+Command[UpdateCounts[() + 1]]
+Commit[txId=10, 2019-01-29 00:31:04.302+0000/1548721864302]
+Start[master=-1,me=-1,time=2019-01-29 00:31:06.405+0000/1548721866405,lastCommittedTxWhenTransactionStarted=10,additionalHeaderLength=8,[77, -57, 58, -59, -5, 87, -51, -31],position=LogPosition{logVersion=0, byteOffset=1824},checksum=-161405968298]
+Command[ -Property[5,used=false,prev=-1,next=-1,node=5, (blocks not loaded)]
+         +Property[5,used=true,prev=-1,next=-1,node=5,PropertyBlock[blocks=3,SHORT_STRING,key=0,value=CountMyTestString]]]
+Command[ -Node[5,used=false,rel=-1,prop=-1,labels=Inline(0x0:[]),light,secondaryUnitId=-1]
+         +Node[5,used=true,rel=-1,prop=5,labels=Inline(0x0:[]),light,secondaryUnitId=-1]]
+Command[UpdateCounts[() + 1]]
+Commit[txId=11, 2019-01-29 00:31:06.406+0000/1548721866406]
+CheckPoint[position=LogPosition{logVersion=0, byteOffset=2041}]
+----
+

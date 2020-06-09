@@ -1,0 +1,119 @@
+= How do I convert Neo4j logs from base UTC to local timezone
+:slug: how-do-i-convert-neo4j-logs-from-base-utc-to-local-timezone
+:author: Dana Canzano
+:neo4j-versions: 2.3,3.0,3.1
+:tags: logs, temporal
+:public:
+:category: operations
+
+With the introduction of Neo4j https://github.com/neo4j/neo4j/pull/10217[3.3.1] it is possible to represent date timestamps in
+your $NEO4J_HOME/logs/* in either UTC or SYSTEM timezone through the implementation of `dbms.logs.timezone`
+
+However for prior releases all Neo4j logs will preface each line with a date/time string of the format
+
+<YYYY-MM-DD HH24:MM:SS.MMM+0000>
+
+for example
+
+-----
+2016-12-01 15:51:00.222+0000 INFO  [o.n.k.i.DiagnosticsManager] --- INITIALIZED diagnostics START ---
+-----
+
+
+where the +0000 above indicates the date/time is expesssed in https://en.wikipedia.org/wiki/Coordinated_Universal_Time[UTC] format.
+Logging in UTC is helpful for analysis when a cluster is defined with members in different timezones.
+However when cluster members are in the same timezone or you are running a single instance you may want to log in local timezone.   There is a pending
+product improvement to request the date/time string be configurable based upon timezone.
+
+In the absence of this feature, one can run the following https://www.perl.org/[Perl]
+script to convert any file from UTC timezone to the machine timezone where the perl script is run.
+
+For most Unix implementations to determine the timezone, if one runs
+
+----
+date
+----
+
+this will return output similar to
+
+----
+Mon Jan 16 14:38:06 EST 2017
+----
+
+indicating the EST timezone.
+
+To convert a log from UTC to EST run
+
+----
+./utc.pl debug.log > debug.EST.log
+----
+
+To install the script, copy the following lines from here to a file named `utc.pl` on your linux server.
+
+----
+#!/usr/bin/perl -w
+use strict;
+use Time::Local;  #needed for timegm()
+
+my $file = $ARGV[0] or die "USAGE: $0 <filename>\n";
+
+open(my $data, '<', $file) or die "Could not open '$file' $!\n";
+
+while (my $line = <$data>) {
+  # where a line might start as
+  # 2017-01-11 23:22:28.372+0000 INFO ... .... ....
+  chomp $line;
+  # check to make sure the line begins with a YYYY-MM-DD HH
+  if ( $line =~ /\d\d\d\d-\d\d-\d\d \d\d/ ) {
+          my $newstring = UTC2LocalString($line);
+          print "$newstring\n";
+  }
+  else {
+      print "$line\n";
+  }
+}
+
+
+sub UTC2LocalString
+{
+  # below attributed to Marshall at http://www.perlmonks.org/?node_id=873435
+  my $t = shift;
+  my ($datehour, $rest) = split(/:/,$t,2);
+  #   $datehour will represent YYYY-MM-DD HH  (i.e. 2017-01-14 12)
+  #   $rest represents the rest of the line after
+  #   and this will reassemble and return $datehour (adjusted) + $rest
+  my ($year, $month, $day, $hour) =
+      $datehour =~ /(\d+)-(\d\d)-(\d\d)\s+(\d\d)/;
+
+  #  proto: $time = timegm($sec,$min,$hour,$mday,$mon,$year);
+  my $epoch = timegm (0,0,$hour,$day,$month-1,$year);
+
+  #  proto: ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+  #          localtime(time);
+  my ($lyear,$lmonth,$lday,$lhour,$isdst) =
+            (localtime($epoch))[5,4,3,2,-1];
+
+  $lyear += 1900;  # year is 1900 based
+  $lmonth++;       # month number is zero based
+  #print "isdst: $isdst\n"; #debug flag day-light-savings time
+  return ( sprintf("%04d-%02d-%02d %02d:%s",
+           $lyear,$lmonth,$lday,$lhour,$rest) );
+}
+----
+
+Make the script executable by running
+
+----
+chmod +x utc.pl
+----
+
+Run the script as
+
+----
+./utc.pl <log file>
+----
+
+replacing `<log file>` with a filename.
+
+With Neo4j 3.3 and as a result of https://github.com/neo4j/neo4j/pull/10217[PR 10127] the timestamp timezone can be configured through
+parameter `dbms.logs.timezone`.

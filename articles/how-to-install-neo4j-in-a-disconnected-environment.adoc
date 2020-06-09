@@ -1,0 +1,71 @@
+= How to install Neo4j in a disconnected environment
+:slug: how-to-install-neo4j-in-a-disconnected-environment
+:author: Daniel Terlizzi
+:neo4j-versions: 3.5
+:tags: offline,server
+:public:
+:category: installation
+
+Premise: You are working with a private/disconnected environment and would like to install the Neo4j Database using RPM packages as a source.
+
+
+1.
+You can download the RPM packages on a separate machine (with internet access) with the following command. Then you can transfer the packages by any means possible to the intended machine.
+
+`yum install --downloadonly --downloaddir=/tmp/neo4j_rpm_install_packages neo4j-enterprise-3.5.7`
+
+https://neo4j.com/docs/operations-manual/current/installation/linux/rpm
+
+2.
+When working with a private/disconnected environment where you can use wget https* you can prepare all files elsewhere, then place them on a cloud storage repository to use with the wget command from the disconnected machine to transfer all the needed files.
+
+3.
+To install Neo4j you will need to install the GPG Key. You can download it elsewhere and transfer it to the intended machine and then perform the needed steps before installing Neo4j Enterprise edition:
+
+`wget https://debian.neo4j.org/neotechnology.gpg.key`
+
+In this case, you would then use the local file to import the GPG Key in the disconnected environment:
+
+`rpm --import neotechnology.gpg.key`
+
+4.
+To install the Neo4j Database you install the RPM package with the command `rpm -i <package.rpm>`:
+
+`rpm -i neo4j-enterprise-3.5.7-1.noarch.rpm`
+
+Note 1: To install another JDK you would need to perform similar steps and download the RPM package from another source.
+
+Note 2: For non-interactive installation you can accept the license agreement by setting a variable in the environment before installing Neo4j Enterprise edition:
+
+----
+export NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+rpm -i neo4j-enterprise-3.5.7-1.noarch.rpm
+----
+
+https://neo4j.com/docs/operations-manual/current/installation/linux/rpm/#linux-noninteractive
+
+
+5.
+Configure Neo4j with the configuration file. See the file locations for RPM installation
+
+https://neo4j.com/docs/operations-manual/current/configuration/file-locations/
+
+Note: In Cloud environments you will need to edit the neo4j.template file to make changes to the neo4j.conf file. See the link for details: https://neo4j.com/developer/neo4j-cloud-vms/#vm-config
+
+
+6.
+You can enable the service for startup upon reboot with (use root or sudo):
+
+`systemctl enable neo4j`
+
+https://neo4j.com/docs/operations-manual/current/installation/linux/systemd/
+
+
+7.
+To view the neo4j.log for Debian and RPM, use 
+
+`journalctl --unit=neo4j`
+
+Or
+
+`journalctl -e -u neo4j`

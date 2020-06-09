@@ -1,0 +1,30 @@
+= Backup Failed. Unexpected error: Base directory for SSL policy with name 'default' does not exist.
+:slug: backup-failed-unexpected-error-base-directory-for-ssl-policy-with-name-default-does-not-exist
+:author: Daniel Terlizzi
+:category: operations
+:tags: backup, error, encryption
+:neo4j-versions: 3.5
+:public:
+
+This article is based on a defect report with a suggested workaround until a fix becomes available.
+
+When running backup (full or incremental) you may encounter the following error in the output, and as a result, the backup is not working:
+----
+unexpected error: Base directory '/users/neo4j/neo4j-enterprise-3.5.8/backups/certificates/ssl_policy' for SSL policy with name 'default' does not exist.
+----
+
+You may encounter this issue when using SSL and regardless of using encryption for backups or not.
+
+The configuration that is exposing this issue is:
+----
+dbms.ssl.policy.default.base_directory=certificates/ssl_policy
+----
+The key to this issue is if you are using relative paths instead of absolute paths. With a relative path, the backup will fail with the shown error.
+
+***Workaround:***
+To resolve this issue, use an absolute path instead for the SSL configuration setting:
+----
+dbms.ssl.policy.default.base_directory=/users/neo4j/neo4j-enterprise-3.5.8/certificates/ssl_policy
+----
+
+Additionally this issue is resolved by upgrading to Neo4j 3.5.9 or later

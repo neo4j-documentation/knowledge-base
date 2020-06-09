@@ -1,0 +1,21 @@
+= How do I automate the copy of auth files in a clustered environment
+:slug: how-do-i-automate-the-copy-of-auth-files-in-a-clustered-environment
+:author: Dana Canzano
+:neo4j-versions: 2.3, 3.0, 3.1
+:tags: logging, server
+:category: operations
+
+In a clustered Neo4j implementation, user authentication files are recorded in each instance at $NEO4J_HOME/data/dbms.   
+Since this defined per each instance in the cluster if for example you change the password of a user on instance 1, for consistency 
+you should also then change the users password on the other instances.
+
+Attached is a tgz file which can be used so as to automate the copying of $NEO4J_HOME/data/dbms from each instance to the other using
+linux https://en.wikipedia.org/wiki/Rsync[rsync] and then automating this to run via 
+https://en.wikipedia.org/wiki/Cron[cron] on a regular interval from each instance in the cluster.
+
+This package is provided AS-IS.
+
+Installation is as follows:
+1. copy the .tgz to the linux server where instance 1 is defined.
+2. untar the package as tar 
+

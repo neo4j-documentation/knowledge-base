@@ -1,0 +1,61 @@
+= Setup Routing Policies for Different User Types To Direct them to Different Servers
+:slug: setup-routing-policies-for-different-user-types
+:author: Rohan Kharwar 
+:neo4j-versions: 3.2+ 
+:tags: causal cluster, multi-datacenter
+:public:
+:category: cluster
+
+### Problem statement
+There is a Causal Cluster Setup with 3 Cores and 1 Read Replica. There are 2 user groups - OLTP users and OLAP users.
+OLTP user queries should only go to the 2 Followers and not to the Read Replica.
+OLAP user queries should only go to the Read Replica and not to any of the Followers. 
+The reason being that OLTP users should not be impacted by the long running queries from OLAP users. 
+
+### How to achieve this in Causal Cluster setup?
+To assist with this, Multi-DC setup is required, which was introduced in Neo4j version 3.2.
+First set up the multi-dc license. 
+More information can be obtained from the Neo4j Operations Manual - https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/multi-data-center/. 
+
+Configure the Causal Cluster(CC) with 3 Cores and 1 Read Replica as described in the Neo4j documentation. 
+Then make the corresponding changes in `neo4j.conf` file to configure which apps/users should access which instances of the cluster.  
+The below configuration creates a server group with `oltp_app` and also enables multi-dc license, which is required for server groups. 
+
+----
+Core 1, Core 2 and Core 3
+
+causal_clustering.server_groups=oltp_app
+causal_clustering.multi_dc_license=true
+causal_clustering.load_balancing.plugin=server_policies
+causal_clustering.load_balancing.config.server_policies.oltp=groups(oltp_app); halt();
+----
+More documentation on the above config properties can be read here: https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/multi-data-center/load-balancing/#_prerequisite_configuration
+
+Now, to service only the OLAP users on Read Replica configure the read replica as follows:
+
+----
+READ_REPLICA
+
+causal_clustering.server_groups=olap_app
+causal_clustering.multi_dc_license=true
+causal_clustering.load_balancing.plugin=server_policies
+causal_clustering.load_balancing.config.server_policies.olap=groups(olap_app); halt();
+----
+
+### How to use the Driver from the application? 
+
+The application used by OLTP users will have the driver configuration below: 
+
+Client Application URL:
+
+----
+Driver driver = GraphDatabase.driver( "bolt+routing://127.0.0.1:7687?policy=oltp" , AuthTokens.basic( "neo4j", "password"), Config.build().withMaxTransactionRetryTime( 15, TimeUnit.SECONDS ).toConfig() );
+----
+
+We specify the server_policy name in the URI - `bolt+routing://127.0.0.1:7687?policy=oltp`.
+When using the above URI the READ ONLY queries will only be routed to the 2 Followers since the Core server_groups are set as `oltp_app`. 
+
+The documentation link for Routing Context in present in the drivers section:
+https://neo4j.com/docs/developer-manual/current/drivers/client-applications/#_routing_drivers_with_routing_context
+
+*Please Note:* Multi-DC feature is only available in Neo4j version 3.2 and above. 

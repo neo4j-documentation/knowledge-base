@@ -1,0 +1,34 @@
+= How do I view the column headers of a CSV file with LOAD CSV
+:slug: how-do-i-view-the-column-headers-of-a-csv-file-with-load-csv
+:author: Dana Canzano
+:neo4j-versions: 3.4, 3.5
+:tags: load-csv
+:public:
+:category: cypher
+
+If one has a CSV file with the following content
+
+----
+id,name,dob,addr1,addr2,city,state,country
+1,Joe Smith,04/23/1971,121 Main Street,San Mateo,CA,USA
+2,Bill Williams,09/21/2008,43 Overlook St,San Mateo,CA, USA
+----
+
+and one simply wants to run a https://neo4j.com/docs/cypher-manual/current/clauses/load-csv/[`LOAD CSV`] command to have the column
+headers returned, the following should suffice
+
+----
+load csv with headers from 'file:///test.csv' as row with row limit 1 return keys(row);
+----
+
+which will return output similar to
+
+----
++---------------------------------------------------------------------+
+| keys(row)                                                           |
++---------------------------------------------------------------------+
+| ["country", "addr2", "city", "addr1", "dob", "name", "state", "id"] |
++---------------------------------------------------------------------+
+----
+
+

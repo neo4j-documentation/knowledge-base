@@ -1,0 +1,122 @@
+= How to List and Install Neo4j Versions Using yum
+:slug: how-to-list-and-install-neo4j-versions-using-yum
+:author: Dave Gordon
+:neo4j-versions: 2.0,2.1,2.2,2.3
+:tags: unix, installation
+:public:
+:category: installation
+
+*WARNING: Prior to Neo4j 3.2, the rpm distribution of Neo4j was experimental at this time. Use with caution and we advise installing
+from the linux tarball in production environments.   For Neo4j 3.2 please follow the instructions
+https://neo4j.com/docs/operations-manual/current/installation/linux/rpm/[here]
+
+Neo4j 3.0 does NOT provide an rpm, and it is unlikely 3.1 will either. This is on the roadmap to be done soon, but presently it 
+is not an official method of installing Neo4j. Also note that the "current" version installed by yum might be a milestone or 
+release candidate, and thus does not support an upgrade to an official GA release. If you do install Neo4j using yum, be 
+sure to follow these instructions to specify the version you would like to install.*
+
+By default, using `yum install neo4j` allows you to install the current release (which might be a non-GA release).
+However, if you would like to install an older version, you can specify that.
+
+For reference, the Yum repo is located here: http://yum.neo4j.com/
+
+After following the instructions found in the link above, run the following command as root at the command line:
+
+----
+yum list --show-duplicates neo4j
+----
+
+To get the Enterprise package of Neo4j:
+
+----
+yum list --show-duplicates neo4j-enterprise
+----
+
+Example output:
+
+[source,shell]
+----
+[root@localhost ~]# yum list --show-duplicates neo4j-enterprise
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+ * base: mirror.cc.columbia.edu
+ * extras: mirror.es.its.nyu.edu
+ * rpmforge: repoforge.mirror.constant.com
+ * updates: mirrors.greenmountainaccess.net
+Installed Packages
+neo4j-enterprise.noarch                   2.2.5-1                         @neo4j
+Available Packages
+neo4j-enterprise.noarch                   1.9.3-1                         neo4j 
+neo4j-enterprise.noarch                   1.9.4-1                         neo4j 
+neo4j-enterprise.noarch                   1.9.6-1                         neo4j 
+neo4j-enterprise.noarch                   1.9.7-1                         neo4j 
+neo4j-enterprise.noarch                   1.9.8-1                         neo4j 
+neo4j-enterprise.noarch                   1.9.9-1                         neo4j 
+neo4j-enterprise.noarch                   2.0.0-1                         neo4j 
+neo4j-enterprise.noarch                   2.0.1-1                         neo4j 
+neo4j-enterprise.noarch                   2.0.2-1                         neo4j 
+neo4j-enterprise.noarch                   2.0.3-1                         neo4j 
+neo4j-enterprise.noarch                   2.0.4-1                         neo4j 
+neo4j-enterprise.noarch                   2.0.5-1                         neo4j 
+neo4j-enterprise.noarch                   2.1.0-M01_1                     neo4j 
+neo4j-enterprise.noarch                   2.1.0-M02_1                     neo4j 
+neo4j-enterprise.noarch                   2.1.0-RC1_1                     neo4j 
+neo4j-enterprise.noarch                   2.1.0-RC2_1                     neo4j 
+neo4j-enterprise.noarch                   2.1.0-1                         neo4j 
+neo4j-enterprise.noarch                   2.1.1-1                         neo4j 
+neo4j-enterprise.noarch                   2.1.2-1                         neo4j 
+neo4j-enterprise.noarch                   2.1.3-1                         neo4j 
+neo4j-enterprise.noarch                   2.1.4-1                         neo4j 
+neo4j-enterprise.noarch                   2.1.5-1                         neo4j 
+neo4j-enterprise.noarch                   2.1.6-1                         neo4j 
+neo4j-enterprise.noarch                   2.1.7-1                         neo4j 
+neo4j-enterprise.noarch                   2.1.8-1                         neo4j 
+neo4j-enterprise.noarch                   2.2.0-M01_1                     neo4j 
+neo4j-enterprise.noarch                   2.2.0-M02_1                     neo4j 
+neo4j-enterprise.noarch                   2.2.0-M03_1                     neo4j 
+neo4j-enterprise.noarch                   2.2.0-M04_1                     neo4j 
+neo4j-enterprise.noarch                   2.2.0-RC01_1                    neo4j 
+neo4j-enterprise.noarch                   2.2.0-1                         neo4j 
+neo4j-enterprise.noarch                   2.2.1-1                         neo4j 
+neo4j-enterprise.noarch                   2.2.2-1                         neo4j 
+neo4j-enterprise.noarch                   2.2.3-1                         neo4j 
+neo4j-enterprise.noarch                   2.2.4-1                         neo4j 
+neo4j-enterprise.noarch                   2.2.5-1                         neo4j 
+neo4j-enterprise.noarch                   2.2.6-1                         neo4j 
+neo4j-enterprise.noarch                   2.2.7-1                         neo4j 
+neo4j-enterprise.noarch                   2.2.8-1                         neo4j 
+neo4j-enterprise.noarch                   2.2.9-1                         neo4j 
+neo4j-enterprise.noarch                   2.2.10-1                        neo4j 
+neo4j-enterprise.noarch                   2.3.0-M01_1                     neo4j 
+neo4j-enterprise.noarch                   2.3.0-M02_1                     neo4j 
+neo4j-enterprise.noarch                   2.3.0-M03_1                     neo4j 
+neo4j-enterprise.noarch                   2.3.0-RC1_1                     neo4j 
+neo4j-enterprise.noarch                   2.3.0-1                         neo4j 
+neo4j-enterprise.noarch                   2.3.1-1                         neo4j 
+neo4j-enterprise.noarch                   2.3.2-1                         neo4j 
+neo4j-enterprise.noarch                   2.3.3-1                         neo4j 
+neo4j-enterprise.noarch                   2.3.4-1                         neo4j 
+neo4j-enterprise.noarch                   2.3.5-1                         neo4j 
+neo4j-enterprise.noarch                   2.3.6-1                         neo4j 
+neo4j-enterprise.noarch                   2.3.7-1                         neo4j 
+neo4j-enterprise.noarch                   3.0.0-M01_1                     neo4j 
+neo4j-enterprise.noarch                   3.0.0-M02_1                     neo4j 
+neo4j-enterprise.noarch                   3.0.0-M03_1                     neo4j 
+neo4j-enterprise.noarch                   3.0.0-M04_1                     neo4j 
+neo4j-enterprise.noarch                   3.0.0-M05_1                     neo4j 
+----
+
+Choose from the available packages, and decide whether you want Enterprise or Community.
+To install neo4j 2.3.7:
+
+[source,shell]
+----
+# Enterprise:
+
+[root@localhost ~]# yum install neo4j-enterprise-2.3.7
+
+# Community:
+
+[root@localhost ~]# yum install neo4j-2.3.7
+----
+

@@ -1,0 +1,38 @@
+= Configuring Remote JMX monitoring
+:slug: configuring-remote-jmx-monitoring
+:author: Rohan Kharwar
+:neo4j-versions: 3.0,3.1
+:tags: jmx, monitoring
+:category: operations
+
+In order to enable JMX Remote monitoring, edit the `neo4j-wrapper.conf` file in Neo4j 3.0.x versions or `neo4j.conf` file in Neo4j 3.1.x versions and uncomment the following lines:
+
+----
+dbms.jvm.additional=-Dcom.sun.management.jmxremote.port=3637
+dbms.jvm.additional=-Dcom.sun.management.jmxremote.authenticate=true
+dbms.jvm.additional=-Dcom.sun.management.jmxremote.password.file=conf/jmx.password
+dbms.jvm.additional=-Dcom.sun.management.jmxremote.access.file=conf/jmx.access
+----
+
+After uncommenting the above lines, restart neo4j. 
+If the neo4j process does not start, look in the `logs/neo4j.log` file and look for errors.
+
+If you see one of the following errors:
+
+----
+Error: Password file not found: conf/jmx.password
+----
+or 
+----
+Error: Access file not found: conf/jmx.access
+----
+
+It means neo4j it is unable to locate the `jmx.password` and/or `jmx.access` files. 
+In order to fix this issue, one will need to specify the complete path for those files as shown below: 
+
+----
+dbms.jvm.additional=-Dcom.sun.management.jmxremote.password.file=$NEO4J_HOME/conf/jmx.password
+dbms.jvm.additional=-Dcom.sun.management.jmxremote.access.file=$NEO4J_HOME/conf/jmx.access
+----
+
+After making the above changes restart neo4j and verify that the database comes online. 

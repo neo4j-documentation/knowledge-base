@@ -1,0 +1,71 @@
+= How do I produce a profile/explain through cypher-shell and pipeing query file
+:slug: how-do-i-produce-a-profile-explain-through-cypher-shell-and-pipeing-query-file
+:author: Dana Canzano
+:neo4j-versions: 3.2
+:tags: cypher-shell, explain, profile
+:public:
+:category: cypher
+
+If yor prepare a file with a Cypher statement that includes either a 
+https://neo4j.com/docs/developer-manual/current/cypher/query-tuning/how-do-i-profile-a-query/[profile or explain] clause and then 
+want to pipe that file to bin/cypher-shell, to produce the profile/explain output you must include --format verbose on the command line.
+
+For example, when your file, mycypher.cql, contains
+
+----
+profile match (n:Movies) return count(n);
+----
+
+if you run
+
+----
+cat mycypher.cql | ./cypher-shell
+----
+
+the output will be
+
+----
+Plan: "PROFILE"
+Statement: "READ_ONLY"
+Version: "CYPHER 3.2"
+Planner: "COST"
+Runtime: "COMPILED"
+Time: 42
+DbHits: 0
+Rows: 1
+count(n)
+0
+----
+
+however when running
+
+----
+cat mycypher.cql | ./cypher-shell --format verbose
+----
+
+the output will now be
+
+----
++--------------------------------------------------------------------------------------+
+| Plan      | Statement   | Version      | Planner | Runtime    | Time | DbHits | Rows |
++--------------------------------------------------------------------------------------+
+| "PROFILE" | "READ_ONLY" | "CYPHER 3.2" | "COST"  | "COMPILED" | 0    | 0      | 1    |
++--------------------------------------------------------------------------------------+
+
++--------------------------+----------------+------+---------+-----------+-----------+-------------+---------------------------------------+
+| Operator                 | Estimated Rows | Rows | DB Hits | Cache H/M | Time (ms) | Identifiers | Other                                 |
++--------------------------+----------------+------+---------+-----------+-----------+-------------+---------------------------------------+
+| +ProduceResults          |              1 |    1 |       0 |       0/0 |     0.019 | count(n)    | 19237                                 |
+| |                        +----------------+------+---------+-----------+-----------+-------------+---------------------------------------+
+| +NodeCountFromCountStore |              1 |    0 |       1 |       0/0 |     0.029 | count(n)    | 29320; count( (:Movies) ) AS count(n) |
++--------------------------+----------------+------+---------+-----------+-----------+-------------+---------------------------------------+
+
++----------+
+| count(n) |
++----------+
+| 0        |
++----------+
+----
+
+
+

@@ -1,0 +1,89 @@
+= Viewing schema data with APOC Procedures
+:slug: viewing-schema-data-with-apoc
+:author: Andrew Bowman
+:neo4j-versions: 3.1, 3.2
+:tags: apoc, procedures, schema
+:public:
+:category: development
+
+APOC Procedures offers https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_meta_graph[meta procedures] to view information
+about your database schema and the data it stores.
+
+The procedure `apoc.meta.schema()` uses a sampling of the graph data to produce a map of metadata on the graph labels, relationships,
+properties, and more.
+
+As the metadata returned is a map, it can be transformed to better surface desired information, and may be formatted to provide a more
+tabular structure of the data.
+
+
+This requires UNWINDing the collection of map keys and obtaining the value for each key.
+
+Here's one possible way to transform the schema data so it resembles the `USER_TAB_COLUMNS` system object from Oracle:
+
+[source,cypher]
+----
+CALL apoc.meta.schema() YIELD value as schemaMap
+UNWIND keys(schemaMap) as label
+WITH label, schemaMap[label] as data
+WHERE data.type = "node"
+UNWIND keys(data.properties) as property
+WITH label, property, data.properties[property] as propData
+RETURN label,
+property,
+propData.type as type, 
+propData.indexed as isIndexed,
+propData.unique as uniqueConstraint, 
+propData.existence as existenceConstraint
+----
+
+Here's an example result table, if run on the movies graph from the built-in tutorial using `:play movies`, and adding an index
+on `:Person(name)` and a unique constraint on `:Movie(title)`.
+Order of the output is not guaranteed to be the same across Neo4j instances, though the labels should always be grouped together.
+
+[opts=header,cols="m,m,m,m,m,m"]
+|===
+| label | property | type | isIndexed | uniqueConstraint | existenceConstraint
+| "Person" | "name" | "STRING" | true | false | false
+| "Person" | "born" | "STRING" | false | false | false
+| "Movie" | "tagline" | "STRING" | false | false | false
+| "Movie" | "title" | "STRING" | true | true | false
+| "Movie" | "released" | "INTEGER" | false | false | false
+|===
+
+
+
+As an alternative, if using APOC 3.1.3.8 or newer (along the 3.1.x line) or 3.2.0.4 or newer (along the 3.2.x line) you can use
+`apoc.map.sortedProperties()`, using UNWIND on the result.
+
+[source,cypher]
+----
+CALL apoc.meta.schema() yield value
+UNWIND apoc.map.sortedProperties(value) as labelData
+WITH labelData[0] as label, labelData[1] as data
+WHERE data.type = "node"
+UNWIND apoc.map.sortedProperties(data.properties) as property
+WITH label, property[0] as property, property[1] as propData
+RETURN label, 
+property, 
+propData.type as type, 
+propData.indexed as isIndexed, 
+propData.unique as uniqueConstraint, 
+propData.existence as existenceConstraint
+----
+
+Output will be the same but alphabetically sorted by label, then property.
+
+[opts=header,cols="m,m,m,m,m,m"]
+|===
+| label | property | type | isIndexed | uniqueConstraint | existenceConstraint
+| "Movie" | "released" | "INTEGER" | false | false | false
+| "Movie" | "tagline" | "STRING" | false | false | false
+| "Movie" | "title" | "STRING" | true | true | false
+| "Person" | "born" | "STRING" | false | false | false
+| "Person" | "name" | "STRING" | true | false | false
+|===
+
+
+Keep in mind that since Neo4j allows dynamic node properties instead of a fixed schema, a sampling of the database is needed to
+obtain this data.  It is possible this may miss some elements in the graph, such as node properties that are only present in a
+small subset of nodes within a label.

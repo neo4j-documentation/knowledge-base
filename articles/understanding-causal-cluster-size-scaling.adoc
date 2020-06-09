@@ -1,0 +1,86 @@
+= Understanding causal cluster size scaling
+:slug: understanding-causal-cluster-size-scaling
+:author: Andrew Bowman
+:neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5
+:tags: cluster,scaling
+:public:
+:category: cluster
+
+The ability to safely scale down the size of a causal cluster affords us more robustness for instance failures, provided we maintain quorum as the failures take place.
+
+Prior to 3.4, we used a single config property to define both the minimum core cluster size needed at formation, and the minimum cluster size for scaling down:
+
+`causal_clustering.expected_core_cluster_size`
+
+With 3.4 the above config property has been deprecated and its behavior separated into 2 config properties:
+
+`causal_clustering.minimum_core_cluster_size_at_formation`
+
+and
+
+`causal_clustering.minimum_core_cluster_size_at_runtime`
+
+While the first of these (the core cluster size required for formation) is easy to understand, the minimum core cluster size at runtime is not so simple, and requires some understanding of raft consensus and cluster size scaling.
+
+It should be noted before continuing that the default value of 3 for `causal_clustering.minimum_core_cluster_size_at_runtime` is sufficient for most cluster deployments and affords the best ability to scale down the cluster size safely. Only for very specific multi-datacenter requirements or special cases would a different value be reasonable.
+
+== Consensus operations in Raft
+
+Causal clustering uses the Raft consensus protocol, which requires a majority quorum of core cluster instances for most cluster operations.
+
+Here's a an easy to understand http://thesecretlivesofdata.com/raft/[visual walkthrough] of distributed consensus operations in Raft.
+
+While this is usually understood to apply to commits to the cluster, this also applies to voting (in and out) of cluster members:
+
+- Quorum is required to accept a new member into the cluster.
+- Quorum is required to vote out a member of the cluster.
+
+Both of these will change the runtime size of the core cluster members, potentially changing the number of core cluster members required for quorum, and thus the number of failures the cluster can tolerate before losing quorum (and write capability).
+
+==== Voting in a new member to the cluster
+
+The first point should be fairly easy to understand.
+
+This is also the reason why, if a cluster loses quorum (and write capability) that we cannot restore it by adding new members to the cluster dynamically: a quorum of online cluster members is required to vote in a new cluster member.
+
+The only way to recover quorum is to restore enough of those instances which are offline (but which weren't voted out of the cluster, due to loss of quorum).
+
+==== Voting out cluster members and shrinking the cluster
+
+The second point is a little bit more complicated.
+
+The act (or at least attempt) of voting out a member of the cluster happens in all situations, planned or unexpected, when a core cluster instance is no longer participating in the cluster.
+
+This can be in response to Neo4j being shut down or restarted for that instance, where the instance tells the rest of the cluster it is leaving, or a more unexpected case where the instance is killed (or maybe network issues are present), and the instance heartbeat isn't received over the expected timeout interval and the cluster's discovery service determines that instance is offline.
+
+At that point, provided we are not currently at the `minimum_core_cluster_size_at_runtime`, the cluster attempts to vote out the instance from the cluster, and this will only pass if a quorum of core cluster instances is online.
+
+If a quorum is present, the instance is voted out, and the core cluster size shrinks accordingly, changing the number of core instances required for quorum.
+
+If a quorum is not present, or we're at the `minimum_core_cluster_size_at_runtime`, the vote will not take place, we cannot vote out the instance, and though it may be offline, we cannot shrink the cluster size as far as Raft is concerned, so the number required for quorum will not change, nor will the number of failures the cluster can tolerate.
+
+=== Example with a cluster of 3 and minimum cluster size of 3
+
+The default value for `causal_clustering.minimum_core_cluster_size_at_runtime` is 3.
+
+This means, when we reach a cluster size of 3 and lose an instance, we cannot scale the cluster down further:
+
+- If one of those 3 core cluster instances goes offline, no vote to remove the instance will take place even if we have a quorum of 2.
+- The cluster size will stay at 3 and will not shrink to 2. The offline instance is still considered a member of the cluster even if it's not available.
+- With only 2 out of 3 instances online, if another instance fails we lose quorum and write capability.
+- If a different core instance gets added it can still be voted in, since we still have quorum of 2 instances.
+
+=== Example with a cluster of 5 and a minimum cluster size of 3
+
+If we started out with a 5 instance cluster, quorum would be 3 of the 5 instances, and we can tolerate 2 simultaneous instance failures while keeping quorum.
+
+In the event of losing up to 2 instances of those 5 (simultaneously or progressively, planned or unplanned), a member vote-out would take place and succeed, since a quorum is present.
+The cluster size would then scale down accordingly to a 3-instance cluster, with a new quorum size of 2 out of 3 and the ability to tolerate just one more instance failure safely while keeping quorum and write capability.
+
+Basically when we scale down to a 3-instance cluster the behavior for the above section (cluster of 3, min cluster size of 3) applies.
+
+=== Example with a cluster of 5 and a minimum cluster size of 5
+
+If we started with a 5 instance cluster and minimum cluster size of 5, we would not be able to scale down to a smaller cluster with instance failures.
+
+While we could tolerate up to 2 simultaneous instance failures while keeping quorum, no cluster scaling would occur, and no instances voted out, and no more instances could be lost without losing quorum and write capability.

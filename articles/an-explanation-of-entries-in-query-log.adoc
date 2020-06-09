@@ -1,0 +1,119 @@
+= An explanation of entries in query.log
+:slug: an-explanation-of-entries-in-query-log
+:author: Umar Muzammil
+:neo4j-versions: 3.2, 3.3
+:tags: logging, query.log, monitoring
+:category: operations
+:enterprise:
+
+This document aims to provide descriptions of components of the query.log logfile located at $NEO4J_HOME/logs. Note that the 
+following configs in conf/neo4j.conf need to be uncommented for the query log to include mentions of the useful parameters described in 
+this article:
+
+* dbms.logs.query.enabled=true
+* dbms.logs.query.allocation_logging_enabled=true
+* dbms.logs.query.page_logging_enabled=true
+* dbms.logs.query.parameter_logging_enabled=true
+* dbms.logs.query.time_logging_enabled=true
+* dbms.logs.query.threshold=<appropriate value>
+
+The following sample query was executed on the movies database:
+
+----
+match (n:Person {name:'Tom Hanks'})-[:ACTED_IN]->(n1:Movie)<-[:DIRECTED]-(n2:Person {name:"Tom Hanks"}) return n1.title
+----
+
+The corresponding query log in query.log is shown below:
+
+----
+2017-11-23 12:44:56.973+0000 INFO  1550 ms: (planning: 20, cpu: 920, waiting: 10) - 13792 B - 15 page hits, 0 page faults - bolt-session	bolt	neo4j	neo4j-javascript/1.4.1		client/127.0.0.1:58189	server/127.0.0.1:7687>	neo4j - match (n:Person {name:'Tom Hanks'})-[:ACTED_IN]->(n1:Movie)<-[:DIRECTED]-(n2:Person {name:"Tom Hanks"}) return n1.title; - {} - {}
+----
+
+An obvious but essential point of note when examining parameters of a particular query, is to ensure to analyse only the entries 
+relevant to that to the particular query plan, as opposed to e.g. cpu, time, bytes etc. for each log entry in sequence.
+
+Following is a breakdown of resource usage parameters, with descriptions, corresponding to the above qurey:
+
+* 2017-11-23 12:44:56.973+0000 = log timestamp.
+
+* INFO = log category
+
+* 1550 ms = Total elapsed cumulative wall time spent in query execution. It is the total of planning time + cpu + waiting (see below for individual descriptions) + any other processing time e.g. taken to acquire execution threads. This figure is cumulative for every time a cpu thread works on executing the query.
+
+* Planning refers to the time taken by the cypher engine to create a query plan. Plans may be cached for repetitive queries and therefore planning times for such queries will be shorter than those for previously unplanned ones. In our example, this contributed 20ms to the total execution time 1550ms.
+
+* CPU time refers to the time taken by individual threads thread executing the query, e.g. a query is submitted at 08:00, it uses CPU for 720ms but then the CPU swaps out to another query, so the first query is no longer using the CPU, but then after 100ms it then gets/uses the cpu again for 200ms, (more results to be loaded, requested by the client via the driver), then the query completes at 08:01:30, so the total duration is 1550ms (includes some round-trip time for 2 round-trips) but CPU is 720+200=920ms.
+
+* Waiting = time(ms) a query spent waiting prior to execution e.g. if an existing query has a lock which the new query must wait on to release. In our example, this contributed 10ms to the total execution time 1550ms.
+
+Importantly, note that the client requests data from the server only when it's record buffer is empty (one round-trip from the server may end-up with several records), and server stops pushing data into outgoing buffers if client doesn't read them in a timely fashion. So, it basically depends on the size of the result set, if it is fairly small and will fit in a single round-trip - the client will receive all the results at once and server would have finish processing without any client-side effect. If the result set is large, client side processing time will affect the overall time as it is directly connected to when new data is requested from the server.
+
+A simple test which shows how retrieval and roud-trip times between db and client are reflected in query.log, we can try the following transaction:
+
+public void iterateWithoutDelay() throws Exception { 
+final Session session = driver.session(AccessMode.READ); 
+Transaction tx = session.beginTransaction(); 
+final long startTime = System.currentTimeMillis(); 
+final StatementResult result = tx.run("MATCH (n) return n"); 
+while (result.hasNext()) { 
+result.next(); 
+} 
+tx.close(); 
+}
+
+results in this entry in the log::
+
+INFO 3896 ms: bolt-session bolt null neo4j-java/dev client/127.0.0.1:52935 server/127.0.0.1:7687> - MATCH (n) return n - {} - {}
+
+While this code::
+
+public void iterateWithDelay() throws Exception { 
+final Session session = driver.session(AccessMode.READ); 
+Transaction tx = session.beginTransaction(); 
+final long startTime = System.currentTimeMillis(); 
+final StatementResult result = tx.run("MATCH (n) return n"); 
+while (result.hasNext()) { 
+result.next(); 
+Thread.sleep(5); 
+} 
+tx.close(); 
+}
+
+results in this entry::
+
+INFO 135171 ms: bolt-session bolt null neo4j-java/dev client/127.0.0.1:52935 server/127.0.0.1:7687> - MATCH (n) return n - {} - {}
+
+Notice that the only difference here is the delay added to the client processing hence showing it contributing to logged times.
+
+So based on this, if total time is T, planning time P, CPU time C, waiting time W then
+
+x = T - (C + W + P)
+
+represents the time spent either transferring results to the client (round-trip time), or time spent waiting for the client to pull results, or both.
+
+* 13792 B: The allocated bytes for the executed queries being logged. This is the amount of HEAP memory used during the life of the query. The logged number is cumulative over the duration of the 
+query, i.e. for memory intense or long-running queries the value may be larger than the current memory allocation.
+
+* 15 page hits = Page hit means the result was returned from pagecahce as opposed to disk. In this case, pagecache was hit 15 times.
+
+* 0 page faults = Page fault means that the query result data wasnt in the dbms.memory.pagecache and therefore had to be fetched from the file system. 
+In this case, query results were returned entirely from the 8 pagecache hits mentioned above therefore there were 0 hits on the disk required.
+
+* bolt-session: session type
+
+* bolt = browser <- -> db communication protocol used by the query
+
+* neo4j = process id
+
+* neo4j-javascript/1.4.1 = driver version
+
+* client/127.0.0.1:52935 = query client outbound IP:port used
+
+* server/127.0.0.1:7687>	= server listening IP:port used
+
+* neo4j = username of the query executioner
+
+* match (n:Person {name:'Tom Hanks'})-[:ACTED_IN]->(n1:Movie)<-[:DIRECTED]-(n2:Person {name:"Tom Hanks"}) return n1.title = the executed query.
+
+* The last two parenthesis {} {} are for query `params` and `txMetaData`. 
+See https://neo4j.com/docs/operations-manual/current/monitoring/logging/query-logging/.

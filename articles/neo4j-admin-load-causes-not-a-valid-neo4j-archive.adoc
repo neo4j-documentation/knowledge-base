@@ -1,0 +1,54 @@
+= neo4j-admin load causes "Not a valid Neo4j archive"
+:slug: neo4j-admin-load-causes-not-a-valid-neo4j-archive
+:author: Kambiz Chehresa
+:neo4j-versions: 4.0
+:tags: dump, load, neo4j-admin,linux
+:public:
+:category: operations
+:environment: linux
+
+When using `neo4j-admin load` for loading a .dump file, following error is observerd:
+
+----
+neo4j-admin load --from=/var/lib/neo4j/neo4j.dump --database=neo4j --force --verbose 
+org.neo4j.cli.CommandFailedException: Not a valid Neo4j archive: /
+Caused by: org.neo4j.dbms.archive.IncorrectFormat: /var/lib/neo4j/neo4j.dump
+at org.neo4j.dbms.archive.Loader.openArchiveIn(Loader.java:172)
+at org.neo4j.dbms.archive.Loader.load(Loader.java:74)
+at org.neo4j.commandline.dbms.LoadCommand.load(LoadCommand.java:131)
+... 11 more
+Caused by: java.util.zip.ZipException: Not in GZIP format
+----
+
+Sometimes this has nothing to do with the formatting of the .dump file as indicate by **Not in GZIP format**, 
+but an OS setting interferring with a Java System property.
+
+Java uses the System property `java.io.tmpdir` and on most Linux flavor machines this usually defaults to `/tmp`.
+The location is a directory used by the JVM to create and store temporary files.
+Some system administrators when following security best practices in order to limit their attack surface, make sure that `/tmp` is mounted with `noexec` option. This option prompts the kernel to refuse to allow any code execution and or storage 
+performed against this location.
+
+One approach to troubleshoot:
+=============================
+
+Check if this option set. For example on a RHEL server:
+
+----
+$ mount | grep /tmp
+tmpfs on /tmp type tmpfs (rw,noexec,relatime,seclabel,size=524288k)
+----
+
+So on this machine `/tmp` is setup with `noexec` option. 
+
+
+Fix / Workaround:
+==================
+Override `java.io.tmpdir` default setting from `/tmp` to another location and then running `neo4j-admin load`.
+
+For example:
+
+----
+$ export _JAVA_OPTIONS="-Djava.io.tmpdir=/var/lib/neo4j/import/temp"
+$ neo4j-admin load --from=/var/lib/neo4j/neo4j.dump --database=neo4j --force
+Done: 34 files, 971.0KiB processed.
+----

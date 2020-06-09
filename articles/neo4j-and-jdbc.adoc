@@ -1,0 +1,54 @@
+= Neo4j & JDBC: the Neo4j JDBC Driver vs. BI Connector 
+:slug: neo4j-and-jdbc
+:author: David Allen
+:neo4j-versions: 3.5, 4.0
+:tags: jdbc, sql, tableau, cypher
+:category: tools
+:public:
+
+This page describes the connection between JDBC and Neo4j,
+and when users should use the BI Connector, vs. when they
+should use the Neo4j JDBC Driver.
+
+To begin with, let's start that JDBC is a transport; that is,
+it is a way of moving data from point to point.  JDBC itself
+does not imply graph or tables; link:https://en.wikipedia.org/wiki/Java_Database_Connectivity["Java Database Connectivity"] is just concerned with an API for connecting to databases,
+issuing queries, and getting results.
+
+== The BI Connector
+
+The BI Connector is a proprietary JDBC driver developed by Simba/Magnitude, in cooperation with Neo4j.  For Neo4j 
+Enterprise customers, professional support is available for
+the BI Connector.
+
+It provides a JDBC-compatible interface for executing SQL
+queries against a Neo4j instance.  The BI connector exposes
+a virtual relational schema for software tooling such as
+Tableau that expects a relational database, and which knows
+how to build & execute SQL queries.
+
+The BI Connector supports Neo4j version 3.5 forward.
+
+== The Neo4j JDBC Driver
+
+The link:https://github.com/neo4j-contrib/neo4j-jdbc[Neo4j JDBC] project is an Apache 2.0 licensed open source project that is run as part of Neo4j Labs.  Community
+support via Neo4j's usual channels is available.
+
+It provides a JDBC-compatible interface for executing Cypher queries against a Neo4j instance and fetching results.  
+On the project page, several examples are provided.  
+
+The Neo4j JDBC Driver supports Neo4j 3.0 and forward.
+
+== Usage Guidance
+
+The BI Connector is recommended when the situation involves:
+
+* Business facing applications such as Tableau, where users may not be knowledgeable about graphs, or where the tool is generating queries automatically on their behalf (typically by SQL)
+* Enterprise support is needed
+* Integration with 3rd party tooling that is SQL/JDBC aware.
+
+The Neo4j JDBC driver is recommended when the situation involves:
+
+* Developer tooling where the developer is writing the queries themselves, and knows Cypher.
+* Extract, Transform, and Load scenarios where tight control over the necessary Cypher is required
+* A custom java program where a driver is needed as a dependency

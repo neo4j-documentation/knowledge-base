@@ -1,0 +1,37 @@
+= Neo4j specific http request user agent strings
+:slug: neo4j-specific-http-request-user-agent-strings
+:author: Dana Canzano
+:neo4j-versions: 3.2, 3.3
+:tags: load-csv,apoc, user-agent, webserver, logging
+:public:
+:category: operations
+
+For those https://neo4j-contrib.github.io/neo4j-apoc-procedures/[APOC] commands that retrieve data using HTTP/HTTPS, and or running
+Cypher https://neo4j.com/docs/developer-manual/3.3/cypher/clauses/load-csv/[LOAD CSV] the request will be sent with Neo4j specific 
+user-agent/browser identifiers.
+
+
+Below is an example log from an https://httpd.apache.org/[Apache] webservers access log at /var/log/apache2/access.log and includes 4 
+request made by 
+
+* https://www.google.com/chrome/[Chrome] Browser, 
+* https://www.mozilla.org[Firefox] Browser, 
+* linux https://en.wikipedia.org/wiki/CURL[curl]
+* https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_load_json[apoc.load.json]
+* https://neo4j.com/docs/developer-manual/3.3/cypher/clauses/load-csv/[LOAD CSV] request submitted via bin/cypher-shell
+
+----
+192.168.2.38 - - [26/Mar/2018:19:16:52 -0400] "GET / HTTP/1.1" 200 3477 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"
+192.168.2.38 - - [26/Mar/2018:19:17:23 -0400] "GET / HTTP/1.1" 404 3477 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0"
+192.168.2.40 - - [26/Mar/2018:19:21:11 -0400] "GET /test.json HTTP/1.1" 200 989 "-" "curl/7.55.1"
+192.168.2.40 - - [26/Mar/2018:19:26:37 -0400] "GET /test.json HTTP/1.1" 200 989 "-" "APOC Procedures for Neo4j"
+192.168.2.40 - - [26/Mar/2018:19:46:01 -0400] "GET /test.csv HTTP/1.1" 200 502 "-" "NeoLoadCSV_Java/1.8.0_151"
+----
+
+From the above we see that apoc.load.json sent a user-agent of `APOC Procedures for Neo4j` and LOAD CSV sent a user-agent of
+`NeoLoadCSV_Java/1.8.0_151`.   Additionally for any Bolt enabled application, for example Neo4j Browser and cypher-shell the
+user-agent will be the same since the work is actually being done on the server itself.
+
+As such if your Network Firewall is to only allow HTTP(s) request traffic of the typical known user-agent/browser identifiers, and 
+reject all other traffic you may encounter where the a request through a typical browser reports data but when using APOC or LOAD CSV 
+no data is returned.

@@ -1,0 +1,126 @@
+= Understanding the Query Plan Cache
+:slug: understanding-the-query-plan-cache
+:author: Dana Canzano
+:neo4j-versions: 3.0, 3.1
+:tags: performance, plan cache, cypher, parameters
+:public:
+:category: cypher
+
+When a Cypher statement is first submitted Neo4j will attempt to determine if the query is in the plan cache before planning it. 
+By default Neo4j will keep 1000 query plans in cache based upon the `conf/neo4j.conf` parameter of
+https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.query_cache_size[dbms.query_cache_size].
+In fact this actually represents 2 query plan caches.
+
+* The string cache 
+
+When Cypher is initially submitted, the Cypher statement will have a hash computed on the string as-is. Using this resultant
+hash value we will attempt to determine if statement already exists in the plan cache and if it does then re-planning may not
+be necessary.
+
+Note however that statements that are logically the same but differing in case will produce a different hash.  The following
+2 statement, though semantically equivalent, will produce a different hash and a replan may be necessary.
+
+----
+match (n) return count(n);
+MATCH (n) return COUNT(n);
+----
+
+Additionally, statements that are logically the same but differing in whitespace/carriage returns will produce different hash values.  
+The following 3 statements will produce a different hash and a replan may be necessary
+
+----
+MATCH (n) return COUNT(n);
+MATCH (n) return      COUNT(n);
+
+MATCH (n)
+return COUNT(n);
+----
+
+Cypher statements prefaced by `PROFILE/EXPLAIN` will have their `PROFILE/EXPLAIN` removed before the statement is hashed.  The following
+2 statements will hash to the same value
+
+----
+MATCH (n) return COUNT(n);
+PROFILE MATCH (n) return COUNT(n);
+----
+
+If the Cypher statements hash value is not found in the first cache Neo4j will then attempt to determine if it is in the 2nd cache.
+
+* The AST cache
+
+The Neo4j compiler parses the query from a string to an abstract syntax tree (AST), which is an object represenation of the query.
+The optimizer then normalizes the statement so as to make planning easier.   For example
+
+-----
+match (n:Person {id:101}) return n;
+-----
+
+will be normalized to
+
+----
+match (n:Person) where n.id={param1} return n;   {param1: 101}
+----
+
+in this case Neo4j has moved the predicate `{id:101}` from the `MATCH` pattern to the `WHERE` clause, and has
+parameterized `101` value into a parameter, e.g. `n.id={param1}`.  Usage of parameters is further detailed
+http://neo4j.com/docs/developer-manual/current/cypher/syntax/parameters/#cypher-parameters[here]
+
+The AST doesn't store information such as white spaces and casing of keywords, and since it has been parameterized, literal values
+can change but still produce the same AST.
+
+This second query cache is keyed on this normalized AST. i.e. these queries will re-use the same query plan.
+----
+match (n:Person) where n.id=101 return n;
+match (n:Person {id:101}) return n;
+
+MATCH ( n:Person { id : 101 } ) 
+RETURN n;
+----
+
+Finally should the Cypher statement be found in either the 1st or 2nd cache the query may still be subject to being replanned
+based upon `conf/neo4j.conf` parameters of 
+https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_cypher.min_replan_interval[cypher.min_replan_interval] 
+and https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_cypher.statistics_divergence_threshold[cypher.statistics_divergence_threshold]
+
+
+https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_cypher.min_replan_interval[cypher.min_replan_interval]
+is used to define the duration, defaulting at 10 seconds, a cached plan exists before it is eligible for replanning
+
+https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_cypher.statistics_divergence_threshold[cypher.statistics_divergence_threshold] 
+is used to indicate what percent of the statistcs for the underlying data used by the Cypher has changed.  
+The default value us 0.75 which would indicate if the statistics in the object have changed by more than 75% since the last 
+time thhe cached plan was generated then a new plan would need to be generated.
+For example running
+
+----
+// remove all :Person nodes
+match (n:Person) detach delete n;
+// create 10 :Person nodes
+foreach (x in range (1,10) | create (n:Person {id:x}));
+// list the 10 :Person nodes created
+match (n:Person) return n.id order by n.id desc;
+// create 8 new :Person nodes
+foreach (x in range (11,18) | create (n:Person {id:x}));
+// list the 18 :Person nodes
+match (n:Person) return n.id order by n.id desc;
+---- 
+
+The 2 `match (n:Person) return n.id order by n.id desc;` would each be planned and specifically the 2nd instance although 
+having the same hash value, the statistics on :Person had changed from 10 nodes to 18 nodes and thus exceeding the 75% change.
+
+If an existing plan needs to be replanned as a result of the above 2 parameters the `logs/debug.log` will log 
+
+----
+2017-03-31 19:14:27.820+0000 INFO [o.n.c.i.ExecutionEngine] Discarded stale query from the query cache: match (n:Person)
+return n.id order by n.id desc;
+2017-03-31 19:14:27.821+0000 INFO [o.n.c.i.EnterpriseCompatibilityFactory] Discarded stale query from the query cache: match 
+(n:Person) return n.id order by n.id desc;
+----
+
+Additionally it should be noted that when a query plan is removed from the cache so as to make room for a new plan a least frequently 
+used (LFU) algorithm.   So if the first query added to the plan cache is run every 1 second, and the 2nd query added to the query plan
+cache is added every 2 minutes, then when we need to remove a query plan from the cache to make room for a new query, we will remove
+the 2nd query before the 1st since the first is more frequently called upon.
+
+Finally it should be noted that any schema changes, for example index/constraint creation/removal will flush the entire query plan 
+cache.

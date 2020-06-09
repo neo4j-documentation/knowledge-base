@@ -1,0 +1,221 @@
+= How do I resolve inconsistency problems on an instance of a cluster
+:slug: copy-store-between-instances
+:author: Jose Rocha
+:neo4j-versions: 3.0, 3.1
+:tags: cluster, master, slave, backup, consistency
+:public:
+:category: cluster
+
+(if using version >= 3.1, please read `Leader` and `Follower` instead of `Master` and `Slave` respectively)
+
+Sometimes, when running a clustered Neo4j environment, a slave's store may become inconsistent. On a normal day-to-day operation, if a `slave` becomes inconsistent, it will automatically try to resolve the problem by fetching data from the `master` instance. At times though, this may not be possible. For example, if a `slave` is offline for an extended period of time, this may result in missing transaction log files on the `master` instance, making it impossible to replay all the transactions on the `slave` instance and therefore making it impossible to catch up. This will result in the `slave` not being able to join the cluster due to an inconsistent store.
+If this happens, the following steps can be used in order to fully restore a `slave` store with a full backup from the `master` instance.
+
+[NOTE]
+====
+Due to the dangerous nature of this operation, we advise always logging a support ticket before proceeding with it.
+====
+
+== Steps:
+[.result]
+====
+. Identify error in log files 
+. Identify master instance
+. Run backup on master
+. Move backup to faulty slave
+. Stop instance
+. Backup the old storage [_Optional_]
+. Restore backup
+. Start instance
+. Clean old files [_Optional_]
+====
+
+
+=== 1. Identify error in log files   
+----
+2017-02-12 15:33:37.334+0000 INFO  [o.n.k.h.c.SwitchToSlaveBranchThenCopy] The store is inconsistent. Will treat it as branched and fetch a new one from the master
+2017-02-12 15:33:37.334+0000 WARN  [o.n.k.h.c.SwitchToSlaveBranchThenCopy] Current store is unable to participate in the cluster; fetching new store from master The master is missing the log required to complete the consistency check
+----
+
+// ADD MORE LOG MESSAGES AS WE ENCOUNTER THEM
+
+=== 2. Identify master instance
+==== If you're running an High Availability (HA) cluster 
+We can make use of a HTTP endpoint to discover which instance is the master: `/db/manage/server/ha/master`. From the command line, a common way to ask those endpoints is to use curl. With no arguments, curl will do an HTTP GET on the URI provided and will output the body text, if any. If you also want to get the response code, just add the -v flag for verbose output:
+
+----
+#> curl -v localhost:7474/db/manage/server/ha/master
+*   Trying 127.0.0.1
+* Connected to localhost (127.0.0.1) port 7474 (#0)
+> GET /db/manage/server/ha/master HTTP/1.1
+> Host: localhost:7474
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Fri, 17 Feb 2017 16:38:37 GMT
+< Content-Type: text/plain
+< Access-Control-Allow-Origin: *
+< Transfer-Encoding: chunked
+< Server: Jetty(6.1.25)
+<
+* Connection #0 to host localhost left intact
+true
+----
+
+Table 1. HA HTTP endpoint responses:
+|===
+| Endpoint | Instance State | Returned Code | Body text 
+
+.3+|`/db/manage/server/ha/master`
+|`Master`
+|`200 OK`
+|`true`
+
+|`Slave`
+|`404 Not Found`
+|`False`
+
+|`Unknown`
+|`404 Not Found`
+|`UNKNOWN`
+|===
+
+(If the Neo4j server has Basic Security enabled, the HA status endpoints will also require authentication credentials. If authentication is required, run the curl command with the --user switch (curl -v localhost:7474/db/manage/server/ha/master `--user` *<username>:<password>*)
+
+[TIP]
+====
+More information on HA HTTP endpoints can be found here: https://neo4j.com/docs/operations-manual/current/clustering/high-availability/http-endpoints/
+====
+
+==== If you're running Causal Cluster (CC)  (Neo4j v3.1.x forward)
+There are two ways of getting the instance role when using CC, procedures or HTTP endpoints:
+
+===== 1) Procedure `dbms.cluster.role()` or `dbms.cluster.overview()` +
+[.result]
+====
+`CALL dbms.cluster.role()`:: The procedure dbms.cluster.role() can be called on every instance in a Causal Cluster to return the role of the instance. Returns a string with the role of the current instance.
+`CALL dbms.cluster.overview()`:: The procedure dbms.cluster.overview() provides an overview of cluster topology by returning details on all the instances in the cluster. Returns the IDs, addresses and roles of the cluster instances (this procedure can only be called from Core instances, since they are the only ones that have the full view of the cluster).
+====     
+
+===== 2) HTTP endpoints for CC +
+As in HA, we can make use of a HTTP endpoint to discover which instance is the master: `/db/manage/server/core/writable`. From the command line, a common way to ask those endpoints is to use curl. With no arguments, curl will do an HTTP GET on the URI provided and will output the body text, if any. If you also want to get the response code, just add the -v flag for verbose output:
+
+----
+#> curl -v localhost:7474/db/manage/server/core/writable
+*   Trying ::127.0.0.1
+* Connected to localhost (127.0.0.1) port 7474 (#0)
+> GET /db/manage/server/core/writable HTTP/1.1
+> Host: localhost:7474
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Fri, 17 Feb 2017 16:38:37 GMT
+< Content-Type: text/plain
+< Access-Control-Allow-Origin: *
+< Transfer-Encoding: chunked
+< Server: Jetty(9.2.9 v20150224)
+<
+* Connection #0 to host localhost left intact
+true
+----
+
+Table 2. CC HTTP endpoint responses:
+|===
+| Endpoint | Instance State | Returned Code | Body text 
+
+.3+|`/db/manage/server/core/writable`
+|`Leader`
+|`200 OK`
+|`true`
+
+|`Follower`
+|`404 Not Found`
+|`False`
+
+|`Unknown`
+|`404 Not Found`
+|`UNKNOWN`
+|===
+
+(If the Neo4j server has Basic Security enabled, the CC status endpoints will also require authentication credentials. If authentication is required, run the curl command with the --user switch (curl -v localhost:7474/db/manage/server/ha/master `--user` *<username>:<password>*)
+
+=== 3. Run backup on master
+Perform a full backup: Create an empty directory (i.e: `/mnt/backup`) and run the backup command: +
+
+~v3.0.x~
+----
+neo4j-backup -host <address> -to <backup-path>
+----
+
+~v3.1.x+~
+----
+neo4j-admin backup --backup-dir=<backup-path> --name=<graph.db-backup> [--from=<address>] [--fallback-to-full[=<true|false>]] [--check-consistency[=<true|false>]] [--cc-report-dir=<directory>] [--additional-config=<config-file-path>] [--timeout=<timeout>]
+----
+
+----
+$neo4j-home> mkdir /mnt/backup
+$neo4j-home> bin/neo4j-admin backup --from=192.168.1.34 --backup-dir=/mnt/backup --name=graph.db-backup
+Doing full backup...
+2017-02-01 14:09:09.510+0000 INFO  [o.n.c.s.StoreCopyClient] Copying neostore.nodestore.db.labels
+2017-02-01 14:09:09.537+0000 INFO  [o.n.c.s.StoreCopyClient] Copied neostore.nodestore.db.labels 8.00 kB
+2017-02-01 14:09:09.538+0000 INFO  [o.n.c.s.StoreCopyClient] Copying neostore.nodestore.db
+2017-02-01 14:09:09.540+0000 INFO  [o.n.c.s.StoreCopyClient] Copied neostore.nodestore.db 16.00 kB
+...
+...
+...
+----
+
+If you do a directory listing of `/mnt/backup` you will see that you have a backup of Neo4j called `graph.db-backup`.
+
+[TIP]
+====
+More information on performing backups can be found here: https://neo4j.com/docs/operations-manual/current/backup/perform-backup/
+====
+
+=== 4. Move backup to faulty slave
+To copy a file from `master` to `slave` while logged into `master`:
+
+----
+scp -r /path/to/neo4j/backup username@<SLAVE_ADDRESS>:/path/to/destination
+----
+
+=== 5. Stop instance
+----
+$NEO4J_HOME/bin/neo4j stop
+----
+
+=== 6. Backup the old storage [_Optional_]
+It is advisable to keep the current slave store in order to rollback the operation if needed. To do this, we only need to rename the current store directory:
+----
+mv $NEO4J_HOME/data/databases/graph.db $NEO4J_HOME/data/databases/graph.db-old
+----
+
+=== 7. Restore backup   (for Neo4j 3.0 and earlier simply copy the backup directory into graph.db)
+Restore backup based on the backup created on the `master` instance (assuming backup location `/mnt/backup` and database backup name `graph.db-backup`, please change accordingly)
+
+----
+$NEO4J_HOME/bin/neo4j-admin restore --from=/mnt/backup --database=graph.db-backup --force
+----
+
+[TIP]
+====
+More information on restoring backups can be found here: https://neo4j.com/docs/operations-manual/current/backup/restore-backup/
+====
+
+=== 8. Start instance
+----
+$NEO4J_HOME/bin/neo4j start
+----
+
+The `slave` should now start normally. It will catch up with the `master` in order to fetch the missed transactions from the period when the backup was created until the moment of the restore.
+
+=== 9. Clean old files [_Optional_]
+[NOTE]
+====
+This step is only relevant if you backed up the old storage on the `slave` instance (step 6)
+====
+
+Once you confirm the system is healthy, the `slave` is back online and consistent with the `master` instance, we can remove the old store:
+----
+rm -rf $NEO4J_HOME/data/databases/graph.db-old
+----

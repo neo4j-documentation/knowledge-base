@@ -1,0 +1,73 @@
+== Load JSON Documents into Neo4j with Cypher
+:author: Michael Hunger
+:tags: cypher, import
+:neo4j-version: 2.1, 2.2, 2.3
+:public:
+
+Sometimes you want to load JSON from an API or file directly into Neo4j.
+
+When doing that, it makes sense to map the JSON document structure into a cleaner graph model without data duplication.
+
+As JSON has little "schema" information about the "types" and their constraints, we will use a Cypher statement to map it into the graph.
+
+Imagine you have this JSON in a file named `person.json`.
+
+[source,json]
+----
+{"name":"Jane", "age": 35, "children":[{"name":"Fred", "age":12},{"name":"Emma","age":8}]} 
+----
+
+It contains a `:Person` with a `name` and `age` property.
+The `name` is our key.
+And it's children which are `:Person`'s too and the same properties.
+
+We create an constraint first:
+
+
+[source,cypher]
+----
+CREATE CONSTRAINT ON (p:Person) ASSERT p.name IS UNIQUE;
+----
+
+Then we can use this Cypher statement to map the JSON into the graph using a `{json}` parameter.
+
+[source,cypher]
+----
+// get-or-create the parent-person
+MERGE (parent:Person {name:{json}.name}) ON CREATE SET parent.age = {json}.age
+
+// turn children array into stream of childData values
+UNWIND {json}.children as childData
+
+// get-or-create the child-person
+MERGE (child:Person {name:childData.name}) ON CREATE SET child.age = childData.age
+
+// get or create the parent->child relationship
+MERGE (parent)-[:HAS_CHILD]->(child)
+
+// return parent with all it's children, this line is optional
+RETURN parent, collect(child) as children;
+----
+
+You can pass the JSON parameter via an API call of any driver of Neo4j.
+
+Or for a one off, you can also use the REST commands in Neo4j Browser, like this:
+
+[source,json]
+----
+:POST /db/data/transaction/commit {"statements":[{"statement":
+
+"MERGE (parent:Person {name:{json}.name}) ON CREATE SET parent.age = {json}.age WITH parent UNWIND {json}.children as childData MERGE (child:Person {name:childData.name}) ON CREATE SET child.age = childData.age MERGE (parent)-[:HAS_CHILD]->(child)"
+
+,"parameters":{"json":
+
+{"name":"Jane", "age": 35, "children":[{"name":"Fred", "age":12},{"name":"Emma","age":8}]} 
+
+}}]}
+----
+
+See this blog post for more detail: http://neo4j.com/blog/cypher-load-json-from-url/
+
+* Last Modified: {docdatetime} by {author}.
+* Relevant for Neo4j Versions: {neo4j-version}. 
+* Relevant keywords {tags}.

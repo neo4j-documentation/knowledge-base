@@ -1,0 +1,202 @@
+= How to get a high level inventory of objects in your graph (part 2)
+:slug: how-to-get-a-high-level-inventory-of-objects-in-your-graph-part-2
+:author: José Rocha
+:neo4j-versions: 2.x, 3.0, 3.1, 3.2
+:tags: counts, metadata
+:public:
+:category: cypher
+
+Following the knowledge base article on link:https://support.neo4j.com/hc/en-us/articles/227267088-How-to-get-a-high-level-inventory-of-objects-in-your-graph[How to get a high level inventory of objects in your graph], this article will cover how to get more detailed high level inventory of objects in your graph.
+
+The first article showed how by running:
+----
+match (n) return 'Number of Nodes: ' + count(n) as output UNION
+match ()-[]->() return 'Number of Relationships: ' + count(*) as output UNION
+CALL db.labels() YIELD label RETURN 'Number of Labels: ' + count(*) AS output UNION
+CALL db.relationshipTypes() YIELD relationshipType  RETURN 'Number of Relationships Types: ' + count(*) AS output UNION
+CALL db.propertyKeys() YIELD propertyKey  RETURN 'Number of Property Keys: ' + count(*) AS output UNION
+CALL db.constraints() YIELD description RETURN 'Number of Constraints:' + count(*) AS output UNION
+CALL db.indexes() YIELD description RETURN 'Number of Indexes: ' + count(*) AS output UNION
+CALL dbms.procedures() YIELD name RETURN 'Number of Procedures: ' + count(*) AS output
+----
+
+You will get all the counts for nodes, relationships, labels, relationship types, property keys, constraints, indexes and procedures.
+
+If you are running any version up to 3.2.x (inclusive) and want to drill down to see more detailed information on these objects, you can run the following command on your `$NEO4J_HOME` directory:
+
+----
+java -cp "lib/*" org.neo4j.kernel.impl.util.dbstructure.DbStructureTool MyDatabaseStats.java /data/databases/graph.db > ./MyDatabaseStats.java
+----
+
+[NOTE]
+====
+Unlike the query mentioned in the other article, you cannot execute this on a running database. However, you can point it to a backup and you will get all the information.
+====
+
+This will generate a file called `MyDatabaseStats.java` and its contents will give you:
+
+*1. Labels in the graph*
+----
+visitor.visitLabel( 0, "Label" );
+----
+
+*2.Property keys in the graph*
+----
+visitor.visitPropertyKey( 0, "property" );
+----
+
+*3. Relationship types in the graph*
+----
+visitor.visitRelationshipType( 0, "REL" );
+----
+
+*4. Indexes in the graph*
+----
+visitor.visitIndex( IndexDescriptorFactory.forLabel( 0, 0 ), ":Label(property)", 1.0d, 1053000L );
+----
+
+*5. Constraints in the graph*
+----
+visitor.visitUniqueConstraint( ConstraintDescriptorFactory.uniqueForLabel( 0, 1 ), "CONSTRAINT ON ( label:Label ) ASSERT label.property IS UNIQUE" );
+----
+
+*6. Node count*
+
+*_6.1. Count of all nodes in the graph_*
+----
+visitor.visitAllNodesCount( 49625435L );
+----
+
+*_6.2. Count of all `:Label` nodes in the graph_*
+----
+visitor.visitNodeCount( 0, "Label", 1053000L );
+----
+
+*7. Relationship count*
+You can find the total number of relationships and the numbers of all incoming/outgoing relationship permutations as follows: 
+
+*_7.1. Count of all relationships in the graph_*
+----
+visitor.visitRelCount( -1, -1, -1, "MATCH ()-[]->() RETURN count(*)", 910243L );
+----
+
+*_7.2. Count of all outgoing relationships from `:Label`_*
+----
+visitor.visitRelCount( 0, -1, -1, "MATCH (:Label)-[]->() RETURN count(*)", 10600L );
+----
+
+*_7.3. Count of all incoming relationships to `:Label`_*
+----
+visitor.visitRelCount( -1, -1, 0, "MATCH ()-[]->(:Label) RETURN count(*)", 0L );
+----
+
+*_7.4. Count of all `:REL` relationships_*
+----
+visitor.visitRelCount( -1, 0, -1, "MATCH ()-[:REL]->() RETURN count(*)", 10600L );
+----
+
+*_7.5. Count of outgoing `:REL` relationships from `:Label`_*
+----
+visitor.visitRelCount( 0, 0, -1, "MATCH (:Label)-[:REL]->() RETURN count(*)", 10600L );
+----
+
+*_7.6. Count of incoming `:REL` relationships to `:Label`_*
+----
+visitor.visitRelCount( -1, 0, 0, "MATCH ()-[:REL]->(:Label) RETURN count(*)", 0L );
+----
+
+
+On a graph composed by:
+====
+* 3 labels: User, Device, Accessory
+* 3 property keys: uuid, name, state
+* 3 relationships: OWNS, BELONGS, HAS
+* 3 indexes: User(name), Device(uuid), Accessory(uuid)
+* 1 constraint: user.uuid is unique
+====
+
+`MyDatabaseStats.java` would have the following output:
+
+----
+package MyDatabaseStats;
+
+import org.neo4j.helpers.collection.Visitable;
+import org.neo4j.kernel.impl.util.dbstructure.DbStructureVisitor;
+
+import org.neo4j.kernel.api.schema.constaints.ConstraintDescriptorFactory;
+import org.neo4j.kernel.api.schema.constaints.UniquenessConstraintDescriptor;
+import org.neo4j.kernel.api.schema.constaints.RelExistenceConstraintDescriptor;
+import org.neo4j.kernel.api.schema.constaints.NodeExistenceConstraintDescriptor;
+import org.neo4j.kernel.api.schema.constaints.NodeKeyConstraintDescriptor;
+import org.neo4j.kernel.api.schema.LabelSchemaDescriptor;
+import org.neo4j.kernel.api.schema.SchemaDescriptorFactory;
+import org.neo4j.kernel.api.schema.index.IndexDescriptor;
+import org.neo4j.kernel.api.schema.index.IndexDescriptorFactory;
+
+//
+// GENERATED FILE. DO NOT EDIT.
+//
+// This has been generated by:
+//
+//   org.neo4j.kernel.impl.util.dbstructure.DbStructureTool MyDatabaseStats.java [<output source root>] <db-dir>
+//
+// (using org.neo4j.kernel.impl.util.dbstructure.InvocationTracer)
+//
+
+public enum java
+implements Visitable<DbStructureVisitor>
+{
+    INSTANCE;
+
+    public void accept( DbStructureVisitor visitor )
+    {
+    	visitor.visitLabel( 0, "User" );
+        visitor.visitLabel( 1, "Device" );
+        visitor.visitLabel( 2, "Accessory" );
+        visitor.visitPropertyKey( 0, "uuid" );
+        visitor.visitPropertyKey( 1, "name" );
+        visitor.visitPropertyKey( 2, "state" );
+        visitor.visitRelationshipType( 0, "OWNS" );
+        visitor.visitRelationshipType( 1, "BELONGS" );
+        visitor.visitRelationshipType( 2, "HAS" );
+        visitor.visitIndex( IndexDescriptorFactory.forLabel( 0, 0 ), ":User(name)", 1.0d, 1053000L );
+        visitor.visitIndex( IndexDescriptorFactory.forLabel( 1, 0 ), ":Device(uuid)", 1.0d, 2029998L );
+        visitor.visitIndex( IndexDescriptorFactory.forLabel( 2, 0 ), ":Accessory(uuid)", 0.8502996093642793d, 6011998L );
+        visitor.visitUniqueConstraint( ConstraintDescriptorFactory.uniqueForLabel( 15, 1 ), "CONSTRAINT ON ( user:User ) ASSERT user.uuid IS UNIQUE" );
+        visitor.visitAllNodesCount( 49625435L );
+        visitor.visitNodeCount( 0, "User", 1053000L );
+        visitor.visitNodeCount( 1, "Device", 2106000L );
+        visitor.visitNodeCount( 2, "Accessory", 6318000L );
+        visitor.visitRelCount( -1, -1, -1, "MATCH ()-[]->() RETURN count(*)", 910243L );
+        visitor.visitRelCount( 0, -1, -1, "MATCH (:User)-[]->() RETURN count(*)", 10600L );
+        visitor.visitRelCount( -1, -1, 0, "MATCH ()-[]->(:User) RETURN count(*)", 0L );
+        visitor.visitRelCount( 1, -1, -1, "MATCH (:Device)-[]->() RETURN count(*)", 31800L );
+        visitor.visitRelCount( -1, -1, 1, "MATCH ()-[]->(:Device) RETURN count(*)", 10600L );
+        visitor.visitRelCount( 2, -1, -1, "MATCH (:Accessory)-[]->() RETURN count(*)", 42400L );
+        visitor.visitRelCount( -1, -1, 2, "MATCH ()-[]->(:Accessory) RETURN count(*)", 31800L );
+        visitor.visitRelCount( -1, 0, -1, "MATCH ()-[:OWNS]->() RETURN count(*)", 10600L );
+        visitor.visitRelCount( 0, 0, -1, "MATCH (:User)-[:OWNS]->() RETURN count(*)", 10600L );
+        visitor.visitRelCount( -1, 0, 0, "MATCH ()-[:OWNS]->(:User) RETURN count(*)", 0L );
+        visitor.visitRelCount( 1, 0, -1, "MATCH (:Device)-[:OWNS]->() RETURN count(*)", 0L );
+        visitor.visitRelCount( -1, 0, 1, "MATCH ()-[:OWNS]->(:Device) RETURN count(*)", 10600L );
+        visitor.visitRelCount( 2, 0, -1, "MATCH (:Accessory)-[:OWNS]->() RETURN count(*)", 0L );
+        visitor.visitRelCount( -1, 0, 2, "MATCH ()-[:OWNS]->(:Accessory) RETURN count(*)", 0L );
+        visitor.visitRelCount( -1, 1, -1, "MATCH ()-[:BELONGS]->() RETURN count(*)", 31800L );
+        visitor.visitRelCount( 0, 1, -1, "MATCH (:User)-[:BELONGS]->() RETURN count(*)", 0L );
+        visitor.visitRelCount( -1, 1, 0, "MATCH ()-[:BELONGS]->(:User) RETURN count(*)", 0L );
+        visitor.visitRelCount( 1, 1, -1, "MATCH (:Device)-[:BELONGS]->() RETURN count(*)", 31800L );
+        visitor.visitRelCount( -1, 1, 1, "MATCH ()-[:BELONGS]->(:Device) RETURN count(*)", 0L );
+        visitor.visitRelCount( 2, 1, -1, "MATCH (:Accessory)-[:BELONGS]->() RETURN count(*)", 0L );
+        visitor.visitRelCount( -1, 1, 2, "MATCH ()-[:BELONGS]->(:Accessory) RETURN count(*)", 31800L );
+        visitor.visitRelCount( -1, 2, -1, "MATCH ()-[:HAS]->() RETURN count(*)", 10600L );
+        visitor.visitRelCount( 0, 2, -1, "MATCH (:User)-[:HAS]->() RETURN count(*)", 0L );
+        visitor.visitRelCount( -1, 2, 0, "MATCH ()-[:HAS]->(:User) RETURN count(*)", 0L );
+        visitor.visitRelCount( 1, 2, -1, "MATCH (:Device)-[:HAS]->() RETURN count(*)", 0L );
+        visitor.visitRelCount( -1, 2, 1, "MATCH ()-[:HAS]->(:Device) RETURN count(*)", 0L );
+        visitor.visitRelCount( 2, 2, -1, "MATCH (:Accessory)-[:HAS]->() RETURN count(*)", 10600L );
+        visitor.visitRelCount( -1, 2, 2, "MATCH ()-[:HAS]->(:Accessory) RETURN count(*)", 0L );
+   }
+}
+
+/* END OF GENERATED CONTENT */
+----

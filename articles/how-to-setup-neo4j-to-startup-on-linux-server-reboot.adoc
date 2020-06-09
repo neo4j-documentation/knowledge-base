@@ -1,0 +1,95 @@
+= How to Setup Neo4j to Startup on Linux Server Reboot
+:slug: how-to-setup-neo4j-to-startup-on-linux-server-reboot
+:author: Shawn Tozeski
+:neo4j-versions: 3.2, 3.3, 3.4
+:tags: startup, linux
+:environment: linux
+:category: operations
+:public:
+
+If you want to emulate the Neo4j RPM service with a tar installation on Linux systems, do the following steps:
+
+#### As root:
+
+1. Copy the $NEO4J_HOME/bin/neo4j script file to /etc/init.d
+2. Edit the /etc/init.d/neo4j script file to uncomment the NEO4J_HOME variable and set this to the correct Neo4j home value.
+   The NEO4J_HOME variable setting in the section marked:
+    
+   # Provides these environment variables:
+   NEO4J_HOME=<full_path_to_your_NEO4J_HOME>
+   
+#### Once you have made these changes, then you can manually start and start neo4j as service as root.
+ 
+If you execute the following as root, this will start neo4j as the "neo4j" user, so the pid will be owned by this user:
+
+`# su - neo4j -c "service neo4j start"`
+
+If your neo4j user for example has sudo privileges, you can also perform these commands from the user level:
+
+`$ sudo service neo4j start`
+
+#### To setup the automation of stop/start of Neo4j when the Linux server is rebooted, follow these steps:
+
+#### As root:
+
+----
+a) Create the file /etc/init.d/neo4j_ctl with the following contents:
+
+#!/bin/sh
+
+        OWNER=neo4j #Set to the owner of the Neo4j installation
+
+        case "$1" in
+        'start')
+            su - $OWNER -c "service neo4j start"
+            ;;
+        'stop')
+            su - $OWNER -c "service neo4j stop"
+            ;;
+        'restart')
+            su - $OWNER -c "service neo4j restart"
+            ;;
+        *)
+            echo "Usage: $0 { start | stop | restart }"
+            exit 1
+            ;;
+        esac
+        exit 0
+----
+
+b) Set the permissions for the script:
+
+`# chmod 744 /etc/init.d/neo4j_ctl`
+
+c) Test the script by shutting down the database
+
+`# /etc/init.d/neo4j_ctl stop`
+
+d) Test the script by starting up the database
+
+`# /etc/init.d/neo4j_ctl start`
+
+e) Configure the system to start Neo4j at the correct run level and to stop Neo4j at run level 0.
+
+#### Run the following to determine the Linux run level to run in:
+
+`# /sbin/runlevel`
+
+ N 3  <--- This example returns run level 3
+
+If run level is 3 then follow these steps :
+----
+# cd /etc/rc3.d
+# ln -s ../init.d/neo4j_ctl S40neo4j_ctl
+# cd /etc/rc0.d
+# ln -s ../init.d/neo4j_ctl K30neo4j_ctl
+----
+----
+If runlevel is 5 then follow these steps :
+# cd /etc/rc5.d
+# ln -s ../init.d/neo4j_ctl S40neo4j_ctl
+# cd /etc/rc0.d
+# ln -s ../init.d/neo4j_ctl K30neo4j_ctl
+----
+
+f) Restart the Linux system and check that Neo4j is automatically restarted.

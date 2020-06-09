@@ -1,0 +1,39 @@
+= How to avoid using excessive memory on deletes involving dense nodes
+:slug: how-to-bulk-delete-dense-nodes
+:author: Dave Gordon
+:neo4j-versions: 3.1, 3.2, 3.3, 3.4
+:tags: cypher, oom
+:public:
+:category: operations
+
+In situations where you know you need to delete a bunch of nodes (and by rule their relationships as well), it can be tempting to simply
+use `DETACH DELETE` and be done with it. However, this can become problematic if you have dense nodes, or if you have a number of nodes
+with thousands of relationships per batch. Your "batch size" can quickly become much larger than you intend. 
+
+APOC allows us to work with this. Essentially, we want to find the set of nodes that we want to delete, pass that into a call to
+`apoc.periodic.commit`, 
+and then batch the deletes by the first 10K relationships, then the next 10K, and so on until it is done. The following cypher works 
+quite well on a large set of nodes. In this case, it is looking for **:TTL** labelled nodes who's `ttl` property is older than the current 
+time. It passes those into the periodic commit statement, and deletes in batches of 10K.
+
+----
+MATCH (n:TTL)
+WHERE n.ttl < timestamp()
+WITH collect(n) AS nn
+CALL apoc.periodic.commit("
+  UNWIND $nodes AS n
+  WITH sum(size((n)--())) AS count_remaining,
+       collect(n) AS nn
+  UNWIND nn AS n
+  OPTIONAL MATCH (n)-[r]-()
+  WITH n, r, count_remaining
+  LIMIT $limit
+  DELETE r
+  RETURN count_remaining
+",{limit:10000, nodes:nn}) yield updates, executions, runtime, batches, failedBatches, batchErrors, failedCommits, commitErrors
+UNWIND nn AS n
+DELETE n
+RETURN updates, executions, runtime, batches
+----
+
+Additionally please consider reviewing KB document `Large Delete Transaction Best Practices in Neo4j` for other considerations

@@ -1,0 +1,59 @@
+= Using Python 1.7.x Driver with Neo4j 4.0
+:slug: using-python-with-neo4j-ver4-0
+:author: Vivek Saran
+:neo4j-versions: 4.0
+:tags: python
+:public:
+:category: drivers
+
+At the time of writing this article the Bolt Driver for Python has not been released for Neo4j 4.0. 
+The v4 Python driver will not be available until the end of the first quarter of 2020.
+
+**So, how do you connect to Neo4j 4.0 with 1.7.x generation of Python drivers?**
+
+---
+
+The most important thing to remember is that you have to disable encrypted traffic, when using 1.7.x generation drivers against 4.0.x database.
+
+Here is how you do it -
+
+[source,python]
+----
+from neo4j import GraphDatabase
+
+uri = "bolt://localhost:7687"
+
+driver = GraphDatabase.driver(uri, auth=("neo4j", "letmein"), encrypted=False)
+
+def print_movies_acted_in(tx, name):
+    for record in tx.run("MATCH (a:Person)-[:ACTED_IN]->(m) "
+                         "WHERE a.name = $name "
+                         "RETURN m.title", name=name):
+        print(record["m.title"])
+
+with driver.session() as session:
+    session.read_transaction(print_movies_acted_in, "Keanu Reeves")
+----
+
+Notice the **encrypted** configuration set through the **Driver** constructor. It defaults to True if TLS is available.
+
+[source,python]
+----
+driver = GraphDatabase.driver(uri, auth=("neo4j", "letmein"), encrypted=False)
+----
+
+For more details on the **Driver** object, please refer to the following link -
+
+https://neo4j.com/docs/api/python-driver/current/driver.html#encrypted
+
+As expected the result of the above code would be -
+
+----
+The Matrix Revolutions
+The Matrix Reloaded
+Something's Gotta Give
+The Devil's Advocate
+The Replacements
+Johnny Mnemonic
+The Matrix
+----

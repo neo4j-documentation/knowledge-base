@@ -1,0 +1,50 @@
+= Neo4j current transaction commit process order
+:slug: neo4j-current-transaction-commit-process-order
+:author: José Rocha
+:neo4j-versions: 3.5
+:tags: transaction, commit
+:public:
+:category: operations
+
+Transactions in Neo4j use a read-committed isolation level, which means they will see data as soon as it has been committed and will
+not see data in other transactions that have not yet been committed. This type of isolation is weaker than serialization but offers 
+significant performance advantages whilst being sufficient for the overwhelming majority of cases.
+
+[NOTE]
+====
+In addition, the Neo4j Java API enables explicit locking of nodes and relationships. Using locks gives the opportunity to simulate the
+effects of higher levels of isolation by obtaining and releasing locks explicitly. For example, if a write lock is taken on a common 
+node or relationship, then all transactions will serialize on that lock — giving the effect of a serialization isolation level.
+====
+
+During transaction commit, all the transactional operations applied to a store in certain order. At the moment order of operations is:
+
+1. Label tokens operations
+2. Relationship type tokens operations
+3. Property key token operations
+4. Create Operations for:
+	a. Properties
+	b. Relationships
+	c. Relationship groups
+	d. Nodes
+5. Update Operations for:
+	a. Properties
+	b. Relationships
+	c. Relationship groups
+	d. Nodes
+6. Delete Operations for:
+	a. Properties
+	b. Relationships
+	c. Relationship groups
+	d. Nodes
+7. Neo Store commands
+8. Schema commands
+9. Count store operations
+10. Index operations
+11. Legacy index operations
+
+[NOTE]
+====
+Please note we cannot guarantee that this order will remain the same in future versions of Neo4j. If it does change for some reason, we
+will update this article accordingly.
+====

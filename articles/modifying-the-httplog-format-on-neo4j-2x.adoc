@@ -1,0 +1,21 @@
+= Retired: Modifying the http.log Format on Neo4j 2.x
+:slug: modifying-the-httplog-format-on-neo4j-2x
+:author: Dave Gordon
+:tags: http, logging
+:neo4j-versions: 2.2, 2.3
+:public:
+:category: operations
+
+Prior to Neo4j 3.0, the http.log format was controlled by `neo4j-http-logging.xml`. The default format works fine, except when you need 
+to diagnose problematic long-running queries. The HTTP requests to the `/db/data/cypher` or `/db/data/transaction` endpoints do not log the json payload with the Cypher query, which might be helpful in some situations.
+
+The format layout options can be found in the source code link:https://github.com/qos-ch/logback/blob/master/logback-access/src/main/java/ch/qos/logback/access/PatternLayout.java#L80[here].
+
+For example, to log the cypher query, log the full request. To enable this, in the `conf/neo4j-http-logging.xml` file, you need to modify 
+it as follows:
+
+----
+<pattern>%h %l %user [%t{dd/MMM/yyyy:HH:mm:ss Z}] "%r" %s %b "%i{Referer}" "%i{User-Agent}" %fullRequest %D</pattern>
+----
+
+*Note:* Only change this during debugging, and then set the pattern back to the default. Otherwise, logging every full request will increase the I/O on the storage and could result in a performance impact.

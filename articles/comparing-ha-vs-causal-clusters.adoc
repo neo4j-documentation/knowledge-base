@@ -1,0 +1,71 @@
+= Comparing HA and Causal Clusters
+:slug: comparing-ha-vs-causal-clusters
+:author: Ali Maddahian
+:neo4j-versions: all
+:tags: ha, cluster, bolt, http, https, load balancer
+:public:
+:category: cluster
+
+The legacy HA cluster mode has been deprecated as of Neo4j version 3.5, and will be totally removed from the product in version 4.0, with 4.0 expected to be released near the end of 2019.   
+
+Additionally, per Neo4j support terms, Neo4j supports patching a release for 18 months after it is released.      
+
+This means, although customers could use the HA functionality in the latest 3.5.x release, going forward, there will be no new feature release offering for the HA component as all development efforts are targeted for Causal Cluster. Causal Clustering has been around for nearly 3 years and is used by hundreds of customers in production.
+
+As such, all new cluster implementations and existing HA implementations should proceed with using/migrating to Causal Cluster when possible.
+
+For a high level comparative view of HA Clusters vs Causal Clusters, the table below provides a summary of differences:
+
+|===
+|Causal Cluster | High Availability (HA) Cluster 
+|Raft Protocol|Paxos Protocol
+
+|Min of 3 instances
+|Min of 1 instance + optional Arbiter(s)
+
+|Set of Cores (3, 5 or 7) + ReadReplicas
+|Master(1) + Slave(0 or more)
+
+|Transactions are committed once a majority of the Core servers in the cluster (2N+1) have accepted the transaction
+|Transactions are committed on Master first and pushed optimistically to Slaves (doesn’t guarantee commits on slaves)
+
+|No branching
+|Can lead to branching (https://neo4j.com/docs/operations-manual/current/ha-cluster/architecture/#_branching)
+
+|Built-in load balancing and routing via Bolt Driver (The driver maintains routing table for all Core leader, followers, and Read Replicas)
+|Need an extra layer of load balancer
+
+|Intra-cluster Encryption|None
+
+|Multi-clustering|None
+
+|Multi-DC|None
+
+|===
+
+One of the biggest differences is relative to the extra layer of protection that Causal Clustering provides in ensuring there will be zero chance for branching and/or data corruption, which HA is vulnerable to due to its underlying architecture.
+
+Another point of interest is the "bolt+routing" feature in Causal Clusters which provides built-in automatic load balancing for applications connecting to the cluster, thus eliminating the need for any extra layer of load balancing which is typically required with HA clusters, resulting in a simpler and more robust overall architecture.
+
+When migrating from older Neo4j implementations utilizing HA clusters, please also note that the REST api ( https://neo4j.com/docs/rest-docs/current) has also been deprecated as of Neo4j 3.4, and will be removed in Neo4j 4.0. It is therefore recommended to use Cypher or procedures instead, either via Bolt (Bolt+routing) using the official drivers or the HTTP API.       
+
+When deciding on choices of client layers such as HTTP(s) api vs Bolt, it should be noted that Bolt not only offers official drivers for Python, Java, Javascript, .Net, and Go, but the Browser and other tools (such as cypher-shell or Neo4j Bloom) also use Bolt exclusively for connecting to the database.
+
+As an additional security consideration, Bolt can use TLS and can configure encryption on the client and use server side certificates.       
+
+Here are few articles that provide additional insight on the topic of bolt vs http vs causal clustering.
+
+https://medium.com/neo4j/querying-neo4j-clusters-7d6fde75b5b4
+
+https://neo4j.com/docs/driver-manual/1.7/
+
+https://neo4j.com/developer/language-guides/
+
+https://dzone.com/articles/a-deeper-dive-into-neo4j-30-language-drivers
+
+That said, for existing HA applications, customers can migrate from HA to Causal Cluster with a simple backup/restore and minor configuration changes as an inital step, and any re-architecting of the application layer around load balancing and/or choice of bolt vs HTTP can be addressed at a later time.  
+
+For a comprehensive listing of all new features introduced for every 3.x release, please refer to the table below:
+
+
+image:https://i.imgur.com/HOKLkqg.png[image]

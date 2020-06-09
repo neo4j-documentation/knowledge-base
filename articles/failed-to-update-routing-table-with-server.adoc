@@ -1,0 +1,43 @@
+= Explanation of "Failed to update routing table with server" error
+:slug: failed-to-update-routing-table-with-server
+:author: Vivek Saran
+:neo4j-versions: 3.5, 4.0
+:tags: cluster, bolt
+:public:
+:category: drivers
+
+
+If you encounter a *Failed to update routing table with server* error in their `$NEO4J_HOME/logs/debug.log` similar to:
+
+----
+ERROR 1 --- [o4jDriverIO-5-2] LoadBalancer : Failed to update routing table. Current routing table: Ttl 1582554193442, currentTime 1582554193471, routers AddressSet=[], writers AddressSet=[], readers AddressSet=[]
+
+Suppressed: org.neo4j.driver.exceptions.DiscoveryException: Failed to update routing table with server 'server-foo:7687'.
+
+Caused by: org.neo4j.driver.exceptions.ClientException: There is no procedure with the name `dbms.cluster.routing.getRoutingTable` registered for this database instance. Please ensure you've spelled the procedure name correctly and that the procedure is properly deployed.
+----
+
+This can be addressed by checking your DNS entries. A routing driver is created via a *bolt+routing* URI, for example, bolt+routing://graph.example.com:7687. The address in the URI must be that of a CORE Server. So, if you get the error mentioned above, very likely, you have a single DNS name to resolve to CORE and READ REPLICA nodes. The READ REPLICA's should not have an entry in the DNS records. When the hostname resolves to the CORE node IP address, everything will work fine. However, when the hostname resolves to a READ REPLICA IP address, the driver will fail to connect to the database as it cannot get the routing table from that server.
+
+**The fix:**
+
+Change your DNS entries to ensure that the name resolution includes only CORE nodes, not READ REPLICA's.
+
+**What if you want to connect to READ REPLICA's only?**
+
+Some of our customers have a specific need where they send **read requests** only to the READ REPLICA's. If you have a similar requirement, you can do the following -
+
+* Add all CORE nodes under a single DNS name, for example - core.graph.example.com
+* Add all READ REPLICA's under another (single) DNS name, for instance - rr.graph.example.com
+* You can then connect to the READ REPLICA's using the following URI - bolt://rr.graph.example.com:7687
+
+The advantage of this option is that even if the CORE nodes are down, the applications can still connect to READ REPLICA'S.
+
+The disadvantage is that each application can talk to only one READ REPLICA as it is using the **bolt** protocol. This means that it is possible that multiple applications may get connected to a single READ REPLICA and may not make use of all the READ REPLICA's available.
+
+**References from Neo4j Driver manuals:**
+
+* 1.7 Driver: https://neo4j.com/docs/driver-manual/1.7/client-applications/#driver-connection-uris
+* 4.0 Driver: https://neo4j.com/docs/driver-manual/current/client-applications/#driver-connection-uris
+
+

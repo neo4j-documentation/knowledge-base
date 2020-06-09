@@ -1,0 +1,35 @@
+= All shortest paths between a set of nodes
+:slug: all-shortest-paths-between-set-of-nodes
+:author: Michael Hunger
+:category: cypher
+:tags: cypher, path, unwind, shortest-path
+:neo4j-versions: 3.1,3.2,3.3,3.4,3.5
+:public:
+
+Consider a number of arbitrary nodes,  A,B,C,D,E,F,.....
+
+I wish to return all of the shortest paths between these nodes.
+The nodes may have many edges between them, but anticipate a maximum of 4.
+The graph is complex and non hierarchical  (if this makes sense - any node may point to any other node). 
+A typical node has the form:  `match (n:Entity { name: 'xyz' })`
+
+How would I write the match expression to return the shortest paths between the above nodes,  in no specific order?
+
+== Solution
+
+1. Find the set of nodes using an indexed lookup operation
+2. Collect them into a list
+3. Unwind the list twice, once for every side of the path
+4. Remove inverse pairs by id comparison
+5. match and return the paths
+
+[source,cypher]
+----
+MATCH (n:Entity) where n.name IN {names}
+WITH collect(n) as nodes
+UNWIND nodes as n
+UNWIND nodes as m
+WITH * WHERE id(n) < id(m)
+MATCH path = allShortestPaths( (n)-[*..4]-(m) )
+RETURN path
+----

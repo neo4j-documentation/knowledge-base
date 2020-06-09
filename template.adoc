@@ -1,0 +1,44 @@
+= This is a Template
+// CHANGE THIS, REMOVE COMMENTS BEFORE MERGE
+// ANY SLUG CHANGES WILL CAUSE POSTS TO BE RE-CREATED, BREAKING EXISTING LINKS
+:slug: this-is-a-template
+:author: Your Name
+:twitter: @your-twitter
+// relevant versions
+:neo4j-versions: 2.3, 3.0
+// see taxonomy in readme, remove this comment
+:tags: logging, server
+//:public:
+//:private:
+// category see https://github.com/neo-technology-field/knowledge-base/blob/master/kb-categories.txt
+:category: cypher
+
+Intro text
+
+Refer to a  `path/to/file`.
+
+[source,cypher]
+----
+MATCH (:Person)-[:KNOWS]->(p)
+RETURN p
+----
+
+[source,java]
+----
+include::sources/java/src/test/java/example/CreateData.java[tags=create_data]
+----
+
+=== Another Section
+
+Some bullet points:
+
+* One
+* Two
+
+. First
+. Second
+
+////
+Multiline comment
+////
+

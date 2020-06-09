@@ -1,0 +1,17 @@
+= Enabling TLSv1.2 with IBM JDK9
+:slug: enabling-tlsv1-2-with-ibm-jdk9
+:author: Dave Fauth
+:neo4j-versions: 3.4
+:tags: jdk,security, tls, cypher-shell
+:public:
+:category: operations
+
+Neo4j 3.4.0 only supports TLSv1.2 by default. IBM JDK9 uses the TLSv1 protocol by default. When attempting to run cypher-shell, users will be unable to connect to Neo4j.
+
+To enable TLSv1.2 in the IBM JDK, set the following `JAVA OPT`:
+
+----
+export JAVA_OPTS='-Dcom.ibm.jsse2.overrideDefaultTLS=true'
+----
+
+If you want the `JAVA_OPT` to be set for every shell you start afterwards, add that line to `~/.profile` as well. 

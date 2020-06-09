@@ -1,0 +1,42 @@
+= Running copy store tool on windows
+:slug: running-copy-store-tool-on-windows
+:author: José Rocha
+:neo4j-versions: 3.3, 3.4, 3.5
+:tags: performance, copy,store, tools
+:public:
+:category: tools
+
+The copy store utilities is a set of tools to compact, copy, fix and analyse Neo4j stores. You might already know this but if not, you can
+read more about it https://github.com/jexp/store-utils[here].
+
+You will notice that the execution is done by running a linux script. While we do not have any Windows batch file or Powershell script 
+but we can run the copy store tool on Windows by following these easy steps:
+
+- Install https://openjdk.java.net/install/[OpenJDK] or https://www.oracle.com/technetwork/java/javase/downloads/index.html[Oracle JDK]
+- Download & Unpack https://maven.apache.org/download.cgi[Maven]
+- Clone or download the copy store tool version correspondent that matches your Neo4j version https://github.com/jexp/store-utils/releases[here]
+
+[NOTE]
+====
+You need to be running the correct version of the copy store tool for your Neo4j version. If you are running Neo4j 3.3.x, you should
+use the copy store version 3.3.4 for example.
+====
+
+- Open a command window, browse to GitHub repository contents on your local hard-drive and run the following command:
+
+
+----
+${maven.home}/mvn.cmd clean compile exec:java -Penterprise -e -Dexec.mainClass="org.neo4j.tool.StoreCopy" -Ddbms.pagecache.memory=2G -Ddbms.pagecache.memory.source=1G -Dexec.args="<SOURCE PATH> <DESTINATION PATH>"
+----
+
+such as:
+
+----
+c:\apache-maven-3.6.0\bin\mvn.cmd clean compile exec:java -Penterprise -e -Dexec.mainClass="org.neo4j.tool.StoreCopy" -Ddbms.pagecache.memory=2G -Ddbms.pagecache.memory.source=1G -Dexec.args="c:\\Users\\headw\\share\\neo4j-enterprise-3.4.9\\data\\databases\\graph.db c:\\sc.db"
+----
+
+You'll need to set both the source and destination path by changing: `-Dexec.args="<SOURCE PATH> <DESTINATION PATH>"`. Also, you can 
+change `-Ddbms.pagecache.memory=2G` and `-Ddbms.pagecache.memory.source=1G` to change the memory consumption of this tool. You can
+get more information on the actual tool in its https://github.com/jexp/store-utils[GitHub repo]
+
+This will compile and run the copy store utility on a Windows command line window.

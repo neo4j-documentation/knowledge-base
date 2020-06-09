@@ -1,0 +1,65 @@
+= Upstream strategy behaviour change
+:slug: upstream-strategy-behaviour-change
+:author: José Rocha
+:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:tags: network, multi-datacenter
+:public:
+:category: cluster
+
+Starting with version 3.4, we changed in the behaviour of how instances sync with the Leader. This change can potentially affect the 
+behaviour of your cluster when using link:https://neo4j.com/docs/operations-manual/3.5/clustering-advanced/multi-data-center/configuration/#multi-dc-configuration-strategy-plugins[strategy plugins],
+depending on your configuration.
+
+Pre-3.4 - on the context of multi datacenter architectures - strategy plugins were sets of rules that defined how Read Replicas contacted servers in the cluster in order to synchronize transaction logs. Post-3.4 this was expanded to Core instances as well, meaning that you can actively select the desired strategy from where your Core instances pull updates from.
+
+This is particularly important if you have a link:https://neo4j.com/docs/operations-manual/3.5/clustering-advanced/multi-data-center/configuration/#configuration-user-defined-strategy[user-defined strategy] 
+that restricts the instances from where your Read Replicas pull updates from. 
+
+Imagine the following scenario:
+
+.North & South DCs
+[caption="Figure 1: "]
+image::https://s3.amazonaws.com/support.neotechnology.com/KBs/dcs.png[North & South DCs,50%,50%]
+
+{nbsp} +
+
+Let's say you want to prevent the Read Replica in the South DC to pull updates from the North DC. You could set 
+`causal_clustering.upstream_selection_strategy=user-defined` and have the following strategy configured 
+
+----
+causal_clustering.user_defined_upstream_strategy=groups(south); halt()
+----
+
+[NOTE]
+====
+Please note that the upstream strategy defined above only works when you define server groups on your instances. In the picture, all instances on the South DC belong to server group `south` whereas the ones on the North DC belong to server group `north`. You can read more about
+server groups link:https://neo4j.com/docs/operations-manual/current/clustering-advanced/multi-data-center/configuration/#causal-clustering-multi-dc-server-groups[here].
+====
+
+This will effectively prevent the Read Replica to connect to the North DC. However, what we've seen in several implementations was that 
+- for ease or coherence - customers would set `causal_clustering.upstream_selection_strategy` to be the same on *ALL* instances, knowing 
+that setting would only apply to Read Replicas. Post-3.5, if you do this, the Core instances in the South DC in the example above will
+not be able to pull updates from Leader over at the North DC.
+
+It is therefore recommended that, for Core instances, you configure a less restrictive upstream strategy. You can use the ones available
+out-of-the-box:
+
+- `connect-to-random-core-server` - Connect to any Core Server selecting at random from those currently available.
+- `typically-connect-to-random-read-replica` - Connect to any available Read Replica, but around 10% of the time connect to any 
+random Core Server.
+- `connect-randomly-to-server-group` - Connect at random to any available Read Replica in any of the server groups specified in 
+the comma-separated list `causal_clustering.connect-randomly-to-server-group`.
+- `leader-only` - Connect only to the current Raft leader of the Core Servers.
+
+Setting the Core instances upstream strategy to `leader-only` will make Neo4j behave like pre-3.4 but you can choose another one. 
+The important is to make sure you select a strategy that will allow your Core instances to pull from the Leader regardless of where 
+it's located.
+
+Also, you can select multiple upstream strategies by separating them with a comma (","). It is perfectly acceptable to have the following 
+configuration:
+
+----
+causal_clustering.upstream_selection_strategy=user-defined, leader-only
+----
+
+This will first try the `user-defined` strategy and then the `leader-only` strategy.

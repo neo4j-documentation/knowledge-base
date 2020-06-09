@@ -1,0 +1,22 @@
+= Extracting Java Error When Installing Neo4j Desktop
+:slug: extracting-java-error-during-neo4j-desktop-install
+:author: Ali Maddahian
+:tags: installation
+:neo4j-versions: Neo4j Desktop 1.x
+:public:
+:category: desktop
+
+In rare cases, Neo4j Desktop install might fail during the Java extract phase with the following message on Windows:
+ 
+*Initialization Error: error: end of central directory record not found* _(see below)_
+ 
+If encountering this message, it is probably due to a corrupted JVM download.  
+ 
+To resolve the issue, simply remove the currently downloaded JVM copy which can be found at:
+
+----
+%APPDATA%/Neo4j Desktop/Application/distributions/java/
+----
+
+
+image:https://i.imgur.com/fReVtRl.jpg[image]

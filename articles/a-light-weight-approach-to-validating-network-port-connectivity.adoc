@@ -1,0 +1,57 @@
+= A light weight approach to validating network port connectivity
+:slug: a-light-weight-approach-to-validating-network-port-connectivity
+:author: Dana Canzano
+:category: operations
+:tags: ports, causal-cluster
+:neo4j-versions: 2.3, 3.0, 3.1, 3.2
+:public:
+
+If it becomes necessary to validate, particularly in a clustered environment whether 
+https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/[Causal Cluster] or 
+https://neo4j.com/docs/operations-manual/current/clustering/high-availability/[High Availability], whether or
+not 1 instance can talk to another instance on a given port one can use linux command https://en.wikipedia.org/wiki/Netcat[`netcat`].
+
+To Validate connectivity and that the hostname/port is not being filtered out as a result of a firewall or other establish 2 terminal
+sessions.
+
+* From the first terminal session run from the linux command line/prompt
+
+----
+nc -l -p 5000
+----
+
+and to which this will start up a process on the host listening for traffic on port 5000.   If the connection is possible then your 
+terminal window will advance to the next line and simply await messages from another nc command.
+
+If the port number is already in use by another linux process you will encounter error message
+
+----
+nc: Address already in use
+----
+
+
+
+* From the second terminal session run from the linux command line/prompt
+
+----
+nc -v <hostname> 5000
+----
+
+replacing <hostname> with the internal IP address/hostname of the first terminal session.  This command will make a connection to
+the <hostname> and port 5000.   If the connection is successful then your terminal window will report
+
+----
+Connection to <hostname> 5000 port [tcp/*] succeeded!
+
+----
+
+and focus will advance to the next line.   From here if you enter text, for example `Hello`, upon hitting return/enter you should
+then see the text on the first terminal window.   And provided you see the text on the first terminal window connectivity has been
+successfully proved/established.
+
+If the connection is not successful you may receive error messages similar to
+
+----
+nc: getaddrinfo: Temporary failure in name resolution
+nc: connection refused
+----

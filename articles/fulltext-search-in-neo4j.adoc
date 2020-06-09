@@ -1,0 +1,115 @@
+= Fulltext search in Neo4j
+:slug: fulltext-search-in-neo4j
+:author: Dave Gordon
+:neo4j-versions: 3.5
+:outdated: false
+:tags: fulltext, search, indexing
+:public:
+:category: cypher
+
+[NOTE]
+Please note that in Neo4j 3.5 fulltext search is available in Neo4j as part of Cypher stored procedures.
+More documentation is found here:
+https://neo4j.com/docs/cypher-manual/3.5/schema/index/#schema-index-fulltext-search.
+
+Fulltext search in Neo4j is supported by means of fulltext schema indexes.
+Fulltext schema indexes are created, dropped, and updated transactionally, and are automatically replicated throughout a cluster.
+
+For example let’s say we have a database containing books and movies.
+Both have the properties `title` and `description`, but only the books have the property review.
+
+We can create a fulltext index on nodes with label `:Movie` or `:Book` that have the properties `title`, `description` and `review`.
+We give it the name `titlesAndDescriptions`.
+
+.Query
+[source, cypher]
+----
+CALL db.index.fulltext.createNodeIndex("titlesAndDescriptions",["Movie", "Book"],["title", "description", "review"])
+----
+
+Let's see what results we get from the following query:
+
+.Query
+[source, cypher]
+----
+CALL db.index.fulltext.queryNodes("titlesAndDescriptions", "Full Metal Jacket") YIELD node, score
+RETURN node.title, node.review, score
+----
+
+.Result
+[role="queryresult",options="header"]
+|===
+| node.title | node.review | score
+| "Full Metal Jacket" | <null> | 0.8093575239181519
+| "The Jacket" | <null> | 0.1152719184756279
+| "Full Moon High" | <null> | 0.0836455449461937
+| "Yellow Jacket" | <null> | 0.07204495370388031
+|===
+
+Then movie nodes will be included in the index, even though they only have one of the indexed labels, and only two of the indexed properties.
+
+Also, as you can see, fulltext indexes will, in addition to any exact matches, also return _approximate_ matches to a given query.
+The `score` that is returned alongside each result entry, represents how well the index thinks that entry matches the query.
+The results are always returned in _descending score order_, where the best matching result entry is put first.
+
+What if we wish to only get results that match the search string entered?
+When we put 'Full Metal Jacket' in quotes, we get only exact matches:
+
+.Query
+[source, cypher]
+----
+CALL db.index.fulltext.queryNodes("titlesAndDescriptions", "'Full Metal Jacket'") YIELD node, score
+RETURN node.title, score
+----
+
+
+.Result
+[role="queryresult",options="header",cols="2*<m"]
+|===
+| node.title | score
+| "Full Metal Jacket" | 1.3701786994934082
+|===
+
+We can also use logical operators, such as `AND` and `OR`, to search for terms:
+
+.Query
+[source, cypher]
+----
+CALL db.index.fulltext.queryNodes("titlesAndDescriptions", 'full AND metal') YIELD node, score
+RETURN node.title, score
+----
+
+Only the "Full Metal Jacket" movie in our database has both the words "full" and "metal":
+
+.Result
+[role="queryresult",options="header",cols="2*<m"]
+|===
+| node.title | score
+| "Full Metal Jacket" | 0.7603841423988342
+|===
+
+It is also possible to search for only specific properties, by putting the property name and a colon in front of the text being searched for:
+
+.Query
+[source, cypher]
+----
+CALL db.index.fulltext.queryNodes("titlesAndDescriptions", 'description:"surreal adventure"') YIELD node, score
+RETURN node.title, node.description, score
+----
+
+.Result
+[role="queryresult",options="header",cols="3*<m"]
+|===
+| node.title | node.description | score
+| "Metallica Through The Never" | "The movie follows the young roadie Trip through his surreal adventure with the band." | 1.311632513999939
+|===
+
+
+Similar to nodes, fulltext indexes can be created on relationships.
+
+For the full description of fulltext search in Neo4j, see:
+https://neo4j.com/docs/cypher-manual/3.5/schema/index/#schema-index-fulltext-search.
+
+Fulltext schema indexes are powered by the http://lucene.apache.org/[Apache Lucene] indexing and search library.
+A complete description of the Lucene query syntax can be found in the http://lucene.apache.org/core/5_5_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description[Lucene documentation].
+

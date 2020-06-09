@@ -1,0 +1,68 @@
+= Explanation of error NoClassDefFoundError: org/neo4j/kernel/impl/util/JobScheduler
+:slug: explanation-of-error-noclassdeffounderror-org-neo4j-kernel-impl-util-jobscheduler
+:author: Dana Canzano
+:neo4j-versions: 3.3
+:tags: apoc, upgrade
+:public:
+:category: operations
+
+Upon upgrading to Neo4j 3.3, if you were previously using https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC], and
+did not download and install the version of APOC for 3.3 `bin\neo4j start` will fail.
+
+The contents of your $NEO4J_HOME/logs/neo4j.log will appear similar to.
+
+----
+2017-11-07 20:38:38.245+0000 INFO  Bolt enabled on 0.0.0.0:7687.
+2017-11-07 20:38:38.265+0000 ERROR Failed to start Neo4j: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@c73c26' was successfully initialized, but failed to start. Please see the attached cause exception "org.neo4j.kernel.impl.util.JobScheduler". Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@c73c26' was successfully initialized, but failed to start. Please see the attached cause exception "org.neo4j.kernel.impl.util.JobScheduler".
+org.neo4j.server.ServerStartupException: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@c73c26' was successfully initialized, but failed to start. Please see the attached cause exception "org.neo4j.kernel.impl.util.JobScheduler".
+        at org.neo4j.server.exception.ServerStartupErrors.translateToServerStartupError(ServerStartupErrors.java:68)
+        at org.neo4j.server.AbstractNeoServer.start(AbstractNeoServer.java:218)
+        at org.neo4j.server.ServerBootstrapper.start(ServerBootstrapper.java:111)
+        at org.neo4j.server.ServerBootstrapper.start(ServerBootstrapper.java:79)
+        at org.neo4j.server.enterprise.CommercialEntryPoint.main(CommercialEntryPoint.java:22)
+Caused by: org.neo4j.kernel.lifecycle.LifecycleException: Component 'org.neo4j.server.database.LifecycleManagingDatabase@c73c26' was successfully initialized, but failed to start. Please see the attached cause exception "org.neo4j.kernel.impl.util.JobScheduler".
+        at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.start(LifeSupport.java:466)
+        at org.neo4j.kernel.lifecycle.LifeSupport.start(LifeSupport.java:107)
+        at org.neo4j.server.AbstractNeoServer.start(AbstractNeoServer.java:210)
+        ... 3 more
+Caused by: java.lang.RuntimeException: Error starting org.neo4j.kernel.impl.factory.GraphDatabaseFacadeFactory, /home/neo4j/neo4j-enterprise-3.3.0/data/databases/graph.db.out
+        at org.neo4j.kernel.impl.factory.GraphDatabaseFacadeFactory.initFacade(GraphDatabaseFacadeFactory.java:211)
+        at org.neo4j.kernel.enterprise.EnterpriseGraphDatabase.<init>(EnterpriseGraphDatabase.java:36)
+        at org.neo4j.server.enterprise.EnterpriseNeoServer.lambda$static$1(EnterpriseNeoServer.java:75)
+        at org.neo4j.server.database.LifecycleManagingDatabase.start(LifecycleManagingDatabase.java:88)
+        at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.start(LifeSupport.java:445)
+        ... 5 more
+Caused by: org.neo4j.kernel.lifecycle.LifecycleException: Component 'org.neo4j.kernel.extension.KernelExtensions@165be2d' failed to initialize. Please see the attached cause exception "org.neo4j.kernel.impl.util.JobScheduler".
+        at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.init(LifeSupport.java:427)
+        at org.neo4j.kernel.lifecycle.LifeSupport.init(LifeSupport.java:62)
+        at org.neo4j.kernel.lifecycle.LifeSupport.start(LifeSupport.java:98)
+        at org.neo4j.kernel.impl.factory.GraphDatabaseFacadeFactory.initFacade(GraphDatabaseFacadeFactory.java:207)
+        ... 9 more
+Caused by: java.lang.NoClassDefFoundError: org/neo4j/kernel/impl/util/JobScheduler
+        at java.lang.Class.getDeclaredMethods0(Native Method)
+        at java.lang.Class.privateGetDeclaredMethods(Class.java:2701)
+        at java.lang.Class.privateGetPublicMethods(Class.java:2902)
+        at java.lang.Class.getMethods(Class.java:1615)
+        at sun.misc.ProxyGenerator.generateClassFile(ProxyGenerator.java:451)
+        at sun.misc.ProxyGenerator.generateProxyClass(ProxyGenerator.java:339)
+        at java.lang.reflect.Proxy$ProxyClassFactory.apply(Proxy.java:639)
+        at java.lang.reflect.Proxy$ProxyClassFactory.apply(Proxy.java:557)
+        at java.lang.reflect.WeakCache$Factory.get(WeakCache.java:230)
+        at java.lang.reflect.WeakCache.get(WeakCache.java:127)
+        at java.lang.reflect.Proxy.getProxyClass0(Proxy.java:419)
+        at java.lang.reflect.Proxy.newProxyInstance(Proxy.java:719)
+        at org.neo4j.kernel.impl.util.DependenciesProxy.dependencies(DependenciesProxy.java:55)
+        at org.neo4j.kernel.extension.KernelExtensions.getKernelExtensionDependencies(KernelExtensions.java:125)
+        at org.neo4j.kernel.extension.KernelExtensions.init(KernelExtensions.java:58)
+        at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.init(LifeSupport.java:406)
+        ... 12 more
+Caused by: java.lang.ClassNotFoundException: org.neo4j.kernel.impl.util.JobScheduler
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:381)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
+        at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:335)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+        ... 28 more
+2017-11-07 20:38:38.268+0000 INFO  Neo4j Server shutdown initiated by request
+----
+
+To resolve this error download and install the version of APOC for 3.3 and as detailed https://github.com/neo4j-contrib/neo4j-apoc-procedures#version-compatibility-matrix[here]

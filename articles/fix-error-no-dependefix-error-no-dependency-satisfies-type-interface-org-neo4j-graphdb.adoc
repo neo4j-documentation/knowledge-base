@@ -1,0 +1,25 @@
+= Fix error: No dependency satisfies type interface org.neo4j.graphdb.GraphDatabaseService
+:slug: fix-error-no-dependefix-error-no-dependency-satisfies-type-interface-org-neo4j-graphdb
+:author: Daniel Terlizzi
+:public:
+:category: development
+:neo4j-version: 3.5,4.0
+:tags: upgrade
+
+From Neo4j 3.5 onwards, there are 2 kinds of Extension Factories : global and per database.
+
+Only the database one has access to the GraphDatabaseService.
+
+If you encounter this error, you need to change the call to the parent constructor of the classes that are extending `KernelExtensionFactory<ApocKernelExtensionFactory.Dependencies>` as following and adjust the import class:
+
+
+----
+
+    import org.neo4j.kernel.extension.ExtensionType;
+    
+    //... etc
+    
+    public ApocKernelExtensionFactory() {
+        super(ExtensionType.DATABASE, "registerUserDefinedExtension");
+    }
+----
