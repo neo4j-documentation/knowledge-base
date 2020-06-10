@@ -1,0 +1,291 @@
+import com.neo4j.gradle.wordpress.WordPressTaxonomySyncTask
+import com.neo4j.gradle.wordpress.WordPressUploadTask
+import com.neo4j.gradle.zendesk.ZenDeskUploadTask
+import org.asciidoctor.gradle.jvm.AsciidoctorTask
+import org.yaml.snakeyaml.Yaml
+
+buildscript {
+    dependencies {
+        classpath("org.yaml:snakeyaml:1.17")
+    }
+}
+
+plugins {
+    id 'org.asciidoctor.jvm.gems' version '3.2.0' apply false
+    id 'org.asciidoctor.jvm.convert' version '3.2.0' apply false
+    id "com.neo4j.gradle.wordpress.WordPressPlugin" version "0.3.0"
+    id "com.neo4j.gradle.zendesk.ZenDeskPlugin" version "0.1.3"
+}
+
+apply plugin: 'org.asciidoctor.jvm.gems'
+
+repositories {
+    mavenCentral()
+    jcenter()
+    ruby {
+        gems()
+    }
+}
+
+dependencies {
+    asciidoctorGems 'rubygems:neo4j-asciidoctor-extensions:0.1.0'
+}
+
+wordpress {
+    username = project.hasProperty('wordpress-username') ? project.property('wordpress-username') : 'neo'
+    password = project.hasProperty('wordpress-password') ? project.property('wordpress-password') : ''
+    host = project.hasProperty('wordpress-host') ? project.property('wordpress-host') : 'localhost'
+    scheme = 'https'
+}
+
+zendesk {
+    email = project.hasProperty('zendesk-email') ? project.property('zendesk-email') : 'user@neo4j.com'
+    apiToken = project.hasProperty('zendesk-apitoken') ? project.property('zendesk-apitoken') : ''
+    host = project.hasProperty('zendesk-host') ? project.property('zendesk-host') : 'localhost'
+    scheme = 'https'
+}
+
+def stage = project.findProperty('stage')
+
+asciidoctorj {
+    requires "${rootProject.projectDir}/resources/extensions.rb"
+    attributes 'allow-uri-read': '',
+            'linkattrs': '',
+            'source-highlighter': 'codemirror',
+            'stage': stage != null ? stage : '',
+            'document-metadata-attrs-include': 'author,slug,private,public,taxonomies*<>'
+}
+
+// Filter pages
+ext.filterPages = { files, filterFunction ->
+    return files.getAsFileTree().filter { file ->
+        if (file.name.endsWith('.html')) {
+            File yamlFile = new File(file.parent, "${file.name.take(file.name.lastIndexOf('.'))}.yml")
+            InputStream input = new FileInputStream(yamlFile)
+            Yaml yaml = new Yaml()
+            Map<String, Object> data = (Map<String, Object>) yaml.load(input)
+            if (filterFunction(data)) {
+                return true
+            }
+        }
+        return false
+    }
+}
+
+// Set author tags
+ext.setAuthorTags = { files, tags ->
+    for (file in files.getAsFileTree()) {
+        if (file.name.endsWith('.html')) {
+            File yamlFile = new File(file.parent, "${file.name.take(file.name.lastIndexOf('.'))}.yml")
+            InputStream input = new FileInputStream(yamlFile)
+            Yaml yaml = new Yaml()
+            Map<String, Object> data = (Map<String, Object>) yaml.load(input)
+            Map<String, Object> author = data["author"]
+            if (author != null) {
+                author["tags"] = tags
+                yamlFile.withWriter('utf-8') { writer ->
+                    yaml.dump(data, writer)
+                }
+            }
+        }
+    }
+}
+
+ext.showTaxonomies = { files ->
+    List<String> developerTags = new ArrayList()
+    List<String> developerCategories = new ArrayList()
+    List<String> neo4jVersions = new ArrayList()
+    List<String> environments = new ArrayList<>()
+    for (file in files.getAsFileTree()) {
+        if (file.name.endsWith('.html')) {
+            File yamlFile = new File(file.parent, "${file.name.take(file.name.lastIndexOf('.'))}.yml")
+            InputStream input = new FileInputStream(yamlFile)
+            Yaml yaml = new Yaml()
+            Map<String, Object> data = (Map<String, Object>) yaml.load(input)
+            List<Map<String, Object>> taxonomies = data["taxonomies"]
+            Map<String, Object> developerTagsTaxonomy = taxonomies.find { taxonomy -> taxonomy["key"] == "developer_tag"}
+            if (developerTagsTaxonomy != null) {
+                developerTags.addAll(developerTagsTaxonomy["values"])
+            }
+            Map<String, Object> developerCategoriesTaxonomy = taxonomies.find { taxonomy -> taxonomy["key"] == "developer_category"}
+            if (developerCategoriesTaxonomy != null) {
+                developerCategories.addAll(developerCategoriesTaxonomy["values"])
+            }
+            Map<String, Object> neo4jVersionsTaxonomy = taxonomies.find { taxonomy -> taxonomy["key"] == "neo4j_version"}
+            if (neo4jVersionsTaxonomy != null) {
+                neo4jVersions.addAll(neo4jVersionsTaxonomy["values"])
+            }
+            Map<String, Object> environmentsTaxonomy = taxonomies.find { taxonomy -> taxonomy["key"] == "environment"}
+            if (environmentsTaxonomy != null) {
+                environments.addAll(environmentsTaxonomy["values"])
+            }
+        }
+    }
+    println("---\ndeveloper_tag\n" + developerTags.groupBy().collectEntries { [(it.key) : it.value.size()] }.sort { -it.value })
+    println("\n---\ndeveloper_category\n" + developerCategories.groupBy().collectEntries { [(it.key) : it.value.size()] }.sort { -it.value })
+    println("\n---\nneo4j_version\n" + neo4jVersions.groupBy().collectEntries { [(it.key) : it.value.size()] }.sort { -it.value })
+    println("\n---\nenvironment\n" + environments.groupBy().collectEntries { [(it.key) : it.value.size()] }.sort { -it.value })
+}
+
+ext.getTaxonomies = { taxonomyName, files ->
+    Set<String> values = new HashSet()
+    for (file in files.getAsFileTree()) {
+        if (file.name.endsWith('.html')) {
+            File yamlFile = new File(file.parent, "${file.name.take(file.name.lastIndexOf('.'))}.yml")
+            InputStream input = new FileInputStream(yamlFile)
+            Yaml yaml = new Yaml()
+            Map<String, Object> data = (Map<String, Object>) yaml.load(input)
+            List<Map<String, Object>> taxonomies = data["taxonomies"]
+            Map<String, Object> taxonomy = taxonomies.find { t -> t["key"] == taxonomyName}
+            if (taxonomy != null) {
+                values.addAll(taxonomy["values"])
+            }
+        }
+    }
+    return values.toList()
+}
+
+task convertWordPressHtml(type: AsciidoctorTask) {
+    dependsOn asciidoctorGemsPrepare
+
+    asciidoctorj {
+        requires "${rootProject.projectDir}/resources/extensions/footer.rb"
+        options standalone: true,
+                template_dirs: ["${rootProject.projectDir}/_templates/wordpress"]
+    }
+    baseDir file("${projectDir}/articles")
+    sourceDir file("${projectDir}/articles")
+    outputDir file("${projectDir}/build/wordpress/html")
+}
+
+task showTaxonomies {
+    dependsOn convertWordPressHtml
+
+    doLast {
+        // only publish pages that have "public" tag
+        project.showTaxonomies(convertWordPressHtml.outputs.files)
+    }
+}
+
+task syncNeo4jVersionTaxonomy(type: WordPressTaxonomySyncTask) {
+    dependsOn convertWordPressHtml
+
+    doFirst {
+        def task = tasks.findByName('syncNeo4jVersionTaxonomy')
+        if (task != null) {
+            task.configure {
+                values = project.getTaxonomies("neo4j_version", convertWordPressHtml.outputs.files)
+            }
+        }
+    }
+    restBase = "neo4j_version"
+}
+
+
+task syncDeveloperTagTaxonomy(type: WordPressTaxonomySyncTask) {
+    dependsOn convertWordPressHtml
+
+    doFirst {
+        def task = tasks.findByName('syncDeveloperTagTaxonomy')
+        if (task != null) {
+            task.configure {
+                values = project.getTaxonomies("developer_tag", convertWordPressHtml.outputs.files)
+            }
+        }
+    }
+    restBase = "developer_tag"
+}
+
+task syncDeveloperCategoryTaxonomy(type: WordPressTaxonomySyncTask) {
+    dependsOn convertWordPressHtml
+
+    doFirst {
+        def task = tasks.findByName('syncDeveloperCategoryTaxonomy')
+        if (task != null) {
+            task.configure {
+                values = project.getTaxonomies("developer_category", convertWordPressHtml.outputs.files)
+            }
+        }
+    }
+    restBase = "developer_category"
+}
+
+task syncEnvironmentTaxonomy(type: WordPressTaxonomySyncTask) {
+    dependsOn convertWordPressHtml
+
+    doFirst {
+        def task = tasks.findByName('syncEnvironmentTaxonomy')
+        if (task != null) {
+            task.configure {
+                values = project.getTaxonomies("environment", convertWordPressHtml.outputs.files)
+            }
+        }
+    }
+    restBase = "environment"
+}
+
+task syncTaxonomy {
+    dependsOn syncEnvironmentTaxonomy, syncDeveloperCategoryTaxonomy, syncDeveloperTagTaxonomy, syncNeo4jVersionTaxonomy
+}
+
+task convertZenDeskHtml(type: AsciidoctorTask) {
+    dependsOn asciidoctorGemsPrepare
+
+    asciidoctorj {
+        options standalone: false,
+                template_dirs: ["${rootProject.projectDir}/_templates"]
+    }
+    baseDir file("${projectDir}/articles")
+    sourceDir file("${projectDir}/articles")
+    outputDir file("${projectDir}/build/zendesk/html")
+
+    doLast {
+        // Add the "neo4jstaff" tag to authors
+        project.setAuthorTags(convertZenDeskHtml.outputs.files, ["neo4jstaff"])
+    }
+}
+
+task convert {
+    dependsOn convertWordPressHtml, convertZenDeskHtml
+}
+
+if (stage == 'production' || stage == 'testing') {
+    task wordPressUpload(type: WordPressUploadTask) {
+        dependsOn convertWordPressHtml
+
+        doFirst {
+            def wordPressUploadTask = tasks.findByName('wordPressUpload')
+            if (wordPressUploadTask != null) {
+                wordPressUploadTask.configure {
+                    // only publish pages that have "public" tag
+                    source = project.filterPages(convertWordPressHtml.outputs.files, { data ->
+                        data.containsKey("public") || data.containsKey("private")
+                    })
+                }
+            }
+        }
+
+        type = "faq"
+        status = stage == 'production' ? "publish" : "private"
+    }
+}
+
+task zenDeskUpload(type: ZenDeskUploadTask) {
+    dependsOn convertZenDeskHtml
+
+    doFirst {
+        def zenDeskUploadTask = tasks.findByName('zenDeskUpload')
+        if (zenDeskUploadTask != null) {
+            zenDeskUploadTask.configure {
+                // only publish pages that have either "public" or "private" tag
+                source = project.filterPages(convertZenDeskHtml.outputs.files, { data ->
+                    data.containsKey("public") || data.containsKey("private")
+                })
+            }
+        }
+    }
+
+    userSegmentId = 1716387
+    permissionGroupId = 136448
+    sectionId = 200574983
+}

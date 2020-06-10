@@ -1,0 +1,5 @@
+'''
+
+* Last Modified: {docdatetime} by {author}.
+* Relevant for Neo4j Versions: {neo4j-versions}. 
+* Relevant keywords {tags}.
