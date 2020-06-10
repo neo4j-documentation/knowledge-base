@@ -12,10 +12,9 @@ When you experience an OutOfMemory exception, it will produce a .hprof file if y
 
 ----
 dbms.jvm.additional=-XX:+HeapDumpOnOutOfMemoryError
-
 ----
 
-Note: You can also add tweak the below settings to specify the directory path but ensure that you have enough disk space when such error occurs.
+NOTE: You can also add tweak the below settings to specify the directory path but ensure that you have enough disk space when such error occurs.
 
 ----
 dbms.jvm.additional=-XX:HeapDumpPath=/var/tmp/dumps
@@ -26,7 +25,6 @@ This file is the image of the heap part of the java process running on your syst
 
 Oracle JDK, Open JDK will produce hprof files and can be analyzed with most available tools.
 For IBM heap dumps, you need to parse it with IBM heap analyzer or other proprietary tool.
-
 
 == Change the settings in MemoryAnalyzer.ini 
 
@@ -77,10 +75,12 @@ $ du -ch java_pid19820*
  68K	java_pid19820_Component_Report_sel.zip
 180G	total
 ----
-0. Pre-requisite Install java and make sure to have 250GB space available
-1. Download MemoryAnalyzer tool for linux: https://www.eclipse.org/mat/downloads.php[download]
-2. Unzip it in a directory
-3. Edit MemoryAnalyzer.ini to adjust both -Xms and -Xmx memory settings :
+
+. Pre-requisite Install java and make sure to have 250GB space available
+. Download MemoryAnalyzer tool for linux: https://www.eclipse.org/mat/downloads.php[download]
+. Unzip it in a directory
+. Edit MemoryAnalyzer.ini to adjust both -Xms and -Xmx memory settings :
+
 ----
 -startup
 plugins/org.eclipse.equinox.launcher_1.5.0.v20180512-1130.jar
@@ -92,6 +92,7 @@ plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.700.v20180518-1200
 ----
 
 === Parse the file on a remote machine
+
 This step is optional if you run Eclipse MAT on your local machine and have enough resources.
 The index files will be created when opening the heapdump file if they are missing.
 
@@ -133,9 +134,7 @@ image::https://s3.amazonaws.com/support.neotechnology.com/KBs/heapdump_expand_ou
 
 Expand the first level then expand everything at the second level.
 
-
-
-== Cypher query string 
+== Cypher query string
 
 There are a lot of objects in a heap dump, no need to go through the Object[],byte[],Strings, etc.
 
@@ -163,7 +162,8 @@ $ grep neo4j.BoltWorker-394 *
 5913-tdump-201903291756.log:"neo4j.BoltWorker-394 [bolt] [/www.xxx.yyy.zzz:57570] " #620 daemon prio=5 os_prio=0 tid=0x00007fb737619800 nid=0x8cec runnable [0x00007fb38d00b000]
 ----
 
-Note that the thread dumps are included in the heap dump. They are available in plain text in the file but you don't have the STATE information in Eclipse Mat. You can have them with other tools such as jvisual vm.
+Note that the thread dumps are included in the heap dump. They are available in plain text in the file but you don't have the STATE information in Eclipse Mat.
+You can have them with other tools such as VisualVM:
 ----
 $ head -10 java_pid19820.threads
 Thread 0x7fd64b0e1610
@@ -176,5 +176,5 @@ Thread 0x7fd64b0e1610
   at java.lang.Thread.run()V (Thread.java:748)
   at com.hazelcast.util.executor.HazelcastManagedThread.executeRun()V (HazelcastManagedThread.java:76)
   at com.hazelcast.util.executor.HazelcastManagedThread.run()V (HazelcastManagedThread.java:92)
-  ```
+----
 
