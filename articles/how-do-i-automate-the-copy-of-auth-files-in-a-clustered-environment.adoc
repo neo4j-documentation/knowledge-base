@@ -16,6 +16,7 @@ https://en.wikipedia.org/wiki/Cron[cron] on a regular interval from each instanc
 This package is provided AS-IS.
 
 Installation is as follows:
+
 1. copy the .tgz to the linux server where instance 1 is defined.
-2. untar the package as tar 
+2. untar the package as tar
 

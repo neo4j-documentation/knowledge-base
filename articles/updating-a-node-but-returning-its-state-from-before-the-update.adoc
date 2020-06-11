@@ -10,7 +10,7 @@ Some use cases require updating node (or relationship) properties, but returning
 
 You'll need to get a 'snapshot' of the node before the update, and return that snapshot instead of the node itself.
 
-==== Neo4j 3.1 and above
+== Neo4j 3.1 and above
 
 You can use map projection to get your node snapshot:
 
@@ -25,7 +25,7 @@ The returned map result will still have the name property set to 'Keanu Reeves'.
 
 Note that the result is a map, not a node, so node id and labels are not included in the returned data.
 
-====== Returning an explicit null value
+=== Returning an explicit null value
 
 If you need to explicitly show a missing field (in the snapshot) as a null value in Neo4j 3.1 or above, you can also solve this with map projection by explicitly including the field in the projection.
 
@@ -38,7 +38,7 @@ RETURN snapshot
 ----
 If the `lastUpdated` property didn't exist on the node, it will still be returned in the map with a null value instead of not appearing at all.
 
-==== Neo4j 3.0 and below
+== Neo4j 3.0 and below
 
 Map projection isn't available, so use `properties()` instead.
 
@@ -53,7 +53,7 @@ The returned map result will still have the name property set to 'Keanu Reeves'.
 
 Note that the result is a map, not a node, so node id and labels are not included in the returned data.
 
-====== Returning an explicit null value
+=== Returning an explicit null value
 
 If you need to explicitly show a missing field (in the snapshot) as a null value in Neo4j 3.0, you'll need to use the map helper functions of link:https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC Procedures].
 

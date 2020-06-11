@@ -6,19 +6,19 @@
 :public:
 :category: operations
 
-=== Overview:
+== Overview:
 
 This document, Neo4j Security Benchmark, provides prescriptive guidance for establishing a secure configuration posture for Neo4j Enterprise Edition versions 3.5.0 and higher. This guide was tested against Neo4j 3.5.0 running on Ubuntu Linux 18.04, but applies to other Linux distributions as well. If you have questions, comments, or have identified ways to improve this guide, please write us at feedback@neo4j.com.
 
 (This document should integrate and incorporate present information on the public website available here:  https://neo4j.com/docs/operations-manual/current/security/checklist/) 
 
-=== Intended Audience:
+== Intended Audience:
 
 This document is intended for system and application administrators, security specialists,
 auditors, help desk, and platform deployment personnel who plan to develop, deploy,
 assess, or secure solutions that incorporate Neo4j Enterprise Edition.
 
-=== Changes in Neo4j 3.5:
+== Changes in Neo4j 3.5:
 Neo4j 3.5 provides the following enhancements regarding security configuration:
 
 * Encryption of the cluster discovery protocol.

@@ -16,7 +16,7 @@ Keep in mind the following regarding GC logging:
 * It will add minor overhead
 * You might consider enabling this option on your live environments
 
-=== For Neo4j 2.x releases
+== For Neo4j 2.x releases
 Uncomment these lines in `conf/neo4j-wrapper.conf`:
 
 ----
@@ -35,7 +35,7 @@ wrapper.java.additional=-XX:+PrintGCCause
 
 The log file will be written to: data/log/neo4j-gc.log
 
-=== For Neo4j 3.x releases
+== For Neo4j 3.x releases
 Uncomment these lines below in `conf/neo4j.conf` that are prefaced by # dbms.:
 
 ----

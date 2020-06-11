@@ -6,7 +6,7 @@
 :public:
 :category: cypher
 
-The following can be used to extract index defintions and constraint defintions from an existing database and the resultant
+The following can be used to extract index definitions and constraint definitions from an existing database and the resultant
 output can be played back on another Neo4j database.
 For example with the `:play movies` dataset as when run from the Neo4j Browser, we can define the following indexes and constraints
 

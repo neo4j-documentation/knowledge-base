@@ -10,7 +10,7 @@ While UNIONs can be useful for certain cases, they can often be avoided complete
 
 In this article we'll present various example cases where a UNION isn't necessary, and a simple Cypher query will do.
 
-=== Starting node + all others through a common node
+== Starting node + all others through a common node
 
 There are cases where you want all nodes connected to a common node in some way, including the starting node, and all of these nodes are connected by the same pattern.
 
@@ -53,7 +53,7 @@ RETURN movie, coactor
 By using a second MATCH, we've broken up the paths used, so there's no longer any restriction for the :ACTED_IN relationships when we match back out to coactors for a movie.
 The relationship to Keanu Reeves is treated as any other relationship from the MATCH, and Keanu Reeves appears in the results.
 
-=== Optional connections
+== Optional connections
 
 For some queries we may want the results from two similar patterns, but there may be some extra traversals on one that aren't present in the other.
 
@@ -89,7 +89,7 @@ This will allow `movie` to match both to the movies Keanu Reeves acted in, as we
 
 This `[*0..1]` trick basically represents an optional connection, and can be used when we want both a node and a connected node to be treated the same way (and represented by the same variable, if needed) in the pattern.
 
-==== Optional connections to get the right node
+=== Optional connections to get the right node
 
 In the above example our optional connection was between :Movie nodes, allowing us to get nodes connected to both the starting node, and an adjacent node.
 

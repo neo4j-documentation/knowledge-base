@@ -37,7 +37,7 @@ While this is usually understood to apply to commits to the cluster, this also a
 
 Both of these will change the runtime size of the core cluster members, potentially changing the number of core cluster members required for quorum, and thus the number of failures the cluster can tolerate before losing quorum (and write capability).
 
-==== Voting in a new member to the cluster
+=== Voting in a new member to the cluster
 
 The first point should be fairly easy to understand.
 
@@ -45,7 +45,7 @@ This is also the reason why, if a cluster loses quorum (and write capability) th
 
 The only way to recover quorum is to restore enough of those instances which are offline (but which weren't voted out of the cluster, due to loss of quorum).
 
-==== Voting out cluster members and shrinking the cluster
+=== Voting out cluster members and shrinking the cluster
 
 The second point is a little bit more complicated.
 

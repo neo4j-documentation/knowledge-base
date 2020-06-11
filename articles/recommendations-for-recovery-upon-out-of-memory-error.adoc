@@ -28,7 +28,7 @@ dbms.jvm.additional=-XX:+CrashOnOutOfMemoryError
 ----
 
 
-=== ExitOnOutOfMemoryError
+== ExitOnOutOfMemoryError
 
 When you enable this option, the JVM exits on the first occurrence of an out-of-memory error. It can be used if you prefer restarting an instance of the JVM rather than handling out of memory errors.
 
@@ -51,7 +51,7 @@ The `ExitOnOutOfMemoryError` and `CrashOnOutOfMemoryError` flags were added to J
 https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8155004[JDK-8155004] : CrashOnOutOfMemoryError doesn't work for OOM caused by inability to create threads
 
 
-=== There are many types of OutOfMemoryError
+== There are many types of OutOfMemoryError
 
 * `java.lang.OutOfMemoryError: Java heap space`
 

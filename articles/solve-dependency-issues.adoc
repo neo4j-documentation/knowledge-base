@@ -156,7 +156,7 @@ mvn dependency:go-offline -Dmaven.repo.local=./remoterepo
 - Specify the following in your pom.xml
 
 .pom.xml
-[source,shell]
+[source,xml]
 ----
     <repositories>
         <repository>

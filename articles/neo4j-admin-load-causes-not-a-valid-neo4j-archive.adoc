@@ -28,8 +28,7 @@ The location is a directory used by the JVM to create and store temporary files.
 Some system administrators when following security best practices in order to limit their attack surface, make sure that `/tmp` is mounted with `noexec` option. This option prompts the kernel to refuse to allow any code execution and or storage 
 performed against this location.
 
-One approach to troubleshoot:
-=============================
+== One approach to troubleshoot:
 
 Check if this option set. For example on a RHEL server:
 
@@ -41,8 +40,8 @@ tmpfs on /tmp type tmpfs (rw,noexec,relatime,seclabel,size=524288k)
 So on this machine `/tmp` is setup with `noexec` option. 
 
 
-Fix / Workaround:
-==================
+== Fix / Workaround:
+
 Override `java.io.tmpdir` default setting from `/tmp` to another location and then running `neo4j-admin load`.
 
 For example:

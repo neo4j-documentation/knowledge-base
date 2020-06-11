@@ -21,9 +21,9 @@ RETURN p, m LIMIT 3
 
 The above query won't return the desired results. The `LIMIT` will instead make the query return only 3 rows total.
 
-=== Some solutions to apply a limit to match results per-row
+== Some solutions to apply a limit to match results per-row
 
-==== Take the interested slice of a collection
+=== Take the interested slice of a collection
 
 One common solution is to `collect()` and take the interested slice:
 
@@ -52,7 +52,7 @@ RETURN p, head([(p)-[:ACTED_IN]->(m) | m]) as movie
 
 While this works when there are few relationships per node, it may become infeasible on supernodes with larger numbers of relationships, as it must expand all `:ACTED_IN` relationships before collecting.
 
-==== Use apoc.cypher.run() to execute a limited subquery
+=== Use apoc.cypher.run() to execute a limited subquery
 
 Neo4j doesn't currently offer native subquery support aside from pattern comprehension, but even those don't support `LIMIT`.
 
@@ -71,7 +71,7 @@ RETURN p, value.m AS movie
 
 This approach is efficient since by using `LIMIT` we don't have to pay the cost of expanding all `:ACTED_IN` relationships, we only need to expand 3 per row.
 
-==== Use APOC path expander using end node or termination filters and `limit` param
+=== Use APOC path expander using end node or termination filters and `limit` param
 
 With Neo4j 3.1.3 and higher, and link:https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC Procedures] 3.1.3.6 and higher, you can use use new path expander features to limit expansion to certain nodes.
 

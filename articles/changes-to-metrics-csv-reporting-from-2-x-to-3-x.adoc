@@ -11,7 +11,7 @@ This is described in detail at http://neo4j.com/docs/operations-manual/current/m
 
 Differences between 2.x and 3.x are as follows:
 
-=== File Name Changes
+== File Name Changes
 * In 2.x all data was written to a single file named metrics.csv with multiple metrics per each line. When enabling all metrics, the contents of the metrics.csv would appear as follows
 
 ----
@@ -46,7 +46,7 @@ neo4j.page_cache.evictions.csv                 neo4j.transaction.terminated.csv 
 neo4j.page_cache.flushes.csv                   neo4j.transaction.terminated_read.csv
 ----
 
-=== Location
+== Location
 
 * In 2.x the default path for the .csv files is in `data/graph.db`
 * In 3.x the default path for the .csv files is in `$NEO4J_HOME/metrics`

@@ -20,8 +20,6 @@ The respective JDBC driver can be obtained from the RDBMS vendor. For example:
 |http://www.oracle.com/[Oracle] | http://www.oracle.com/technetwork/database/features/jdbc/ | ojdbc7.jar   
 |======================
 
-
-
 After installing APOC and copying the RDBMS vendor .jar to $NEO4J_HOME\plugins\, restart Neo4j.
 
 The apoc.load.jdbc stored procedure is used to connect over JDBC and takes 2 arguments,namely:
@@ -78,4 +76,3 @@ If required, you might want to connect to the RDBMS with a user who only has SEL
 
 Also when loading data from JDBC, be mindful of datatypes and any necessary conversions; for example whereas MySQL supports a native DATE datatype, Neo4j does not.  
 For example, to get the column with DATE data type, convert the value to a String when importing into Neo4j.
-

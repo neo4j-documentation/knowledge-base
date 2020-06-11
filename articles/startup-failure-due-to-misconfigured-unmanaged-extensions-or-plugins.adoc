@@ -6,7 +6,7 @@
 :public:
 :category: operations
 
-Occassionally, following upgrades, one might encounter Neo4j server initialisation failure due to an exception similar to:
+Occasionally, following upgrades, one might encounter Neo4j server initialisation failure due to an exception similar to:
 
 ----
 2019-11-14 12:57:40.446+0000 ERROR Failed to start Neo4j: 

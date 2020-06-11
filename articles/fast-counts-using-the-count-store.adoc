@@ -14,7 +14,7 @@ Obtaining counts from the count store is constant-time, so if you want counts fo
 
 You can tell if the count store is being used in your query by looking at the query plan from an EXPLAIN of the query. You should see either a `NodeCountFromCountStore` or a `RelationshipCountFromCountStore` operator.
 
-==== Limitations of count store queries
+*Limitations of count store queries*
 
 By definition, a query to get counts has to have a `count()` aggregation.
 
@@ -59,7 +59,7 @@ MATCH (:Person)
 RETURN count(*) as count
 ----
 
-==== Limitation - Can't use the count store for querying for nodes with multiple labels
+*Limitation - Can't use the count store for querying for nodes with multiple labels*
 
 The count store will not be used when querying for nodes with multiple labels, as these counts are not tracked in the count store.
 
@@ -129,7 +129,7 @@ MATCH ()-[r]->(:Movie)
 RETURN count(r) as count
 ----
 
-==== Limitation - Can't use the count store with labels present on both start and end nodes
+*Limitation - Can't use the count store with labels present on both start and end nodes*
 
 The count store does not keep metadata with respect to labels on both the start and end node.
 
@@ -148,7 +148,7 @@ that the `count()` aggregation must be alone on the WITH or RETURN row for the c
 
 There are two notable workarounds to this limitation.
 
-==== Use a UNION ALL query for counts
+=== Use a UNION ALL query for counts
 
 If we get the counts using the count store for separate queries and UNION them together, we can get the desired counts with just a bit of extra work:
 
@@ -197,7 +197,6 @@ CALL db.relationshipTypes() YIELD relationshipType as type
 CALL apoc.cypher.run('MATCH ()-[:`'+type+'`]->() RETURN count(*) as count',{}) YIELD value
 RETURN type, value.count
 ----
-
 
 ==== Use apoc.meta.stats() from APOC Procedures
 

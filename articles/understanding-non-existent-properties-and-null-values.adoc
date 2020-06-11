@@ -55,7 +55,7 @@ WHERE p.id = $personId
 SET p += clearProps
 ----
 
-==== NULL map values
+== NULL map values
 
 This also demonstrates that although non-existence and null node and relationship properties are equivalent, this does not hold true for maps or collections.
 A map with an entry with a null value, as above, is different than a map that is missing the entry.
@@ -80,7 +80,7 @@ RETURN p {.*, .email}
 ----
 
 
-==== NULL list values
+== NULL list values
 
 NULLs are also allowed in lists:
 
@@ -107,12 +107,12 @@ RETURN collect(p.email) as emails
 
 This skips null values; the returned collection does not contain any nulls.
 
-==== Working with NULL in logical expressions and other contexts
+== Working with NULL in logical expressions and other contexts
 
 The Neo4j developers manual has an extensive section on https://neo4j.com/docs/developer-manual/current/cypher/syntax/working-with-null/[working with NULL] in logical expressions and details when expressions will return NULL.
 
 
-==== Use COALESCE() to use a default for a null value
+== Use COALESCE() to use a default for a null value
 
 In some cases we may want to display a fallback default value when a property doesn't exist on a node or relationship.
 Or we may want to perform an equality or inequality comparison against a possible null value, and use a default if the value happens to be null.
@@ -145,7 +145,7 @@ RETURN COALESCE(p.email, p.backupEmail, p.backupBackupEmail, 'NOT SET') as email
 
 Multiple fallbacks are allowed, the first non-null value will be used.
 
-==== Matching and Merging with NULL
+== Matching and Merging with NULL
 
 .Null node variables
 

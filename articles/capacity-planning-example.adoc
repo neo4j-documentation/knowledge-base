@@ -8,8 +8,7 @@
 
 Here is a back of the napkin example of capacity planning for a Neo4j workload for the following list of requirements:
 
-=== Requirements
-
+== Requirements
 
 |===
 |Requirement|Value
@@ -41,14 +40,12 @@ Here is a back of the napkin example of capacity planning for a Neo4j workload f
 |DR|DR In 2 US availability zones
 |===
 
-
-=== Analysis
+== Analysis
 
 1) Estimating an initial database size of about 38GB (see table below) - assuming: 
 
  * 20% for indexes
  * Max # of nodes and relationships with Avg props per node & relations
-
 
 |===
 ||Number|	Bytes/Object	| Space(GBs)|	Properties subtotal

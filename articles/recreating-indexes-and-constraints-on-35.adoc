@@ -13,7 +13,7 @@ More details on index providers can be found in the documentation:  https://neo4
 
 Customers who are upgrading from a 3.5 version prior to 3.5.8 may also want to do this process as noted in this Support Notification:  https://support.neo4j.com/hc/en-us/articles/360027344873-Neo4j-3-5-x-Index-Inconsistency-Vulnerability-Fixed-in-Release-3-5-8
 
-=== Step 1 - Generating Cypher Scripts to recreate Constraints:
+== Step 1 - Generating Cypher Scripts to recreate Constraints:
 
 Execute the following Cypher statement to generate a cypher script output which will be used to drop and create constraints:
 
@@ -26,7 +26,7 @@ This can be done in either the Neo4j Browser or cypher-shell.  Depending on your
 
 Save this file, for example: `recreate-constraints.cypher`
 
-=== Step 2 - Generating Cypher Scripts to recreate Indexes:
+== Step 2 - Generating Cypher Scripts to recreate Indexes:
 
 Execute the following Cypher statement to generate a cypher script output which will be used to drop and create constraints:
 
@@ -39,7 +39,7 @@ RETURN 'DROP ' + description + '; CREATE ' + description + ';'
 
 Like the recreate constraints script, strip any double quotes and save the file:  `recreate-indexes.cypher`
 
-=== Step 3 (Optional) - Confirm Propery key sizes
+== Step 3 (Optional) - Confirm Propery key sizes
 
 If you are updating from 3.3 or earlier, it's possible that the index creation could fail on string properties if any of the properties have a size greater then 4036 bytes.  
 If you would like to check this prior to dropping and recreating, the following  Cypher can be used to see if there are any values that would cause a failure:
@@ -56,19 +56,19 @@ order by n.id desc
 This will need to done for each Label/propery combination noted in steps 1 and 2.  
 If any of the queries return any rows, you  will need to either clean up / remove the nodes, or remove the drop/create from the generated cypher file for that index/constraint.
 
-=== Step 4 - Confirm Index Provider 
+== Step 4 - Confirm Index Provider
 
 Check your configuration (neo4j.conf) and confirm that `dbms.index.default_schema_provider` is either commented out, or set to `native-btree-1.0`.
 
-=== Step 5 - Run script to recreate indexes
+== Step 5 - Run script to recreate indexes
 
 In either the Neo4j Browser or via cypher-shell, paste in the `recreate-indexes.cypher` script and execute.  Monitor for any errors.
 
-=== Step 6 - Run script to recreate constraints
+== Step 6 - Run script to recreate constraints
 
 In either the Neo4j Browser or via cypher-shell, paste in the `recreate-constraints.cypher` script and execute.  Monitor for any errors.
 
-=== Step 7 - Confirm all indexes and constraints were populated, are online and are the correct index provider:
+== Step 7 - Confirm all indexes and constraints were populated, are online and are the correct index provider:
 
 In either the Neo4j Browser or cypher-shell, run:
 

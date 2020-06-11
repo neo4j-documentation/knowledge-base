@@ -14,7 +14,6 @@ If you encounter this error, you need to change the call to the parent construct
 
 
 ----
-
     import org.neo4j.kernel.extension.ExtensionType;
     
     //... etc

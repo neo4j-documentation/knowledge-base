@@ -8,50 +8,51 @@
 
 When large amounts of data are sent between a Neo4j database and a client (typically large query results, from server to client), there are a few hidden throttling mechanisms that may come into play.
 
-
-=== TCP Throttling
+== TCP Throttling
 
 Bolt connections between a client & the Neo4j server are riding over TCP.
 
-==== Client Receive Window
+=== Client Receive Window
 
 TCP tries to adapt the amount of data sent so as not to overwhelm the client. The client indeed needs to process the received data, which may take time and may cause the read buffer to fill up faster than it's emptied.
 
 How does that work ? 
 Each time a client acknowledges reception of data, it sends a TCP ACK, with the current available capacity of its read buffer. That's called the Receive Window. 
-	
-Note : 
-	When capturing traffic (with tcpdump for ex), and opening a capture file in a tool like Wireshark, the Receive Window shows up as property 'WIN' in the ACKs.
-	That value can go up to 65536. To convert it into a number of bytes, multiply that value by the Window Scaling factor, that you can find in the initial TCP connection 3-way handshake (SYN/SYN-ACK/ACK) as property 'WS'.
+
+[NOTE]
+====
+When capturing traffic (with tcpdump for ex), and opening a capture file in a tool like Wireshark, the Receive Window shows up as property 'WIN' in the ACKs.
+That value can go up to 65536. To convert it into a number of bytes, multiply that value by the Window Scaling factor, that you can find in the initial TCP connection 3-way handshake (SYN/SYN-ACK/ACK) as property 'WS'.
+====
 
 The server will use that Receive Window to modulate the amount of data it sends. 
 It keeps track of the amount of data 'in flight' (sent but not yet acknowledged), and makes sure that never gets over the Receive Window, by reducing the rate at which it sends data. If the client's Receive Window gets to zero (Wireshark marks those ACKs as TCP ZeroWindow), the server will stop sending and wait for it to increase again (the client then sends a TCP Window Update to signal the increase).
 
-==== Congestion Window
+=== Congestion Window
 
 TCP also adapts the transmission rate based on congestion. The server maintains a Congestion Window. That window starts at small values (small multiples of the network MTU) and increases steadily until packet loss occurs. When that happens, the Congestion Window is halved (usually, but the decrease varies with different congestion avoidance algorithms), and the steady increase resumes. 
 TCP's actual sending rate is predicated on the minimum of the client's Receive Window and the Congestion Window.
 
-=== Bolt server Throttling
+== Bolt server Throttling
 
 On top of TCP's own throttling, the Neo4j Bolt server throttles the rate at which it writes data to its write buffers.
 
 That is controlled by the following configuration parameters :
-[source]
+
 ----
-	unsupported.dbms.bolt.outbound_buffer_throttle [default : true]
-	unsupported.dbms.bolt.outbound_buffer_throttle.high_watermark [default : 512k]
-	unsupported.dbms.bolt.outbound_buffer_throttle.low_watermark [default : 128k]
-	unsupported.dbms.bolt.outbound_buffer_throttle.max_duration [default : 15min]
+unsupported.dbms.bolt.outbound_buffer_throttle [default : true]
+unsupported.dbms.bolt.outbound_buffer_throttle.high_watermark [default : 512k]
+unsupported.dbms.bolt.outbound_buffer_throttle.low_watermark [default : 128k]
+unsupported.dbms.bolt.outbound_buffer_throttle.max_duration [default : 15min]
 ----
 
 When the write buffer fills up to the high watermark, writing will pause. While the Bolt server waits, it receives ACKs from the client, which allow him to remove the corresponding data from the write buffer.
 The server polls the buffer every second to check whether the low watermark has been reached. When that happens, it resumes writing.
-	
-==== Note on Timeouts
+
+=== Note on Timeouts
 The config parameter unsupported.dbms.bolt.outbound_buffer_throttle.max_duration controls the maximum amount of time a connection can be throttled. An exception is returned to the client when that time is reached : "Bolt connection [%s] will be closed because the client did not consume outgoing buffers for %s which is not expected." 
 
 That timeout may interfere with transaction timeouts (dbms.transaction.timeout). When the transaction timeout is lower than the throttling timeout, a throttling pause may delay the moment when the timed out transaction is terminated, which may make it appear as if the transaction timeout was exceeded. 
-  
-==== How can you know Bolt throttling is happening? 
+
+=== How can you know Bolt throttling is happening?
 Thread dumps are your best chance as there are no entry in the logs when throttling triggers. Generally assumes it does happen for queries with large resultsets relative to the high watermark (1MB+), as it's very likely that consumption of results is slower than production, and that the outbound buffer fills up rapidly.

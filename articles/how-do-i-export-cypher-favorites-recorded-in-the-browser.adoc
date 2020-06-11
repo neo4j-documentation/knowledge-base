@@ -21,11 +21,10 @@ These favorites are stored in local browser storage and as such are centric to t
 Additionally, if one clears their browser cache, recorded favorites will be removed.
  
 To export favorites, use the Developer Console of Google Chrome and connect to the Neo4j browser URL.
- 
+
 1. Launch Google Chrome and connect to the Neo4j browser on http://localhost:7474
 
 2. Access the Developer Console, https://developer.chrome.com/devtools/docs/console within Google Chrome 
- 
 * Use the keyboard shortcut kbd:[Command + Option + J] (Mac) or kbd:[Control+ Shift + J] (Windows/Linux).
 
 3. Enter the following in the Developer Console and hit return
@@ -33,8 +32,8 @@ To export favorites, use the Developer Console of Google Chrome and connect to 
 [source,javascript]
 ----
 var res = JSON.parse(localStorage.getItem('neo4j.documents')) 
-for (x in res) \{
-console.log(res[x]['content'])
+for (x in res) {
+  console.log(res[x]['content'])
 }
 ----
  

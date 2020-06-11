@@ -47,8 +47,6 @@ Problem solving:
 
 == Keys for Neo4j Bloom
 
-
-
 == How to install activation keys
 
 === Formats
