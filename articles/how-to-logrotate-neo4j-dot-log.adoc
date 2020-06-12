@@ -9,7 +9,7 @@
 The neo4j.log file is a redirection to STDOUT. When you implement a default logrotate strategy,
 Neo4j will not be able to write to that file anymore after a rotation.
 
-=== Solution
+== Solution
 
 You can use "copytruncate" in your logrotate configuration file.
 
@@ -33,6 +33,6 @@ There is a very small time slice between copying the file and truncating it, so
 some logging data might be lost. When this option is used, the create option will
 have no effect, as the old log file stays in place.
 
-=== References
+== References
 
 * http://www.delafond.org/traducmanfr/man/man8/logrotate.8.html[Logrotate Manual]

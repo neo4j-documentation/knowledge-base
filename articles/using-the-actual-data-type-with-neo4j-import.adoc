@@ -12,7 +12,7 @@ When importing data using `neo4j-admin import`, make sure to review the required
 https://neo4j.com/docs/operations-manual/current/tools/import/
 
 
-=== ACTUAL vs. String (default) or Integer:
+== ACTUAL vs. String (default) or Integer:
 
 Each node in the CSV must have an `:ID`, which can be in the format `Integer`, `String`, or `ACTUAL`. 
 By default it is `String`, and one can specify `Integer` explicitly in the header. 
@@ -21,7 +21,7 @@ However, the reality is that performance and memory-wise, both are about equal, 
 Using Integer or String is a bit more memory intensive that using `ACTUAL`, so one may be tempted to go for that option. 
 However, this is actually not usually the best option, unless you have a specific use case for it.
 
-=== What is ACTUAL, and why is it special?
+== What is ACTUAL, and why is it special?
 
 `ACTUAL` refers to the actual node ID, which in Neo4j, means the actual location of that record on disk. 
 When using ACTUAL with neo4j-import, all `:ID`s must be ordered, and they must be ordered across ALL CSV files being imported during the load. 
@@ -36,7 +36,7 @@ Take home message:
 
 If you use low, consecutive, ordered `:ID`s, `ACTUAL` should work fine for you, but it does require knowledge of the internal storage architecture and can be challenging to keep all of the nodes in order across CSV files. 
 
-[Note]
+[NOTE]
 `neo4j-admin import` is intended to populate a new, empty database.
 It cannot be used to import into an existing database.
 

@@ -11,7 +11,7 @@ The v4 Python driver will not be available until the end of the first quarter of
 
 **So, how do you connect to Neo4j 4.0 with 1.7.x generation of Python drivers?**
 
----
+''''
 
 The most important thing to remember is that you have to disable encrypted traffic, when using 1.7.x generation drivers against 4.0.x database.
 

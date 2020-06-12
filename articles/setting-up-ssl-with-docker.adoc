@@ -16,7 +16,7 @@ configuration settings:
 The below steps assume you've followed the process outlined in the above documentation link and have created your public cert and
 private key.
 
-=== Add Docker Volume for storing of Certs ===
+== Add Docker Volume for storing of Certs
 
 The Neo4j Docker image exposes a /ssl volume for mounting a directory on the host machine for storage of the certs:
 
@@ -25,7 +25,7 @@ The Neo4j Docker image exposes a /ssl volume for mounting a directory on the hos
 In the above example, a local folder ($HOME/neo4j/ssl) will be used to store the cert and key.
 
 
-=== Setup Configuration Settings within Neo4j to use above /ssl Volume ===
+== Setup Configuration Settings within Neo4j to use above /ssl Volume
 
 The Neo4j Docker container allows for use of a /conf volumn so that you are able to setup configuration settings in a Neo4j.conf 
 file:
@@ -48,24 +48,27 @@ To configure secure Bolt and HTTPs communication, the following configuration pa
 A key note here is that base_directory setting starts with `/ssl` - this will be mapped to the mounted drive and look for 
 client_policy directory in the `$HOME/neo4j/ssl` folder.
 
-
-===  Copy Cert/Key to Host Folders ===
+== Copy Cert/Key to Host Folders
 
 With the above settings, the following folder structure and files on the host will be required:
 
-$HOME/neo4j/ssl/client_policy/ +
-$HOME/neo4j/ssl/client_policy/private.key +
-$HOME/neo4j/ssl/client_policy/public.crt +
-$HOME/neo4j/ssl/client_policy/trusted/ +
-$HOME/neo4j/ssl/client_policy/revoked/ +
+----
+$HOME/neo4j/ssl/client_policy/
+$HOME/neo4j/ssl/client_policy/private.key
+$HOME/neo4j/ssl/client_policy/public.crt
+$HOME/neo4j/ssl/client_policy/trusted/
+$HOME/neo4j/ssl/client_policy/revoked/
+----
 
 If the key/crt files are named something other then the default, the following settings will be required:
 
+----
 dbms.ssl.policy.client_policy.private_key=/ssl/client_policy/neo4j_prod.key
 dbms.ssl.policy.client_policy.public_certificate=/ssl/client_policy/neo4j_prod.crt
+----
 
-=== Sample Docker Run Command ===
+== Sample Docker Run Command
 
 The following is a sample Command to start the Docker container with the above settings:
 
-docker run --publish=7473:7473 --publish=7687:7687 --volume=$HOME/neo4j/ssl:/ssl  --volume=$HOME/neo4j/conf:/conf --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.4-enterprise
+ docker run --publish=7473:7473 --publish=7687:7687 --volume=$HOME/neo4j/ssl:/ssl  --volume=$HOME/neo4j/conf:/conf --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.4-enterprise

@@ -67,10 +67,6 @@ will return
 +-------------+
 ----
 
-
-
-
-
 To resolve this error would require removal of relationship types which are no longer associated with any nodes.   As there is currently 
 no Cypher command to do this, one would need to run https://github.com/jexp/store-utils[copy-store.sh].  This command will read a 
 offline graph.db and prepare a new graph.db but exlcuding any relationship types/properties which are no longer in use.

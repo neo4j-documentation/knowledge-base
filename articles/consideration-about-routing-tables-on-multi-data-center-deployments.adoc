@@ -36,11 +36,11 @@ repeatedly sends stale routing information.
 The drivers pull new routing information in 3 occasions: 
 
 * Driver object creation:
-	
+
  - `driver driverObj = new driver( "bolt+routing://server:7687?policy=EU" )`
 
 * Failed connections
-	
+
  - When there's a failed connection, the driver marks the routing table as stale and pulls a new one from a random Core.
 
 * TTL 

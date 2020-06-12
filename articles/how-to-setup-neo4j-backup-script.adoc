@@ -10,14 +10,18 @@ For operators of Neo4j looking to implement regular hot backups of a Neo4j datab
 wrapper  around `neo4j-admin backup` will make your job easier. Simply read this guide, customize according to your environment, and 
 set your job scheduler to run the `backupDatabase.sh` wrapper script.    
 
-#### DISCLAIMER: This backup script will work with Neo4j version `3.2.9 and above`. For Neo4j versions less than version 3.2.9, please 
+[WARNING,caption="DISCLAIMER"]
+====
+This backup script will work with Neo4j version `3.2.9 and above`. For Neo4j versions less than version 3.2.9, please
+====
+
 contact Neo4j Customer Support for information on how to implement the backup script.
 
 First, download the script link: https://s3.amazonaws.com/support.neo4j.com/backupDatabase.sh[here].
 
 To setup the backup wrapper script on Linux systems, follow these steps:
  
-#### As the neo4j user:
+== As the neo4j user:
  
 1. Copy the `backupDatabase.sh` script to `$NEO4J_HOME/bin`
 
@@ -38,7 +42,7 @@ To setup the backup wrapper script on Linux systems, follow these steps:
    -p Set pache cache : Default 4G (Optional)
    -h  Print help message
 
-#### To run a backup to the backup location directory:
+== To run a backup to the backup location directory:
 
 $ ./backupDatabase.sh `-d /<full_path_to_backup_dir>/backup`
 
@@ -62,27 +66,27 @@ NOTE 3: The script will verify whether the Neo4j database is online before proce
 
 NOTE 4: The default setting for `--fallback-to-full` is set to true. If an incremental backup fails, the script will move the old backup to <name>.err.<N> and fallback to a full backup instead.
 
-#### To run a backup against a remote server:
+== To run a backup against a remote server:
 
 $ ./backupDatabase.sh -d /<full_path_to_backup_dir>/backup `-f 192.168.0.10:6362`
 
 NOTE 1: The default for the `-f` setting is `localhost:6362`. You can specify an alternate remote host IP or IP:Port.
 
-#### To run a backup to the backup location directory with a defined backup name:
+== To run a backup to the backup location directory with a defined backup name:
 
 $ ./backupDatabase.sh -d /<full_path_to_backup_dir>/backup `-b graph.db-TEST`
 
 NOTE 1: Neo4j will automatically determine whether to run a full or incremental backup, by default the script is designed to run incremental backup. If the graph.db-TEST directory in this example does NOT exist, then a full backup will occur.
 
 
-#### To run a backup to the backup location directory with a defined pagecache setting:
+== To run a backup to the backup location directory with a defined pagecache setting:
 
 $ ./backupDatabase.sh -d /<full_path_to_backup_dir>/backup `-p 15G`
 
 NOTE 1: The default pagecache setting is 4G
 
 
-#### To run a backup to the backup location directory with a defined HEAP and pagecache setting:
+== To run a backup to the backup location directory with a defined HEAP and pagecache setting:
 
 $ ./backupDatabase.sh -d /<full_path_to_backup_dir>/backup `-m 8G -p 15G`
 

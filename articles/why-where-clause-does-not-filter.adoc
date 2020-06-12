@@ -10,7 +10,7 @@ It can be frustrating when it seems like a WHERE clause isn't working.
 You can use these approaches to figure out what's wrong.
 
 
-==== Check for WHERE clauses following OPTIONAL MATCH
+== Check for WHERE clauses following OPTIONAL MATCH
 
 WHERE clauses can't be used on their own, they are always paired with a MATCH, WITH, or OPTIONAL MATCH, and it is this pairing that defines behavior when a WHERE clause evaluates to false.
 
@@ -42,10 +42,7 @@ WHERE m.releaseYear > 1999 AND a IS NOT NULL
 RETURN m, collect(a) as animators
 ----
 
-
-
-
-==== Check for misspellings or case mismatches in your WHERE clause
+== Check for misspellings or case mismatches in your WHERE clause
 
 Typos and misspelled elements can easily throw off WHERE clauses, and this includes mismatches in case.
 
@@ -60,7 +57,7 @@ RETURN m
 
 The above query doesn't have any spelling errors, but it has different case in the relationship type, node label, and property key than what's actually in the graph, which will throw off the WHERE clause significantly.
 
-==== Check if an assumed numeric property is actually a string
+== Check if an assumed numeric property is actually a string
 
 In circumstances where numeric comparisons or matches seem to be failing, it helps to make sure the properties you're comparing against are actually numbers.
 
@@ -68,7 +65,7 @@ In text result views, string values will have quotes around them, while numeric 
 
 Be especially mindful during imports, especially CSV imports, as all values are interpreted as strings. You'll need to use `toInteger()` and `toFloat()` to cast strings to numeric values, to avoid this problem.
 
-==== Check for leading or trailing whitespace in property keys and values
+== Check for leading or trailing whitespace in property keys and values
 
 Leading or trailing whitespace in properties can make it seem like WHERE clauses aren't working, and this is often an issue with the data in the graph rather than the query itself.
 
@@ -89,9 +86,7 @@ Extra whitespace in property keys is rarer, but can happen, such as when importi
 
 For example, if we tried to import a csv file with the following header:
 
-
 `nickName, firstName,lastName&nbsp;`
-
 
 There is some leading whitespace before `firstName`, and trailing whitespace after `lastName`.
 When imported, the property keys themselves will include leading and trailing whitespace, so the actual property keys become "nickName", " firstName" and "lastName ", and may quickly become a source of confusion, if undetected.

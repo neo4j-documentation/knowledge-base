@@ -28,7 +28,7 @@ RETURN p
 include::sources/java/src/test/java/example/CreateData.java[tags=create_data]
 ----
 
-=== Another Section
+== Another Section
 
 Some bullet points:
 

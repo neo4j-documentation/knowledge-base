@@ -26,7 +26,7 @@ The above query returns movies featuring at least one of the given actors, not m
 
 We need alternate approaches to get the correct results.
 
-==== Filter to the nodes in common by the count of input nodes in the match
+== Filter to the nodes in common by the count of input nodes in the match
 
 We can make some changes to the above query to get the relevant set of :Movie nodes.
 
@@ -47,7 +47,7 @@ By filtering down based upon the distinct nodes matched, we're able to get the c
 This is typically the most efficient approach for finding match intersections, but it requires that all inputs in the input list are distinct.
 
 
-==== Use WHERE ALL() to ensure all nodes in a list have a relationship to another node
+== Use WHERE ALL() to ensure all nodes in a list have a relationship to another node
 
 An alternate (but typically less efficient) approach is to collect input nodes, and use the `WHERE ALL()` predicate to ensure all the collected nodes have a relationship to the common node.
 
@@ -79,7 +79,7 @@ WHERE ALL(p in persons WHERE (p)-[:ACTED_IN]->(m))
 RETURN m
 ----
 
-==== Use APOC to intersect result lists
+== Use APOC to intersect result lists
 
 Some use cases might introduce extra complexity. Perhaps we want result nodes to intersect with results from another matched pattern, or with a different collection of results.
 In these cases, we might simply use a WHERE clause to enforce the additional pattern, or list membership.

@@ -23,13 +23,13 @@ A fairly high-level rule of thumb is `Total Physical Memory = Heap + Page Cache 
 
 Usually reserving 1-2GB for the OS is sufficient. The heap and page cache are detailed below.
 
-=== First, we need to decide on a good heap size. 
+== First, we need to decide on a good heap size.
 
 A heap should not be overly large, as that can cause much longer Stop-the-World pauses when a full garbage collection (GC) cycle is needed. 
 It should also be big enough to allow enough memory for your workload. 
 On systems with a large amount of physical memory (>56GB), keeping the heap to 16GB and under typically works well.
 
-=== Second, consider the page cache. 
+== Second, consider the page cache.
 
 This is where the store files will be mapped in main memory for quicker access. 
 The default page-cache size is 50% of the available memory.
@@ -39,7 +39,8 @@ So, for a store that is 5GB in size, and you expect that to double in size in th
 [NOTE]
 This last section is no longer relevant for Neo4j versions 2.3 and later.
 
-=== Lastly, let's look at the object cache options. 
+== Lastly, let's look at the object cache options.
+
 The object cache is where nodes, relationships, and other objects are mapped to main memory. 
 By default on Neo4j 2.2.x, this is set to High Performance Cache (hpc). 
 On small stores (~10GB or smaller), this performs well. 

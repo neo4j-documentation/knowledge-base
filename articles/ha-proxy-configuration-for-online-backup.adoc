@@ -6,7 +6,7 @@
 :public:
 :category: cluster
 
-=== What are we trying to achieve?
+== What are we trying to achieve?
 
 Online backup should be scheduled to run periodically on a production cluster. You only need to run it on one instance, since 
 each has its own full copy of the database. Because a full backup also runs a consistency check, and the copy itself does use some 
@@ -19,7 +19,7 @@ If you want to control which instance you take the backup from, you would need t
 directly to that instance without a proxy in between. If you are OK to fallback to full backup, this approach may 
 work for you.
 
-=== Causal Clustering: Directing online backup to a follower or read-replica
+== Causal Clustering: Directing online backup to a follower or read-replica
 
 The sample configuration below defines a front-end where the backup utility will connect to the running database, and a set of instances 
 to check whether they are a slave currently. We assume that online backup is enabled in the `conf/neo4j.conf` file as follows:
@@ -66,7 +66,7 @@ To backup from a read-replica, replace the `option httpchk` line with:
 option httpchk GET /db/manage/server/read-replica/available HTTP/1.0
 ----
 
-=== HA: Directing online backup to a slave
+== HA: Directing online backup to a slave
 
 The haproxy.cfg file for HA mode would look like this:
 

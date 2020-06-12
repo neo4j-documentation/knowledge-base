@@ -6,9 +6,12 @@
 :public:
 :category: installation
 
-*WARNING: Prior to Neo4j 3.2, the rpm distribution of Neo4j was experimental at this time. Use with caution and we advise installing
-from the linux tarball in production environments.   For Neo4j 3.2 please follow the instructions
+[WARNING]
+====
+Prior to Neo4j 3.2, the rpm distribution of Neo4j was experimental at this time. Use with caution and we advise installing
+from the linux tarball in production environments. For Neo4j 3.2 please follow the instructions
 https://neo4j.com/docs/operations-manual/current/installation/linux/rpm/[here]
+====
 
 Neo4j 3.0 does NOT provide an rpm, and it is unlikely 3.1 will either. This is on the roadmap to be done soon, but presently it 
 is not an official method of installing Neo4j. Also note that the "current" version installed by yum might be a milestone or 

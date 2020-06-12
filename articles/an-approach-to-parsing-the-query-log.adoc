@@ -81,7 +81,7 @@ fi
 Upon running the script and passing the query.log file to be analyzed, for example `./parse_querylog.sh query.log`  output will be similar to
 
 1. when `dbms.logs.query.time_logging_enabled=false`
-
++
 ----
 First Query Reported at: 2018-04-10 11:48:36.425+0000
  Last Query Reported at: 2018-04-10 11:49:01.213+0000
@@ -106,7 +106,6 @@ line:6  2018-04-10 11:48:51.613+0000 INFO  9 ms: bolt-session   bolt            
 2. when `dbms.logs.query.time_logging_enabled=true`
 
 (*Note:* the listing of 10 queries per section has been reduced to 2 lines for brevity.  Additonally the Cypher of the query has been reduced)
-
 
 ----
 First Query Reported at: 2018-01-24 07:58:13.360+0000
@@ -151,7 +150,6 @@ Number of Queries NOT Waiting: 13654      99.9927%
 line:81         2018-01-24 07:58:33.168+0000 INFO  67 ms: (planning: 0, cpu: 67, waiting: 27) - bolt-session    bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.27:49536        server/10.0.1.2:7687>        neo4j -  MATCH (n:Person) return n:Deleted
 line:9991       2018-01-24 08:40:16.476+0000 INFO  74 ms: (planning: 0, cpu: 74, waiting: 0) - bolt-session     bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.27:49536        server/10.0.1.2:7687>        neo4j -  MATCH (n:Person..............)
 ----
-
 
 From the output of the 2nd run we see that the log spans `First Query Reported at: 2018-01-24 07:58:13.360+0000` through
 `Last Query Reported at: 2018-01-24 15:19:40.897+0000`.  

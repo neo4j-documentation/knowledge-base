@@ -10,7 +10,7 @@ While Cypher is optimized for finding the shortest path between two nodes, with 
 it does not have the same sort of function for longest path. In some cases, you may want this, and not the shortest route.
 
 
-==== Root to leaf in a tree
+== Root to leaf in a tree
 
 If you had a tree structure you wanted to do the longest path between a root node and a leaf node, and you don't know how many
 there are in between:
@@ -35,7 +35,7 @@ What the above query is doing: The variable length 1..10 will find all paths (th
 The WHERE clause is needed to filter the paths to only those where the leaf child nodes have no outgoing :HAS_CHILD relationships (i.e. it finds the end of the chain).
 
 
-==== Longest path when there are multiple paths present
+== Longest path when there are multiple paths present
 
 If not using an acyclic tree structure, you may have several paths between two nodes, and you may want to get just the longest.
 We can do this by ordering by path length and only taking the longest path:
@@ -50,7 +50,7 @@ LIMIT 1
 ----
 
 
-==== Tips for making these queries more efficient
+== Tips for making these queries more efficient
 
 With a fairly well connected graph, variable-length path queries like this may get increasingly expensive. Here are some tips to keep these performant.
 

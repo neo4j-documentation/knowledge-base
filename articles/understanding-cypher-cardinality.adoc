@@ -17,7 +17,6 @@ Note that the query planner can optimize some operations.
 It may change the order of some operations, changing the order of expansion, or which nodes we use as the starting nodes, or more.
 It's still best to be mindful of cardinality when tuning your queries, even if the plan isn't as expected, or circumvents the issue for you in some cases.
 
-
 == Cypher operations execute per row, and generate rows of results
 
 To understand cardinality in Cypher, two important aspects of Cypher execution need to be understood first:

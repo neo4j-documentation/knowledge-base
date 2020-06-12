@@ -15,11 +15,11 @@ Loading data in a Neo4j instance that is in the cloud is very similar to running
 
 The specifics of differences of running Neo4j in the Cloud are documented in our https://neo4j.com/developer/neo4j-cloud-vms/[developer guides^]. Anything not listed there would indicate is does not differ from other Neo4j implementations.
 
-=== Configuration and Access
+== Configuration and Access
 
 When you set up and deploy a cloud instance, the default, out-of-the-box security settings on some clouds may prevent traffic through the firewall to the data source you intend to use. This means that many external data sources and networks might be locked out from communicating with the Neo4j cloud instance. To remedy that, you will need to adjust the firewall settings on your cloud machine to allow traffic. How to do this varies on your cloud provider. For steps to change firewall settings, please consult your cloud provider’s documentation.
 
-==== Plugins
+=== Plugins
 
 Some Neo4j plugins like https://neo4j.com/developer/neo4j-apoc/[APOC^] and https://neo4j.com/docs/graph-algorithms/current/[graph algorithms^] are included as defaults in cloud installations. Other plugins can be installed manually, as needed. However, for using data import procedures in APOC, not all images have file imports from a local disk configured. These security settings could prevent you from using some procedures that would load a local file.
 
@@ -32,7 +32,7 @@ Neo.ClientError.Procedure.ProcedureCallFailed: Failed to invoke procedure apoc.l
 
 To alter these settings and allow any blocked procedures to run and access files, you can review the https://neo4j-contrib.github.io/neo4j-apoc-procedures/[APOC documentation^] for configuration settings and whitelisting options.
 
-=== Offline Data Import
+== Offline Data Import
 
 The neo4j-admin import tool is helpful for loading massive amounts of data into a new, empty database at incredible speeds by ignoring the usual transaction batching that occurs when a database is running and handling other daily requests. Using non-transaction loading makes the tool very fast, but means that the normal ACID process is circumvented for performance’s sake.
 
@@ -51,7 +51,7 @@ Running offline data import should be used with caution. As a warning, users sho
 
 For more information on the neo4j-admin import tool, check out the https://neo4j.com/docs/operations-manual/current/tools/import/[Operations Manual^].
 
-=== Disk Planning for the Cloud
+== Disk Planning for the Cloud
 
 Importing data to Neo4j (especially large quantities of it) requires some disk space. The defaults initiated in your cloud instances may not be enough to handle large file imports or streamed imports from other systems.
 

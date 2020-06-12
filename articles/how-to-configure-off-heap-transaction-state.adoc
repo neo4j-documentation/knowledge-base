@@ -16,12 +16,12 @@ pressure and/or prevent OOM crashes in a limited set of use cases, such as:
 
 There are two relevant configuration parameters, both of which static and cannot be changed at run time.
 
-=== dbms.tx_state.memory_allocation
+== dbms.tx_state.memory_allocation
 
 This parameter controls whether transaction state should be stored on- or off-heap. Possible values are `ON_HEAP` and `OFF_HEAP`.
 Default value is `ON_HEAP`.
 
-=== dbms.tx_state.max_off_heap_memory
+== dbms.tx_state.max_off_heap_memory
 
 This parameter allows to set a global limit on amount of off-heap memory that can be used
 for storing transaction state data. Zero means "unlimited". Default value is `2G`.

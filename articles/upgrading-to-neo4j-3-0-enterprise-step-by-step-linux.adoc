@@ -13,7 +13,7 @@ This means that upgrading to it requires some additional consideration and a cou
 NOTE: We are assuming a single instance in this example.
 For cluster upgrades, refer to the same steps apply, combined with the additional steps noted in the link:http://neo4j.com/docs/operations-manual/current/deployment/high-availability/#ha-upgrade-guide[product documentation].
 
-=== Linux Upgrade Using tar.gz Distribution
+== Linux Upgrade Using tar.gz Distribution
 
 *Assumptions:*
 
@@ -150,7 +150,7 @@ See /var/lib/neo4j/neo4j-enterprise-3.0.4/logs/neo4j.log for current status.
 2016-04-15 19:58:30.920+0000 INFO  Remote interface available at http://localhost:7474/
 ----
 
-=== Linux Upgrade Using Debian (apt-get)
+== Linux Upgrade Using Debian (apt-get)
 
 *Assumptions:*
 

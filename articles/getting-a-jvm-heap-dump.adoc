@@ -32,8 +32,7 @@ The above will dump the Java heap in binary format to filename. If the optional 
 in the heap are dumped. 
 
 
-Viewing heap dumps:
-===================
+== Viewing heap dumps
 
 To browse heap dumps generated as above, one can use jhat (Java Heap Analysis Tool) to read the generated file.
 

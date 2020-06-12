@@ -8,7 +8,7 @@
 :category: import-export
 
 
-[Note]
+[NOTE]
 `neo4j-import` is intended to populate a new, empty database.
 It cannot be used to import into an existing database.
 
@@ -16,7 +16,7 @@ When importing data using `neo4j-import`, make sure to review the required CSV f
 
 http://neo4j.com/docs/stable/import-tool.html[]
 
-=== Escaping commas within the CSV:
+== Escaping commas within the CSV:
 
 [Note]
 This applies to escaping any delimiter you use in place of a comma, if specified.
@@ -81,6 +81,6 @@ neo4j-sh (?)$ match (n:Movie) return n;
  1 row
 ----
 
-Note: The header for a string array column needs to have :string[], which is case sensitive.
+NOTE: The header for a string array column needs to have :string[], which is case sensitive.
 
 

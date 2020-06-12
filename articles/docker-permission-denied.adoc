@@ -28,8 +28,7 @@ Or
 
 B) create a secondary group that has access to logs directory e.g. sudo groupadd logs and add the user they use to run neo4j to that group. If this is done, one has to pass the secondary groups in additionally to docker using the `--group-add` flag. 
    For example:
-   
-[source,java]
+
 ----
 group-add="$(getent group logs | cut -d ":" -f3)"
 ----

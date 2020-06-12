@@ -22,8 +22,7 @@ connections to be equal to  active + idle bolt connections (as reported by metri
 neo4j.bolt.connections_idle), to always add up to less than the configured value of `dbms.connector.bolt.thread_pool_max_size`. 
 This however, is a misconception, which this article aims to address.
 
-Difference between a bolt thread and a bolt connection:
-=======================================================
+== Difference between a bolt thread and a bolt connection:
 
 A bolt thread is a process executor part of the cpu allocated by the Neo4j server to execute a given task. A bolt connection is
 a request placed _to_ the Neo4j server, _from_ a client driver session. In a JVM server, acceptor threads on a listen socket accept 
@@ -39,8 +38,7 @@ on server. A _connection_ pool size limit is however configurable at the client 
 is no upper limit for connections, the driver connection pool size can rise to the total available connections on the machine's
 CPU.
 
-What are idle bolt connections?
-===============================
+== What are idle bolt connections?
 
 The metric name `neo4j.bolt.connections_idle` may suggest that the idle bolt connections are those opened up by a completed bolt 
 transaction but once that transaction completes, the thread is kept in an open but idle state till its closed off by the thread pool.
@@ -51,18 +49,15 @@ being worked on, are _not_ limited by this config. A thread pool configuration (
 (client side).
 
 
-Why is the idle connections metric named neo4j.bolt.connections_idle?
-=====================================================================
+== Why is the idle connections metric named neo4j.bolt.connections_idle?
 
-Becuase those connections are established by drivers and drivers reuse connections over a driver's lifetime. The bolt connection 
+Because those connections are established by drivers and drivers reuse connections over a driver's lifetime. The bolt connection
 pool is a driver configuration. Thread pool is a server configuration to specify what it is the peek capacity to handle jobs from
 connections. If a connection has no jobs, then it is idle _on client side_. The server does not control these idle connections. Only driver can 
 close them. Further, the server does not have an upper limit of connection count and idle connections should not contribute to cpu
 usage.
 
-
-How might one control the maximum number of connections opened by the client side driver?
-=========================================================================================
+== How might one control the maximum number of connections opened by the client side driver?
 
 Driver connection limitations are configurable via the `MaxConnectionPoolSize`, MaxConnectionLifetime and ConnectionAcquisitionTimeout
 parameters. An example configuration for the Neo4j Java driver would be:

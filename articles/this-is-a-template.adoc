@@ -17,7 +17,7 @@ To fix this issue we need to identify where the `neo4j.pid` file should reside.
 For Linux Debian and RPM based install this normally resides in `/var/run/neo4j/` directory. 
 However for Neo4j tarball install this resides in `<NEO4J_HOME>/run/` directory. 
 
-Identify the neo4j process by running the command
+Identify the neo4j process by running the command:
 
 ----
 ps -ef | grep -i neo4j
@@ -25,7 +25,7 @@ ps -ef | grep -i neo4j
 
 Get the neo4j process id. Create the `neo4j.pid` file and save the process id in that file. 
 Change the Ownership and Group of the file to `neo4j:neo4j`. 
-Then run the below command
+Then, run the below command:
 
 ----
 neo4j status
@@ -34,5 +34,4 @@ neo4j status
 This should show the the Neo4j process is running. 
 You can then gracefully stop neo4j service and restart it. 
 
-----
-Note: This is only in case Neo4j process is started using the `neo4j` script. If the Neo4j process is started as a service then you will need to execute `sudo service neo4j status` or `sudo systemctl status neo4j`.
+NOTE: This is only in case Neo4j process is started using the `neo4j` script. If the Neo4j process is started as a service then you will need to execute `sudo service neo4j status` or `sudo systemctl status neo4j`.

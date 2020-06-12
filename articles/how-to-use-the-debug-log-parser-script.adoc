@@ -8,17 +8,17 @@
 
 For analysis of the Neo4j debug.log, read this guide for using the `debugInfo.sh` parser script.    
 
-=== What is the this script?
+== What is the this script?
 
 The debug.log is quite verbose and contains a lot of useful information for understanding the health and behavior of a Neo4j server instance or cluster. To assist in enabling support teams to more quickly and efficiently understand if the Neo4j server is health or not, Neo4j Support has produced  `debugInfo.sh` script to parse a debug.log file into a condensed, usable summary of information. 
 
-=== How do I use it?
+== How do I use it?
 
 First, download the script and helper files link:https://drive.google.com/open?id=1Sdv_BXIUsCHcSbZpS1z-s2DWngah4mWP[here].
 
 To run the `debugInfo.sh` script on Linux systems, follow these steps:
  
-#### As the neo4j user:
+=== As the neo4j user:
  
 1. Copy the `debugInfo.sh` script and the `debugLogErrorsFile.neo4j` and `debugLogExcludeFile.neo4j` files to `$NEO4J_HOME/logs`
 
@@ -39,7 +39,7 @@ NOTE 2: The `debugLogErrorsFile.neo4j` file is used to parse specific error valu
 
 NOTE 3: The `debugInfo.sh` script will output results to the screen and also to the default output file called `debugInfo.txt` in the working directory.
 
-#### To run the script from an alternative location, just provide the full path to the debug.log to analyze:
+=== To run the script from an alternative location, just provide the full path to the debug.log to analyze:
 
   $ pwd
   /home/neo4j

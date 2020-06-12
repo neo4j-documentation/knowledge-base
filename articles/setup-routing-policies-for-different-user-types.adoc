@@ -6,13 +6,15 @@
 :public:
 :category: cluster
 
-### Problem statement
+== Problem statement
+
 There is a Causal Cluster Setup with 3 Cores and 1 Read Replica. There are 2 user groups - OLTP users and OLAP users.
 OLTP user queries should only go to the 2 Followers and not to the Read Replica.
 OLAP user queries should only go to the Read Replica and not to any of the Followers. 
 The reason being that OLTP users should not be impacted by the long running queries from OLAP users. 
 
-### How to achieve this in Causal Cluster setup?
+== How to achieve this in Causal Cluster setup?
+
 To assist with this, Multi-DC setup is required, which was introduced in Neo4j version 3.2.
 First set up the multi-dc license. 
 More information can be obtained from the Neo4j Operations Manual - https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/multi-data-center/. 
@@ -42,7 +44,7 @@ causal_clustering.load_balancing.plugin=server_policies
 causal_clustering.load_balancing.config.server_policies.olap=groups(olap_app); halt();
 ----
 
-### How to use the Driver from the application? 
+== How to use the Driver from the application?
 
 The application used by OLTP users will have the driver configuration below: 
 
