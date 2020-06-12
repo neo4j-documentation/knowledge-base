@@ -135,10 +135,10 @@ Each Node is defined with the following properties
 ----
 
  
-Usefull Cypher statements to query the graph
+Useful Cypher statements to query the graph
 
 1. Find # of users subscribed by Section
-
++
 ----
 match     (n:Section) 
 return     n.name,
@@ -147,7 +147,7 @@ order by   subscribers desc;
 ----
 
 2. Find users and associated organization, per section and when the user subscribed subscribed
-
++
 ----
 match (s:Section)<-[r:Follows]-(u:User)-[:IS_MEMBER_OF_ORG]->(o:Organization)
 return      s.name,
