@@ -1,16 +1,22 @@
 == Neo4j Knowledge Base
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
 
-This repository is a knowledge base for Neo4j
+This repository is a knowledge base for Neo4j.
 
-It contains articles that cover questions, problems, and issues with Neo4j.
+It contains *public* articles that cover questions, problems, and issues with Neo4j.
 
-There are articles marked `:public:` which will be published for everyone to see under https://neo4j.com/developer/kb/
-
-*All articles* marked `:public:` or `:private:` will be published in the ZenDesk knowledge base: https://support.neo4j.com/hc/en-us/sections/200574983-Knowledge-Base
+All articles will be published for everyone to see under https://neo4j.com/developer/kb/.
+The articles will also be available on the Zendesk knowledge base: https://support.neo4j.com/hc/en-us/sections/200574983-Knowledge-Base.
 
 === Intent / Workflow
 
-If you answer questions on Neo4j in support, on Stackoverflow, Google Group, Slack or Twitter, 
+If you answer questions on Neo4j in support, on Stack Overflow, Google Group, Slack or Twitter,
 please make sure to rather link to an up-to-date article originated in the Knowledge Base than writing an answer from scratch.
 
 This will also prevent *out of date content* accumulate in other places where it might get a high Google Rank without us having any means to update or clarify it.
@@ -25,7 +31,7 @@ Also all code that will be included should be tested by a build process / being 
 
 Each article is written in AsciiDoc.
 
-You can start by copying the link:./template.adoc[template article] or this https://gist.github.com/jexp/56f7689897847c9c02de50f902991674[template gist].
+You can start by copying the link:./template.adoc[template article].
 
 Feel free to add / edit articles directly on GitHub, but make sure to send a *Pull Request* so the updates are reviewed before being made public.
 
@@ -46,21 +52,22 @@ It contains some additional fields:
 
 ==== File Names & Slugs
 
-All articles need to have a `:slug:` attribute so that we can tie them to the appropriate post/article on Wordpress / Zendesk.
+All articles need to have a `:slug:` attribute so that we can tie them to the appropriate post/article on WordPress / Zendesk.
 
-All article file-names should contain no spaces and have all lowercase words in the filename, e.g. `how-to-run-consistency-check.adoc`.
-If an article is added and it has spaces in it's filename, the `noSpaces.sh` script in the `/articles` directory will make a spaceless name for it using the slug in the article. 
+All article file names must only contains lowercase alphanumeric characters and hyphens, e.g. `how-to-run-consistency-check.adoc`.
+If an article is added and it has spaces in its filename, the `noSpaces.sh` script in the `/articles` directory will make a space-less name for it using the slug in the article.
 
 If a slug is changed, the URL for the article will be changed and any former links to the article will be *broken*.
 
-For Wordpress this isn't a problem, but for Zendesk it means that the article will be deleted and the article ID won't be recoverable, leaving links permanently broken.
+For WordPress this isn't a problem, but for Zendesk it means that the article will be deleted and the article ID won't be recoverable, leaving links permanently broken.
 
-The *slug* has to be all lowercase characters and hyphens to make it a good URL.
+The `slug` must only contains lowercase alphanumeric characters and hyphens to make it a good URL.
 No spaces, no uppercase, no leading/trailing/double hyphens.
 
-When slugs are invalid no documents will be deployed until the slugs are fixed.
-You can find out if slugs failed on the link:https://snap-ci.com/neo-technology-field/knowledge-base/branch/master[Snap CI] build.
-It is suggested that you subscribe to notifications for the builds so that you can get E-Mailed whenever a build fails and whenever it starts again.
+IMPORTANT: When a slug is invalid, no document will be deployed until the slug is fixed.
+
+You can find out if a slug failed on the link:https://github.com/neo4j-documentation/knowledge-base/actions?query=workflow%3ABuild[GitHub Actions] build.
+It is suggested that you subscribe to notifications for the builds so that you can receive an email whenever a build fails and whenever it starts again.
 
 ==== Versions
 
