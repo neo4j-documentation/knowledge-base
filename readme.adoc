@@ -39,10 +39,10 @@ Public articles must be marked with a `:public:` flag.
 It contains some additional fields:
 
 * `:author:` (optionally `:twitter:`)
-* `:neo4j-versions:`, e.g. 3.5, 4.0
-* `:category:`, e.g.  drivers
+* `:neo4j-versions:`, e.g. `3.5`, `4.0`
+* `:category:`, e.g.  `drivers`
 * `:tags:`, e.g. `cypher,tuning`
-* `:environment:` e.g. windows
+* `:environment:` e.g. `windows`
 
 ==== File Names & Slugs
 
@@ -51,20 +51,22 @@ All articles need to have a `:slug:` attribute so that we can tie them to the ap
 All article file-names should contain no spaces and have all lowercase words in the filename, e.g. `how-to-run-consistency-check.adoc`.
 If an article is added and it has spaces in it's filename, the `noSpaces.sh` script in the `/articles` directory will make a spaceless name for it using the slug in the article. 
 
-If a slug is changed, the URL for the article will be changed and any former links to the article will be **broken**.
+If a slug is changed, the URL for the article will be changed and any former links to the article will be *broken*.
 
-For Wordpress this isn't a problem, but for Zendesk it means that the article will be deleted and the article ID won't be recoverable, leaving links perminently broken.
+For Wordpress this isn't a problem, but for Zendesk it means that the article will be deleted and the article ID won't be recoverable, leaving links permanently broken.
 
 The *slug* has to be all lowercase characters and hyphens to make it a good URL.
 No spaces, no uppercase, no leading/trailing/double hyphens.
 
-When slugs are invalid no documents will be deployed until the slugs are fixed.  You can find out if slugs failed on the link:https://snap-ci.com/neo-technology-field/knowledge-base/branch/master[Snap CI] build.  It is suggested that you subscribe to notifications for the builds so that you can get E-Mailed whenever a build fails and whenever it starts again.
+When slugs are invalid no documents will be deployed until the slugs are fixed.
+You can find out if slugs failed on the link:https://snap-ci.com/neo-technology-field/knowledge-base/branch/master[Snap CI] build.
+It is suggested that you subscribe to notifications for the builds so that you can get E-Mailed whenever a build fails and whenever it starts again.
 
 ==== Versions
 
 * 3.4, 3.5, 4.0, 4.1
 
-Optionally add minor versions / milestones as additonal versions separated with comma / in the prose if relevant.
+Optionally add minor versions / milestones as additional versions separated with comma / in the prose if relevant.
 
 ==== Tag Taxonomy
 
@@ -86,12 +88,12 @@ Make sure to update those code examples alongside with the article.
 ==== Code Snippets Example
 
 [source,asciidoc]
+....
+[source,java]
 ----
- [source,java]
- ----
- include::sources/java/src/test/java/example/CreateData.java[tags=create_data]
- ----
+\include::sources/java/src/test/java/example/CreateData.java[tags=create_data]
 ----
+....
 
 [source,java]
 ----
@@ -100,19 +102,19 @@ package example;
 import org.neo4j.*;
 
 public class CreateDataTest {
-   @Test public void createData() {
-//tag::create_data[]
-      try (Transaction tx = db.beginTx()) {
-		 Node n = tx.createNode(Labels.Person);
-		 n.setProperty("name","Emil");
-		 Node m = tx.createNode(Labels.Person);
-		 m.setProperty("name","Peter");
-		 n.createRelationshipTo(m,Types.KNOWS);
-         // calling success is important to mark the transaction successful
-		 tx.commit();
-      }
-//end::create_data[]
-   }
+  @Test public void createData() {
+    //tag::create_data[]
+    try (Transaction tx = db.beginTx()) {
+      Node n = tx.createNode(Labels.Person);
+      n.setProperty("name","Emil");
+      Node m = tx.createNode(Labels.Person);
+      m.setProperty("name","Peter");
+      n.createRelationshipTo(m,Types.KNOWS);
+      // calling success is important to mark the transaction successful
+      tx.commit();
+    }
+    //end::create_data[]
+  }
 }
 ----
 
@@ -130,3 +132,82 @@ try (Transaction tx = db.beginTx()) {
    tx.commit();
 }
 ----
+
+== Gradle Tasks
+
+=== Show taxonomies
+
+Show all the taxonomies defined on all the articles:
+
+ $ ./gradlew showTaxonomies
+
+NOTE: This task can be useful to review all the taxonomies.
+
+=== Synchronize taxonomies
+
+Taxonomies are _not_ automatically created but you can synchronize them (ie. create all missing values):
+
+ $ ./gradlew syncTaxonomy
+
+Alternatively, it's possible to synchronize taxonomies individually:
+
+ $ ./gradlew syncEnvironmentTaxonomy
+ $ ./gradlew syncDeveloperCategoryTaxonomy
+ $ ./gradlew syncDeveloperTagTaxonomy
+ $ ./gradlew syncNeo4jVersionTaxonomy
+
+=== Convert articles to HTML
+
+Before publishing you can convert the articles to HTML:
+
+ $ ./gradlew convertZenDeskHtml
+ $ ./gradlew convertWordPressHtml
+
+The HTML pages will be generated respectively in [.path]_build/zendesk/html_ and [.path]_build/wordpress/html_.
+
+=== Publish WordPress
+
+==== Properties
+
+You can define the properties using `-P` in the Gradle command line.
+
+`wordpress-username`::
+Username to authenticate on the WordPress REST API
+
+`wordpress-password`::
+Password to authenticate on the WordPress REST API
+
+`wordpress-host`::
+Host of the WordPress instance (for instance: `neo4j.com`)
+
+`stage`::
+Either `testing` or `production`.
+When publishing in "testing", the slug will be automatically prefixed by `+_testing_+` and the pages will be private.
+
+==== Examples
+
+.Publish in "testing"
+ $ /gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=testing
+
+.Publish in "production"
+ $ /gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=production
+
+=== Publish Zendesk
+
+==== Properties
+
+You can define the properties using `-P` in the Gradle command line.
+
+`zendesk-email`::
+Email of an Agent account on Zendesk
+
+`zendesk-apitoken`::
+API token generated from the Admin page on Zendesk
+
+`zendesk-host`::
+Host of the Zendesk instance (for instance: `support.neo4j.com`)
+
+==== Examples
+
+.Publish
+ $ ./gradlew zenDeskUpload -Pzendesk-email="user@neo4j.com" -Pzendesk-host="support.neo4j.com" -Pzendesk-apitoken="apitoken"

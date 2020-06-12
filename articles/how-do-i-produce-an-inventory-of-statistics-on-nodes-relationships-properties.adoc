@@ -6,6 +6,7 @@
 :public:
 :category: cypher
 :neo4j-versions: 3.4,3.5
+
 Using the following Cypher
 
 [source,cypher]
