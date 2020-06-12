@@ -16,6 +16,7 @@ Ensure that you are running Neo4j server 3.5.x or 4.x, and have installed at lea
 
 Build the SQLLine package from source:
 
+[source,shell]
 ----
 git clone https://github.com/julianhyde/sqlline.git
 cd sqlline
@@ -24,11 +25,11 @@ mvn package
 
 SQLLine comes with a shell script that knows how to launch it correctly. But before we run it directly, make sure that we have our Neo4j BI Connector JAR file in the right place. In this example, we’ll assume it’s in the SQLLine target folder (where the source build placed its JAR files) because that way it will automatically be on the classpath.
 
-
 == Configuring connection
 
 Set the environment variables for connection:
 
+[source,shell]
 ----
 export URL="jdbc:neo4j://localhost:7687"
 export DRIVER=com.simba.neo4j.jdbc.Driver
@@ -38,6 +39,7 @@ export DRIVER=com.simba.neo4j.jdbc.Driver
 
 Perform the connection:
 
+[source,shell]
 ----
 $ bin/sqlline -d "$DRIVER" -u "$URL"
 Enter username for jdbc:neo4j://localhost:7687: neo4j

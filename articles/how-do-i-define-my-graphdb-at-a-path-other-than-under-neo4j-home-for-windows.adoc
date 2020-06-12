@@ -10,6 +10,7 @@
 Commencing with Neo4j 3.0, the default location for your `graph.db` directory is under `$NEO4J_HOME\databases\`.
 To change the path for the location of the database directory, edit the following parameters in the `$NEO4J_HOME\conf\neo4j.conf` file
 
+[source,conf]
 ----
 # The name of the database to mount
 dbms.active_database=graph.db
@@ -21,5 +22,3 @@ dbms.directories.data=C:/MyNeoDB/
 The usage of the forward slash character (/) in the value for `dbms.directories.data` is to be used and not the backslash (\) character which is what is typically used in Windows path names. +
 
 Using the above example the `graph.db` will be recorded in `C:\MyNeoDB\databases` and the directory will be named `graph.db`.
-
-

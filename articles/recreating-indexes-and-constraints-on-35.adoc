@@ -17,6 +17,7 @@ Customers who are upgrading from a 3.5 version prior to 3.5.8 may also want to d
 
 Execute the following Cypher statement to generate a cypher script output which will be used to drop and create constraints:
 
+[source,cypher]
 ----
 CALL db.constraints() YIELD description
 RETURN 'DROP ' + description + '; CREATE ' + description + ';'
@@ -79,6 +80,7 @@ call db.indexes();
 
 Verify that all indexes/constraints have a state of ONLINE, and a provider of:
 
+[source,json]
 ----
 {
   "version": "1.0",

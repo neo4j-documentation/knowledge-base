@@ -8,12 +8,14 @@
 
 The following error, via `bin/neo4j-shell`:
 
+[source,shell]
 ----
 Database constraints have changed (txId=84) after this transaction (txId=81) started, which is not yet supported. Please retry your transaction to ensure all constraints are executed.
 ----
 
 or as logged in `log/debug.log` (3.x) or `graph.db/messages.log` (2.3.x):
 
+[source,shell]
 ----
 2016-10-18 16:40:43.595+0000 ERROR [o.n.s.r.t.TransactionFacade]: Failed to commit transaction. 
 java.lang.RuntimeException: org.neo4j.kernel.api.exceptions.TransactionFailureException: Database constraints have changed (txId=81) after this transaction 
@@ -36,4 +38,3 @@ can be explained by the following scenario:
 |=======
 
 where the exception is thrown at Oct-19-2012 09:05 by the Cypher statement with txID 81 when it tries to create a node which applies to the newly committed constraint, and the transaction is rolled back. Correct remedial action is to resubmit the failed transaction.
-

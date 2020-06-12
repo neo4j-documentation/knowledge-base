@@ -52,7 +52,9 @@ Variables are optional for these kinds of queries, so you can omit them and use 
 MATCH ()
 RETURN count(*) as count
 ----
+
 and
+
 [source,cypher]
 ----
 MATCH (:Person)

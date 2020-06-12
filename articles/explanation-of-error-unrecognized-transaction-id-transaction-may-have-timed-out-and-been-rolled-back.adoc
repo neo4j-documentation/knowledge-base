@@ -17,7 +17,10 @@ This error may occur as a result of the transactions expiration date/time being 
 By default, http://neo4j.com/docs/stable/server-configuration.html#_important_server_configuration_parameters[org.neo4j.server.transaction.timeout] describes the number of seconds whereby inactivity in a transaction will result in the transaction automatically rolling back.
 The default is 60 seconds but can be overridden by adding
 
-`org.neo4j.server.transaction.timeout=XXX`
+[source,conf]
+----
+org.neo4j.server.transaction.timeout=XXX
+----
 
 where XXX represents number of seconds, to the conf/neo4j-server.properties and then restarting neo4j via `bin/neo4j restart`.
 

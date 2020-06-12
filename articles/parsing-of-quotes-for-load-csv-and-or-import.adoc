@@ -11,6 +11,7 @@ https://neo4j.com/docs/operations-manual/current/tools/import/[neo4j-admin impor
 escaped to be imported otherwise one might encounter the error
 
 *neo4j-admin import error*
+[source,shell]
 ----
 ./neo4j-admin import --database=hr.db --nodes:Staff hr.csv
 Neo4j version: 3.3.0
@@ -38,8 +39,8 @@ Caused by:ERROR in input
   original error: At /home/neo4j/neo4j-enterprise-3.3.0/bin/hr.csv:2 -  there's a field starting with a quote and whereas it ends that quote there seems to be characters in that field after that ending quote. That isn't supported. This is what I read: 'Bill"'
 ----
 
-
 *LOAD CSV error*
+[source,cypher]
 ----
 LOAD CSV WITH HEADERS FROM "file:///hr.csv" AS row FIELDTERMINATOR ','  CREATE (n:Staff { staffid: toInt(row.id), staff_name: row.name});
 At /home/neo4j/neo4j-enterprise-3.3.0/import/hr.csv:2 -  there's a field starting with a quote and whereas it ends that quote there seems to be characters in that field after that ending quote. That isn't supported. This is what I read: 'Bill"'
@@ -47,6 +48,7 @@ At /home/neo4j/neo4j-enterprise-3.3.0/import/hr.csv:2 -  there's a field startin
 
 For the above case my hr.csv is defined as 
 
+[source,csv]
 ----
 id:int,name:string,supervisor:int
 1,Emil Eifrem,1
@@ -57,6 +59,7 @@ id:int,name:string,supervisor:int
 And the failure is with parsing line 2 and as a result of the line starting with a `"`.   In order to import the above into Neo4j and 
 have line 2 be recognized as `"Bill" William Smith` the data needs to be reformatted to
 
+[source,csv]
 ----
 id:int,name:string,supervisor:int
 1,Emil Eifrem,1
@@ -66,6 +69,7 @@ id:int,name:string,supervisor:int
 
 The data will then successfully import as evidence
 
+[source,shell]
 ----
 neo4j> match (n) return n;
 +-----------------------------------------------------------------+
@@ -77,7 +81,5 @@ neo4j> match (n) return n;
 +-----------------------------------------------------------------+
 ----
 
-
 Note this same syntax structure of the CSV data relative to inclusion of quoted data is also successfully processed by
 https://office.microsoft.com/excel/[MS Excel], https://www.openoffice.org/[Open Office Calc]
-

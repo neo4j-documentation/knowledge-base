@@ -14,12 +14,14 @@ On Ubuntu or RedHat, you can use `fio` tool to benchmark your underlying storage
 
 The command below will create a 1GB file in the current folder:
 
+[source,shell]
 ----
 $  fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
 ----
 
 It produces the following output on an AWS instance with a gp2 (General Purpose SSD). We can see 1500iops:
 
+[source,shell]
 ----
 test: (g=0): rw=randrw, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=64
 fio-2.1.5
@@ -46,6 +48,7 @@ Disk stats (read/write):
 
 On a modern laptop, you can expect 13000iops.
 
+[source,shell]
 ----
 fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
 test: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
@@ -76,6 +79,7 @@ Disk stats (read/write):
 
 On an nvme locally attached drive: we get 100 000 iops.
 
+[source,shell]
 ----
 $  fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
 test: (g=0): rw=randrw, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=64
@@ -101,9 +105,9 @@ Disk stats (read/write):
   nvme0n1: ios=108546/108561, merge=0/0, ticks=40192/9032, in_queue=48820, util=86.23%
 ----
 
-
 A throughput optimised HDD will be able to handle significantly less iops: 66 iops 
 
+[source,shell]
 ----
 $  fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
 test: (g=0): rw=randrw, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=64
@@ -132,6 +136,7 @@ Disk stats (read/write):
 
 First, you need to identify which storage device is used by Neo4j.
 
+[source,shell]
 ----
 $ df /var/lib/neo4j/
 Filesystem     1K-blocks    Used Available Use% Mounted on
@@ -141,6 +146,7 @@ Filesystem     1K-blocks    Used Available Use% Mounted on
 You can use iostat which is provided in sysstat package.
 The command below will give you the disk activity for every devices every 3 seconds.
 
+[source,shell]
 ----
 $ iostat -m 3
 Linux 3.10.0-1062.4.1.el7.x86_64 (node02) 	14/11/19 	_x86_64_	(1 CPU)
@@ -171,11 +177,15 @@ avg-cpu:  %user   %nice %system %iowait  %steal   %idle
 
 Run the command below:
 
-`$ dmesg | grep -v "eth0\|IPv6\|IPVS\|docker\|promiscuous"`
+[source,shell]
+----
+$ dmesg | grep -v "eth0\|IPv6\|IPVS\|docker\|promiscuous"
+----
 
 If you see similar errors `INFO: task neo4j.FileIOHel:78205 blocked for more than 120 seconds.`
 You might want to review the storage configuration with your system administrator.
 
+[source,shell]
 ----
 [Sun Oct 20 10:26:10 2019] INFO: task neo4j.FileIOHel:78205 blocked for more than 120 seconds.
 [Sun Oct 20 10:26:10 2019] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.

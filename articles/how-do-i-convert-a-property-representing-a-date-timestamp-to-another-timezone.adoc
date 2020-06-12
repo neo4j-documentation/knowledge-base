@@ -11,6 +11,7 @@ is possible to record a date timestamp with timezone as a property value.
 
 The following Cypher can be used to convert a date timestamp with timezone from one timezone to another
 
+[source,cypher]
 ----
 MATCH (n:Person) 
        where    exists(n.date_enrolled)
@@ -20,6 +21,7 @@ MATCH (n:Person)
 
 For example using the following data
 
+[source,cypher]
 ----
 CREATE (n:Person) set n.date_enrolled='2019-02-26T01:23:40Z'
 ----

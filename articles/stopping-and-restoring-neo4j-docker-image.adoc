@@ -21,6 +21,7 @@ Following is a workaround to doing a `neo4-admin restore` in docker:
 
 5. Start container and it should come up with the restored db.
 
+[source,shell]
 ----
 docker run \
     --publish=7474:7474 --publish=7687:7687 \
@@ -31,6 +32,7 @@ docker run \
 
 Alternatively, one can specify `--dbms.active_database=new.db` as a startup option as
 
+[source,shell]
 ----
 docker run \
     --publish=7474:7474 --publish=7687:7687 \

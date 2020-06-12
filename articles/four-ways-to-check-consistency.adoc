@@ -10,12 +10,14 @@ When it comes checking the inconsistencies in your graph, there are four methods
 
 *1. The easiest approach is it to utilize the `check-consistency=true` option with the `backup` command. With this approach your graph stays online and the consistency check is done along with the scheduled or adhoc backup.*
 
+[source,shell]
 ----
     $neo4j-home> bin/neo4j-admin backup --backup-dir=/home/backups --name=graph.db --check-consistency=true
 ----
 
 *2. If you are not checking the consistency through the `backup` command, then you will need to stop Neo4j to check its consistency.*
 
+[source,shell]
 ----
     $neo4j-home> bin/neo4j stop
     $neo4j-home> bin/neo4j-admin check-consistency --database=graph.db
@@ -23,6 +25,7 @@ When it comes checking the inconsistencies in your graph, there are four methods
 
 *3. There will be situations when you would want to test the consistency of a backup. Here is how that is done:*
 
+[source,shell]
 ----
     $neo4j-home> bin/neo4j-admin check-consistency --backup=/<path-to-backup-dir>/<graph_backup.db>
 ----
@@ -33,6 +36,7 @@ Assume you have the dump file sitting in: `/mnt/dump_of_dbs`
   
    * The dump file is a `gzip` file. To confirm the format, perform these commands:
 
+[source,shell]
 ----
    $cd /mnt/dump_of_db
    $file graph.db.dump
@@ -43,18 +47,22 @@ You will see that the `.dump` file is a `gzip` file.
 
    * Create a directory under `mnt/dump_of_dbs`
   
+[source,shell]
 ----
   $mkdir graph.db
 ----
 
    * Uncompress the `gzip` file under the `graph.db` directory:
-   
+
+[source,shell]
 ----
    $cd graph.db
    ~/dump_of_dbs/graph.db$tar xvzf ../graph.db.dump
 ----
 
    * Finally, run the consistency check as:
+
+[source,shell]
 ----
     $neo4j-home> bin/neo4j-admin check-consistency --backup=/mnt/dump_of_dbs/graph.db
 ----
@@ -66,7 +74,3 @@ You will see that the `.dump` file is a `gzip` file.
 
 - If the inconsistencies are discovered, follow the link below and use the specific methods to resolve them:
 https://support.neo4j.com/hc/en-us/articles/218047648-How-do-I-resolve-Consistency-Check-errors
-
-
-
-

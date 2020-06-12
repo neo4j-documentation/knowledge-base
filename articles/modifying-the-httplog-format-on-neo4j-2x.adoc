@@ -14,6 +14,7 @@ The format layout options can be found in the source code link:https://github.co
 For example, to log the cypher query, log the full request. To enable this, in the `conf/neo4j-http-logging.xml` file, you need to modify 
 it as follows:
 
+[source,xml]
 ----
 <pattern>%h %l %user [%t{dd/MMM/yyyy:HH:mm:ss Z}] "%r" %s %b "%i{Referer}" "%i{User-Agent}" %fullRequest %D</pattern>
 ----

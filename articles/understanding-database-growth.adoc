@@ -9,6 +9,7 @@
 The easiest way to determine the size of your graph is through the filesystem and summing up the size of the files named `\*store.db*`.
 For example on linux implmentations one can run
 
+[source,shell]
 ----
 du -hc $NEO4J_HOME/data/databases/graph.db/*store.db*
 ----
@@ -17,6 +18,7 @@ and this should be run on a stopped database or one which has recently checkpoin
 
 and this will produce output similar to
 
+[source,shell]
 ----
 5.5M    neostore.labelscanstore.db
 8.0K    neostore.labeltokenstore.db
@@ -56,6 +58,7 @@ transaction logs (neostore.transaction.*) but that is because the size of these 
 In the above listing the output was taken from a graph which contained 5 million nodes all with the label `:Person` and each node
 had a property named `id` and it was a value from 1 to 5 million.   This data was prepared by running the equivalent of
 
+[source,cypher]
 ----
         USING PERIODIC COMMIT 50000
         LOAD CSV WITH HEADERS FROM 'file:///person.csv' AS row
@@ -124,5 +127,3 @@ the resultant newly created graph.db now defined the 2 files as
 0       neostore.nodestore.db
 4.0K    neostore.nodestore.db.id
 ----
-
-

@@ -9,6 +9,7 @@
 If you need to generate the equivalent output from command `:sysinfo` as run from the Neo4j Browser at http://localhost:7474
 this can be achieved by running the following Cypher
 
+[source,cypher]
 ----
 call dbms.queryJmx("org.neo4j:instance=kernel#0,name=Store file sizes") yield attributes
        with  keys(attributes) as k , attributes

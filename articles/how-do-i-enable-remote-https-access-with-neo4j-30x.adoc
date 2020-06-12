@@ -9,16 +9,16 @@
 
 With 3.0.x to enabled remote clients to connect to a HTTPS enabled browser the following parameters in the `$NEO4J_HOME/conf/neo4j.conf` need to be changed from the default of
 
+[source,conf]
 ----
 #dbms.connector.https.address=localhost:7473
 ----
 
 to
 
+[source,conf]
 ----
 dbms.connector.https.address=0.0.0.0:7473
 ----
 
 The change from `localhost:7473` to `0.0.0.0:7473` will allow for remote connections to https://<Neo4j_Host_IP>:7473
-
-

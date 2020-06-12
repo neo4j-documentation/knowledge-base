@@ -25,6 +25,7 @@ With the above default parameters one should expect to see no `data/graph.db/mes
 
 If you wish to change the defaults the `conf/neo4j.properties` file would need to include the new values for
 
+[source,conf]
 ----
 store.internal_log.max_archives=<N number of archives>
 ----

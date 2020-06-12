@@ -12,6 +12,7 @@ Although a heap dump will be auto generated when OutOfMemoryError is thrown by s
 we can use the `jmap` tool to print shared object memory maps or heap memory details of a given process or core file or a remote debug server. 
 If the given process is running on a 64-bit VM, you may need to specify the -J-d64 option, e.g.:
 
+[source,shell]
 ----
 jmap -J-d64 -heap <pid>
 ----
@@ -24,13 +25,13 @@ from which the Crash Dump file was produced. For example, set `PATH=<jdk>\jre\bi
 
 When no option is used jmap prints shared object mappings. An example of whats normally required for our analysis is:
 
+[source,shell]
 ----
 jmap -dump:[live,]format=b,file=<filename>.bin <pid>
 ----
 
 The above will dump the Java heap in binary format to filename. If the optional `live` suboption is used, live objects 
 in the heap are dumped. 
-
 
 == Viewing heap dumps
 
@@ -46,7 +47,7 @@ We can use the jhat command to parse a java heap dump file and launch a webserve
 The default port is 7000, but we can change this by using the `-port` option 
 
 Syntax:
-
+[source,shell]
 ----
 jhat [ options ] <heap-dump-file>
 ----
@@ -59,6 +60,7 @@ where -port determines the browser port the output can be viewed and -debug <int
 
 We can also use the `jconsole` tool to view cpu, memory and heap utilisation in a graphical format.
 
+[source,shell]
 ----
 jconsole [ options ] [ connection ... ]
 ----
@@ -68,7 +70,6 @@ e.g.
 
 where -interval=n determines the report refresh interval in seconds, <pid> is the process id of the target JVM 
 (the JVM must be running with the same user id as that running the jconsole)
-
 
 References:
 

@@ -19,6 +19,8 @@ Shared locks are taken when we want to read something and at the same time preve
 otherwise modifying that object.
 
 In the screenshot below, the Cypher statement produces a shared-lock:
+
+[source,cypher]
 ----
 MATCH (a:Actor)
 WHERE a.name = 'Doris Day'
@@ -29,6 +31,7 @@ Below code can be used to watch another transaction that is running:
 
 In one window:
 
+[source,cypher]
 ----
 MATCH (a:Actor)
 WHERE a.name = 'Doris Day'
@@ -40,6 +43,7 @@ RETURN a.died
 
 And in another window:
 
+[source,cypher]
 ----
 call dbms.listTransactions() yield currentQueryId , currentQuery
 with currentQueryId, currentQuery
@@ -48,7 +52,6 @@ WITH currentQueryId
 call dbms.listActiveLocks(`currentQueryId`) YIELD mode, resourceType
 RETURN mode, resourceType
 ----
- 
  
 image::https://imgur.com/oI2r89x.png[Shared Lock]
 

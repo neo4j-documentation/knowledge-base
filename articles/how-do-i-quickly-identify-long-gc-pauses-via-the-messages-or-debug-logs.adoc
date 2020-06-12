@@ -11,6 +11,7 @@ or `$NEO4J_HOME/data/graph.db/messages.log` for Neo4j v2.3.x and prior). To quic
 
 Neo4j 3.0 through Neo4j 3.3 one can run:
 
+[source,shell]
 ----
 grep -n -i blocked debug.log | sort -r -n -k 11 | head -10
 ----
@@ -33,6 +34,7 @@ reverse chronological order (as a result of the `-r` argument). Lastly the `head
 
 For Neo4j 3.4 and above run
 
+[source,shell]
 ----
 grep -n "VM stop-the-world" debug.log | sort -t= -nrk2 | head -10
 ----
@@ -51,6 +53,3 @@ which will result in output similar to
 3983:2019-04-08 11:17:23.039+0000 WARN [o.n.k.i.c.VmPauseMonitorComponent] Detected VM stop-the-world pause: {pauseTime=301, gcTime=322, gcCount=1}
 16110:2019-04-09 07:19:25.626+0000 WARN [o.n.k.i.c.VmPauseMonitorComponent] Detected VM stop-the-world pause: {pauseTime=318, gcTime=314, gcCount=1}
 ----
-
-
-

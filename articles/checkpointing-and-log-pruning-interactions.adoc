@@ -27,6 +27,7 @@ The following details the expected messages to appear in the `logs\debug.log` up
 
 Checkpoint based upon dbms.checkpoint.interval.time
 
+[source,shell]
 ----
 2019-08-28 12:55:05.174+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Scheduled checkpoint for time threshold" @ txId: 49 checkpoint started...
 2019-08-28 12:55:05.253+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Scheduled checkpoint for time threshold" @ txId: 49 checkpoint completed in 79ms
@@ -34,6 +35,7 @@ Checkpoint based upon dbms.checkpoint.interval.time
 
 Checkpoint based upon dbms.checkpoint.interval.tx
 
+[source,shell]
 ----
 2019-08-28 13:08:51.603+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Scheduled checkpoint for tx count threshold" @ txId: 118 checkpoint started...
 2019-08-28 13:08:51.669+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Scheduled checkpoint for tx count threshold" @ txId: 118 checkpoint completed in 66ms
@@ -41,14 +43,15 @@ Checkpoint based upon dbms.checkpoint.interval.tx
 
 Checkoint when dbms.checkpoint=continuous
 
+[source,shell]
 ----
 2019-08-28 13:17:21.927+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Scheduled checkpoint for continuous threshold" @ txId: 171 checkpoint started...
 2019-08-28 13:17:21.941+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Scheduled checkpoint for continuous threshold" @ txId: 171 checkpoint completed in 13ms
 ----
 
-
 Checkpoint as a result of database shutdown
 
+[source,shell]
 ----
 2019-08-28 12:35:56.272+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Database shutdown" @ txId: 47 checkpoint started...
 2019-08-28 12:35:56.306+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Database shutdown" @ txId: 47 checkpoint completed in 34ms
@@ -56,6 +59,7 @@ Checkpoint as a result of database shutdown
 
 Checkpoint as a result of `call dbms.checkpoint();` introduced in Neo4j 3.5.6
 
+[source,shell]
 ----
 2019-08-28 12:31:56.463+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Call to dbms.checkpoint() procedure" @ txId: 47 checkpoint started...
 2019-08-28 12:31:56.490+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Call to dbms.checkpoint() procedure" @ txId: 47 checkpoint completed in 27ms
@@ -63,6 +67,7 @@ Checkpoint as a result of `call dbms.checkpoint();` introduced in Neo4j 3.5.6
 
 Checkpoint as a result of a backup run
 
+[source,shell]
 ----
 2019-08-28 12:33:30.489+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Full backup" @ txId: 47 checkpoint started...
 2019-08-28 12:33:30.509+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Full backup" @ txId: 47 checkpoint completed in 20ms
@@ -70,13 +75,12 @@ Checkpoint as a result of a backup run
 
 https://neo4j.com/docs/operations-manual/3.5/monitoring/metrics/reference/#metrics-general-purpose[Checkpoint Metrics] are also available and are detailed in `metrics/` and the following files
 
+[source,shell]
 ----
 neo4j.check_point.check_point_duration.csv 
 neo4j.check_point.total_time.csv
 neo4j.check_point.events.csv
 ----
-
-
 
 == Controlling transaction log pruning
 Transaction log pruning configuration primarily deals with specifing the number of transaction logs that should remain available. The primary reason for leaving more than the absolute minimum amount required for recovery comes from requirements of clustered deployments and online backup. Since database updates are communicated between cluster members and backup clients through the transaction logs, keeping more than the minimum amount necessary allows for transferring just the incremental changes (in the form of transactions) instead of the whole store files, which can lead to substantial savings in time and network bandwidth. This is true for HA deployments, backups and Read Replicas in Causal Clusters. However, in the case of Core members in Causal Clustering it is not the transaction logs that matter, but rather the Raft log contents. That scenario is covered in a separate KB article.  

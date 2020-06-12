@@ -8,6 +8,7 @@
 
 In Neo4j we currently have the configuration property referred to as execution guard:
 
+[source,conf]
 ----
 dbms.transaction.timeout=30s
 ----

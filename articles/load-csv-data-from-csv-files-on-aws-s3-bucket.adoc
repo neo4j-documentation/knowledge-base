@@ -14,6 +14,7 @@ We will quickly walk through on how to create a presign URL for a file on AWS S3
 We will need https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html[aws] command line utility for it.
 Once the `aws` command line utility is installed, setup the aws command line using `aws configure` command.
 
+[source,shell]
 ----
 Rohans-MacBook-Pro-2:bin rohankharwar$ aws configure
 AWS Access Key ID [****************KSRQ]:
@@ -25,6 +26,7 @@ Default output format [None]:
 For this example the `actors.csv` file is available in `rohank` S3 bucket.
 Run the below command to create the presign URL for `actors.csv` file.
 
+[source,shell]
 ----
 aws s3 presign s3://rohank/actors.csv
 ----
@@ -37,6 +39,7 @@ https://rohank.s3.amazonaws.com/actors.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Am
 
 Then use the URL to access the file from S3 bucket using LOAD CSV as
 
+[source,cypher]
 ----
 LOAD CSV WITH HEADERS FROM "https://rohank.s3.amazonaws.com/actors.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAICM6A3RO53KOKSRQ%2F20190404%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20190404T215301Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=61cb485af12daa60bb8cb7a91fb503797311c8e178d9bfa3c7ff49770e4535b5" as row return count(row)
 ----

@@ -11,6 +11,7 @@ it is possible to suspend a user, thus preventing the user from further authenti
 
 To view all suspended users run the following Cypher
 
+[source,cypher]
 ----
 call dbms.security.listUsers() yield username, flags 
 with username,flags 
@@ -23,6 +24,7 @@ the following Cypher can be used to generate Cypher statements which can then be
 
 *  Build the Cypher statements to activate all currently 'active' users
 
+[source,cypher]
 ----
 // users with no  is_suspended flag and build the statement to activate the user and not force a password change
 call dbms.security.listUsers() yield username, flags with username, flags 
@@ -32,13 +34,13 @@ return 'call dbms.security.activateUser(\'' + username + '\',false);'
 
 *  Build the Cypher statements to suspend all currently 'active' users
 
+[source,cypher]
 ----
 // users with no  is_suspended flag
 call dbms.security.listUsers() yield username, flags with username, flags 
 where not 'is_suspended' in flags  
 return 'call dbms.security.suspendUser(\'' + username + '\');'
 ----
-
 
 Finally at the time of the maintenance window one would first run the generated Cypher statements from above to suspend all users.  
 Note it is not possible to suspend the user you are currently logged in as and as such you may see a call dbms.security.suspendUser

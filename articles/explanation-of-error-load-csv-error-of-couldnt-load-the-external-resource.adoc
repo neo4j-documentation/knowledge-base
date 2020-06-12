@@ -8,18 +8,21 @@
 
 When running a `LOAD CSV` Cypher statement, for example
 
+[source,cypher]
 ----
 LOAD CSV WITH HEADERS FROM "http://10.12.1.2/Neo4j/cities.csv" AS row WITH row create (c:cities {name:row.city});
 ----
 
 whether through `bin/neo4j-shell` or the browser at http://localhost:7474 this may result in an error as follows
 
+[source,shell]
 ----
  Couldn't load the external resource at: http://10.12.1.2/Neo4j/cities.csv. See debug.log for more details, reference 8a28b268-948d-43fa-8d6d-b1afb0130276
 ----
 
 And the `data/graph.db/messages.log` (2.x) or `$NEO4J_HOME/log/debug.log` (3.x) will include a stack trace similar to
 
+[source,shell]
 ----
 2016-05-11 13:50:32.508+0000 ERROR [o.n.b.v.r.i.ErrorReporter] Client triggered an unexpected error [ExternalResourceFailed]: Couldn't load the external resource at: http://10.12.1.2/Neo4j/cities.csv. See debug.log for more details, reference 8a28b268-948d-43fa-8d6d-b1afb0130276.
 2016-05-11 13:50:32.508+0000 ERROR [o.n.b.v.r.i.ErrorReporter] Client triggered an unexpected error [ExternalResourceFailed]: Couldn't load the external resource at: http://10.12.1.2/Neo4j/cities.csv, reference 8a28b268-948d-43fa-8d6d-b1afb0130276. Couldn't load the external resource at: http://10.12.1.2/Neo4j/cities.csv
@@ -73,6 +76,7 @@ Caused by: java.io.IOException: Server returned HTTP response code: 403 for URL:
 
 From the stack trace the reference to
 
+[source,shell]
 ----
 Server returned HTTP response code: 403 for URL: http://10.12.1.2/Neo4j/cities.csv
 ----
@@ -83,10 +87,10 @@ When a request is submitted to the WebServer, the user-agent of that request is 
 Below is the single line logging for said request in a Apache WebServer Common Log Format.
 The last field represents the user-agent of the request.
 
+[source,shell]
 ----
 192.168.1.176 - - [16/May/2016:08:34:15 -0400] "GET /Neo4j/cities.csv HTTP/1.1" 404 511 "-" "Java/1.8.0_91"
 ----
 
 In the above case, the WebServer was explicitly blocking any request with the user-agent "Java/1.8.0_91".
 Once this was addressed the `LOAD CSV` command was then successful.
-

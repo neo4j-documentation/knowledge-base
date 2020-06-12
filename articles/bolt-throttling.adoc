@@ -39,6 +39,7 @@ On top of TCP's own throttling, the Neo4j Bolt server throttles the rate at whic
 
 That is controlled by the following configuration parameters :
 
+[source,conf]
 ----
 unsupported.dbms.bolt.outbound_buffer_throttle [default : true]
 unsupported.dbms.bolt.outbound_buffer_throttle.high_watermark [default : 512k]

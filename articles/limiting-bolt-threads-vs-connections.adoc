@@ -48,7 +48,6 @@ connections that are being worked on (represented by the neo4j.bolt.connections_
 being worked on, are _not_ limited by this config. A thread pool configuration (server side) cannot be used to regulate connections 
 (client side).
 
-
 == Why is the idle connections metric named neo4j.bolt.connections_idle?
 
 Because those connections are established by drivers and drivers reuse connections over a driver's lifetime. The bolt connection
@@ -62,6 +61,7 @@ usage.
 Driver connection limitations are configurable via the `MaxConnectionPoolSize`, MaxConnectionLifetime and ConnectionAcquisitionTimeout
 parameters. An example configuration for the Neo4j Java driver would be:
 
+[source,java]
 ----
 Config config = Config.builder()
             .withMaxConnectionLifetime( 30, TimeUnit.MINUTES )
@@ -72,13 +72,10 @@ Config config = Config.builder()
 
 ----
 
-
 References:
 
 https://neo4j.com/docs/operations-manual/4.0/performance/bolt-thread-pool-configuration/#_how_thread_pooling_works
 
-
 https://docs.oracle.com/cd/E19146-01/821-1834/gdpil/index.html
-
 
 https://stackoverflow.com/questions/15217524/what-is-the-difference-between-thread-per-connection-vs-thread-per-request

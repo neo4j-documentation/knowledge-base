@@ -24,6 +24,7 @@ Commencing with Neo4j 3.4, and along with new stored procedure `dbms.listTransac
 To demonstrate the procedures with 2 https://neo4j.com/docs/operations-manual/3.4/tools/cypher-shell/[cypher-shell] connections run 
 the following cypher
 
+[source,cypher]
 ----
 session1:    merge (n:Lock {id:1}) set n.age=20 with n call apoc.util.sleep(200000) return n;
 session2:    Match (n:Lock {id:1}) set n.age=85 return n;

@@ -12,6 +12,7 @@ The following article details a basic Prometheus implementation to demonstrate t
 
 After installing Prometheus, Neo4j needs to be configured via its `neo4j.conf` file with the following parameters:
 
+[source,conf]
 ----
 # Enable the Prometheus endpoint. Default is 'false'.
 metrics.prometheus.enabled=true
@@ -22,6 +23,7 @@ metrics.prometheus.endpoint=localhost:2004
 
 and the `prometheus.yml` file should be configured as follows:
 
+[source,yaml]
 ----
 # A scrape configuration containing exactly one endpoint to scrape:
 # Here it's Prometheus itself.

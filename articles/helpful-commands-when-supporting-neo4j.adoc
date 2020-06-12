@@ -8,27 +8,49 @@
 
 **Top 50 Slowest queries from Query log:**
 
-`grep -i "INFO" query.log | sort -r -n -k 4 | head -50 > long_queries.log`
+[source,shell]
+----
+grep -i "INFO" query.log | sort -r -n -k 4 | head -50 > long_queries.log
+----
 
 **Find Longest GC Pauses in debug or messages log:**
 
-`grep -n -i blocked debug.log | sort -r -n -k 11 | head -10`
+[source,shell]
+----
+grep -n -i blocked debug.log | sort -r -n -k 11 | head -10
+----
 
 **Strip all comments / empty lines of neo4j.conf file:**
 
-`grep -v "^#" neo4j.conf | sed -e '/^$/d' | sort`
+[source,shell]
+----
+grep -v "^#" neo4j.conf | sed -e '/^$/d' | sort
+----
 
 **Find a class within a directory of jars:**
 
-`for i in *.jar; do jar -tvf "$i" | grep -Hsi MyClass && echo "$i"; done`
+[source,shell]
+----
+for i in *.jar; do jar -tvf "$i" | grep -Hsi MyClass && echo "$i"; done
+----
 
 **Take a thread dump:**
 
-`jstack <neo4j process ID>`
+[source,shell]
+----
+jstack <neo4j process ID>
+----
 
 or to force a thread dump. Use when jstack <pid> does not respond (process is hung)
-`sudo jstack -F <neo4j process ID>`  
+
+[source,shell]
+----
+sudo jstack -F <neo4j process ID>
+----
 
 **Take a heap dump:**
 
+[source,shell]
+----
 jmap -dump:format=b,file=<directory>/heapdump.hprof <neo4j process ID>
+----

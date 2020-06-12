@@ -16,6 +16,7 @@ $ java -cp 'lib/*:system/lib/*' org.neo4j.consistency.ConsistencyCheckTool /tmp/
 
 On a Windows implementation the syntax would be similar to
 
+[source,shell]
 ----
 java -cp "lib/*;system/lib/*" org.neo4j.consistency.ConsistencyCheckTool c:\tmp\graph.db
 ----
@@ -24,6 +25,7 @@ In each of the instance above, replace `/tmp/graph.db` or `c:\tmp\graph.db` with
 
 To tune the check to skip Indexes (the most impactful modification), simply add the following line to conf/neo4j.properties (2.x) or conf/neo4j.conf(3.x), and pass it into the tool on the command line:
 
+[source,conf]
 ----
 consistency_check_indexes=false
 ----
@@ -52,5 +54,3 @@ Checking indexes is more expensive than checking the native stores, so it may be
 `consistency_check_report_file`: File name for inconsistencies log file. If not specified, logs to a file in the store directory.
 
 See also the http://neo4j.com/docs/stable/backup-introduction.html#config-org.neo4j.consistency.ConsistencyCheckSettings[Manual Entry on Backup and Consistency Checking]
-
-

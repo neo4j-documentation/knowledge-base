@@ -12,6 +12,7 @@ It is possible that after seeding a cluster or restoring from a backup, you may 
 
 In most of the cases, this issue can be resolved by taking the following steps:
 
+[source,shell]
 ----
 - $neo4j-home> bin/neo4j stop
 - $neo4j-home> bin/neo4j-admin unbind
@@ -20,6 +21,7 @@ In most of the cases, this issue can be resolved by taking the following steps:
 
 In the situation where the member of the cluster is unresponsive, then you will have to add two more steps:
 
+[source,shell]
 ----
 - $neo4j-home> bin/neo4j stop
 - $neo4j-home> bin/neo4j-admin unbind
@@ -29,5 +31,3 @@ In the situation where the member of the cluster is unresponsive, then you will 
 ----
 
 If after taking the above steps, your cluster does not come up, then please open a ticket with Neo4j Customer Support.
-
-

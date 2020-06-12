@@ -30,7 +30,6 @@ RETURN count(n.prop) + count(r.prop);
 
 In the above example the reference to `count(n.prop) + count(r.prop)` is used so as to force the optimizer to search for a node/relationship with a property named 'prop'.  Replacing this with `count(*)` would not be sufficient for it would not load all of the node and relationship properties.
 
-
 .Embedded (Java):
 [source,java]
 ----
@@ -52,14 +51,12 @@ public String warmUp(@Context GraphDatabaseService db) {
 With 3.0 forward and the inclusion of https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC] one can now warm up the cache 
 by running the stored procedure
 
+[source,cypher]
 ----
 CALL apoc.warmup.run()
 ----
-
 
 This can help in many ways.
 Aside for pure performance improvement, it can also help alleviate upstream issues resulting from lagging queries.
 For example if the nodes are busy, and your load balancer/proxy has a very short timeout, it can appear that the cluster is not available initially, if none of the graph is in memory yet.
 If the cache is warmed, the short timeout shouldn't be a concern on a cold cluster start.
-
-

@@ -19,6 +19,7 @@ Keep in mind the following regarding GC logging:
 == For Neo4j 2.x releases
 Uncomment these lines in `conf/neo4j-wrapper.conf`:
 
+[source,conf]
 ----
 #wrapper.java.additional=-Xloggc:data/log/neo4j-gc.log
 #wrapper.java.additional=-XX:+PrintGCDetails
@@ -29,6 +30,7 @@ Uncomment these lines in `conf/neo4j-wrapper.conf`:
 
 And add this line:
 
+[source,conf]
 ----
 wrapper.java.additional=-XX:+PrintGCCause
 ----
@@ -38,6 +40,7 @@ The log file will be written to: data/log/neo4j-gc.log
 == For Neo4j 3.x releases
 Uncomment these lines below in `conf/neo4j.conf` that are prefaced by # dbms.:
 
+[source,conf]
 ----
 # To enable GC Logging, uncomment this line
 # dbms.logs.gc.enabled=true
@@ -51,11 +54,9 @@ Uncomment these lines below in `conf/neo4j.conf` that are prefaced by # dbms.:
 
 # Size of each GC log that is kept.
 # dbms.logs.gc.rotation.size=20m
-
 ---- 
 
 The log file will be written to the logs directory as specified by
 https://neo4j.com/docs/operations-manual/current/configuration/file-locations/[here] and named `gc.log.<#>`
-
 
 Save the file and restart your server.

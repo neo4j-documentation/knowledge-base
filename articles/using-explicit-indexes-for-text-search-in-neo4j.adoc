@@ -19,6 +19,7 @@ Below is an example on how to do textual search on Node properties.
 
 Create and add the nodes to the index:
 
+[source,cypher]
 ----
 match (n:Movie) 
 with n
@@ -27,8 +28,8 @@ call db.index.explicit.addNode("MovieTitle",n,"title",n.title) yield success ret
 
 Verify the index was created by running the following command:
 
+[source,cypher]
 ----
-
 call db.index.explicit.list
 
 Outputs:
@@ -41,6 +42,7 @@ Outputs:
 
 Run the query to find the names of the movies starting with `The`:
 
+[source,cypher]
 ----
 call db.index.explicit.searchNodes('MovieTitle','title:The*')
 
@@ -70,6 +72,7 @@ Outputs:
 
 If more data is added associated to that index it does not automatically update the nodes to the index. Those additional nodes needs to be added to the index as follows:
 
+[source,cypher]
 ----
 match (n:Movie) 
 with n

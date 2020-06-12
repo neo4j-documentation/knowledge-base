@@ -12,6 +12,7 @@ Linux environment, usually installed via `apt-get install neo4j` or similar, the
 
 To get the contents of this, since neo4j.log just contains STDOUT content, simply look for the neo4j service log contents using `journalctl`:
 
+[source,shell]
 ----
 neo4j@ubuntu:/var/log/neo4j$ journalctl -u neo4j -b > neo4j.log
 neo4j@ubuntu:/var/log/neo4j$ vi neo4j.log

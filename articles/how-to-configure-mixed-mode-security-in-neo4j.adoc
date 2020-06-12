@@ -10,12 +10,14 @@ For environments where you need both LDAP authentication as well as some native 
 
 To allow both LDAP and native users to login, use the following setting in `conf/neo4j.conf`:
 
+[source,conf]
 ----
 dbms.security.auth_providers=ldap,native
 ----
 
 To control at a finer level which auth provider does (authentication and/or authorization), use the following settings as well (in the example we are setting all to `true`, but this can differ based on specific needs):
 
+[source,conf]
 ----
 dbms.security.native.authentication_enabled=true
 dbms.security.native.authorization_enabled=true

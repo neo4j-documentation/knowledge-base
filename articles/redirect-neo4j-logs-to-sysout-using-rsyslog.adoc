@@ -32,7 +32,6 @@ Installing these dependencies may involve following the step-by-step instruction
 Since it depends on what you have installed in your machine, you'll only know if you're missing some dependencies when actually installing rsyslog. If this happens, install the dependency and try again.
 ====
 
-
 === 2. Install rsyslog
 Now that you've installed all required dependencies mentioned in the rsyslog guide, you can proceed to the installation of rsyslog itself. You can again refer to rsyslog's installation guide (http://www.rsyslog.com/newbie-guide-to-rsyslog) and follow the _How to install rsyslog_ steps. However, to get rsyslog to work with arbitrary files, you need to explicitly install that module. In the step-by-step guide in rsyslog's website, on step 4 (_Type “./configure –prefix=/usr”_), you need to run the following command instead:
 
@@ -56,6 +55,8 @@ Also make sure the following line is not commented: `$IncludeConfig /etc/rsyslog
 We are now going to create the configuration file that enables the redirection from Neo4j's logs to sysout.
 
 Create a new file on `/etc/rsyslog.d` (ie: neo4j_debug.conf), edit it and add the following to the file (I will use as example the debug.log of version 3.0.7):
+
+[source,conf]
 ----
 $InputFileName /neo/neo4j-enterprise-3.0.7/logs/debug.log
 $InputFileTag neo4j_debug

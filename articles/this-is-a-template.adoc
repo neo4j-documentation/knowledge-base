@@ -19,6 +19,7 @@ However for Neo4j tarball install this resides in `<NEO4J_HOME>/run/` directory.
 
 Identify the neo4j process by running the command:
 
+[source,shell]
 ----
 ps -ef | grep -i neo4j
 ----
@@ -27,6 +28,7 @@ Get the neo4j process id. Create the `neo4j.pid` file and save the process id in
 Change the Ownership and Group of the file to `neo4j:neo4j`. 
 Then, run the below command:
 
+[source,shell]
 ----
 neo4j status
 ----

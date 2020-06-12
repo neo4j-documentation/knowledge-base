@@ -10,6 +10,7 @@
 The following Cypher can be used to get a simple high level view of the number of objects within your graph database.
 This may be used if one is trying to compare the contents of two databases:
 
+[source,cypher]
 ----
 match (n) return 'Number of Nodes: ' + count(n) as output UNION
 match ()-[]->() return 'Number of Relationships: ' + count(*) as output UNION
@@ -33,5 +34,3 @@ Number of Constraints:2
 Number of Indexes: 7
 Number of Procedures: 215
 ----
-
-

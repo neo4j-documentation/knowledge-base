@@ -9,7 +9,8 @@
 As part of the major changes in 3.0, the way to log to the user log, now neo4j.log (in server mode), has changed. To log within a Server Plugin follow these steps:
 
 . Include these packages: 
-+
+
+[source,java]
 ----
 import org.neo4j.logging.Log;
 import org.neo4j.logging.LogService;
@@ -17,7 +18,8 @@ import org.neo4j.kernel.internal.GraphDatabaseAPI;
 ----
 +
 . In the method for the Server Plugin, you need the following code to use the logger:
-+
+
+[source,java]
 ----
 @PluginTarget(GraphDatabaseService.class)
     public Iterable<String> getAllLabels(@Source GraphDatabaseService graphDb) {
@@ -26,7 +28,8 @@ import org.neo4j.kernel.internal.GraphDatabaseAPI;
 ----
 +
 . Now log using the appropriate method for the `log` object:
-+
+
+[source,java]
 ----
 log.info( "Hello world!" );
 log.debug( "Hello debuggers!" );

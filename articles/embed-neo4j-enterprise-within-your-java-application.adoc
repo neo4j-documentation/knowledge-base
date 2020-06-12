@@ -23,6 +23,7 @@ Create the ${HOME}/.m2/settings.xml file as following.
 
 Refer to the KB https://support.neo4j.com/hc/en-us/articles/360012742113-Dependency-location-for-Neo4j-Enterprise-Edition-artifacts[Dependency location]
 
+[source,xml]
 ----
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -36,7 +37,6 @@ Refer to the KB https://support.neo4j.com/hc/en-us/articles/360012742113-Depende
         </server>
     </servers>
 </settings>
-
 ----
 
 == Create a project pom.xml file
@@ -46,6 +46,8 @@ It is an XML file that contains information about the project and configuration 
 It contains default values for most projects.
 
 Create a new text file at the root of your project using intelliJ and name it pom.xml
+
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -108,7 +110,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
 In intelliJ, right-click on src and choose New > Java Class and name it EmbeddedNeo4j.
 You can paste the following code or follow the https://neo4j.com/docs/java-reference/3.5/tutorials-java-embedded/#tutorials-java-embedded-setup-startstop[java reference manual]
 
-
+[source,java]
 ----
 /*
  * Licensed to Neo4j under one or more contributor
@@ -129,7 +131,6 @@ You can paste the following code or follow the https://neo4j.com/docs/java-refer
  * under the License.
  */
 
-
 import java.io.File;
 import java.io.IOException;
 
@@ -141,7 +142,6 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.EnterpriseGraphDatabaseFactory;
 import org.neo4j.io.fs.FileUtils;
-
 
 public class EmbeddedNeo4j
 {

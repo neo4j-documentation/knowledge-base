@@ -22,19 +22,26 @@ If you want to emulate the Neo4j RPM service with a tar installation on Linux sy
  
 If you execute the following as root, this will start neo4j as the "neo4j" user, so the pid will be owned by this user:
 
-`# su - neo4j -c "service neo4j start"`
+[source,shell]
+----
+# su - neo4j -c "service neo4j start"
+----
 
 If your neo4j user for example has sudo privileges, you can also perform these commands from the user level:
 
-`$ sudo service neo4j start`
+[source,shell]
+----
+$ sudo service neo4j start
+----
 
 == To setup the automation of stop/start of Neo4j when the Linux server is rebooted, follow these steps:
 
 == As root:
 
-----
 a) Create the file /etc/init.d/neo4j_ctl with the following contents:
 
+[source,shell]
+----
 #!/bin/sh
 
         OWNER=neo4j #Set to the owner of the Neo4j installation
@@ -59,31 +66,47 @@ a) Create the file /etc/init.d/neo4j_ctl with the following contents:
 
 b) Set the permissions for the script:
 
-`# chmod 744 /etc/init.d/neo4j_ctl`
+[source,shell]
+----
+# chmod 744 /etc/init.d/neo4j_ctl
+----
 
 c) Test the script by shutting down the database
 
-`# /etc/init.d/neo4j_ctl stop`
+[source,shell]
+----
+# /etc/init.d/neo4j_ctl stop
+----
 
 d) Test the script by starting up the database
 
-`# /etc/init.d/neo4j_ctl start`
+[source,shell]
+----
+# /etc/init.d/neo4j_ctl start
+----
 
 e) Configure the system to start Neo4j at the correct run level and to stop Neo4j at run level 0.
 
 == Run the following to determine the Linux run level to run in:
 
-`# /sbin/runlevel`
+[source,shell]
+----
+# /sbin/runlevel
+----
 
  N 3  <--- This example returns run level 3
 
 If run level is 3 then follow these steps :
+
+[source,shell]
 ----
 # cd /etc/rc3.d
 # ln -s ../init.d/neo4j_ctl S40neo4j_ctl
 # cd /etc/rc0.d
 # ln -s ../init.d/neo4j_ctl K30neo4j_ctl
 ----
+
+[source,shell]
 ----
 If runlevel is 5 then follow these steps :
 # cd /etc/rc5.d

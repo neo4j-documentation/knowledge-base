@@ -22,11 +22,11 @@ ensure your browser is configured to trust the certificate Neo4j is configured t
 
 Additionally to allow for remote browser connections your $NEO4J_HOME/conf/neo4j.conf needs to be configured as
 
+[source,conf]
 ----
 # To have Bolt accept non-local connections, uncomment this line:
 dbms.connector.bolt.address=0.0.0.0:7687
 ----
-
 
 Below is the communication process between the Neo4j Browser and Neo4j Server:
 
@@ -44,7 +44,6 @@ After that request the Browser tries to connect to the server over Bolt without 
 * If the first connection attempt is unsuccessful the Browser checks if there are any login credentials stored in the web browsers localstorage. If there is, the Browser tries to connect with them
   - If successful, all good.
   - If unsuccessful, give up and prompt the user for connection credentials
-
 
 * So, as a diagram this would look something like
 
@@ -83,4 +82,3 @@ After that request the Browser tries to connect to the server over Bolt without 
 
 
 Note you will end up at the same page prompting for credentials both when you have invalid credentials and/or when you are unable to connect via Bolt, so it's important to check both possible causes if you're unable to connect.
-

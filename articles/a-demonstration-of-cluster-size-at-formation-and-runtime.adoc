@@ -14,6 +14,7 @@ to form a cluster. The cluster will form when at least this many Core members ha
 The following example shows a 5 core cluster with causal_clustering.minimum_core_cluster_size_at_formation=3. Core 1 and 2 are
 initialised and the first election occurs as below:
 
+[source,shell]
 ----
 2019-03-31 14:14:22.028+0000 INFO [o.n.c.n.Server] raft-server: bound to 127.0.0.1:7000
 2019-03-31 14:14:22.038+0000 INFO [o.n.c.d.CoreMonitor] Waiting for a total of 3 core members...
@@ -34,6 +35,7 @@ MemberId{3811e9ed}]
 ----
 Core 3 now joins and the cluster forms successfully:
 
+[source,shell]
 ----
 2019-03-31 14:15:02.225+0000 INFO [o.n.c.d.CoreMonitor] Waiting for a total of 3 core members...
 2019-03-31 14:15:12.281+0000 INFO [o.n.c.d.CoreMonitor] Waiting for a total of 3 core members...
@@ -62,6 +64,7 @@ stuck waiting on only the last failed node.
 
 In the example below, core 1 (leader) sees core 3 leaving the cluster as below:
 
+[source,shell]
 ----
 2019-03-31 15:10:31.234+0000 WARN [o.n.c.d.CoreMonitor] Lost core member at localhost:5002
 ----
@@ -71,6 +74,7 @@ runtime set to 2.
 
 If we then take core 2 offline also, the cluster becomes read only:
 
+[source,shell]
 ----
 2019-03-31 15:11:08.005+0000 INFO [o.n.c.c.c.s.RaftState] Leader changed from MemberId{e7f79e48} to null
 2019-03-31 15:11:08.006+0000 INFO [o.n.c.c.c.s.RaftLogShipper] Stopping log shipper MemberId{a2ef543b}[matchIndex: 5, 
@@ -80,6 +84,7 @@ lastSentIndex: 5, localAppendIndex: 5, mode: PIPELINE]
 However, if we now add back core 3 _before_ adding back core 2, we still end up with two cores in _follower_ state, 
 leaving the cluster as read-only and we see the below in core 1’s log:
 
+[source,shell]
 ----
 2019-03-31 15:12:06.251+0000 DEBUG [o.n.c.c.c.RaftMachine] Should vote for raft candidate false: requester log up to date: 
 false (request last log term: 1, context last log term: 1, request last log index: 1, context last append: 5) voted for other
@@ -87,15 +92,16 @@ in same term: false (request term: 1, context term: 1, voted for another: false)
 ----
 And a write transaction results in the below exception:
 
+[source,shell]
 ----
 Neo.ClientError.Cluster.NotALeader
 Neo.ClientError.Cluster.NotALeader: No write operations are allowed directly on this database. Writes must pass through the 
 leader. The role of this server is: FOLLOWER
-
 ----
 
 It is not until core 2 is added back, that the three cores form a writeable cluster once again:
 
+[source,shell]
 ----
 2019-03-31 15:13:04.377+0000 INFO [o.n.c.c.c.RaftMachine] Election started with vote request: Vote.Request from 
 MemberId{e7f79e48} {term=2, candidate=MemberId{e7f79e48}, lastAppended=5, lastLogTerm=1} and members: [MemberId{a2ef543b}, 

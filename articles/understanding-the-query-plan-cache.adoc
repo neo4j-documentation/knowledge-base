@@ -20,6 +20,7 @@ be necessary.
 Note however that statements that are logically the same but differing in case will produce a different hash.  The following
 2 statement, though semantically equivalent, will produce a different hash and a replan may be necessary.
 
+[source,cypher]
 ----
 match (n) return count(n);
 MATCH (n) return COUNT(n);
@@ -28,6 +29,7 @@ MATCH (n) return COUNT(n);
 Additionally, statements that are logically the same but differing in whitespace/carriage returns will produce different hash values.  
 The following 3 statements will produce a different hash and a replan may be necessary
 
+[source,cypher]
 ----
 MATCH (n) return COUNT(n);
 MATCH (n) return      COUNT(n);
@@ -39,6 +41,7 @@ return COUNT(n);
 Cypher statements prefaced by `PROFILE/EXPLAIN` will have their `PROFILE/EXPLAIN` removed before the statement is hashed.  The following
 2 statements will hash to the same value
 
+[source,cypher]
 ----
 MATCH (n) return COUNT(n);
 PROFILE MATCH (n) return COUNT(n);
@@ -51,12 +54,14 @@ If the Cypher statements hash value is not found in the first cache Neo4j will t
 The Neo4j compiler parses the query from a string to an abstract syntax tree (AST), which is an object represenation of the query.
 The optimizer then normalizes the statement so as to make planning easier.   For example
 
+[source,cypher]
 -----
 match (n:Person {id:101}) return n;
 -----
 
 will be normalized to
 
+[source,cypher]
 ----
 match (n:Person) where n.id={param1} return n;   {param1: 101}
 ----
@@ -69,6 +74,8 @@ The AST doesn't store information such as white spaces and casing of keywords, a
 can change but still produce the same AST.
 
 This second query cache is keyed on this normalized AST. i.e. these queries will re-use the same query plan.
+
+[source,cypher]
 ----
 match (n:Person) where n.id=101 return n;
 match (n:Person {id:101}) return n;
@@ -92,6 +99,7 @@ The default value us 0.75 which would indicate if the statistics in the object h
 time thhe cached plan was generated then a new plan would need to be generated.
 For example running
 
+[source,cypher]
 ----
 // remove all :Person nodes
 match (n:Person) detach delete n;
@@ -110,6 +118,7 @@ having the same hash value, the statistics on :Person had changed from 10 nodes 
 
 If an existing plan needs to be replanned as a result of the above 2 parameters the `logs/debug.log` will log 
 
+[source,shell]
 ----
 2017-03-31 19:14:27.820+0000 INFO [o.n.c.i.ExecutionEngine] Discarded stale query from the query cache: match (n:Person)
 return n.id order by n.id desc;

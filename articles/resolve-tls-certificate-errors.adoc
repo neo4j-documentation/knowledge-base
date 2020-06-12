@@ -6,7 +6,6 @@
 :tags: tls, ssl, configuration
 :public:
 
-
 TLS encryption is required everywhere.
 This is a compilation of few errors you can expect while configuring your server.
 `openssl` command is required to diagnose or manipulate the certificates.
@@ -22,16 +21,17 @@ The private key has to be in PKCS8 in 3.5.x, PEM format without any passphrase.
 PKCS12 will be supported in future releases.
 The command below should return the certificate without prompting for any password.
 
+[source,shell]
 ----
 openssl rsa -in private.key -check 
 ----
 
 You can remove the passphrase with:
 
+[source,shell]
 ----
 openssl rsa -in private.key -out private_key_without_passphrase.key
 ----
-
 
 == The folder "certificates/<POLICY_NAME>/trusted" can only contains valid certificates in DER format
 
@@ -81,6 +81,7 @@ at org.neo4j.kernel.configuration.ssl.SslPolicyLoader.createTrustManagerFactory(
 
 You can generate a key and a public certificate with the following command.
 
+[source,shell]
 ----
 openssl req -x509 -newkey rsa:2048 -keyout private_key.pem -out public_cert.pem -days 30
 ----

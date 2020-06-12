@@ -19,12 +19,14 @@ this article:
 
 The following sample query was executed on the movies database:
 
+[source,cypher]
 ----
 match (n:Person {name:'Tom Hanks'})-[:ACTED_IN]->(n1:Movie)<-[:DIRECTED]-(n2:Person {name:"Tom Hanks"}) return n1.title
 ----
 
 The corresponding query log in query.log is shown below:
 
+[source,shell]
 ----
 2017-11-23 12:44:56.973+0000 INFO  1550 ms: (planning: 20, cpu: 920, waiting: 10) - 13792 B - 15 page hits, 0 page faults - bolt-session	bolt	neo4j	neo4j-javascript/1.4.1		client/127.0.0.1:58189	server/127.0.0.1:7687>	neo4j - match (n:Person {name:'Tom Hanks'})-[:ACTED_IN]->(n1:Movie)<-[:DIRECTED]-(n2:Person {name:"Tom Hanks"}) return n1.title; - {} - {}
 ----
@@ -50,6 +52,8 @@ Importantly, note that the client requests data from the server only when it's r
 
 A simple test which shows how retrieval and roud-trip times between db and client are reflected in query.log, we can try the following transaction:
 
+[source,java]
+----
 public void iterateWithoutDelay() throws Exception { 
 final Session session = driver.session(AccessMode.READ); 
 Transaction tx = session.beginTransaction(); 
@@ -60,13 +64,19 @@ result.next();
 } 
 tx.close(); 
 }
+----
 
 results in this entry in the log::
 
+[source,shell]
+----
 INFO 3896 ms: bolt-session bolt null neo4j-java/dev client/127.0.0.1:52935 server/127.0.0.1:7687> - MATCH (n) return n - {} - {}
+----
 
 While this code::
 
+[source,java]
+----
 public void iterateWithDelay() throws Exception { 
 final Session session = driver.session(AccessMode.READ); 
 Transaction tx = session.beginTransaction(); 
@@ -78,10 +88,14 @@ Thread.sleep(5);
 } 
 tx.close(); 
 }
+----
 
 results in this entry::
 
+[source,shell]
+----
 INFO 135171 ms: bolt-session bolt null neo4j-java/dev client/127.0.0.1:52935 server/127.0.0.1:7687> - MATCH (n) return n - {} - {}
+----
 
 Notice that the only difference here is the delay added to the client processing hence showing it contributing to logged times.
 

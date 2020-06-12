@@ -10,18 +10,21 @@ https://neo4j.com/developer/neo4j-apoc/[APOC] allows one to have a stored proced
 https://neo4j-contrib.github.io/neo4j-apoc-procedures/#run-cypher-scripts[apoc.cypher.runFile], to then run the contents of 
 the file to the Cypher engine.   To allow the reading of the file in the conf/neo4j.conf one needs to define
 
+[source,conf]
 ----
 apoc.import.file.enabled=true
 ----
 
 and then if one defines a file, for example `import/myRunFile.cyp` and it contains the following content
 
+[source,cypher]
 ----
 create (n:Person {id:123, name:'Emil Eifrem'});
 ----
 
 the running via Cypher
 
+[source,cypher]
 ----
 call apoc.cypher.runFile("myRunFile.cyp",{}) yield row, result;
 ----
@@ -31,12 +34,14 @@ will create the :Person node with id=123 and name='Emil Eifrem'.
 However if you want to provide more flexibility such that you pass in via parameters the values for `id` and `name` this can be
 accomplished by changing the contents of the import/myRunFile.cyp such that it is defined as 
 
+[source,cypher]
 ----
 create (n:Person { id: $id_p1, name: $name_p2});
 ----
 
 and then calling the apoc.cypher.runfile as follows
 
+[source,cypher]
 ----
 call apoc.cypher.runFile("myRunFile.cyp",{parameters: {id_p1: 123, name_p2:'Emil Eifrem'}}) yield row, result;
 ----

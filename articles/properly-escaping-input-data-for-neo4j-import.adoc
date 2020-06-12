@@ -42,6 +42,7 @@ neo4j-import --into data/graph.db.1 --nodes simple_escape_test.csv
 ----
 
 .Verify using Cypher:
+[source,shell]
 ----
 neo4j-sh (?)$ match (n:Movie) return n.line;
  +------------------------+
@@ -71,6 +72,7 @@ We can easily substitute something like a pipe (|) character, but if you may hav
 ----
 
 .Verify using Cypher:
+[source,shell]
 ----
 neo4j-sh (?)$ match (n:Movie) return n;
  +-----------------------------------------------------------------------------------------------------------+

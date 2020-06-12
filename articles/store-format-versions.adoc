@@ -43,6 +43,7 @@ High Limit is only available in Enterprise and supports virtually unlimited numb
 
 You can use the `neo4j-admin store-info` against an offline store to find out what format it is using. Example:
 
+[source,shell]
 ----
 $ ./bin/neo4j-admin store-info --store=data/databases/mygraph.db
 Store format version:         v0.A.9

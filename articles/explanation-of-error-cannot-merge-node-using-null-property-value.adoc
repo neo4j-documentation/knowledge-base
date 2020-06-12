@@ -10,6 +10,7 @@ When running a https://neo4j.com/docs/cypher-manual/3.5/clauses/merge/[MERGE], w
 encounter an error of `Cannot merge node using null property value for` if the MERGE is performing a MATCH against a null property.
 For example, when using the following input file, test.csv
 
+[source,csv]
 ----
 id,name,employee_number
 101,Emil Eifrem, Neo001
@@ -19,6 +20,7 @@ id,name,employee_number
 
 and such that the 3rd value in the CSV has a NULL `id` property, if one runs
 
+[source,cypher]
 ----
 load csv with headers from 'file:///test.csv' as row 
 merge (emp:Employee {id: row.id}) set emp.name=row.name, emp.employee_numer=row.employee_number;
@@ -26,12 +28,14 @@ merge (emp:Employee {id: row.id}) set emp.name=row.name, emp.employee_numer=row.
 
 this will error with
 
+[source,shell]
 ----
 Cannot merge node using null property value for id
 ----
 
 One can avoid this error by rerunning the cypher statement as
 
+[source,cypher]
 ----
 load csv with headers from 'file:///test.csv' as row  with row where row.id is not null 
 merge (emp:Employee {id: row.id}) set emp.name=row.name, emp.employee_numer=row.employee_number;

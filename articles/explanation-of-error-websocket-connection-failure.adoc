@@ -17,9 +17,8 @@ WebSocket readyState is: 3#
 
 This error can be resolved by editing the file `$NEO4J_HOME/conf/neo4j.conf` and uncommenting:
 
+[source,conf]
 ----
 # To have Bolt accept non-local connections, uncomment this line:
 dbms.connector.bolt.address=0.0.0.0:7687
 ----
-
-

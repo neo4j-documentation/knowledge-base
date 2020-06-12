@@ -12,7 +12,7 @@ If you want to run a specific version of Neo4j and install the software via a ht
 As an example assume you want to make sure to stay on 3.3.x versions - effectivly preventing an upgrade to 3.4.x or higher. 
 To use apt pinning create a file `/etc/apt.d/preferences.d/neo4j` with these contents
 
-[source]
+[source,shell]
 ----
 Package: neo4j-enterprise
 Pin: version 1:3.3.*

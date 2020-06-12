@@ -14,6 +14,8 @@ and how to address them.
 Symptom: connection attempts lag for a long time, and then fail with connection timed out errors.
 
 Example: 
+
+[source,shell]
 ----
 $ cypher-shell -a 37.204.217.197 -u neo4j -p myPassword
 connection timed out: /37.204.217.197:7687

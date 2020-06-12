@@ -76,6 +76,7 @@ Here's a short checklist of things to check in the template:
 To create a cloudformation stack from a JSON file, customize this command, substituting
 parameters as you see fit:
 
+[source,shell]
 ----
 aws cloudformation create-stack \
    --stack-name StackyMcGrapherston \

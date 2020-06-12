@@ -9,6 +9,8 @@
 Following the knowledge base article on link:https://support.neo4j.com/hc/en-us/articles/227267088-How-to-get-a-high-level-inventory-of-objects-in-your-graph[How to get a high level inventory of objects in your graph], this article will cover how to get more detailed high level inventory of objects in your graph.
 
 The first article showed how by running:
+
+[source,cypher]
 ----
 match (n) return 'Number of Nodes: ' + count(n) as output UNION
 match ()-[]->() return 'Number of Relationships: ' + count(*) as output UNION
@@ -24,6 +26,7 @@ You will get all the counts for nodes, relationships, labels, relationship types
 
 If you are running any version up to 3.2.x (inclusive) and want to drill down to see more detailed information on these objects, you can run the following command on your `$NEO4J_HOME` directory:
 
+[source,shell]
 ----
 java -cp "lib/*" org.neo4j.kernel.impl.util.dbstructure.DbStructureTool MyDatabaseStats.java /data/databases/graph.db > ./MyDatabaseStats.java
 ----
@@ -36,26 +39,31 @@ Unlike the query mentioned in the other article, you cannot execute this on a ru
 This will generate a file called `MyDatabaseStats.java` and its contents will give you:
 
 *1. Labels in the graph*
+[source,java]
 ----
 visitor.visitLabel( 0, "Label" );
 ----
 
 *2.Property keys in the graph*
+[source,java]
 ----
 visitor.visitPropertyKey( 0, "property" );
 ----
 
 *3. Relationship types in the graph*
+[source,java]
 ----
 visitor.visitRelationshipType( 0, "REL" );
 ----
 
 *4. Indexes in the graph*
+[source,java]
 ----
 visitor.visitIndex( IndexDescriptorFactory.forLabel( 0, 0 ), ":Label(property)", 1.0d, 1053000L );
 ----
 
 *5. Constraints in the graph*
+[source,java]
 ----
 visitor.visitUniqueConstraint( ConstraintDescriptorFactory.uniqueForLabel( 0, 1 ), "CONSTRAINT ON ( label:Label ) ASSERT label.property IS UNIQUE" );
 ----
@@ -63,11 +71,13 @@ visitor.visitUniqueConstraint( ConstraintDescriptorFactory.uniqueForLabel( 0, 1 
 *6. Node count*
 
 *_6.1. Count of all nodes in the graph_*
+[source,java]
 ----
 visitor.visitAllNodesCount( 49625435L );
 ----
 
 *_6.2. Count of all `:Label` nodes in the graph_*
+[source,java]
 ----
 visitor.visitNodeCount( 0, "Label", 1053000L );
 ----
@@ -76,35 +86,40 @@ visitor.visitNodeCount( 0, "Label", 1053000L );
 You can find the total number of relationships and the numbers of all incoming/outgoing relationship permutations as follows: 
 
 *_7.1. Count of all relationships in the graph_*
+[source,java]
 ----
 visitor.visitRelCount( -1, -1, -1, "MATCH ()-[]->() RETURN count(*)", 910243L );
 ----
 
 *_7.2. Count of all outgoing relationships from `:Label`_*
+[source,java]
 ----
 visitor.visitRelCount( 0, -1, -1, "MATCH (:Label)-[]->() RETURN count(*)", 10600L );
 ----
 
 *_7.3. Count of all incoming relationships to `:Label`_*
+[source,java]
 ----
 visitor.visitRelCount( -1, -1, 0, "MATCH ()-[]->(:Label) RETURN count(*)", 0L );
 ----
 
 *_7.4. Count of all `:REL` relationships_*
+[source,java]
 ----
 visitor.visitRelCount( -1, 0, -1, "MATCH ()-[:REL]->() RETURN count(*)", 10600L );
 ----
 
 *_7.5. Count of outgoing `:REL` relationships from `:Label`_*
+[source,java]
 ----
 visitor.visitRelCount( 0, 0, -1, "MATCH (:Label)-[:REL]->() RETURN count(*)", 10600L );
 ----
 
 *_7.6. Count of incoming `:REL` relationships to `:Label`_*
+[source,java]
 ----
 visitor.visitRelCount( -1, 0, 0, "MATCH ()-[:REL]->(:Label) RETURN count(*)", 0L );
 ----
-
 
 On a graph composed by:
 ====
@@ -117,6 +132,7 @@ On a graph composed by:
 
 `MyDatabaseStats.java` would have the following output:
 
+[source,java]
 ----
 package MyDatabaseStats;
 

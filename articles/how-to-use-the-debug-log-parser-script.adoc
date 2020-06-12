@@ -29,8 +29,11 @@ To run the `debugInfo.sh` script on Linux systems, follow these steps:
 4. Run `chmod 750 debugInfo.sh` to set execute permissions on the script.
 
 5. Script usage:
-    
+
+[source,shell]
+----
   $ ./debugInfo.sh debug.log
+----
 
 NOTE 1: The `debugInfo.sh` script will accept one input, which is the name of the Neo4j debug log to process.
 
@@ -41,6 +44,8 @@ NOTE 3: The `debugInfo.sh` script will output results to the screen and also to 
 
 === To run the script from an alternative location, just provide the full path to the debug.log to analyze:
 
+[source,shell]
+----
   $ pwd
   /home/neo4j
 
@@ -53,5 +58,6 @@ NOTE 3: The `debugInfo.sh` script will output results to the screen and also to 
   -rw-rw-r--   1 neo4j neo4j  1671 Dec 13 16:51 debugLogExcludeFile.neo4j
 
   $ ./debugInfo.sh debug.log $NEO4J_HOME/logs/debug.log
+----
 
 NOTE 1: The script will parse the debug.log from the location provided and output results to the screen and also to the default output file called `debugInfo.txt` in the working directory.
