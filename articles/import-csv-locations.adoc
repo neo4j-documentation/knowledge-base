@@ -37,6 +37,7 @@ C:\Users\<userid>\.Neo4jDesktop\neo4jDatabases\database-<id#>\installation-<neo4
 
 If you require a file location different from the default, you can update the following setting in the neo4j.conf file. We recommend specifying a directory path, rather than commenting out the setting, to avoid the security issue mentioned in the configuration comment.
 
+[source,conf]
 ----
 # This setting constrains all `LOAD CSV` import files to be under the `import` directory. Remove or comment it out to
 # allow files to be loaded from anywhere in the filesystem; this introduces possible security problems. See the
@@ -56,6 +57,7 @@ image::https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/import-c
 
 Click on the `Raw` button in the button list on the right and copy the url path when the page loads (url should start like `https://raw.githubusercontent.com/...`). Now you should be able to view the data in your sandbox browser session with a query like this one.
 
+[source,cypher]
 ----
 LOAD CSV FROM 'https://raw.githubusercontent.com/<yourFileRepositoryPath>' AS row
 RETURN row
@@ -65,6 +67,7 @@ RETURN row
 
 If the file is hosted on a website, Neo4j Sandbox can access it there with a url. For example, in the Neo4j Cypher Manual, the `LOAD CSV` page uses a csv file on neo4j.com.
 
+[source,cypher]
 ----
 LOAD CSV FROM 'https://neo4j.com/docs/cypher-manual/3.5/csv/artists.csv' AS row
 RETURN row
@@ -87,6 +90,7 @@ image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_g
 image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_gdownload4.jpg[image,role="popup-link"]
 
 .Step 5 - Run Cypher LOAD CSV command
+[source,cypher]
 ----
 LOAD CSV WITH HEADERS FROM 'https://docs.google.com/spreadsheets/d/<yourFilePath>' AS row
 RETURN row
@@ -109,6 +113,7 @@ image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_d
 image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_ddownload4.jpg[image,role="popup-link"]
 
 .Step 5 - Run Cypher LOAD CSV command
+[source,cypher]
 ----
 LOAD CSV WITH HEADERS FROM 'https://<fileId>.dl.dropboxusercontent.com/cd/0/get/<yourFilePath>/file#' AS row
 RETURN row

@@ -26,6 +26,7 @@ image::https://s3.amazonaws.com/support.neotechnology.com/KBs/dcs.png[North & So
 Let's say you want to prevent the Read Replica in the South DC to pull updates from the North DC. You could set 
 `causal_clustering.upstream_selection_strategy=user-defined` and have the following strategy configured 
 
+[source,conf]
 ----
 causal_clustering.user_defined_upstream_strategy=groups(south); halt()
 ----
@@ -58,6 +59,7 @@ it's located.
 Also, you can select multiple upstream strategies by separating them with a comma (","). It is perfectly acceptable to have the following 
 configuration:
 
+[source,conf]
 ----
 causal_clustering.upstream_selection_strategy=user-defined, leader-only
 ----

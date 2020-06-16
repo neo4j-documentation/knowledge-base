@@ -25,6 +25,9 @@ Until we find a solution to this issue we suggest the following workaround:
 
 Add `cypher-shell=1.1.12` to the end of your apt install command, eg:
 
-`sudo apt install neo4j cypher-shell=1.1.12`
+[source,shell]
+----
+sudo apt install neo4j cypher-shell=1.1.12
+----
 
 This way you ensure the lastest supported Cypher Shell version will be installed for the Neo4j Database version 3.x.

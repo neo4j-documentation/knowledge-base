@@ -16,6 +16,7 @@ and then batch the deletes by the first 10K relationships, then the next 10K, an
 quite well on a large set of nodes. In this case, it is looking for **:TTL** labelled nodes who's `ttl` property is older than the current 
 time. It passes those into the periodic commit statement, and deletes in batches of 10K.
 
+[source,cypher]
 ----
 MATCH (n:TTL)
 WHERE n.ttl < timestamp()

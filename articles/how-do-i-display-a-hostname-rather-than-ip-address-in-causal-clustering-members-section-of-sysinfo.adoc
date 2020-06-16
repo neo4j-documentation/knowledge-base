@@ -18,6 +18,7 @@ If you want to replace the IP addresses with hostnames, this can be achieved by 
 
 For example if you define this setting as follows:
 
+[source,conf]
 ----
 # The address at which this server can be reached by its clients. This may be the server's IP address or DNS name, or
 # it may be the address of a reverse proxy which sits in front of the server. This setting may be overridden for

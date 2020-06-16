@@ -14,6 +14,7 @@ https://trello.com/guide/board_basics.html[taxonomy] includes boards, lists, and
 
 When using the Trello API you must register an API key and token as they are required to access the URL. The key and token can be created  https://trello.com/app-key[here]. In the example below, the generated key and token are:   
 
+[source,conf]
 ----
 key=00981709d8fa49b9fb3c66f41178c14h
 token=06128ee9bb10787d6fdee4942c12b5de5f39be11794fcb0604e072e1940475e2
@@ -27,7 +28,7 @@ To produce such a data model we are going to interact with the Trello API https:
 JSON result representing the detail on when cards were created. Additionally, the inclusion of the 'me' value in the URL indicates
 to only retrieve createCards actions that I have taken.
 
-
+[source,json]
 ----
    {
         "id": "56f29d59ef82d7312c56710f",
@@ -58,11 +59,11 @@ to only retrieve createCards actions that I have taken.
             "username": "danacanzano"
         }
     },
-
 ----
 
 The following Cypher will process the JSON results of the `/1/member/me/actions` request:
 
+[source,cypher]
 ----
 WITH "https://api.trello.com/1/member/me/actions?filter=createCard&limit=1000&key=00981709d8fa49b9fb3c66f41178c14h&token=06128ee9bb10787d6fdee4942c12b5de5f39be11794fcb0604e072e1940475e2" AS url
 CALL apoc.load.json(url) YIELD value AS action
@@ -77,6 +78,7 @@ RETURN count(*);
 
 And then one can run 
 
+[source,cypher]
 ----
 MATCH (u:User)-[r:CREATED]->(c:Card)-[r2:IN_BOARD]->(b:Board) 
 RETURN u.user AS Author, r.date_created,c.name AS CardName ,b.name AS BoardName

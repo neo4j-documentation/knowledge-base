@@ -9,6 +9,8 @@
 This article is based on a defect report with a suggested workaround until a fix becomes available.
 
 When running backup (full or incremental) you may encounter the following error in the output, and as a result, the backup is not working:
+
+[source,shell]
 ----
 unexpected error: Base directory '/users/neo4j/neo4j-enterprise-3.5.8/backups/certificates/ssl_policy' for SSL policy with name 'default' does not exist.
 ----
@@ -16,13 +18,18 @@ unexpected error: Base directory '/users/neo4j/neo4j-enterprise-3.5.8/backups/ce
 You may encounter this issue when using SSL and regardless of using encryption for backups or not.
 
 The configuration that is exposing this issue is:
+
+[source,conf]
 ----
 dbms.ssl.policy.default.base_directory=certificates/ssl_policy
 ----
+
 The key to this issue is if you are using relative paths instead of absolute paths. With a relative path, the backup will fail with the shown error.
 
 ***Workaround:***
 To resolve this issue, use an absolute path instead for the SSL configuration setting:
+
+[source,conf]
 ----
 dbms.ssl.policy.default.base_directory=/users/neo4j/neo4j-enterprise-3.5.8/certificates/ssl_policy
 ----

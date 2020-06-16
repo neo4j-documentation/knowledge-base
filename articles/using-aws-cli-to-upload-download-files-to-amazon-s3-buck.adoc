@@ -10,13 +10,14 @@ If one has installed the https://docs.aws.amazon.com/cli/latest/userguide/cli-ch
 
 To download a file from a S3 bucket anonymously run
 
+[source,shell]
 ----
 aws s3 cp s3://<AWS instance name>/<bucket_Name>/<file> <file> --no-sign-request
 ----
 
-
 and/or to upload to a Neo4j S3 buck anonymously run
 
+[source,shell]
 ----
 aws s3 cp <file> s3://<AWS Instance name>/<file> --acl=bucket-owner-full-control --no-sign-request
 ----

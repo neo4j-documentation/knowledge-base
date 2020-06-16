@@ -12,6 +12,7 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/parallel.html
 
 To define the init and max heap, before running `$NEO4J_HOME/bin/neo4j-backup` define the environment varaible `JAVA_OPTS`, for example:
 
+[source,shell]
 ----
 export JAVA_OPTS='-Xms2048m -Xmx2048m'
 ----

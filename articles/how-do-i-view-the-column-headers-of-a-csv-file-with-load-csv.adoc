@@ -8,6 +8,7 @@
 
 If one has a CSV file with the following content
 
+[source,csv]
 ----
 id,name,dob,addr1,addr2,city,state,country
 1,Joe Smith,04/23/1971,121 Main Street,San Mateo,CA,USA
@@ -17,6 +18,7 @@ id,name,dob,addr1,addr2,city,state,country
 and one simply wants to run a https://neo4j.com/docs/cypher-manual/current/clauses/load-csv/[`LOAD CSV`] command to have the column
 headers returned, the following should suffice
 
+[source,cypher]
 ----
 load csv with headers from 'file:///test.csv' as row with row limit 1 return keys(row);
 ----
@@ -30,5 +32,3 @@ which will return output similar to
 | ["country", "addr2", "city", "addr1", "dob", "name", "state", "id"] |
 +---------------------------------------------------------------------+
 ----
-
-

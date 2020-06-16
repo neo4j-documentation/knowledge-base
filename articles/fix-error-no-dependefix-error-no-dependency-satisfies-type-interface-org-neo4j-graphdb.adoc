@@ -12,7 +12,7 @@ Only the database one has access to the GraphDatabaseService.
 
 If you encounter this error, you need to change the call to the parent constructor of the classes that are extending `KernelExtensionFactory<ApocKernelExtensionFactory.Dependencies>` as following and adjust the import class:
 
-
+[source,java]
 ----
     import org.neo4j.kernel.extension.ExtensionType;
     

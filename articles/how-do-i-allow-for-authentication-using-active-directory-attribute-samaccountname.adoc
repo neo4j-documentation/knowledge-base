@@ -10,6 +10,7 @@ Commencing with Neo4j https://github.com/neo4j/neo4j/wiki/Neo4j-3.2-changelog#32
 Active Directory attribute samAccountName as opposed to the LDAP Display Name attribute.  The following `conf/neo4j.conf` parameters
 must be enabled to use samAccountName.
 
+[source,conf]
 ----
 dbms.security.auth_enabled=true
 dbms.security.auth_provider=ldap
@@ -43,6 +44,7 @@ image:https://imgur.com/bsF7qi6.png[image,width=370]
 
 Upon doing so connection is possible, as evidence
 
+[source,shell]
 ----
 ./cypher-shell 
 username: neouser

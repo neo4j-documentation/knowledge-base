@@ -8,6 +8,7 @@
 
 Default Linkurious configuration contains the following snippet in the `production.json` configuration file: 
 
+[source,json]
 ----
 dataSources": [
   {
@@ -55,6 +56,7 @@ That said, you can have different scenarios:
 
 The configuration will then look like:
 
+[source,json]
 ----
 {
   "dataSources": [

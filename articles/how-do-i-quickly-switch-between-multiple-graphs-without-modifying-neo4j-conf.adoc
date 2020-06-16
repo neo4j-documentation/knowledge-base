@@ -11,6 +11,7 @@ you can accomplish this with a `neo4j restart` and with the environment variable
 
 For example, one could define:
 
+[source,shell]
 ----
 $NEO4J_HOME/conf
 $NEO4J_HOME/conf_test
@@ -18,12 +19,14 @@ $NEO4J_HOME/conf_test
 
 and where each directory has the same files, namely: 
 
+[source,shell]
 ----
 jmx.access  jmx.password  neo4j.conf  neo4j-wrapper.conf
 ----
 
 and in the `$NEO4J_HOME/conf_tests/neo4j.conf` one might configure the databse name to a different graph:
 
+[source,conf]
 ----
 # The name of the database to mount
 dbms.active_database=graph.db.test
@@ -32,6 +35,7 @@ dbms.active_database=graph.db.test
 Then, prior to a restart of neo4j if one modifies the environment variable `NEO4J_CONF` to point to the $NEO4J_HOME/conf_test, for 
 example:
 
+[source,shell]
 ----
 export NEO4J_CONF="/home/neo/neo4j-enterprise-3.0.7/conf_test"
 ----

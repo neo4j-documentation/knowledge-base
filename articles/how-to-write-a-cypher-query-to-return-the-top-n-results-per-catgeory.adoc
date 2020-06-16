@@ -9,6 +9,7 @@
 The following Cypher describes how you can display the Top 5 test scores within an entire :Score population broken 
 out by a field_of_study property. 
 
+[source,cypher]
 ----
 create (n:Score {student_id: 'DC001', score: 89, field_of_study: 'chemistry'});
 create (n:Score {student_id: 'MK812', score: 97, field_of_study: 'chemistry'});
@@ -23,11 +24,11 @@ create (n:Score {student_id: 'TP810', score: 77, field_of_study: 'economics'});
 create (n:Score {student_id: 'BB317', score: 82, field_of_study: 'economics'});
 create (n:Score {student_id: 'AH042', score: 61, field_of_study: 'economics'});
 create (n:Score {student_id: 'RV448', score: 59, field_of_study: 'economics'});
-
 ----
 
 running
 
+[source,cypher]
 ----
 match (n:Score) 
 with n order by n.score desc
@@ -48,6 +49,7 @@ and in the above the students score has been appended to their student_id value 
 
 The Cypher can also be written as
 
+[source,cypher]
 ----
 match (n:Score) 
 with n order by n.score desc

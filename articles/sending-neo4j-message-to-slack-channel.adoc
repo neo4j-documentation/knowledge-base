@@ -16,12 +16,14 @@ guided through the process of creating a Slack app and resultant WEBHOOK_URL to 
 
 For example on backup failure 
 
+[source,shell]
 ----
 curl -X POST -H 'Content-type: application/json' --data '{"text":"Backup Failure"}' YOUR_WEBHOOK_URL
 ----
 
 replacing YOUR_WEBHOOK_URL with its actual value, for example the following code on a linux implementations
 
+[source,shell]
 ----
 host=`uname -n`
 time=`date`

@@ -55,13 +55,13 @@ Off-heap can itself be divided into 3 categories. Not only do we have Neo4j's **
 
 In Neo4j there are three memory settings you can configure: initial heap size (-Xms), maximum heap size (-Xmx) and page cache. In reality, the first two affect the same memory space so Neo4j only allows you to configure two of all of the above mentioned memory categories. These are the ones you can impose limits on though. Setting the max heap to 4GB and page cache to another 4GB guarantees that those specific components will not grow bigger than that. So how can your process consume more than the values set? **A common miss-conception is that by setting both heap and page cache, Neo4j's process memory consumption will not grow beyond that but it's more likely that the memory footprint of Neo4j is larger.**
 
-
 Well - as we've seen above - the JVM will require some extra memory to function correctly. For example, running a highly concurrent environment means that the memory occupied by the thread stack will be equal to the number of concurrent threads the JVM will process times the thread stack size (-Xss). 
 
 There are harder to find sources of non-heap memory use, such as buffer pools. Enter **direct memory**. Direct byte buffers are important for improving performance because they allow native code and Java code to share data without copying it. However this is expensive, which means byte buffers are usually reused once they’re created. As a result, some frameworks keep them around for the life of the process. One example is Netty. Neo4j uses Netty (an asynchronous event-driven network application framework for rapid development of maintainable high performance protocol servers & clients, https://netty.io/) and that's by far the primary user of direct memory. It is used predominantly for buffering and IO and but it's used by several components in Neo4j.
 
 In almost all cases, your direct memory usage will not grow to problematic levels but in very extreme and demanding use cases (ie: when we have loads of concurrent accesses and updates), you may start seeing Neo4j's process consume way more memory than what we configured or you can also get some Out of Memory errors regarding direct memory: 
 
+[source,shell]
 ----
 2018-11-14 09:32:49.292+0000 ERROR [o.n.b.t.SocketTransportHandler] Fatal error occurred when handling a client connection: failed to allocate 16777216 byte(s) of direct memory (used: 6442450944, max: 6442450944) failed to allocate 16777216 byte(s) of direct memory (used: 6442450944, max: 6442450944) 
 io.netty.util.internal.OutOfDirectMemoryError: failed to allocate 16777216 byte(s) of direct memory (used: 6442450944, max: 6442450944) 
@@ -89,12 +89,14 @@ If you are using native indexes, the memory taken by them will live **inside** t
 
 By now you must have realized that memory configuration is not that trivial. What do you have to make your life easier? You can use the Native Memory Tracking which is a JVM feature and tracks internal memory usage. To enable it you need to add the following to your `neo4j.conf` file:
 
+[source,conf]
 ----
 dbms.jvm.additional=-XX:NativeMemoryTracking=detail
 ----
 
 Then grab the PID of Neo4j, and use `jcmd` to print out native memory use for the process using `jcmd <PID> VM.native_memory summary`. You will get the detailed allocation information for each category in memory, as shown below:
 
+[source,shell]
 ----
 $ jcmd <PID> VM.native_memory summary
 Native Memory Tracking:

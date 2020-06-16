@@ -19,7 +19,6 @@ for example
 2016-12-01 15:51:00.222+0000 INFO  [o.n.k.i.DiagnosticsManager] --- INITIALIZED diagnostics START ---
 -----
 
-
 where the +0000 above indicates the date/time is expesssed in https://en.wikipedia.org/wiki/Coordinated_Universal_Time[UTC] format.
 Logging in UTC is helpful for analysis when a cluster is defined with members in different timezones.
 However when cluster members are in the same timezone or you are running a single instance you may want to log in local timezone.   There is a pending
@@ -30,6 +29,7 @@ script to convert any file from UTC timezone to the machine timezone where the p
 
 For most Unix implementations to determine the timezone, if one runs
 
+[source,shell]
 ----
 date
 ----
@@ -44,12 +44,14 @@ indicating the EST timezone.
 
 To convert a log from UTC to EST run
 
+[source,shell]
 ----
 ./utc.pl debug.log > debug.EST.log
 ----
 
 To install the script, copy the following lines from here to a file named `utc.pl` on your linux server.
 
+[source,perl]
 ----
 #!/usr/bin/perl -w
 use strict;
@@ -72,7 +74,6 @@ while (my $line = <$data>) {
       print "$line\n";
   }
 }
-
 
 sub UTC2LocalString
 {
@@ -103,12 +104,14 @@ sub UTC2LocalString
 
 Make the script executable by running
 
+[source,shell]
 ----
 chmod +x utc.pl
 ----
 
 Run the script as
 
+[source,shell]
 ----
 ./utc.pl <log file>
 ----

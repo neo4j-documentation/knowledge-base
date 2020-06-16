@@ -8,12 +8,14 @@
 
 When running a Cypher statement that creates a new relationship type, for example
 
+[source,cypher]
 ----
 MERGE (n1:Person {id:1})-[r:knows]->(n2:Person {id:2})
 ----
 
 one may encounter an error which is logged in the $NEO4J_HOME/logs/debug.log as 
 
+[source,shell]
 ----
 2017-10-30 17:08:29.741+0000 ERROR [o.n.b.v.r.ErrorReporter] Client triggered an unexpected error [UnknownError]: Could not create token, reference 63c2e7ef-6f5b-4834-b2a8-fe74cac3a50a. Could not create token
 org.neo4j.graphdb.TransactionFailureException: Could not create token
@@ -53,6 +55,7 @@ apply to number of relationships between nodes or the total number of relationsh
 
 When this error is encountered running
 
+[source,cypher]
 ----
 call db.relationshipTypes() yield relationshipType return count(relationshipType) as numRelTypes;
 ----

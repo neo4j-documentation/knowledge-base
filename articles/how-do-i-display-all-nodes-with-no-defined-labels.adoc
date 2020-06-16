@@ -10,10 +10,9 @@ Although assigning a node one or more labels provides many benefits (i.e. perfo
 
 The following Cypher can be used to identify all nodes in the graph which have no label defined:
 
+[source,cypher]
 ----
 MATCH (n) WHERE size(labels(n)) = 0 RETURN n
 ----
 
 Label usage is detailed https://neo4j.com/docs/getting-started/current/graphdb-concepts/#graphdb-labels[here].
-
-

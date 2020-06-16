@@ -8,6 +8,7 @@
 
 When a docker instance is started, one could get a permission denied error such as
 
+[source,shell]
 ----
 2018-06-14 23:20:50.962+0000 ERROR Failed to start Neo4j: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@7880cdf3' was successfully initialized, but failed to start. Please see the attached cause exception "/logs/debug.log (Permission denied)". Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@7880cdf3' was successfully initialized, but failed to start. Please see the attached cause exception "/logs/debug.log (Permission denied)".
 ----
@@ -29,6 +30,7 @@ Or
 B) create a secondary group that has access to logs directory e.g. sudo groupadd logs and add the user they use to run neo4j to that group. If this is done, one has to pass the secondary groups in additionally to docker using the `--group-add` flag. 
    For example:
 
+[source,shell]
 ----
 group-add="$(getent group logs | cut -d ":" -f3)"
 ----

@@ -31,11 +31,10 @@ https://github.com/electron/electron/issues/17972#issuecomment-516957971[This co
 Execute Neo4j Desktop (as a regular user) with the --no-sandbox flag, or run
 this command to enable the kernel feature Electron is using:
 
+[source,shell]
 ----
 sysctl kernel.unprivileged_userns_clone=1
 ----
-
-
 
 == Error: The name org.freedesktop.secrets was not provided by any .service files
 
@@ -56,7 +55,6 @@ Now it switches to the built-in keyctl utility if it can't find `gnome-keyring`.
 === Solution:
 
 Update to the latest Neo4j Desktop or install and enable `gnome-keyring`.
-
 
 == Error: spawn keyctl ENOENT
 

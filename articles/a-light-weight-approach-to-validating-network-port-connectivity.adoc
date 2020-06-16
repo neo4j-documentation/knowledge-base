@@ -16,6 +16,7 @@ sessions.
 
 * From the first terminal session run from the linux command line/prompt
 
+[source,shell]
 ----
 nc -l -p 5000
 ----
@@ -25,14 +26,14 @@ terminal window will advance to the next line and simply await messages from ano
 
 If the port number is already in use by another linux process you will encounter error message
 
+[source,shell]
 ----
 nc: Address already in use
 ----
 
-
-
 * From the second terminal session run from the linux command line/prompt
 
+[source,shell]
 ----
 nc -v <hostname> 5000
 ----
@@ -40,9 +41,9 @@ nc -v <hostname> 5000
 replacing <hostname> with the internal IP address/hostname of the first terminal session.  This command will make a connection to
 the <hostname> and port 5000.   If the connection is successful then your terminal window will report
 
+[source,shell]
 ----
 Connection to <hostname> 5000 port [tcp/*] succeeded!
-
 ----
 
 and focus will advance to the next line.   From here if you enter text, for example `Hello`, upon hitting return/enter you should
@@ -51,6 +52,7 @@ successfully proved/established.
 
 If the connection is not successful you may receive error messages similar to
 
+[source,shell]
 ----
 nc: getaddrinfo: Temporary failure in name resolution
 nc: connection refused

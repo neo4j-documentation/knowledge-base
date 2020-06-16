@@ -10,6 +10,7 @@ An `OPTIONAL MATCH` matches patterns against your graph database, just like a `M
 
 Knowing this, one could write a cypher query as so:
 
+[source,cypher]
 ----
 OPTIONAL MATCH (actor:Actor)-[:ACTED_IN]->(:Movie)<-[:DIRECTED]-(director:Director {uuid:'fd787f45-df1a-4f8b-b4a9-ab7b90fefae4'}) 
 OPTIONAL MATCH (director)-[:HAS_STUDIO*2]->(:Studio)-[:HAS_ACTOR]->(actor)-[:HAS_PROFILE]->(profile:Profile) 
@@ -22,6 +23,7 @@ RETURN COUNT(profile) as updatedCount
 
 However, this query may return an error such as:
 
+[source,shell]
 ----
 Neo.DatabaseError.General.UnknownError: org.neo4j.values.storable.NoValue cannot be cast to org.neo4j.values.virtual.VirtualNodeValue
 ----
@@ -30,6 +32,7 @@ Neo.DatabaseError.General.UnknownError: org.neo4j.values.storable.NoValue cannot
 
 or
 
+[source,shell]
 ----
 Neo.DatabaseError.Statement.ExecutionFailed: Expected to find a node at ref slot 0 but found instead: null
 ----
@@ -38,6 +41,7 @@ Neo.DatabaseError.Statement.ExecutionFailed: Expected to find a node at ref slot
 
 This is because starting a query with an `OPTIONAL MATCH` doesn't always play well with Neo4j, namely when your `OPTIONAL MATCH` returns no value and affects the rest of the query plan. The simplest form of query to trigger this is the following, when run on an empty database:
 
+[source,cypher]
 ----
 OPTIONAL MATCH (a)
 MERGE (a)-[:X]->()
@@ -54,6 +58,7 @@ Messages thrown in these cases are the following:
 
 When faced with one of these messages, the problem is related to the optional matches and can be solved by starting the query with a normal `MATCH` such as:
 
+[source,cypher]
 ----
 MATCH (actor:Actor)-[:ACTED_IN]->(:Movie)<-[:DIRECTED]-(director:Director {uuid:'fd787f45-df1a-4f8b-b4a9-ab7b90fefae4'}) 
 OPTIONAL MATCH (director)-[:HAS_STUDIO*2]->(:Studio)-[:HAS_ACTOR]->(actor)-[:HAS_PROFILE]->(profile:Profile) 

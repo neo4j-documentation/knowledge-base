@@ -13,6 +13,7 @@ approach when in a Causal Cluster, since the webserver would be available regard
 If you are in need of setting up a minimalistic webserver this can be accomplished, provided one has installed
 https://www.python.org/[Python] and by running
 
+[source,shell]
 ----
 python -m SimpleHTTPServer
 ----
@@ -21,6 +22,7 @@ The above command would start a web server at port: 8000, and the web server's r
 run.  For example if you ran the above command in `/home/neo4j/load-csv-files` then `https://<IP of the Neo4j Instance>:8000` would list
 all the files at `/home/neo4j/load-csv-files`.   And thus your `LOAD CSV` cypher statement would be 
 
+[source,cypher]
 ----
 load csv from 'http://192.168.97.215:8000/movies.csv' as row .... ....
 ----

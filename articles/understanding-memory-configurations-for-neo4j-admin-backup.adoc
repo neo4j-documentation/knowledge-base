@@ -17,6 +17,7 @@ as the running Neo4j process, we would consume all available RAM leading to back
 
 To specify the JVM heap for `neo4j-admin backup`, set the environment variable *HEAP_SIZE*, for example:
 
+[source,shell]
 ----
 export HEAP_SIZE=2G
 ----
@@ -33,19 +34,22 @@ and all other defined pagecache settings in any neo4j.conf files.
 * Neo4j 3.2.x through Neo4j 3.3.0 
 +
 first create a directory specific for the backup config file and then set the environment variable NEO4J_CONF:
-+
+
+[source,shell]
 ----
 export NEO4J_CONF=/tmp/backup/
 ----
 +
 Then, in /tmp/backup create a file named neo4j.conf with the following content:
-+
+
+[source,shell]
 ----
 dbms.memory.pagecache.size=12G
 ----
 +
 For environments that were installed through Debian (i.e. apt-get install neo4j-enterprise) you will also need to add
-+
+
+[source,shell]
 ----
 dbms.directories.lib=/usr/share/neo4j/lib
 ----
@@ -54,5 +58,3 @@ to this neo4j.conf file.
 
 
 Be sure not to exceed the total physical RAM on the server between the Neo4j database plus the backup process.
-
-

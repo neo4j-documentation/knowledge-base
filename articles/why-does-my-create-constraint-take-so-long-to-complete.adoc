@@ -8,6 +8,7 @@
 
 When creating a constraint, for example
 
+[source,cypher]
 ----
 CREATE CONSTRAINT ON (n:ZipCode) ASSERT n.name IS UNIQUE; 
 ----
@@ -16,6 +17,7 @@ this will require a lock on all nodes with the label the constraint is being cre
 
 If you have another transaction which was opened prior to the CREATE CONSTRAINT Cypher statement and it has a lock on the same Node label, for example
 
+[source,cypher]
 ----
 Begin
 create (n:ZipCode {name:'94401'}) return n;

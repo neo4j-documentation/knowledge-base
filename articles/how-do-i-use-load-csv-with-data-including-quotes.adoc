@@ -10,6 +10,7 @@ When using *LOAD CSV* to read a file which includes data with double quote chara
 
 For example if your data file (courses.csv) included the following content
 
+[source,csv]
 ----
 COURSE_ID|COURSE_TITLE
 1215,"""Graphs are EveryWhere"" : An Introduction to Neo4j"
@@ -17,14 +18,12 @@ COURSE_ID|COURSE_TITLE
 
 and using the folloiwng LOAD CSV command
 
+[source,cypher]
 ----
 LOAD CSV WITH HEADERS FROM "file:///courses.csv" AS row CREATE (:Course { courseID: toInt(row.COURSE_ID), courseTitle: row.COURSE_TITLE});
 ----
-
 
 the this would create a Course node with the following properties
 
 courseID = 1215 +
 courseTitle = "Graphs are Everywhere" : An Introduction to Neo4j
-
-

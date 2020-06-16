@@ -35,6 +35,7 @@ Usage of a single table name would result in 'select * from <table name>'
 The following example would connect to a mysql database named proddb1 as user root with password=football and select all movies from the 'movies' table where the studio column was defined to be 'MGM Studios'.
 Using this data we would then create nodes in Neo4j for all the movies meeting this criteria and define the title property.
 
+[source,cypher]
 ----
 CALL apoc.load.jdbc('jdbc:mysql://localhost:3306/proddb1?user=root&password=football','select title from movies where studio=\'MGM Studios\'') YIELD row
 CREATE (n:Movies {name:row.title})
@@ -48,6 +49,7 @@ No suitable driver found for jdbc:mysql://localhost:3306/proddb1?user=root&passw
 
 you may need to first manually load the driver by calling:
 
+[source,cypher]
 ----
 call apoc.load.driver('com.mysql.jdbc.Driver')
 ----
@@ -57,22 +59,22 @@ where 'com.mysql.jdbc.Driver' is the class name for the MySQL JDBC driver.
 
 If you want to hide/alias the connection string, this can be accomplished by adding to the conf/neo4j.conf a parameter similar to:
 
+[source,conf]
 ----
 apoc.jdbc.myalias.url=jdbc:mysql://localhost:3306/proddb1?user=root&password=football
 ----
 
 and now the above Cypher can be rewritten as: 
 
+[source,cypher]
 ----
 CALL apoc.load.jdbc('myalias','select title from movies where studio=\'MGM Studios\'') YIELD row
 CREATE (n:Movies {name:row.title})
 ----
 
-
 It should be noted that the `apoc.load.jdbc` call is simply providing connectivity back to the RDBMS over JDBC.  
 The second argument can be any SQL statement, and that includes a SQL statement that may modify the source database through an UPDATE, DROP, TRUNCATE, etc.
 If required, you might want to connect to the RDBMS with a user who only has SELECT privileges.
-
 
 Also when loading data from JDBC, be mindful of datatypes and any necessary conversions; for example whereas MySQL supports a native DATE datatype, Neo4j does not.  
 For example, to get the column with DATE data type, convert the value to a String when importing into Neo4j.

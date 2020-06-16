@@ -14,6 +14,7 @@ then the top 10 most expensive queries based upon planning, cpu and waiting time
 
 The bash shell script is as follows:
 
+[source,shell]
 ----
 #!/bin/bash
 # Copyright (c) 2002-2018 "Neo Technology,"
@@ -57,8 +58,6 @@ if [ -e $logfile ]; then
           awk '$3== "INFO" && $8== "cpu:" {count++;  total=total+$9 } END{print "\n\t\t*******CPU:******* \nTotal # of Completed Queries: " count "\n       Total Duration (msec): " total "\n   Avg of all Queries (msec): " total/count "\n" }' $logfile
 awk '$3== "INFO" {print "line:" NR "\t" $0}' $logfile | sort -n -r -k 10 | head -10
 
-
-
           #WAITING
           awk '$3== "INFO" &&$10== "waiting:" {count++;  total=total+$11 } $11== "0)" {nowait++;} END{print "\n\t\t\t*******WAITING:******* \n Total # of Completed Queries: " count "\n        Total Duration (msec): " total "\n    Avg of all Queries (msec): " total/count "\nNumber of Queries NOT Waiting: " nowait "      " (nowait/count)*100 "%\n" }' $logfile
 awk '$3== "INFO" {print "line:" NR "\t" $0}' $logfile | sort -n -r -k 12 | head -10
@@ -77,11 +76,11 @@ if [ -z $1 ]; then
 fi
 ----
 
-
 Upon running the script and passing the query.log file to be analyzed, for example `./parse_querylog.sh query.log`  output will be similar to
 
 1. when `dbms.logs.query.time_logging_enabled=false`
-+
+
+[source,shell]
 ----
 First Query Reported at: 2018-04-10 11:48:36.425+0000
  Last Query Reported at: 2018-04-10 11:49:01.213+0000
@@ -107,6 +106,7 @@ line:6  2018-04-10 11:48:51.613+0000 INFO  9 ms: bolt-session   bolt            
 
 (*Note:* the listing of 10 queries per section has been reduced to 2 lines for brevity.  Additonally the Cypher of the query has been reduced)
 
+[source,shell]
 ----
 First Query Reported at: 2018-01-24 07:58:13.360+0000
  Last Query Reported at: 2018-01-24 15:19:40.897+0000
@@ -119,7 +119,6 @@ Total # of Completed Queries: 13655
 Top 10 Longest Queries longest on top and leading line number:
 Note: Queries which are multi-line will only report first line of query !!!
 
-
 line:12100      2018-01-24 08:49:14.144+0000 INFO  10082 ms: (planning: 0, cpu: 81, waiting: 0) - bolt-session  bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.1.3:56870    server/10.0.1.2:7687>        neo4j - MATCH (n:Person............) 
 line:58883      2018-01-24 12:28:17.472+0000 INFO  2530 ms: (planning: 313, cpu: 2520, waiting: 0) - bolt-session       bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.27:56870        server/10.0.1.2:7687>        neo4j -  MATCH (n:Person)
 
@@ -131,7 +130,6 @@ Number of Queries NOT Planned: 11448    83.8374%
 
 line:37438      2018-01-24 10:43:28.532+0000 INFO  2255 ms: (planning: 991, cpu: 2239, waiting: 0) - bolt-session       bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.45:56870      server/10.0.1.2:7687>        neo4j -  MATCH (n:Person...............)
 line:89641      2018-01-24 15:13:42.191+0000 INFO  513 ms: (planning: 409, cpu: 510, waiting: 0) - bolt-session bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.45:56870       server/10.0.1.2:7687>        neo4j - MATCH (n:Person...........) {}
-
 
                 *******CPU:*******
 Total # of Completed Queries: 13655
@@ -159,7 +157,6 @@ Additionally from the output we can see that 'query planning' is not a significa
 `Number of Queries NOT Planned: 11448    83.8374%` indicating 83.8374% of queries were satisfied from the query plan cache.
 Finally, 'locking' is not a concern as `Number of Queries NOT Waiting: 13654      99.9927%` 
 indicating 99.9927% of all queries spent no time in a 'waiting' state.   
-
 
 *Note:* There are certain 'caveats' to the script.
 

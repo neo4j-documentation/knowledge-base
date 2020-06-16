@@ -82,5 +82,3 @@ Fields:
 - signature: cryptographic signature of fields (hex)
 
 ==== Version 2 -- JWT
-
-

@@ -9,6 +9,7 @@
 
 When operating a https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/setup-new-cluster/#unbind-instance-from-cluster[causal cluster^], if "the store" (`data/databases/graph.db`) is removed from a server that was previously a member of the cluster we will get the following exception when that server is started:
 
+[source,shell]
 ----
 java.lang.RuntimeException: Error starting org.neo4j.kernel.impl.factory.GraphDatabaseFacadeFactory, /path/to/neo4j/data/databases/graph.db
 
@@ -53,6 +54,7 @@ This exception is thrown because the store is now out of sync with the cluster s
 If we want to have this server rejoin the cluster we need to unbind it from the cluster.
 We can do this by executing the following command:
 
+[source,shell]
 ----
 neo4j-admin unbind --database=graph.db
 ----

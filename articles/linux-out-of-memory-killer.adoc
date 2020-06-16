@@ -44,6 +44,7 @@ terminated by the OOM Killer. To do this, you can edit the following file:
 ====
 Files in /proc are not actual files, they're an interface to lower-levels of the operating system. Therefore you cannot edit them using `nano` or `vi`. Rather, you can `echo` the value into the file as such:
 
+[source,shell]
 ----
 echo -100 > /proc/$PID/oom_score_adj
 ----

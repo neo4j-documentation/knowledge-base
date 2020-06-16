@@ -10,6 +10,7 @@ The following can be used to extract index definitions and constraint definition
 output can be played back on another Neo4j database.
 For example with the `:play movies` dataset as when run from the Neo4j Browser, we can define the following indexes and constraints
 
+[source,cypher]
 ----
 // create a schema index on :Movie(title)
 // 4.0 syntax
@@ -26,6 +27,7 @@ and with the above dataset the following is produced
 
 *3.x*   ( note the output only includes 2 indexes since the first index statement above is in 4.x format and will not run on 3.x)
 
+[source,cypher]
 ----
 // all indexes
 call db.indexes();
@@ -47,12 +49,11 @@ call db.constraints();
 +----------------------------------------------------------------+
 
 1 row available after 13 ms, consumed after another 1 ms
-
-
 ----
 
 *4.0.x*
 
+[source,cypher]
 ----
 // all indexes
 call db.indexes();
@@ -79,27 +80,28 @@ call db.constraints();
 // statement to drop and create said indexes and constraints
 ----
 
-
 To export the DROP AND CREATE statement for indexes and constraints one can run
 
 *3.x* 
 To export the DROP AND CREATE statement for indexes and constraints one can run
 
+[source,cypher]
 ----
 CALL db.indexes() YIELD description
 RETURN 'CREATE ' + description + ';'   ;
 ----
 
-
 To extract Cypher `CREATE CONSTRAINT` statements run:
 
+[source,cypher]
 ----
 CALL db.constraints() YIELD description
 RETURN 'CREATE ' + description + ';' ;
 ----
 
-
 *4.0.x* 
+
+[source,cypher]
 ----
  call db.schemaStatements();
 +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -112,5 +114,3 @@ RETURN 'CREATE ' + description + ';' ;
 
 3 rows available after 24 ms, consumed after another 7 ms
 ----
-
-

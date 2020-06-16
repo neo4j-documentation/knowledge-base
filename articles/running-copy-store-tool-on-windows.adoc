@@ -24,13 +24,14 @@ use the copy store version 3.3.4 for example.
 
 - Open a command window, browse to GitHub repository contents on your local hard-drive and run the following command:
 
-
+[source,shell]
 ----
 ${maven.home}/mvn.cmd clean compile exec:java -Penterprise -e -Dexec.mainClass="org.neo4j.tool.StoreCopy" -Ddbms.pagecache.memory=2G -Ddbms.pagecache.memory.source=1G -Dexec.args="<SOURCE PATH> <DESTINATION PATH>"
 ----
 
 such as:
 
+[source,shell]
 ----
 c:\apache-maven-3.6.0\bin\mvn.cmd clean compile exec:java -Penterprise -e -Dexec.mainClass="org.neo4j.tool.StoreCopy" -Ddbms.pagecache.memory=2G -Ddbms.pagecache.memory.source=1G -Dexec.args="c:\\Users\\headw\\share\\neo4j-enterprise-3.4.9\\data\\databases\\graph.db c:\\sc.db"
 ----

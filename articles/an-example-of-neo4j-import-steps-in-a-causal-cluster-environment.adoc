@@ -8,6 +8,7 @@
 The following steps are provided to describe how to use neo4j-import in a Causal Cluster environment and was run from an 
 environment of a single linux host with 3 copies for Neo4j 3.1.2 installed in the following paths
 
+[source,conf]
 ----
 ~/HA/ha1/neo4j-enterprise-3.1.2
 ~/HA/ha2/neo4j-enterprise-3.1.2
@@ -18,6 +19,7 @@ This is similar to the instructions for https://neo4j.com/docs/operations-manual
 
 - validated a Causal Cluster would form (after configuring `$NEO4J_HOME/cond/neo4j.conf`) and ran 
 
+[source,shell]
 ----
 ~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j start; ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j start; 
 ~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j start
@@ -30,6 +32,7 @@ and with an empty database.
 
 - stopped the causal cluster by by running
 
+[source,shell]
 ----
  ~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j stop;  ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j stop;
  ~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j stop
@@ -37,6 +40,7 @@ and with an empty database.
 
 which produced the following output
  
+[source,shell]
 ----
 Stopping Neo4j..................................... stopped
 Stopping Neo4j.................................... stopped
@@ -48,6 +52,7 @@ further on with getting the cluster to form then you need to sort out if it is a
 the database import). Further unbind is detailed 
 https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/setup-new-cluster/#unbind-instance-from-cluster[here]
 
+[source,shell]
 ----
 neo4j@neo4j-CoreEdge:~/HA/ha2/neo4j-enterprise-3.1.2/conf$ ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j-admin unbind --database=graph.db
 neo4j@neo4j-CoreEdge:~/HA/ha2/neo4j-enterprise-3.1.2/conf$ ~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j-admin unbind --database=graph.db
@@ -59,12 +64,14 @@ content detailed https://neo4j.com/docs/operations-manual/current/tutorial/impor
 
 - ran neo4j-import and loaded the data into ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer
 
+[source,shell]
 ----
 ~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j-import --into ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer --nodes ~/HA/ha1/neo4j-enterprise-3.1.2/importer/movies.csv --nodes ~/HA/ha1/neo4j-enterprise-3.1.2/importer/actors.csv --relationships ~/HA/ha1/neo4j-enterprise-3.1.2/importer/roles.csv
 ----
 
 and this produced the following output
 
+[source,shell]
 ----
 WARNING: neo4j-import is deprecated and support for it will be removed in a future
 version of Neo4j; please use neo4j-admin import instead.
@@ -130,6 +137,7 @@ Peak memory usage: 7.63 MB
 
 - updated each of the 3 `$NEO4J_HOME/conf/neo4j.conf` and defined the
 
+[source,conf]
 ----
 # The name of the database to mount
 dbms.active_database=graph.db.importer
@@ -138,6 +146,8 @@ dbms.active_database=graph.db.importer
 as this represents the name of the database prepared from neo4j-import.
 
 - copy the graph.db.importer from instance 1 to instance 2 and 3 via a 
+
+[source,shell]
 ----
 cp -R ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer ~/HA/ha2/neo4j-enterprise-3.1.2/data/databases/graph.db.importer
 cp -R ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer ~/HA/ha3/neo4j-enterprise-3.1.2/data/databases/graph.db.importer
@@ -145,6 +155,7 @@ cp -R ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer ~/HA/ha3/
 
 - start all 3 instances as follows
 
+[source,shell]
 ----
 ~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j start;  ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j start; 
 ~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j start
@@ -152,6 +163,7 @@ cp -R ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer ~/HA/ha3/
 
 which produces the following output
 
+[source,shell]
 ----
 Starting Neo4j.
 Started neo4j (pid 3976). It is available at http://0.0.0.0:7414/
@@ -167,11 +179,10 @@ There may be a short delay until the server is ready.
 See /home/neo4j/HA/ha3/neo4j-enterprise-3.1.2/logs/neo4j.log for current status.
 ----
 
-
-
 ran `match (n) return n limit 10` on each of the 3 instances and all reported a total of 6 nodes, which corresponds to the
 output of neo4j-import which reports
 
+[source,shell]
 ----
 Imported:
   6 nodes
@@ -181,6 +192,7 @@ Imported:
 
 - From the leader I ran
 
+[source,cypher]
 ----
 create (n:Tester {id:105});
 ----

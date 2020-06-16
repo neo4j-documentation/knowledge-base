@@ -31,9 +31,9 @@ tx1002 @08:00:06 then attempts to update the `Person` node for _Tom Hanks_ but i
 
 Since the last two statements are waiting on each other, the dead lock is detected and the transaction at 08:00:06 is aborted with the following error
 
-[source]
+[source,shell]
+----
 DeadlockDetectedException: ForsetiClient[0] can't acquire ExclusiveLock{owner=ForsetiClient[1]} on NODE(200153), because holders of that lock are waiting for ForsetiClient[0].
  Wait list:ExclusiveLock[
 Client[1] waits for [0]]
-[source]
-
+----

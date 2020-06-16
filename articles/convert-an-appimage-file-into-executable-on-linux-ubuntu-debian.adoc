@@ -21,10 +21,10 @@ The download for linux distributions is in the form of a .appimage file. AppImag
 
 Example: If the file is downloaded to `/home/neo4j/Downloads/neo4j-desktop-1.0.3-x86_64.AppImage`, then from terminal run the following commands at this location:
 
+[source,shell]
 ----
 chmod a+x neo4j-desktop-1.0.3-x86_64.AppImage
-----
-----
+
 ./neo4j-desktop-1.0.3-x86_64.AppImage
 ----
 

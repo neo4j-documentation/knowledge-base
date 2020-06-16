@@ -8,12 +8,14 @@
 
 Commencing with Neo4j 3.2 when running a stored procedure, for example
 
+[source,cypher]
 ----
 call apoc.warmup.run();
 ----
 
 this may error with
 
+[source,shell]
 ----
 apoc.warmup.run is not available due to having restricted access rights, check configuration.
 ----
@@ -21,12 +23,14 @@ apoc.warmup.run is not available due to having restricted access rights, check c
 The cause of this error is as a result of not configuring the https://neo4j.com/docs/operations-manual/current/security/securing-extensions/[security extensions].
 To allow for all https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC] procedures to be available to all users define the conf/neo4j.conf as
 
+[source,conf]
 ----
 dbms.security.procedures.unrestricted=apoc.*
 ----
 
 If you have installed Neo4j as a Docker container then to achieve the same you would initiate Neo4j by running
 
+[source,shell]
 ----
 docker run \
     -e NEO4J_dbms_security_procedures_unrestricted=apoc.\\\* \

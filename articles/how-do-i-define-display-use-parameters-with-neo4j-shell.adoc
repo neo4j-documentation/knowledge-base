@@ -11,32 +11,35 @@ Usage of parameters, rather than hard coding values, will allow for re-use of th
 
 A parameter can be defined within neo4j-shell via the *export* command, for example:
 
-[source]
+[source,shell]
+----
 neo4j-sh (?)$ export p1="Nora Ephron"
+----
 
 Multi-word values for parameters should be enclosed in double quotes. +
 Parameters can be displayed within neo4j-shell via the *env* command, for example:
 
-[source]
+[source,shell]
+----
 neo4j-sh (?)$ export p1="Nora Ephron"
 neo4j-sh (?)$ env
 TITLE_MAX_LENGTH=40
 p1=Nora Ephron
 TITLE_KEYS=.*name.*,.*title.*
+----
 
 Once a parameter is defined, it can be used in a Cypher statement, for example:
 
-[source]
+[source,shell]
+----
 neo4j-sh (?)$ export p1="Nora Ephron"
 neo4j-sh (?)$ env
 TITLE_MAX_LENGTH=40
 p1=Nora Ephron
 TITLE_KEYS=.*name.*,.*title.*
 neo4j-sh (?)$ match (n:Person {name:'Tom Hanks'})-[:ACTED_IN]->(n1:Movie)<-[:DIRECTED]-(n2:Person {name:{p1}}) return n1.title;
-
+----
 
 * Last Modified: {docdatetime} by {author}.
 * Relevant for Neo4j Versions: {neo4j-versions}.
 * Relevant keywords {tags}.
-
-

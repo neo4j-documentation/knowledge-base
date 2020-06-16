@@ -8,6 +8,7 @@
 
 With a traditional SQL based database a HAVING clause will restrict aggregated values.  For example 
 
+[source,sql]
 ----
 select zipcode, count(*) as population 
 from Person 
@@ -18,6 +19,7 @@ having population>100000;
 will return all zipcodes which have more than 100k residents.   
 To achieve the same in Cypher use the following
 
+[source,cypher]
 ----
 match (n:Person) 
 with n.zipcode as zip, count(*) as population 

@@ -10,6 +10,7 @@
 If you have leveraged Debian or RPM Packages to install Neo4j on Linux (or used one of the Public Cloud Marketplace offerings), you need to be careful of file and folder permissions.
 The installs create a user: "neo4j" that owns all the files for the Neo4j Installation:
 
+[source,shell]
 ----
 sudo ls -l /var/lib/neo4j/data/databases/
 total 4
@@ -22,6 +23,7 @@ care must be taken to ensur its run with the correct permissions.
 
 As an example, consider a backup taken as follows:
 
+[source,shell]
 ----
 sudo neo4j-admin backup --from=localhost --name=graph.db_backup --backup-dir=/tmp
 ....................  10%
@@ -39,6 +41,7 @@ Backup complete.
 
 Note that `sudo` was leveraged, meaning that this will be run as root.  We can see this in the backup location:
 
+[source,shell]
 ----
 ls -l /tmp/graph.db_backup/
 total 372
@@ -85,12 +88,14 @@ drwxr-xr-x 2 root root  4096 Sep 18 18:07 profiles
 
 If an administrator were to at some point restore with this backup:
 
+[source,shell]
 ----
 sudo neo4j-admin restore --from=/tmp/graph.db_backup --database=graph.db --force=true
 ----
 
 The restored database folder and files would now be owned by root:
 
+[source,shell]
 ----
 sudo ls -l /var/lib/neo4j/data/databases/
 total 4
@@ -136,10 +141,10 @@ Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         ... 9 more
 
 The recommended approach to all `neo4j-admin` commands, such as `backup`, `restore`, `store-info`, `import` is to leverage `sudo -u neo4j`:
 
+[source,shell]
 ----
 sudo -u neo4j neo4j-admin backup --from=localhost --name=graph.db_backup_with_user --backup-dir=/tmp
 
 
 sudo -u neo4j neo4j-admin restore --from=/tmp/graph.db_backup --database=graph.db --force=true
 ----
-

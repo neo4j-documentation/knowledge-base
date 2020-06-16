@@ -14,8 +14,7 @@ Work in Progress
  * keeps global graph or all locks to detect deadlocks. this is a shared data structure that needs to
    be updated on every lock operation, so again synchronization overhead
  * creates lock clients for every new started transaction
- 
- 
+
 == Enterprise:
  * uses compare-and-set instructions (AtomicInteger, AtomicLong) and concurrent non-blocking data 
    structures (ConcurrentHashMap) instead of synchronization. they should give better scaling
@@ -30,10 +29,9 @@ Work in Progress
 Generally speaking you should not need to change the default lock_manager but to do so would require you to  
 editing the $NEO4J_HOME/conf/neo4j.conf (3.x) or $NEO4J_HOME/conf/neo4j.properties (2.x) and include
 
+[source,conf]
 ----
 lock_manager=community
 ----
 
 and then restart Neo4j.
-
-

@@ -12,8 +12,8 @@ via CSV files.  There may be times when using a ',' as a field or array delimite
 contain this character as part of its data.  When this is the case you can change the default delimiters via command line
 parameters of
 
+[source,shell]
 ----
-
 --delimiter <delimiter-character>
         Delimiter character, or 'TAB', between values in CSV data. The default option is
         ,.
@@ -24,6 +24,7 @@ parameters of
 
 If you wanted to change the default field delimiter to be the * character then you would need to define
 
+[source,shell]
 ----
  --delimiter "*"
 ----
@@ -31,11 +32,9 @@ If you wanted to change the default field delimiter to be the * character then y
 but it can also be defined as a ASCII character sequence.  For example, '*' is decimal 42 on the ASCII chart and the equivalent would 
 be
 
+[source,shell]
 ----
  --delimiter "\042"
 ----
 
 The same syntax to specify a ASCII character can also be used for the *--array-delimiter*.
-
-
-
