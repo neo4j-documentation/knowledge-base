@@ -16,6 +16,7 @@ UI for a Zendesk Administrator to see what users are subscribed to each section.
 The Cypher below, will create supporting indexes and then iterate overr every section, request all the user_ids with said section, 
 create the relationship between the user_id and section and then populate the user_id with more identifying details.
 
+[source,cypher]
 ----
 create index on :Section(id);
 create index on :User(id);
@@ -58,8 +59,7 @@ match (n:User) where exists(n.organization_id)
       unwind orgRecord.organization as orgid
       with n,orgid
       merge (o:Organization {id: orgid.id, name: orgid.name, created_at: orgid.created_at})
-      merge (n)-[:IS_MEMBER_OF_ORG]->(o);                     
-                     
+      merge (n)-[:IS_MEMBER_OF_ORG]->(o);               
 ----
 
 and to load 140 nodes (81 Users, 7 Sections, 52 Organizations) and associated relationships took 54 seconds.
@@ -89,10 +89,10 @@ Example: page=3. List results include next_page and previous_page URLs in the re
 body for easier navigation:
 ----
 
-
 Copying the above Cypher into a shell script file, for example build_zd.cql, will then allow for it to be run through
 https://neo4j.com/docs/operations-manual/3.4/tools/cypher-shell/[cypher-shell] by running
 
+[source,shell]
 ----
 cat build_zd.cql | bin/cypher-shell
 ----
@@ -134,11 +134,11 @@ Each Node is defined with the following properties
                  id
 ----
 
- 
 Usefull Cypher statements to query the graph
 
 1. Find # of users subscribed by Section
 
+[source,cypher]
 ----
 match     (n:Section) 
 return     n.name,
@@ -148,6 +148,7 @@ order by   subscribers desc;
 
 2. Find users and associated organization, per section and when the user subscribed subscribed
 
+[source,cypher]
 ----
 match (s:Section)<-[r:Follows]-(u:User)-[:IS_MEMBER_OF_ORG]->(o:Organization)
 return      s.name,

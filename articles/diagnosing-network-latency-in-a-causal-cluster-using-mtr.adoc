@@ -14,20 +14,30 @@ the linode website referenced at the end of this article.
 
 *OSX Installation*
 
-`brew install mtr`
+[source,shell]
+----
+brew install mtr`
+----
 
 this should allow execution as `sudo /usr/local/sbin/mtr` however, executing the below two commands simplifies execution as 
 `sudo mtr`:
 
+[source,shell]
 ----
 sudo ln /usr/local/Cellar/mtr/0.92/sbin/mtr /usr/local/bin/mtr
 sudo ln /usr/local/Cellar/mtr/0.92/sbin/mtr-packet /usr/local/bin/mtr-packet
 ----
-To install using MacPorts, run `port install mtr`
 
+To install using MacPorts, run 
+
+[source,shell]
+----
+port install mtr
+----
 
 *Linux (Debian/Ubuntu)*
 
+[source,shell]
 ----
 apt update && apt upgrade
 apt install mtr-tiny
@@ -35,6 +45,7 @@ apt install mtr-tiny
 
 *CentOS/RHEL/Fedora*
 
+[source,shell]
 ----
 yum update
 yum install mtr
@@ -184,17 +195,18 @@ yum install mtr
 |-v 
 |--version              
 |output version information and exit
- 
 |===
  
 Examples below describe usage on OSX only, but usage on other operating systems is very similar.
 
 *Usage*
 
-`sudo mtr <destination domain name or ip>`
+[source,shell]
+----
+sudo mtr <destination domain name or ip>
+----
 
 image::https://imgur.com/RcjPzMD.png[A simple MTR trace]
-
 
 If a summary, rather than real-time response updates, is desired, execute:
 

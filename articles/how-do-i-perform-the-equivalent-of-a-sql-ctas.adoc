@@ -9,6 +9,7 @@
 With a traditional SQL RDBMS one could perform a `create table as select` (i.e. CTAS) whereby its purpose is to create a
 new table and copy existing data from the original table to the new copy.   If you are looking to achieve the same with Cypher this can be performed via
 
+[source,cypher]
 ----
 MATCH (n:Movie) 
 MERGE (m:New_Movie) 
@@ -19,10 +20,10 @@ The above will copy all `Movie` nodes and their properties to a set of new nodes
 have a significant number of `Movie` nodes you may not want to copy all nodes in a single transaction, for example you may want to run
 utilize https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_apoc_periodic_commit[apoc.periodic.commit]
 
+[source,cypher]
 ----
 call apoc.periodic.commit("MATCH (n:Movie) with n limit {limit} create (m:New_Movie) set m=n",{limit:10000});
 ----
-
 
 As with a CTAS statement, this does not copy any underlying schema indexes or constraints on said label. Additionally, if the `Movie`
 nodes have additional labels they will not be copied to the `New_Movie` nodes.

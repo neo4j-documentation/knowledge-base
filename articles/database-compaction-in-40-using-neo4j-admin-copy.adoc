@@ -30,6 +30,8 @@ in 4.0 (https://neo4j.com/docs/operations-manual/4.0/tools/copy/). We may then u
 neo4j-admin copy tool. Note that neo4j-admin copy may ONLY be executed _ON AN OFFLINE DATABASE OR BACKUP_.
 
 8). Execute neo4j-admin copy e.g. as:
+
+[source,shell]
 ----
 $./bin/neo4j-admin copy --from-database=neo4j --to-database=1/backups/copy:
 
@@ -81,7 +83,6 @@ Import starting 2020-01-16 12:06:40.227+0000
 .......... .......... .......... .......... ..........  95% ∆0ms
 .......... .......... .......... .......... .......... 100% ∆1ms
 
-
 IMPORT DONE in 3s 860ms. 
 Imported:
   0 nodes
@@ -98,6 +99,7 @@ Peak memory usage: 7.969MiB
 2020-01-16 12:06:44.330+0000 INFO [StoreCopy] ... found 0 schema definition. The following can be used to recreate the schema:
 2020-01-16 12:06:44.332+0000 INFO [StoreCopy] 
 ----
+
 Above example completed in around 6s, and resulted in a compact as well as consistent store (any inconsistent nodes, properties,
 relationships are not copied over to the newly created store). Another point to note is that the above "/copy" of the was created 
 at $neo4j_home/data/databases/neo4j/1/backups/copy, instead of /current-directory/1/backups/copy, since the copy tool prefixes 

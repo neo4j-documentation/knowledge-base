@@ -8,12 +8,14 @@
 
 If your data model has choosen to define multiple labels on a node, for example
 
+[source,cypher]
 ----
 create (n:Actor:Director {name:'Clint Eastwood'})
 ----
  
 To find all nodes which are defined with both labels of `Actor` AND `Director` use the following Cypher:
- 
+
+[source,cypher]
 ----
 match (n) where n:Actor and n:Director return n;
 ----
@@ -21,11 +23,10 @@ match (n) where n:Actor and n:Director return n;
 Using this syntax will be performant as it will start with a `NodeByLabelScan`
  
 If you need to find all nodes which have either label of `Actor` OR `Director` use the following Cypher:
- 
+
+[source,cypher]
 ----
 MATCH (n:Actor) RETURN n UNION MATCH (n:Director) RETURN n
 ----
  
 Using this syntax will be performant as it will perform a `NodeByLabelScan` on both the `Actor` label and the `Director` label and then merge the results.
-
-

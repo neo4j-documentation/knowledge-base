@@ -10,6 +10,7 @@ Neo4j 3.1 takes the configuration changes made in Neo4j 3.0 a step further, and 
 
 One can simply copy the entire contents of `conf/neo4j-wrapper.conf` and paste them at the end of `conf/neo4j.conf`. Or, use the sample script below. Just copy the script, paste into a new file with execute privileges in `$NEO4J_HOME/bin`, and run it:
 
+[source,bash]
 ----
 #!/usr/bin/env bash
 # This script will merge an existing neo4j.conf and neo4j-wrapper.conf

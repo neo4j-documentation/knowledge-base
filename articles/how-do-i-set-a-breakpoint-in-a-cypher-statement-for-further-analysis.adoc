@@ -12,6 +12,7 @@ which will result in the query sleeping for XXXX msec.
 
 For example 
 
+[source,cypher]
 ----
 MERGE (n:Movie {title:'The Matrix'}) 
 set n.production_company='Warner Brothers'
@@ -22,6 +23,7 @@ will run the MERGE statement with its 'set' operation and then 'pause' for 10000
 
 Further one could run
 
+[source,cypher]
 ----
 MERGE (n:Movie {title:'The Matrix'})  
 with n call apoc.util.sleep(10000)  
@@ -33,6 +35,3 @@ which will run the MERGE statement, then 'pause' for 10000 miliseconds and then 
 During these 10000 miliseconds one could perform any other further analysis, i.e. 
 https://neo4j.com/docs/operations-manual/current/monitoring/query-management/procedures/#query-management-list-queries[`call dbms.listQueries()`]
 or https://neo4j.com/docs/operations-manual/current/monitoring/query-management/procedures/#query-management-list-active-locks[`call dbms.showActiveLocks()`]
-
-
-

@@ -20,6 +20,7 @@ Caused by: java.nio.file.FileSystemException: /data/neo4j/db/schema/index/lucene
 
 this can be addressed by setting in your $NEO4J_HOME/conf/neo4j.conf and parameter
 
+[source,conf]
 ----
 dbms.jvm.additional=-Dorg.neo4j.io.pagecache.implSingleFilePageSwapper.channelStripePower=0
 ----

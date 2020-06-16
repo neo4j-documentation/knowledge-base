@@ -9,6 +9,7 @@
 Using https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_phonetic_comparisons[apoc.text.phonetic] one can perform a 
 https://en.wikipedia.org/wiki/Soundex[Soundex] search.  For example if one defines the following nodes
 
+[source,cypher]
 ----
 CREATE (n:Person {name:'Anders'})
 CREATE (m:Person {name:'Andrew'})
@@ -17,6 +18,7 @@ CREATE (p:Person {name:'Andres'})
 
 then to find these 3 nodes, since they all have the same Soundex value as Andre, one can run 
 
+[source,cypher]
 ---- 
 CALL apoc.text.phonetic('Andre') YIELD value 
 WITH value AS search_str 

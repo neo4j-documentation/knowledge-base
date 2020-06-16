@@ -36,6 +36,7 @@ https://docs.docker.com/docker-for-mac/install/#install-and-run-docker-for-mac
 
 - Run the mssql server container: 
 
+[source,shell]
 ----
 sudo docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Neo4j1234' \
    -p 1433:1433 --name sql1 \
@@ -54,6 +55,7 @@ enter your bash password.
  
 - Once within sqlcmd, issue tsql to create a database, a schema and a temp table using the schema.
 
+[source,sql]
 ----
  > CREATE DATABASE TestDB ↵
  > Go ↵
@@ -64,6 +66,7 @@ enter your bash password.
  
 - Verify that TestDB created above is in the list of dbs
  
+[source,sql]
 ----
  > CREATE SCHEMA testschema ↵
  > Go ↵
@@ -71,6 +74,7 @@ enter your bash password.
 
 - Confirm that schema has been created:
 
+[source,sql]
 ----
 > SELECT * FROM sys.schemas ↵
 > Go ↵
@@ -80,6 +84,7 @@ enter your bash password.
 data is to be imported within this table before it eventually gets exported to Neo4j using the ETL tool. In this case, 
 a csv with random weather data was uploaded to the following table (this article later explains how to do that).
 
+[source,sql]
 ----
 > CREATE TABLE testschema.weather  
 (ID int,  
@@ -104,6 +109,7 @@ copy over the weather.txt file from the host OS into the docker container.
 - SQL's Bulk Insert procedure can then be used to map and import the csv to the weather table in our `TestDB`. To do so, 
 execute the following from the sqlcmd prompt within the sql1 container:
 
+[source,sql]
 ----
 > BULK INSERT testschema.weather from '/weather.txt' with (FIRSTROW=2, fieldterminator = ',', rowterminator = '0x0a') ↵
 > Go ↵
@@ -120,6 +126,7 @@ chosen to be located at /$NEO4j_HOME/import. Additional options e.g. "Multiline 
 so neo4j-import can deal with csv lines with newlines in fields. The path to that options file must be specified in the import 
 command. Here's an example command used to generate the import mapping file:
 
+[source,shell]
 ----
 ./neo4j-etl generate-metadata-mapping \
 --rdbms:url "jdbc:sqlserver://localhost:1433;databaseName=TestDB" \
@@ -137,6 +144,7 @@ command. Here's an example command used to generate the import mapping file:
 
 - This is followed by executing the actual import, based on the mapping file generated in the previous step:
 
+[source,shell]
 ----
 ./neo4j-etl export \
 --rdbms:url "jdbc:sqlserver://localhost:1433;databaseName=TestDB" \

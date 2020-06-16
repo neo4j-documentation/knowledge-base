@@ -34,6 +34,7 @@ On OSX, one can install OpenSSL using macports, as described here: https://www.m
 
 For purposes of this demonstration, homebrew was used as below:
 
+[source,shell]
 ----
 brew install openssl
 ----
@@ -41,6 +42,7 @@ brew install openssl
 Once installed, the version and installation directory, amongst other installation features, can be checked by running `brew info openssl`,
 or `openssl version -a`:
 
+[source,shell]
 ----
 MacBook-Pro:bin $ openssl version -a
 OpenSSL 1.0.2o  27 Mar 2018
@@ -63,10 +65,13 @@ Lets finally get to creating our certificate and key:
 In terminal, change the current directory to the openssl installation directory (in this case, /opt/local/bin) and run the 
 command below:
 
+[source,shell]
 ----
 sudo openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days XXX
 ----
 or, for a relatively smaller key length:
+
+[source,shell]
 ----
 sudo openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days XXX
 ----
@@ -83,6 +88,7 @@ generates an RSA key nbits in size.
 
 Below is the output of the executed openssl generation command:
 
+[source,shell]
 ----
 MacBook-Pro:bin $ sudo openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
 Password:
@@ -111,6 +117,7 @@ Above creates the cert.pem and key.pem files in the current directory.
 
 Below commands then generate the public.crt and private.key files, using the .pem files created above:
 
+[source,shell]
 ----
 sudo openssl x509 -outform der -in cert.pem -out public.crt
 openssl rsa -in key.pem -out private.key
@@ -121,6 +128,7 @@ openssl rsa -in key.pem -out private.key
 Place the above created private.key in $NEO4J_HOME/certificates/cluster and public.crt in $NEO4J_HOME/certificates/cluster/trusted, 
 then add the following to neo4j.conf of each instance in the cluster:
 
+[source,conf]
 ----
 causal_clustering.ssl_policy=cluster
 dbms.ssl.policy.cluster.base_directory=Absolute_Path_Of_$NEO4J_HOME/certificates/cluster
@@ -137,6 +145,7 @@ dbms.ssl.policy.cluster.client_auth=REQUIRE
 We're now ready to initialise all cluster instances. Once these are initialised and available, we can then verify our SSL encryption
 by using the nmap tool (deployed alongside openssl), to check the available SSL ciphers as below:
 
+[source,shell]
 ----
 MacBook-Pro:bin $ nmap --script ssl-enum-ciphers -p 7470 localhost
 Starting Nmap 7.70 ( https://nmap.org ) at 2019-05-30 12:39 BST
@@ -167,12 +176,12 @@ PORT     STATE SERVICE
 |_  least strength: A
 
 Nmap done: 1 IP address (1 host up) scanned in 0.54 seconds
-
 ----
 
 Where port 7470 in this case is the `dbms.connector.https.advertised_address:port`. An additional confirmation would be to find debug messages
 similar to the following, in the Neo4j debug.log:
 
+[source,shell]
 ----
 2019-05-30 11:34:47.666+0000 DEBUG [io.netty.handler.codec.http.websocketx.WebSocket08FrameDecoder] Decoding WebSocket Frame opCode=2
 2019-05-30 11:34:47.666+0000 DEBUG [io.netty.handler.codec.http.websocketx.WebSocket08FrameDecoder] Decoding WebSocket Frame length=101

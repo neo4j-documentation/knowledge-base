@@ -12,11 +12,11 @@ This article covers how to configure the number of open files on GNU/Linux that 
 
 For Mac OS, please check the following article: https://support.neo4j.com/hc/en-us/articles/360022552334-Setting-Max-Open-File-Limits-on-Mac-OSX[Setting Max Open File Limits on Mac OSX]
 
-
 == Check the settings for current user and current session
 
 This number is reported for the current user and session with the `ulimit -n` command:
 
+[source,shell]
 ----
 user@localhost:~$ ulimit -n
 1024
@@ -27,18 +27,25 @@ user@localhost:~$ ulimit -n
 
 To monitor how many open files a user has, you can run:
 
+[source,shell]
+----
 > lsof -u <user>
+----
 
 replacing <user> with the linux username who started the Neo4j process.
 
 To understand the limits for one specific ProcessID one can also run:
 
+[source,shell]
+----
 > cat /proc/<processID>/limits
+----
 
 replacing <processID> with the linux processID for the running Neo4j process.
 
 This will produce output similar to
 
+[source,shell]
 ----
 cat /proc/5219/limits
 Limit                     Soft Limit           Hard Limit           Units
@@ -51,7 +58,6 @@ Max resident set          unlimited            unlimited            bytes
 Max processes             31357                31357                processes
 Max open files            40000                40000                files
 ----
-
 
 == Validate the correct settings
 
@@ -71,7 +77,6 @@ It is necessary to check this before and *after changing the file descriptor lim
 Depending on the System and Service Manager, the configuration steps differ.
 Since 2015, the majority of Linux distributions have adopted systemd and it is considered a de facto standard.
 
-
 .Table Systemd vs SysVinit usage as of 2019
 |===
 |OS |SysVinit(deprecated) |systemd
@@ -90,18 +95,20 @@ Since 2015, the majority of Linux distributions have adopted systemd and it is c
 
 |===
 
-
-
 == If your system is using systemd 
 
 === neo4j is running as a service
 
 run the following command
 
+[source,shell]
+----
 > sudo systemctl edit neo4j.service
+----
 
 and append the following 
 
+[source,plaintext]
 ----
 [Service]
 LimitNOFILE=60000
@@ -113,10 +120,14 @@ Follow the https://neo4j.com/docs/operations-manual/3.3/installation/linux/debia
 
 run the following command
 
+[source,shell]
+----
 > $ sudo vi /etc/systemd/system.conf 
+----
 
 and uncomment and define DefaultLimitNOFILE
 
+[source,conf]
 ----
 [Manager]
 ...
@@ -125,16 +136,19 @@ DefaultLimitNOFILE=60000
 
 run the following command
 
-> $ sudo vi /etc/systemd/user.conf 
+[source,shell]
+----
+> $ sudo vi /etc/systemd/user.conf
+----
 
 and uncomment and define LimitNOFILE 
 
+[source,conf]
 ----
 [Manager]
 ...
 DefaultLimitNOFILE=60000
 ----
-
 
 === If your system is using SysVinit
 
@@ -142,6 +156,7 @@ The actual way to raise your file limits consists of editing three files:
 
 - */etc/security/limits.conf* needs to have these lines in it:
 
+[source,conf]
 ----
 neo4j  soft  nofile  40000
 neo4j  hard  nofile  40000
@@ -149,12 +164,14 @@ neo4j  hard  nofile  40000
 
 - */etc/pam.d/common-session* needs to have this line in it:
 
+[source,plaintext]
 ----
 session required pam_limits.so
 ----
 
 - */etc/pam.d/common-session-noninteractive* also needs to have this line in it:
 
+[source,plaintext]
 ----
 session required pam_limits.so
 ----

@@ -23,16 +23,16 @@ If you need to delete some large number of objects from the graph, one needs to 
 transaction such that a Java out of heap error will be encountered.  Use the following example to delete subsets of the matched records
 in batches until the full delete is complete:
 
-
-
 With 3.x forward and using https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC]
 
+[source,cypher]
 ----
 call apoc.periodic.iterate("MATCH (n:Foo) where n.foo='bar' return n", "DETACH DELETE n", {batchSize:1000})
 yield batches, total return batches, total
 ----
 
 Pre 3.x
+[source,cypher]
 ----
 // Find the nodes you want to delete
 MATCH (n:Foo) where n.foo = 'bar'
@@ -47,6 +47,7 @@ Run this until the statement returns 0 (zero) records.
 
 For versions before Neo4j 2.3 run:
 
+[source,cypher]
 ----
 // Find the nodes you want to delete
 MATCH (n:Foo) where n.foo = 'bar'
@@ -57,7 +58,6 @@ MATCH (n)-[r]-()
 DELETE n,r
 RETURN count(*);
 ----
-
 
 In all of the examples we are performing a delete in batch sizes of 10k.   This may still lead to out of heap errors if the nodes
 eligible for delete have a significant number of relationsips.   For example if a node to be deleted as 1 million `:FOLLOWS`

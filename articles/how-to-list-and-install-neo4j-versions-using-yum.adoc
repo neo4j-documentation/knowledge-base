@@ -25,12 +25,14 @@ For reference, the Yum repo is located here: http://yum.neo4j.com/
 
 After following the instructions found in the link above, run the following command as root at the command line:
 
+[source,shell]
 ----
 yum list --show-duplicates neo4j
 ----
 
 To get the Enterprise package of Neo4j:
 
+[source,shell]
 ----
 yum list --show-duplicates neo4j-enterprise
 ----

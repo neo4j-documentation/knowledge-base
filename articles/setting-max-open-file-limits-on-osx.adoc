@@ -22,6 +22,7 @@ and El Capitan OSX versions, but do note that the process may differ for other O
 numbers 64000 and 200000 in this case, which are the soft and hard limits, respectively as required). One can check soft 
 limit by _ulimit -Sn_ and hard limit as _ulimit -Hn_ :
 
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8"?>  
   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"  
@@ -48,18 +49,21 @@ limit by _ulimit -Sn_ and hard limit as _ulimit -Hn_ :
 
 2) Change the owner of your new file:
 
+[source,shell]
 ----
 sudo chown root:wheel /Library/LaunchDaemons/limit.maxfiles.plist
 ----
 
 3) Load these new settings:
 
+[source,shell]
 ----
 sudo launchctl load -w /Library/LaunchDaemons/limit.maxfiles.plist
 ----
 
 4) Finally, check that the limits are correct:
 
+[source,shell]
 ----
 launchctl limit maxfiles
 ----

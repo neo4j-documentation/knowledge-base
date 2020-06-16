@@ -12,12 +12,14 @@ want to pipe that file to bin/cypher-shell, to produce the profile/explain outpu
 
 For example, when your file, mycypher.cql, contains
 
+[source,cypher]
 ----
 profile match (n:Movies) return count(n);
 ----
 
 if you run
 
+[source,shell]
 ----
 cat mycypher.cql | ./cypher-shell
 ----
@@ -39,6 +41,7 @@ count(n)
 
 however when running
 
+[source,shell]
 ----
 cat mycypher.cql | ./cypher-shell --format verbose
 ----
@@ -66,6 +69,3 @@ the output will now be
 | 0        |
 +----------+
 ----
-
-
-

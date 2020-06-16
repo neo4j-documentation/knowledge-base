@@ -34,6 +34,7 @@ Hosts file on Linux and Mac OS is found at (/etc/hosts). Windows has a hosts fil
 in cmd `tracert localhost`, which should print a single hop. The only line in the hosts file is the following line, and we 
 can comment out, delete or modify this line or file if needed . A sample output is:
 
+[source,shell]
 ----
 $ traceroute localhost
 traceroute to localhost (127.0.0.1), 64 hops max, 52 byte packets
@@ -45,7 +46,6 @@ running the command `tracert localhost` again. Following this, try starting a 
 has been resolved. The line in hosts file should be commented out when testing in Desktop.
 
 The above steps have been tested to alleviate port conflict issues encountered.
-
 
 References:
 https://www.makeuseof.com/tag/modify-manage-hosts-file-linux/

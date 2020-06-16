@@ -13,6 +13,7 @@ However, there is another way.
 
 By using the following configuration for HAProxy, you can direct `GET` requests (reads) to the Slave nodes, while directing everything else (`DELETE, POST, PUT`) to the Master.
 
+[source,conf]
 ----
 global
 daemon
@@ -55,6 +56,7 @@ The first step in configuring Basic Authentication in HAProxy is to get the base
 
 To do this at the command line, for username neo4j and password neo4j:
 
+[source,shell]
 ----
 $ echo -n "neo4j:neo4j" | base64
 bmVvNGo6bmVvYWRtaW4=
@@ -64,6 +66,7 @@ Please note that this username-password combination is not valid and only used f
 
 Then append `HTTP/1.0\r\nAuthorization:\ Basic\ *base64_username_password*` as following:
 
+[source,shell]
 ----
 option httpchk GET /db/manage/server/causalclustering/writable HTTP/1.0\r\nAuthorization:\ Basic\ bmVvNGo6bmVvYWRtaW4=
 ----

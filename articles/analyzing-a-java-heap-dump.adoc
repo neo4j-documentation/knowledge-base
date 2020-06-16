@@ -10,12 +10,14 @@ The purpose of this article is to help you go through the acquired heapdump with
 
 When you experience an OutOfMemory exception, it will produce a .hprof file if you have the below settings in the neo4j.conf file:
 
+[source,conf]
 ----
 dbms.jvm.additional=-XX:+HeapDumpOnOutOfMemoryError
 ----
 
 NOTE: You can also add tweak the below settings to specify the directory path but ensure that you have enough disk space when such error occurs.
 
+[source,conf]
 ----
 dbms.jvm.additional=-XX:HeapDumpPath=/var/tmp/dumps
 dbms.jvm.additional=-XX:OnOutOfMemoryError="tar cvzf /var/tmp/dump.tar.gz /var/tmp/dump;split -b 1G /var/tmp/dump.tar.gz;"
@@ -40,6 +42,7 @@ Edit MemoryAnalyzer.ini (on macOS, it is located in /Applications/mat.app/Conten
 
 Add or change the settings:
 
+[source,conf]
 ----
 -Xms10G
 -Xmx25G
@@ -57,6 +60,7 @@ Note down both instanceid and storageid to make sure the ressource have properly
 
 If the heap is about 61GB, you need twice as much disk space for parsing. As illustrated below:
 
+[source,shell]
 ----
 $ du -ch java_pid19820*
 116M	java_pid19820.a2s.index
@@ -81,6 +85,7 @@ $ du -ch java_pid19820*
 . Unzip it in a directory
 . Edit MemoryAnalyzer.ini to adjust both -Xms and -Xmx memory settings :
 
+[source,shell]
 ----
 -startup
 plugins/org.eclipse.equinox.launcher_1.5.0.v20180512-1130.jar
@@ -106,6 +111,8 @@ To speed up things, you can use rsync over ssh.
 The advantage is that you can recover if you have a crash and -z flag enables compression.
 
 Example:
+
+[source,shell]
 ----
 #on the remote machine
 mkdir ${REMOTE_DIR}/parsed_files
@@ -154,6 +161,7 @@ So if you have a large amount of memory in the heap, there should be a potential
 
 To find it, look for the thread name in the thread dumps.
 
+[source,shell]
 ----
 $ grep neo4j.BoltWorker-394 *
 
@@ -164,6 +172,8 @@ $ grep neo4j.BoltWorker-394 *
 
 Note that the thread dumps are included in the heap dump. They are available in plain text in the file but you don't have the STATE information in Eclipse Mat.
 You can have them with other tools such as VisualVM:
+
+[source,shell]
 ----
 $ head -10 java_pid19820.threads
 Thread 0x7fd64b0e1610
@@ -177,4 +187,3 @@ Thread 0x7fd64b0e1610
   at com.hazelcast.util.executor.HazelcastManagedThread.executeRun()V (HazelcastManagedThread.java:76)
   at com.hazelcast.util.executor.HazelcastManagedThread.run()V (HazelcastManagedThread.java:92)
 ----
-

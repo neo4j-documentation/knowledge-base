@@ -19,12 +19,14 @@ You need to configure the correct "stopsignal" in the supervisord configuration 
 
 In particular, set:
 
+[source,conf]
 ----
 stopsignal=SIGTERM
 ----
 
 Here is an example `supervisord` configuration that has worked in production:
 
+[source,conf]
 ----
 [program:neo4j] 
 command=/usr/local/neo4j-enterprise/bin/neo4j console 
@@ -43,5 +45,3 @@ stdout_logfile=/usr/local/neo4j-enterprise/data/log/neo4j.out
 stdout_logfile_backups=10 
 stderr_capture_maxbytes=20MB
 ----
-
-

@@ -14,12 +14,14 @@ Upon upgrading from 3.0.0 to 3.0.1 future connections may error, when establishi
 
 *Java*:
 
+[source,java]
 ----
 General SSLEngine problem
 ----
 
 *Python*:
 
+[source,python]
 ----
 neo4j.v1.exceptions.ProtocolError: Server certificate does not match known certificate for 'localhost'; check details in file /home/neo4j/.neo4j/known_hosts
 ----
@@ -27,10 +29,9 @@ neo4j.v1.exceptions.ProtocolError: Server certificate does not match known certi
 As detailed in the Python error message, the failure is a result of reading the `/home/neo4j/.neo4j/known_hosts`, where `/home/neo4j` is the users default home directory, and to which the file at `~/.neo4j/`known_hosts has a certificate which is no longer valid.
 An example of the content of this file is
 
+[source,shell]
 ----
 localhost:MIIBoTCCAQqgAwIBAgIIe+AjK7iGHqMwDQYJKoZIhvcNAQENBQAwEjEQMA4GA1UEAwwHMC4wLjAuMDAgFw0xNTA1MTExODE3MzZaGA85OTk5MTIzMTIzNTk1OVowEjEQMA4GA1UEAwwHMC4wLjAuMDCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA0Q5XpjnNv2oRs2mB+hx9Ef9txxk3pOWz/FICKb8cZHxMmCDP6IPcuxMh3fW4FRtAeZQCxyRfOrnevnedtW2PdPvqf14lUi1aFDcXHav1Rc6sAgpdLaj3C25G4XjDrBH9tADp6+xbYOpiVmrrwGjRy9SI0k4NgDj4j8YF1yE1boUCAwEAATANBgkqhkiG9w0BAQ0FAAOBgQAkJp+2Z0bD4BJE0XR0HJUOfQwLTxLp4pzSWn77xI11m9AfH0dFdpz2KIIntLNT7fJh8jo25OUH5QqhKIIkzg9wZU80LkTcyEOjbDUW2Sf5yhiu9I2cIQaiJ4Mr8BHaEFbC73iVObGOperSVmOuddcSJAKKHmfeMH4Xmo/uBlc2/Q==
 ----
 
 To resolve the failure above, simply delete the line which references `localhost` from the `known_hosts` file.
-
-

@@ -12,6 +12,7 @@ As part of the major changes in 3.0, the way to log to the user log, now neo4j.l
 
 . In the method for the Unmanaged Extension, include `@Context Log log` as an argument:
 
+[source,java]
 ----
 @GET
 @Path("/friendOfFriend/{userId}")
@@ -20,6 +21,7 @@ public Response getFofs(@PathParam("userId") String userId, @Context GraphDataba
 
 . Now log using the appropriate method for the `log` object:
 
+[source,java]
 ----
        // Method variables
 

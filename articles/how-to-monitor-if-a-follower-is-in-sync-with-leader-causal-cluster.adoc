@@ -23,6 +23,7 @@ From the Neo4j Browser:
 
 You can also call the `dbms.queryJmx` procedure in the following way:
 
+[source,cypher]
 ----
 call dbms.queryJmx("org.neo4j:instance=kernel#0,name=Transactions") yield attributes 
 return attributes["LastCommittedTxId"]
@@ -32,12 +33,10 @@ return attributes["LastCommittedTxId"]
 
 Assuming Neo4j's csv metrics are enabled already, you can analyse the following csv file: `neo4j.transaction.last_committed_tx_id.csv`.
 
-
 [NOTE]
 ====
 From 3.4 onwards metrics are enabled by default. If you are running any version prior to 3.4, you need to enable the metrics in your `neo4j.conf` file on all instances. Please refer to https://neo4j.com/docs/operations-manual/current/monitoring/metrics/#metrics-enable in order to do so.
 ====
-
 
 *3. Checking Last Commited Transaction Id via the JMX MBeans*
 
@@ -47,16 +46,15 @@ Please check:
 
 You can do this using curl if you prefer:
 
+[source,shell]
 ----
 curl -v http://localhost:7474/db/manage/server/jmx/domain/org.neo4j/instance%3Dkernel%230%2Cname%3DTransactions
 ----
-
 
 [NOTE]
 ====
 For more information on the supported Neo4j JMX MBeans and how to connect to the JMX monitoring programmatically or via JConsole, please refer to https://neo4j.com/docs/java-reference/current/jmx-metrics/
 ====
-
 
 *Determining how much a Follower is lagging behind its Leader*
 
@@ -68,11 +66,9 @@ To determine how much a Follower is lagging behind its Leader, you can compare t
 
 The higher the difference, the more the Follower is lagging behind (in terms of commited transactions). Because data propagation depends on a combination of different factors such as size of transactions, concurrency, hardware, network latency, etc, it's virtually impossible to correlate all of this into a time unit.
 
-
 [NOTE]
 ====
 **Important Note**: One of Neo4j's Causal Cluster requirement is to safeguard data. The Core Servers do so by replicating all transactions using the Raft protocol. This ensures that the data is safely durable before confirming transaction commit to the end user application. In practice this means once a majority of Core Servers in a cluster (`N/2+1`) have accepted the transaction, it is safe to acknowledge the commit to the end user application. This safety requirement has an impact on write latency so make sure to take this into consideration when monitoring and determining whether there is an issue or not.
 
 You can read more about Neo4j's Causal Clustering here: https://neo4j.com/docs/operations-manual/current/clustering/introduction/
 ====
-

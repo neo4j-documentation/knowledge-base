@@ -32,6 +32,7 @@ performed against this location.
 
 Check if this option set. For example on a RHEL server:
 
+[source,shell]
 ----
 $ mount | grep /tmp
 tmpfs on /tmp type tmpfs (rw,noexec,relatime,seclabel,size=524288k)
@@ -39,13 +40,13 @@ tmpfs on /tmp type tmpfs (rw,noexec,relatime,seclabel,size=524288k)
 
 So on this machine `/tmp` is setup with `noexec` option. 
 
-
 == Fix / Workaround:
 
 Override `java.io.tmpdir` default setting from `/tmp` to another location and then running `neo4j-admin load`.
 
 For example:
 
+[source,shell]
 ----
 $ export _JAVA_OPTIONS="-Djava.io.tmpdir=/var/lib/neo4j/import/temp"
 $ neo4j-admin load --from=/var/lib/neo4j/neo4j.dump --database=neo4j --force

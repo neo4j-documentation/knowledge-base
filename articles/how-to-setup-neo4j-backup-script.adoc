@@ -44,17 +44,26 @@ To setup the backup wrapper script on Linux systems, follow these steps:
 
 == To run a backup to the backup location directory:
 
+[source,shell]
+----
 $ ./backupDatabase.sh `-d /<full_path_to_backup_dir>/backup`
+----
 
 NOTE 1: Neo4j will automatically determine whether to run a full or incremental backup, by default the script is designed to run incremental backups to the mandatory backup location provided by the `-d` flag. To perform an incremental backup you need to specify the same location of your previous backup. 
 
 If a full backup is desired, the script can be modified to comment out the following line in the script as shown:
 
-`#bname=graph.db-backup #POSSIBLY CHANGE ME, USED FOR INCREMENTAL BACKUPS`
+[source,shell]
+----
+#bname=graph.db-backup #POSSIBLY CHANGE ME, USED FOR INCREMENTAL BACKUPS
+----
 
 And uncomment the following line in the script as shown:
 
-`bname=graph.db-backup-$timestamp #POSSIBLY CHANGE ME, USED FOR FULL BACKUPS`
+[source,shell]
+----
+bname=graph.db-backup-$timestamp #POSSIBLY CHANGE ME, USED FOR FULL BACKUPS
+----
 
 This will force the backup to use a new timestamped naming convention for the backup; if this is run daily, then a full backup will occur each day into the respective timestamped directory.
 
@@ -68,26 +77,37 @@ NOTE 4: The default setting for `--fallback-to-full` is set to true. If an incre
 
 == To run a backup against a remote server:
 
+[source,shell]
+----
 $ ./backupDatabase.sh -d /<full_path_to_backup_dir>/backup `-f 192.168.0.10:6362`
+----
 
 NOTE 1: The default for the `-f` setting is `localhost:6362`. You can specify an alternate remote host IP or IP:Port.
 
 == To run a backup to the backup location directory with a defined backup name:
 
+[source,shell]
+----
 $ ./backupDatabase.sh -d /<full_path_to_backup_dir>/backup `-b graph.db-TEST`
+----
 
 NOTE 1: Neo4j will automatically determine whether to run a full or incremental backup, by default the script is designed to run incremental backup. If the graph.db-TEST directory in this example does NOT exist, then a full backup will occur.
 
 
 == To run a backup to the backup location directory with a defined pagecache setting:
 
+[source,shell]
+----
 $ ./backupDatabase.sh -d /<full_path_to_backup_dir>/backup `-p 15G`
+----
 
 NOTE 1: The default pagecache setting is 4G
 
-
 == To run a backup to the backup location directory with a defined HEAP and pagecache setting:
 
+[source,shell]
+----
 $ ./backupDatabase.sh -d /<full_path_to_backup_dir>/backup `-m 8G -p 15G`
+----
 
 NOTE 1: The default HEAP size setting is 2G and the default pagecache setting is 4G

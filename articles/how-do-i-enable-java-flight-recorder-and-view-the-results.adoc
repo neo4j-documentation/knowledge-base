@@ -23,6 +23,7 @@ To enable the Java Flight Recorder the following JVM options should be added to 
 
 For 3.x
 
+[source,conf]
 ----
 dbms.jvm.additional=-XX:+UnlockCommercialFeatures
 dbms.jvm.additional=-XX:+FlightRecorder
@@ -45,10 +46,12 @@ When no path is defined the resultant file will be recorded at `$NEO4J_HOME`.  A
 Also the location of the profile.jfc may be at a different directory/path for your given install.   
 The expected path is in $JRE_HOME/lib/jfr 
 
-
 If you do not know how long to run the recording since the issue may be intermittent, run
 
-`$JAVA_HOME/jcmd <pid> JFR.start settings=/usr/lib/jvm/java-8-oracle/jre/lib/jfr/profile.jfc`
+[source,shell]
+----
+$JAVA_HOME/jcmd <pid> JFR.start settings=/usr/lib/jvm/java-8-oracle/jre/lib/jfr/profile.jfc
+----
 
 and to which this will report 
 
@@ -61,16 +64,17 @@ Use JFR.dump recording=1 filename=FILEPATH to copy recording data to file.
 
 and to then dump the recording to a file run
 
+[source,shell]
 ----
 jcmd <pid> JFR.dump recording=<recording #> filename=<filename>
 ----
 
 and then to completely stop the recording, though this does not dump the contents of the recording to a file run
 
+[source,shell]
 ----
 jcmd <pid> JFR.stop recording=<recording #>
 ----
-
 
 To view the results start Java Mission Control (`$JAVA/HOME/jmc`).
 This will launch a Java app as detailed below.
@@ -82,5 +86,3 @@ To start Java Mission Control run $JAVA_HOME/jmc.
 Once started, using menu File / Open File, one can then browse to the flight recorder file.
 
 image:http://i.imgur.com/wQlnDRn.png[image]
-
-

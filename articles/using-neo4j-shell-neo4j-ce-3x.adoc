@@ -19,6 +19,7 @@ For importing files that contain semicolon separated cypher commands, you can al
 
 The http://hub.docker.com/_/neo4j[official Neo4j-Docker image] can also come handy.
 
+[source,shell]
 ----
 docker pull neo4j
 CONTAINER=$(docker run -d --name neo4j -p 7474:7474 -v /path/to/data:/data -v /path/to/csv-files:/var/lib/neo4j/import neo4j)

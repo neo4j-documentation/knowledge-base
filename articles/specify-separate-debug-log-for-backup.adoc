@@ -23,6 +23,7 @@ echo $NEO4J_CONF
 
 In the neo4j.conf file set the `dbms.directories.logs` to point to the backup logs folder. 
 
+[source,conf]
 ----
 dbms.directories.logs=/Users/Documents/backup/logs
 ----

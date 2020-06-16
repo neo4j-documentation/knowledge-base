@@ -18,7 +18,7 @@ Below is an example of the same.
 
 Here we are defining the TransactionConfig and using it for explicit transactions.
 
-
+[source,java]
 ----
     TransactionConfig config = TransactionConfig.builder()
         .withTimeout(Duration.ofSeconds(4))
@@ -29,7 +29,7 @@ Here we are defining the TransactionConfig and using it for explicit transaction
 Defining the TransactionConfig and setting the timeout to 4 seconds.
 Using the configuration in explicit transactions. 
 
-
+[source,java]
 ----
     try ( Transaction tx = session.beginTransaction(config))
 ----

@@ -11,6 +11,7 @@ The common cause is an out of date gpg key.
 
 To update then run the following command:
 
+[source,shell]
 ----
 wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
 ----

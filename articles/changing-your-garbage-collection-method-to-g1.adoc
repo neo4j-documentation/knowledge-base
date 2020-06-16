@@ -23,6 +23,7 @@ When setting G1, it is important to consider your target GC pause duration.
 We recommend that you leave it at the default (200ms) to start with but increase it if you see too many GCs over one to two seconds.
 For example, you might try 400ms, then 600ms, until you find the right balance. The setting for the target pause is:
 
+[source,conf]
 ----
 wrapper.java.additional=-XX:MaxGCPauseMillis=200
 ----
@@ -33,6 +34,7 @@ Making the Switch to G1:
 
 Edit `conf/neo4j-wrapper.conf` and change:
 
+[source,conf]
 ----
 #********************************************************************
 # JVM Parameters
@@ -44,5 +46,3 @@ wrapper.java.additional=-XX:+UseG1GC
 
 [NOTE]
 G1 should only be used with latest Java 7 or Java 8 releases.
-
-

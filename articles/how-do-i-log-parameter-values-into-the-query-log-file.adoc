@@ -10,12 +10,14 @@ Neo4j 3.0 introduces the ability to log the value of query parameters in the `lo
 The settings to control this feature are located in the `conf/neo4j.conf` file.
 To enable query logging with parameters, one must first enable query logging via the `conf/neo4j.conf` parameter:
 
+[source,conf]
 ----
 dbms.logs.query.enabled=true
 ----
 
 Second, to enable the logging of parameters one should set:
 
+[source,conf]
 ----
 dbms.logs.query.parameter_logging_enabled=true
 ----
@@ -26,6 +28,7 @@ Once these two settings are defined/enabled (and Neo4j is restarted to apply the
 
 For example submitting:
 
+[source,json]
 ----
 {
   "statements" : [ {

@@ -70,7 +70,6 @@ MATCH (p:Person)
 RETURN p
 ----
 
-
 But if we wanted the email property to always display, showing NULL if the property doesn't exist, we would use map projection like so:
 
 [source,cypher]
@@ -78,7 +77,6 @@ But if we wanted the email property to always display, showing NULL if the prope
 MATCH (p:Person)
 RETURN p {.*, .email}
 ----
-
 
 == NULL list values
 
@@ -110,7 +108,6 @@ This skips null values; the returned collection does not contain any nulls.
 == Working with NULL in logical expressions and other contexts
 
 The Neo4j developers manual has an extensive section on https://neo4j.com/docs/developer-manual/current/cypher/syntax/working-with-null/[working with NULL] in logical expressions and details when expressions will return NULL.
-
 
 == Use COALESCE() to use a default for a null value
 

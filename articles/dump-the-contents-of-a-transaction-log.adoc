@@ -16,12 +16,14 @@ The username and password can be found https://support.neo4j.com/hc/en-us/articl
 
 Place the jar in `$NEO4J_HOME\lib` and given a log file of neostore.transaction.db.1, run:
 
+[source,shell]
 ----
 java -cp 'lib/*:system/lib/*:/usr/share/neo4j/lib/*' org.neo4j.tools.dump.DumpLogicalLog ./data/graph.db/neostore.transaction.db.1 > /tmp/dumptxlog_1.log
 ----
 
 Once dumped, you can search for a node ID, etc.
 
+[source,shell]
 ----
 === ./data/databases/graph.db/neostore.transaction.db.0[LogHeader{logFormatVersion=6, logVersion=0, lastCommittedTxId=1}] ===
 Start[master=-1,me=-1,time=2019-01-29 00:14:49.524+0000/1548720889524,lastCommittedTxWhenTransactionStarted=1,additionalHeaderLength=8,[-75, 113, -36, 24, -49, -11, -31, -102],position=LogPosition{logVersion=0, byteOffset=16},checksum=-162089288840]
@@ -45,4 +47,3 @@ Command[UpdateCounts[() + 1]]
 Commit[txId=11, 2019-01-29 00:31:06.406+0000/1548721866406]
 CheckPoint[position=LogPosition{logVersion=0, byteOffset=2041}]
 ----
-
