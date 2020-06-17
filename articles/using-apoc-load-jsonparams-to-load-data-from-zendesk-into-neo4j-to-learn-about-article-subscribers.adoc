@@ -134,10 +134,11 @@ Each Node is defined with the following properties
                  id
 ----
 
-Usefull Cypher statements to query the graph
+ 
+Useful Cypher statements to query the graph
 
 1. Find # of users subscribed by Section
-
++
 [source,cypher]
 ----
 match     (n:Section) 
@@ -147,7 +148,7 @@ order by   subscribers desc;
 ----
 
 2. Find users and associated organization, per section and when the user subscribed subscribed
-
++
 [source,cypher]
 ----
 match (s:Section)<-[r:Follows]-(u:User)-[:IS_MEMBER_OF_ORG]->(o:Organization)
