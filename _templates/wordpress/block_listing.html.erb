@@ -2,14 +2,14 @@
 if title? %>
 <div class="title"><%= captioned_title %></div><%
 end %>
-<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;"><%
+<div class="content code-panel" style="width: 100%; height: auto;"><%
 nowrap = !(@document.attr? :prewrap) || (option? :nowrap)
 if @style == 'source'
   language = attr :language
   code_class = language ? [language, %(language-#{language})] : []
   pre_class = ['highlight']
   pre_lang = nil
-  case attr 'source-highlighter'
+  case document.attr('source-highlighter')
   when 'coderay'
     pre_class = ['CodeRay']
   when 'pygments'
