@@ -16,7 +16,7 @@ module Neo4j
        def process(document, reader)
          lines = reader.lines
          lines.push(*FOOTER_LINES)
-         Asciidoctor::Reader.new lines
+         Asciidoctor::Reader.new lines, document.reader.cursor
       end
     end
   end
