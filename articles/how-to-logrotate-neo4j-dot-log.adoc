@@ -3,7 +3,6 @@
 :author: Christophe Willemsen
 :neo4j-versions: 3.0
 :tags: logs
-:public:
 :category: operations
 
 The neo4j.log file is a redirection to STDOUT. When you implement a default logrotate strategy,

@@ -3,7 +3,6 @@
 :zendesk-id: 214916688
 :author: Dana Canzano
 :tags: cypher,import,merge
-:public:
 :category: import-export
 :neo4j-versions: 3.4,3.5,4.0
 

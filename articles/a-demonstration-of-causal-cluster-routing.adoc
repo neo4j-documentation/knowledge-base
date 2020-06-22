@@ -4,7 +4,6 @@
 :category: cluster
 :tags: causal-cluster, routing, cypher-shell
 :neo4j-versions: 3.2
-:public:
 
 The following will demonstrate how to use https://neo4j.com/docs/operations-manual/current/tools/cypher-shell/[cypher-shell] to get
 a better understanding of a Neo4j Causal Cluster instance and its implementation of 

@@ -3,7 +3,6 @@
 :author: Jose Rocha
 :neo4j-versions: 3.0, 3.1
 :tags: cluster, master, slave, backup, consistency
-:public:
 :category: cluster
 
 (if using version >= 3.1, please read `Leader` and `Follower` instead of `Master` and `Slave` respectively)

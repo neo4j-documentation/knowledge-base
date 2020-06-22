@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.0
 :tags: browser, REST, Bolt
-:public:
 :category: browser
 
 In Neo4j 3.0 and its implementation of the Bolt protocol, requests submitted via the browser (http://localhost:7474) are submitted using Bolt.

@@ -3,7 +3,6 @@
 :author: Dave Gordon
 :neo4j-versions: 3.1
 :tags: configuration, upgrade
-:public:
 :category: operations
 
 Neo4j 3.1 takes the configuration changes made in Neo4j 3.0 a step further, and ships with a single configuration file: `conf/neo4j.conf`. This is the result of merging the contents of `conf/neo4j.conf` and `conf/neo4j-wrapper.conf`. The upgrade does not merge these automatically, and `conf/neo4j-wrapper.conf` is deprecated but still supported until the end of 3.x. This, merging the two is optional at this point, but a good step to take in preparation for future versions. 

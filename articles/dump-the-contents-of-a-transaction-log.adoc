@@ -4,7 +4,6 @@
 :author: Dave Gordon
 :neo4j-versions: 3.0,3.1,3.2,3.3,3.4,3.5
 :tags: transaction log
-:public:
 :category: operations
 
 If there is a need to look through the transaction logs, particularly to see if/when a node or relationship (or property) with a given ID was touched, you will need to dump the log using the `DumpLogicalLog` tool. 

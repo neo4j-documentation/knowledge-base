@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.3, 3.4, 3.5
 :tags: properties, browser
-:public:
 :category: browser
 
 When using the Neo4j Browser and selecting the left frame and top icon entitled `Database Information` or using the built in

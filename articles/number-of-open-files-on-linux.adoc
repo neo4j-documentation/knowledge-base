@@ -3,7 +3,6 @@
 :author: José Rocha
 :neo4j-versions:  3.3, 3.4, 3.5
 :tags: linux
-:public:
 :category: installation
 
 GNU/Linux and Mac OS operating systems impose an upper limit on the number of concurrent files a user may have open. 

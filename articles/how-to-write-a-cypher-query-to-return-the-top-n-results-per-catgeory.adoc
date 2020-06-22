@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 2.3, 3.0, 3.1
 :tags: cypher, grouping
-:public:
 :category: cypher
 
 The following Cypher describes how you can display the Top 5 test scores within an entire :Score population broken 

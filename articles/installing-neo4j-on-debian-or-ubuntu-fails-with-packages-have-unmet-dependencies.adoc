@@ -3,7 +3,6 @@
 :author: Daniel Terlizzi
 :neo4j-versions: 3.5, 3.4
 :tags: installation
-:public:
 :category: operations
 :environment: debian,ubuntu
 

@@ -3,7 +3,6 @@
 :author: Rohan Kharwar 
 :neo4j-versions: 3.2,3.3,3.4,3.5
 :tags: backup, configuration, neo4j.conf, debug.log 
-:public:
 :category: operations
 
 When running `neo4j-admin backup` on a running Neo4j instance the backup logs are also written into the existing Neo4j instance `debug.log` and can get confusing as to which line items in the debug.log is part of backup process and those that are from running Neo4j instance. 

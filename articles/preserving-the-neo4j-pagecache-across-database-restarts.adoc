@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.4
 :tags: page-cache
-:public:
 :category: operations
 
 Commencing with Neo4j 3.4 and as a result of https://github.com/neo4j/neo4j/pull/10957[PR 10957], and when using Neo4j Enterprise the 

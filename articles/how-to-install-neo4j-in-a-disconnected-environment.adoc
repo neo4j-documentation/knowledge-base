@@ -3,7 +3,6 @@
 :author: Daniel Terlizzi
 :neo4j-versions: 3.5
 :tags: offline,server
-:public:
 :category: installation
 
 Premise: You are working with a private/disconnected environment and would like to install the Neo4j Database using RPM packages as a source.

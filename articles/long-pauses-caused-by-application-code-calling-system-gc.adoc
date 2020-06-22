@@ -4,7 +4,6 @@
 :author: Dave Gordon
 :neo4j-versions: 3.0,3.1,3.2,3.3,3.4,3.5
 :tags: logging,garbage collector, heap, memory, jvm, operations
-:public:
 :category: operations
 
 When investigating the cause of long garbage collection cycles, it is often useful to enable GC logging.

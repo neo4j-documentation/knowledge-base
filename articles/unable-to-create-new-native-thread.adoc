@@ -3,7 +3,6 @@
 :author: Dave Gordon
 :neo4j-versions: 3.0, 3.1, 3.2, 3.3
 :tags: out-of-memory, bolt, exception
-:public:
 :category: drivers
 
 When a client application establishes a session with a Neo4j server via the bolt or bolt+routing protocols, the server allocates a thread 

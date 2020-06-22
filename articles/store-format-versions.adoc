@@ -3,7 +3,6 @@
 :author: Dave Gordon
 :neo4j-versions: 2.x, 3.1,3.2,3.3,3.4,3.5
 :tags: store, version
-:public:
 :category: operations
 
 In some situations, you may see a log message or exception that refers to a store format version, and it is not clear 

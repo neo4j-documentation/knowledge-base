@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.0, 3.1
 :tags: apoc, json,import
-:public:
 :category: import-export
 
 Prior to Neo4j 3.0, if you wanted to parse the JSON results from a call to a Web API, it would require you use one of the 

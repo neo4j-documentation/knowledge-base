@@ -3,11 +3,10 @@
 :author: Dana Canzano
 :neo4j-versions: 3.2, 3.3
 :tags: database growth, copy-store, operations
-:public:
 :category: operations
 
 The easiest way to determine the size of your graph is through the filesystem and summing up the size of the files named `\*store.db*`.
-For example on linux implmentations one can run
+For example on linux implementations one can run
 
 [source,shell]
 ----

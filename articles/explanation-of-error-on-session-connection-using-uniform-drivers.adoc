@@ -4,7 +4,6 @@
 :twitter:
 :neo4j-versions: 3.0
 :tags: connection,security,tls
-:public:
 :category: drivers
 
 As described by http://neo4j.com/docs/developer-manual/current/drivers/#_trust, when establishing an encrypted connection, it needs to be verified that the remote peer is who we expected to connect to.

@@ -4,7 +4,6 @@
 :category: cypher
 :tags: cypher, union, path
 :neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4
-:public:
 
 While UNIONs can be useful for certain cases, they can often be avoided completely with small changes to the query.
 

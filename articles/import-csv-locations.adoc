@@ -4,7 +4,6 @@
 :twitter: @jmhreif
 :neo4j-versions: 3.4, 3.5
 :tags: load csv, import, cypher
-:public:
 :category: import-export
 
 Loading various kinds of files into Neo4j requires different locations depending on the tool you are using.

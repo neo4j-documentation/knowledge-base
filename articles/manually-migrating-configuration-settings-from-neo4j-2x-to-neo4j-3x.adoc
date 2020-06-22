@@ -3,7 +3,6 @@
 :author: Dave Gordon
 :neo4j-versions: 3.0, 3.1
 :tags: configuration, upgrade, migration
-:public:
 :category: operations
 
 One of the major changes in Neo4j 3.0 was the reworking of configuration files and the individual configuration setting naming convention to make it more consitent and managable going forward. A config-migrator tool is supplied in Neo4j 3.0 to assist in automating this. However, for some users, this is not an option or not ideal. For those users, the following reference table lists the previous configuration setting name, the new name, and the resulting change from the pre-3.0 setting.

@@ -3,7 +3,6 @@
 :author: Dave Gordon
 :neo4j-versions: 3.2, 3.3
 :tags: samaccountname, account, authentication, authorization
-:public:
 :category: operations
 
 Beginning with Neo4j version https://github.com/neo4j/neo4j/wiki/Neo4j-3.2-changelog#322[3.2.2], it is possible to authenticate using

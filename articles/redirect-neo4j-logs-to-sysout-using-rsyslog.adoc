@@ -3,7 +3,6 @@
 :author: Jose Rocha
 :neo4j-versions: 2.2, 2.3, 3.0, 3.1, 3.2
 :tags: logging
-:public:
 :category: operations
 :environment: unix
 

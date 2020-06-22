@@ -3,7 +3,6 @@
 :author: José Rocha
 :neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
 :tags: transaction, commit, cluster
-:public:
 :category: operations
 
 This article will try to guide you through Neo4j's commit and replication processes both for single instances and causal clusters.

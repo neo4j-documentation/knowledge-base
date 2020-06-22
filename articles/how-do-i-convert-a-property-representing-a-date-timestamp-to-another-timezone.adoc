@@ -3,7 +3,6 @@
 :neo4j-versions: 3.4, 3.5
 :tags: cypher, temporal, timezone
 :author: Dana Canzano
-:public:
 :category: cypher
 
 https://neo4j.com/docs/cypher-manual/3.5/syntax/temporal/[Temporal datatype] support was introduced with with Neo4j 3.4 and as a result it 

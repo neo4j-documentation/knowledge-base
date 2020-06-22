@@ -4,7 +4,6 @@
 :twitter: @darthvader42
 :neo4j-versions: 3.3, 3.4
 :tags: docker, causal cluster
-:public:
 :environment: docker
 :category: operations
 

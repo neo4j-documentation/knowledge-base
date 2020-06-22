@@ -3,7 +3,6 @@
 :zendesk-id: 216373927
 :author: Dana Canzano
 :tags: server,security
-:public:
 :category: operations
 
 On `bin/neo4j start` the `data/log/console.log` may log an error similar to

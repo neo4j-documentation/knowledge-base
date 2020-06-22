@@ -3,7 +3,6 @@
 :author: Umar Muzammil
 :neo4j-versions: 3.2, 3.3, 3.4, 3.5
 :tags: causal, cluster, election, garbage-collection,timeout
-:public:
 :category: cluster
 
 This article describes the effects of JVM stop-the-world GC pauses, on a causal cluster. A brief introduction to garbage collection,

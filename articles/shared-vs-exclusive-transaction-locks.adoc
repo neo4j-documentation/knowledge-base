@@ -3,7 +3,6 @@
 :author: Umar Muzammil
 :neo4j-versions: 3.4, 3.5
 :tags: lock, transaction, deadlock, shared, exclusive
-:public:
 :category: performance
 
 This document describes the meaning of a shared lock as seen by transactions and the difference between a shared and exclusive lock.

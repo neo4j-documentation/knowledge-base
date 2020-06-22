@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.2
 :tags: procedures, apoc, security
-:public:
 :category: operations
 
 Commencing with Neo4j 3.2 when running a stored procedure, for example

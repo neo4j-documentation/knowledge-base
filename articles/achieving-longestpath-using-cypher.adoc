@@ -4,9 +4,8 @@
 :category: cypher
 :tags: cypher, path, apoc
 :neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
-:public:
 
-While Cypher is optimized for finding the shortest path between two nodes, with such functionality as `shortestPath()`, 
+While Cypher is optimized for finding the shortest path between two nodes, with such functionality as `shortestPath()`,
 it does not have the same sort of function for longest path. In some cases, you may want this, and not the shortest route.
 
 

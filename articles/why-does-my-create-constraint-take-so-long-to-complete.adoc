@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 2.3, 3.0
 :tags: logging, server
-:public:
 :category: operations
 
 When creating a constraint, for example

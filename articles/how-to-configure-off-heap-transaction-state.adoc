@@ -3,7 +3,6 @@
 :author: Andrei Koval
 :neo4j-versions: 3.5,4.0
 :tags: memory, performance
-:public:
 :category: operations
 
 WARNING: This feature is experimental in 3.5, on by default in 4.0.

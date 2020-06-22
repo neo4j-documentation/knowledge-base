@@ -3,7 +3,6 @@
 :author: David Fauth
 :neo4j-versions: 4.0
 :tags: import-export,operations
-:public:
 :category: import-export,operations
 
 Neo4j 4.0 allows for multiple running databases. You can use `neo4j-admin import` or `neo4j-admin restore` to import or restore a database into a new database on a running 4.0 instance. 

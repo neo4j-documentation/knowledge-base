@@ -3,7 +3,6 @@
 :author: Daniel Terlizzi
 :neo4j-versions: 3.4, 3.5
 :tags: backup
-:public:
 :category: operations
 
 When running `neo4j-admin backup`, the debug.log shows a message that appears to indicate that the database restarted; however, this is not the case.

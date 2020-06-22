@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.0
 :tags: browser, bolt, websocket
-:public:
 :category: browser
 
 In Neo4j 3.0 and its implementation of the Bolt protocol, if a remote browser connects to Neo4j (http://<remote_neo4j_host>:7474) and attempts to authenticate, the following error may be encountered:

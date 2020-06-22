@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 2.2, 2.3, 3.0, 3.1
 :tags: backup, heap, out-of-memory, operations
-:public:
 :category: operations
 
 When running `$NEO4J_HOME/bin/neo4j-backup` if a Java out of heap/memory error occurs you may want define the init and max 

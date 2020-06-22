@@ -4,7 +4,6 @@
 :category: cluster
 :tags: causal-cluster
 :neo4j-versions: 3.2, 3.3, 3.4, 3.5
-:public:
 
 If the opportunity arises such that you are in need of replicating your existing
 https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/[Causal Cluster] cluster to a new hardware setup, the 

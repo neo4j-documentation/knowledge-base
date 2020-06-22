@@ -4,7 +4,6 @@
 :twitter: @jmhreif
 :neo4j-versions: 3.4, 3.5
 :tags: import, cypher, cloud
-:public:
 :category: import-export
 
 Loading data in a Neo4j instance that is in the cloud is very similar to running Neo4j using any other method. However, there are a few small things to look out for and keep in mind when importing data to a 'cloud graph'. We will discuss the main ones in this article.

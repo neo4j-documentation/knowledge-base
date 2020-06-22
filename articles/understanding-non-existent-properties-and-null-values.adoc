@@ -3,7 +3,6 @@
 :author: Andrew Bowman
 :neo4j-versions: all
 :tags: cypher
-:public:
 :category: cypher
 
 In Neo4j, since there is no table schema or equivalent to restrict possible properties, non-existence and null are equivalent for node and relationship properties.

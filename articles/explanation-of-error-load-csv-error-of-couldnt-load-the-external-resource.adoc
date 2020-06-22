@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 2.3, 3.0
 :tags: LOAD CSV, user-agent
-:public:
 :category: cypher
 
 When running a `LOAD CSV` Cypher statement, for example

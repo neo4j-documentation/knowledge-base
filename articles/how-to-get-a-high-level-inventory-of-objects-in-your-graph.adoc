@@ -4,7 +4,6 @@
 :twitter:
 :neo4j-versions: 3.0
 :tags: metadata, procedures
-:public:
 :category: cypher
 
 The following Cypher can be used to get a simple high level view of the number of objects within your graph database.

@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.0, 3.1
 :tags: performance, plan cache, cypher, parameters
-:public:
 :category: cypher
 
 When a Cypher statement is first submitted Neo4j will attempt to determine if the query is in the plan cache before planning it. 

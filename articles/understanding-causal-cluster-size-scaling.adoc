@@ -3,7 +3,6 @@
 :author: Andrew Bowman
 :neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5
 :tags: cluster,scaling
-:public:
 :category: cluster
 
 The ability to safely scale down the size of a causal cluster affords us more robustness for instance failures, provided we maintain quorum as the failures take place.

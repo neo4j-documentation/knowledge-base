@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.4
 :tags: monitoring,metrics
-:public:
 :category: operations
 
 Commencing with the release of Neo4j Enterprise 3.4, one can now use the open source monitoring tool 

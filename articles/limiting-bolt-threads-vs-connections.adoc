@@ -3,7 +3,6 @@
 :author: Umar Muzammil
 :neo4j-versions: 3.4, 3.5
 :tags: cpu, core, pid, thread, bolt, connection
-:public:
 :category: server
 
 Given high levels of read/write transaction requests, some ingress transactions may be rejected by the Neo4j server and the 

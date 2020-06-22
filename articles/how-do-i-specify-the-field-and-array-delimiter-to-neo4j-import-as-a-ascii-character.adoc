@@ -3,9 +3,7 @@
 :author: Dana Canzano
 :neo4j-versions: 3.0, 3.1
 :tags: neo4j-import, delimiter
-:public: 
 :category: import-export
-
 
 http://neo4j.com/docs/operations-manual/current/tutorial/import-tool/[neo4j-import] allows one to initially load a graph.db
 via CSV files.  There may be times when using a ',' as a field or array delimiter is not appropriate as your data may 

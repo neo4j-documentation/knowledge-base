@@ -4,7 +4,6 @@
 :neo4j-versions: 3.0
 :tags: installation
 :environment: windows
-:public:
 :category: installation
 
 Commencing with Neo4j 3.0, the default location for your `graph.db` directory is under `$NEO4J_HOME\databases\`.

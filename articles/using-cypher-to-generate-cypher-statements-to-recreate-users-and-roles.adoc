@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.1
 :tags: user, role, schema
-:public:
 :category: operations
 
 The following can be used to extract user and role definitions from an existing database and the resultant output can be played

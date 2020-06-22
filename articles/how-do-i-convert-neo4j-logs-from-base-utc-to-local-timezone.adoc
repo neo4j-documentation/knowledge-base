@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 2.3,3.0,3.1
 :tags: logs, temporal
-:public:
 :category: operations
 
 With the introduction of Neo4j https://github.com/neo4j/neo4j/pull/10217[3.3.1] it is possible to represent date timestamps in

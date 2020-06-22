@@ -3,7 +3,6 @@
 :author: Rohan Kharwar 
 :neo4j-versions: 3.2+ 
 :tags: causal cluster, multi-datacenter
-:public:
 :category: cluster
 
 == Problem statement

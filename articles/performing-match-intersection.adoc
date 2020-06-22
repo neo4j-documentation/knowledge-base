@@ -3,7 +3,6 @@
 :author: Andrew Bowman
 :neo4j-versions: 3.2, 3.1, 3.0, 2.3, 2.2
 :tags: cypher, intersection
-:public:
 :category: cypher
 
 Match intersection is a common use case where you're searching for nodes which have relationships to all of a set of input nodes.

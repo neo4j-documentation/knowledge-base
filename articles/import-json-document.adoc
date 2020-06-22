@@ -2,7 +2,6 @@
 :author: Michael Hunger
 :tags: cypher, import
 :neo4j-version: 2.1, 2.2, 2.3
-:public:
 
 Sometimes you want to load JSON from an API or file directly into Neo4j.
 

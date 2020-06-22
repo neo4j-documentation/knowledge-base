@@ -3,9 +3,7 @@
 :author: Rohan Kharwar
 :neo4j-versions: 3.2+
 :tags: ldap, certificate, security
-:public:
 :category: security
-
 
 When configuring LDAP with certificates you may encounter the following issue:
 

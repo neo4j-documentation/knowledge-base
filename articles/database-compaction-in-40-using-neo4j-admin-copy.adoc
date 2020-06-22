@@ -3,7 +3,6 @@
 :author: Umar Muzammil
 :neo4j-versions: 4.0
 :tags: store, compaction
-:public:
 :category: server
 
 This article demonstrates using the neo4j-admin copy tool to reclaim un-used space occupied by neo4j store files.

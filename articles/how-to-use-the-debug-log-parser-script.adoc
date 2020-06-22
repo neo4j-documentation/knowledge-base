@@ -4,9 +4,8 @@
 :neo4j-versions: 3.3, 3.4, 3.5
 :tags: debug
 :category: operations
-:public:
 
-For analysis of the Neo4j debug.log, read this guide for using the `debugInfo.sh` parser script.    
+For analysis of the Neo4j debug.log, read this guide for using the `debugInfo.sh` parser script.
 
 == What is the this script?
 

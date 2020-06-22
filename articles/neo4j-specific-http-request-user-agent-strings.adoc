@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.2, 3.3
 :tags: load-csv,apoc, user-agent, webserver, logging
-:public:
 :category: operations
 
 For those https://neo4j-contrib.github.io/neo4j-apoc-procedures/[APOC] commands that retrieve data using HTTP/HTTPS, and or running

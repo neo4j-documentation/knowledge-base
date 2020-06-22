@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.4, 3.5
 :tags: load csv, http, webserver
-:public:
 :category: operations
 
 When using https://neo4j.com/docs/cypher-manual/3.5/clauses/load-csv/[LOAD CSV] one can define the source file to be either at a local file

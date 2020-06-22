@@ -3,7 +3,6 @@
 :author: Dave Shiposh
 :neo4j-versions: 3.2, 3.3, 3.4
 :tags: docker, security, ssl, tls
-:public:
 :category: installation
 :environment: docker
 

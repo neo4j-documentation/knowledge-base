@@ -5,7 +5,6 @@
 :category: operations
 :tags: http, authentication, rest, security
 :neo4j-versions: 3.4
-:public:
 
 This article will show examples of how to test the Neo4j REST API for
 authentication via:
