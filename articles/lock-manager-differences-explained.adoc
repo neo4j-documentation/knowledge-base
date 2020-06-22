@@ -3,7 +3,7 @@
 :author: Dana Canzano
 :neo4j-versions: 2.3, 3.0
 :tags: lock,performance
-//:category: operations
+:category: operations
 
 Work in Progress
 
