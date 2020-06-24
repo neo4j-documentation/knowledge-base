@@ -3,7 +3,6 @@
 :author: Ali Maddahian
 :tags: installation
 :neo4j-versions: Neo4j Desktop 1.x
-:public:
 :category: desktop
 
 In rare cases, Neo4j Desktop install might fail during the Java extract phase with the following message on Windows:

@@ -3,7 +3,6 @@
 :author: Andrew Bowman
 :neo4j-versions: 3.4, 3.5, 4.0
 :tags: cypher, temporal, apoc
-:public:
 :category: cypher
 
 Neo4j 3.4 introduced temporal types into Cypher, so now we have dates, dateTimes, and their local versions, too, as well as durations.

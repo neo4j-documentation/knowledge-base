@@ -3,7 +3,6 @@
 :author: Umar Muzammil
 :neo4j-versions: 3.2, 3.3, 3.4, 3.5
 :tags: unmanaged, extension, plugin, startup
-:public:
 :category: operations
 
 Occasionally, following upgrades, one might encounter Neo4j server initialisation failure due to an exception similar to:

@@ -3,7 +3,6 @@
 :author: Rohan Kharwar
 :neo4j-versions: 3.4, 3.5
 :tags: transaction,timeout, java, drivers
-:public:
 :category: drivers
 
 There is a `dbms.transaction.timeout` global setting on Neo4j that can be set in `neo4j.conf` file so if any query from any user exceeds the timeout threshold specified, that query is terminated. 

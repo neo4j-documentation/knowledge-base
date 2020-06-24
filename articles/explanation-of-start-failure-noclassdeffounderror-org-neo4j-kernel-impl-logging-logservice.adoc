@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions:  3.5
 :tags: upgrade, apoc, logService, start
-:public:
 :category: operations
 
 Upon starting Neo4j 3.5 if one encounters the following error in the `logs/neo4j.log`

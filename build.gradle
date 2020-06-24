@@ -14,7 +14,7 @@ plugins {
     id 'org.asciidoctor.jvm.gems' version '3.2.0' apply false
     id 'org.asciidoctor.jvm.convert' version '3.2.0' apply false
     id "com.neo4j.gradle.wordpress.WordPressPlugin" version "0.6.0"
-    id "com.neo4j.gradle.zendesk.ZenDeskPlugin" version "0.1.3"
+    id "com.neo4j.gradle.zendesk.ZenDeskPlugin" version "0.2.0"
 }
 
 apply plugin: 'org.asciidoctor.jvm.gems'
@@ -53,23 +53,7 @@ asciidoctorj {
             'linkattrs': '',
             'source-highlighter': 'codemirror',
             'stage': stage != null ? stage : '',
-            'document-metadata-attrs-include': 'author,slug,private,public,taxonomies*<>'
-}
-
-// Filter pages
-ext.filterPages = { files, filterFunction ->
-    return files.getAsFileTree().filter { file ->
-        if (file.name.endsWith('.html')) {
-            File yamlFile = new File(file.parent, "${file.name.take(file.name.lastIndexOf('.'))}.yml")
-            InputStream input = new FileInputStream(yamlFile)
-            Yaml yaml = new Yaml()
-            Map<String, Object> data = (Map<String, Object>) yaml.load(input)
-            if (filterFunction(data)) {
-                return true
-            }
-        }
-        return false
-    }
+            'document-metadata-attrs-include': 'author,slug,zendesk-id,taxonomies*<>'
 }
 
 // Set author tags
@@ -148,6 +132,8 @@ ext.getTaxonomies = { taxonomyName, files ->
 task convertWordPressHtml(type: AsciidoctorTask) {
     dependsOn asciidoctorGemsPrepare
 
+    inputs.dir "${rootProject.projectDir}/_templates/wordpress"
+
     asciidoctorj {
         requires "${rootProject.projectDir}/resources/extensions/footer.rb"
         options standalone: true,
@@ -162,7 +148,6 @@ task showTaxonomies {
     dependsOn convertWordPressHtml
 
     doLast {
-        // only publish pages that have "public" tag
         project.showTaxonomies(convertWordPressHtml.outputs.files)
     }
 }
@@ -253,18 +238,7 @@ if (stage == 'production' || stage == 'testing') {
     task wordPressUpload(type: WordPressUploadTask) {
         dependsOn convertWordPressHtml
 
-        doFirst {
-            def wordPressUploadTask = tasks.findByName('wordPressUpload')
-            if (wordPressUploadTask != null) {
-                wordPressUploadTask.configure {
-                    // only publish pages that have "public" tag
-                    source = project.filterPages(convertWordPressHtml.outputs.files, { data ->
-                        data.containsKey("public") || data.containsKey("private")
-                    })
-                }
-            }
-        }
-
+        source = convertWordPressHtml.outputs.files
         type = "faq"
         status = stage == 'production' ? "publish" : "private"
     }
@@ -273,18 +247,7 @@ if (stage == 'production' || stage == 'testing') {
 task zenDeskUpload(type: ZenDeskUploadTask) {
     dependsOn convertZenDeskHtml
 
-    doFirst {
-        def zenDeskUploadTask = tasks.findByName('zenDeskUpload')
-        if (zenDeskUploadTask != null) {
-            zenDeskUploadTask.configure {
-                // only publish pages that have either "public" or "private" tag
-                source = project.filterPages(convertZenDeskHtml.outputs.files, { data ->
-                    data.containsKey("public") || data.containsKey("private")
-                })
-            }
-        }
-    }
-
+    source = convertZenDeskHtml.outputs.files
     userSegmentId = 1716387
     permissionGroupId = 136448
     sectionId = 200574983

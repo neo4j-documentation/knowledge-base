@@ -4,7 +4,6 @@
 :category: cluster
 :tags: causal-cluster, configuration
 :neo4j-versions: 3.3, 3.4, 3.5
-:public:
 
 *Causal Clustering Minimum Core Size At Formation*
 

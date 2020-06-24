@@ -4,7 +4,6 @@
 :twitter: @jmhreif
 :neo4j-versions: 3.4, 3.5
 :tags: drivers, cypher, temporal
-:public:
 :category: drivers
 
 With the support of datetime types in Neo4j, users might wonder how or if it works to transport those types along with other data types via the drivers.

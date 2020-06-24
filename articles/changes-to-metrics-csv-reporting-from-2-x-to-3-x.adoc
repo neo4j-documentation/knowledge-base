@@ -4,7 +4,6 @@
 :category: operations
 :tags: metrics, csv, monitoring
 :neo4j-versions: 2.3, 3.0
-:public:
 
 Metrics reporting is an Enterprise feature which upon enablement allows for the creation of .csv files at a specified interval to record key metrics.
 This is described in detail at http://neo4j.com/docs/operations-manual/current/monitoring/.

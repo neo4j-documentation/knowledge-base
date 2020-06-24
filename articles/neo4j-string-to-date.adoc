@@ -3,7 +3,6 @@
 :author: Mark Needham
 :neo4j-versions: 3.4,3.5
 :tags: cypher
-:public:
 :category: cypher
 
 Neo4j 3.4 saw the https://neo4j.com/blog/neo4j-graph-database-3-4-ga-release/[introduction of the temporal date type^], and while there is now powerful in built functionality, converting strings to dates is still a challenge.

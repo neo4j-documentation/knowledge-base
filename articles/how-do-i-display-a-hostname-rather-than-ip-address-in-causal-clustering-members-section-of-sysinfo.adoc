@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.1
 :tags: sysinfo, causal cluster, ip address, hostname
-:public:
 :category: cluster
 
 Via the browser one can enter `:sysinfo` to display data about the Neo4j system. When Neo4j is configured as a 

@@ -3,7 +3,6 @@
 :author: Vivek Saran
 :neo4j-versions: 3.5, 3.4
 :tags: consistency, backup
-:public:
 :category: operations
 
 When it comes checking the inconsistencies in your graph, there are four methods to do. This article describes them below:

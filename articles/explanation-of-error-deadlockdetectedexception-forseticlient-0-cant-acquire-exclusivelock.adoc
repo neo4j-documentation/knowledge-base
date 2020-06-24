@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 2.3, 3.0
 :tags: deadlock, lock
-:public:
 :category: operations
 
 Under specific scenarios a DeadlockDetectedException may be encountered and the behavior is described at http://neo4j.com/docs/stable/transactions-deadlocks.html.

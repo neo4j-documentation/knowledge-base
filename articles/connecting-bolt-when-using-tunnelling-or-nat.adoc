@@ -4,9 +4,8 @@
 :neo4j-versions: 3.2, 3.3, 3.4, 3.5
 :tags: bolt, host, url, nat, tunnel
 :category: server
-:public:
 
-This article aims to provide a method to connect to the Neo4j database over bolt, via Neo4j browser where the bolt host is different 
+This article aims to provide a method to connect to the Neo4j database over bolt, via Neo4j browser where the bolt host is different
 from the IP of the instance itself and, in cases where the bolt host IP/port is dynamic.
 
 Unless `dbms.connector.bolt.advertised_address=<server-name>:<port>` is set, Neo4j browser uses the private IP of the instance as

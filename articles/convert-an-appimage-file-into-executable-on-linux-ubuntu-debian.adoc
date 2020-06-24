@@ -5,7 +5,6 @@
 :tags: install, desktop
 :environment: linux
 :category: desktop
-:public:
 
 Note: Neo4j installation on Linux using apt-get, as per the process here:
 

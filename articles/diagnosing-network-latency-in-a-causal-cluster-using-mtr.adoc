@@ -3,7 +3,6 @@
 :author: Umar Muzammil
 :neo4j-versions: 3.1,3.2,3.3,3.4,3.5,4.0
 :tags: cluster, latency, monitoring
-:public:
 :category: operations
 
 MTR is a simple ICMP based test combining ping and traceroute. The following demonstrates usage of the MTR trace tool to 

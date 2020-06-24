@@ -3,7 +3,6 @@
 :author: Kambiz Chehresa
 :neo4j-versions: 3.4, 3.5
 :tags: kubernetes, docker, security
-:public:
 :category: installation
 :environment: kubernetes
 

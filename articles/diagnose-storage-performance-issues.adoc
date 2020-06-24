@@ -1,5 +1,4 @@
 = Diagnose storage performance issues
-:public:
 :tags: storage, performance, installation, configuration
 :slug: diagnose-storage-performance-issues
 :category: installation

@@ -5,7 +5,6 @@
 :tags: permissions, rpm, neo4j-admin,linux,debian
 :category: operations
 :environment: linux,debian
-:public:
 
 If you have leveraged Debian or RPM Packages to install Neo4j on Linux (or used one of the Public Cloud Marketplace offerings), you need to be careful of file and folder permissions.
 The installs create a user: "neo4j" that owns all the files for the Neo4j Installation:

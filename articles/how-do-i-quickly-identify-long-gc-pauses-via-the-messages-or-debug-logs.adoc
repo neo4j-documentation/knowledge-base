@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 2.3, 3.0, 3.1
 :tags: garbage-collection
-:public:
 :category: operations
 
 Java Garbage Collection (gc) pauses are monitored by the `MonitorGc` process in Neo4j, and recorded in the `$NEO4J_HOME/logs/debug.log` (

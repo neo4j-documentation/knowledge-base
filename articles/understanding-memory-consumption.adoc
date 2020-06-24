@@ -3,7 +3,6 @@
 :author: José Rocha
 :neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
 :tags: performance, memory, java
-:public:
 :category: performance
 
 So you have configured Neo4j to use 4GB of heap and 6GB of page cache and sat back relaxed, thinking the Java process would not go above 10GB in your 12GB machine only to realise that Neo4j had an OOM error and crashed. What's happening under the hood? Why is Neo4j consuming more memory than you allocated? Is this a memory leak or normal behaviour? So many questions! Let's try to answer some of these questions so that you're not caught off guard when it comes to memory.

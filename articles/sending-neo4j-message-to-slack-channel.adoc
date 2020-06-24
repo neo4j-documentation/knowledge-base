@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.3,3.4,3.5
 :tags: logging, operations, backup
-:public:
 :category: operations
 
 Although not specific to Neo4j and this knowledge base document is provided as a convenience, if your environment has a

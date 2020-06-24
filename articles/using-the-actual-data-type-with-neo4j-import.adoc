@@ -4,7 +4,6 @@
 :author: Dave Gordon
 :tags: import, neo4j-admin, csv, store
 :neo4j-versions: 3.3,3.4,3.5,4.0
-:public:
 :category: import-export
 
 When importing data using `neo4j-admin import`, make sure to review the required CSV file structure and considerations before moving on.

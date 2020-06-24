@@ -3,7 +3,6 @@
 :author: Vivek Saran
 :neo4j-versions: 4.0
 :tags: python
-:public:
 :category: drivers
 
 At the time of writing this article the Bolt Driver for Python has not been released for Neo4j 4.0. 

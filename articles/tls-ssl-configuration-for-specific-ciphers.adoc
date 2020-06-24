@@ -3,9 +3,7 @@
 :author: Ali Maddahian
 :neo4j-versions: 3.5
 :tags: ssl, tls, cipher, security, unix, operations
-:public:
 :category: security
-
 
 Per documentation: `dbms.ssl.policy.<policyname>.ciphers` is by default set to the Java platform default allowed cipher suites, which can also be explicitly set to any specific ciphers (separated by ",") to further restrict list of allowed ciphers, thus enabling us to enforce a particular single strong cipher (if needed) and remove any doubt about which cipher gets negotiated and chosen.
 
@@ -29,14 +27,14 @@ jdk.certpath.disabledAlgorithms=MD2, MD4, MD5,  EC keySize < 160, RSA keySize < 
 To debug further in case of any issues, you can use the following steps:
 
 1. You can assess the handshake between the client and neo4j by including the following setting in neo4j.conf (and restart):
-
++
 [source,conf]
 ----
 dbms.jvm.additional=-Djavax.net.debug=ssl:handshake
 ----
 
 2. Run the following to investigate list of available ciphers (example)
-
++
 [source,shell]
 ----
 $ nmap --script ssl-enum-ciphers -p 7473 localhost
@@ -66,7 +64,7 @@ Nmap done: 1 IP address (1 host up) scanned in 0.66 seconds
 ----
 
 3. As well as the following:
-
++
 [source,shell]
 ----
 $openssl s_client -connect <server-name-ip>:7473

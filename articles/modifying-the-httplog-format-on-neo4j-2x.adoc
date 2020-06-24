@@ -3,7 +3,6 @@
 :author: Dave Gordon
 :tags: http, logging
 :neo4j-versions: 2.2, 2.3
-:public:
 :category: operations
 
 Prior to Neo4j 3.0, the http.log format was controlled by `neo4j-http-logging.xml`. The default format works fine, except when you need 

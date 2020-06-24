@@ -3,7 +3,6 @@
 :zendesk-id: 216552128
 :author: Dana Canzano
 :tags: cypher
-:public:
 :category: cypher
 :neo4j-versions: 3.4,3.5
 

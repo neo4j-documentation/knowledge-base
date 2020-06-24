@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 4.0
 :tags: upgrade
-:public:
 :category: operations
 
 When attempting to start Neo4j and one is running a Neo4j 4.0.x release and where `x` is <=2 the following error may be 

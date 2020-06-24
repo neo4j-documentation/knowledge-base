@@ -3,7 +3,6 @@
 :author: Umar Muzammil
 :neo4j-versions: 3.3, 3.4
 :tags: import, export, etl, rdbms, docker, sql
-:public:
 :category: import-export
 :environment: docker
 

@@ -3,7 +3,6 @@
 :author: José Rocha
 :neo4j-versions: 3.2, 3.3, 3.4, 3.5
 :tags: drivers, routing
-:public:
 :category: drivers
 
 Using the official Neo4j drivers means that you can take advantage of the full cluster routing capabilities of the drivers. This means 

@@ -3,11 +3,9 @@
 :author: Umar Muzammil
 :neo4j-versions: 3.2, 3.3, 3.4
 :tags: hardware, planning, monitoring, CPU, RAM
-:public:
 :category: installation
 
 This document lists some considerations whilst planning to host multiple neo4j instances on the same physical host machine.
-
 
 Multiple instances are allowed though this is not typically seen in the field. As a starting point of planning one should ideally monitor the following over e.g. 1-2 weeks of production for each neo4j instance 
 planned to be co-hosted:

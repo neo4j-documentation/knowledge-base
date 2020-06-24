@@ -3,7 +3,6 @@
 :author: Umar Muzammil
 :neo4j-versions: Neo4j Desktop 1.x
 :tags: desktop
-:public:
 :category: desktop
 
 Occasionally upon upgrade or re-install, Neo4j Desktop may throw a repetitive port conflict exception for ports 7474, 7687, 

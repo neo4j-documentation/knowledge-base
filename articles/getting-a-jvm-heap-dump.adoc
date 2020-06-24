@@ -3,7 +3,6 @@
 :author: Umar Muzammil
 :neo4j-versions: 3.4,3.5
 :tags: jvm, memory, heap, dump
-:public:
 :category: operations
 
 This document provides the process of creating a heap-dump on a java machine to investigate potential memory leaks.

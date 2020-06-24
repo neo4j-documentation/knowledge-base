@@ -3,7 +3,6 @@
 :author: Stefan Armbruster
 :neo4j-versions: 3.4
 :tags: performance, tuning, write, read, lock
-:public:
 :category: operations
 
 Since Neo4j 3.4 it's possible to better understand locking issues caused by concurrent query. This KB article will not detail the basics

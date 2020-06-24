@@ -3,7 +3,6 @@
 :author: Daniel Terlizzi
 :neo4j-versions: all
 :tags: support
-:public:
 :promoted: true
 :category: support
 

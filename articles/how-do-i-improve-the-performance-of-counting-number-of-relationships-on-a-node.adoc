@@ -3,9 +3,7 @@
 :zendesk-id: 215786128
 :author: Dana Canzano
 :tags: cypher,performance
-:public:
 :category: cypher
-
 
 Using Cypher one could count number of relationships in the following manner
 

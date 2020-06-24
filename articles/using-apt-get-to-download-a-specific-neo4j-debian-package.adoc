@@ -4,7 +4,6 @@
 :author: Dave Gordon
 :neo4j-versions: 3.0,3.1,3.2,3.3,3.4,3.5,4.0
 :tags: linux, installation, enterprise, debian
-:public:
 :category: installation
 :environment: debian
 

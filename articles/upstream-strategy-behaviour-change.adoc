@@ -3,7 +3,6 @@
 :author: José Rocha
 :neo4j-versions: 3.2, 3.3, 3.4, 3.5
 :tags: network, multi-datacenter
-:public:
 :category: cluster
 
 Starting with version 3.4, we changed in the behaviour of how instances sync with the Leader. This change can potentially affect the 

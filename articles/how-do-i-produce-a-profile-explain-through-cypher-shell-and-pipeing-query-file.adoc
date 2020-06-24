@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.2
 :tags: cypher-shell, explain, profile
-:public:
 :category: cypher
 
 If yor prepare a file with a Cypher statement that includes either a 

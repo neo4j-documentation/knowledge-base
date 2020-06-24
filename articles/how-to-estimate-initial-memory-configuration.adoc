@@ -4,7 +4,6 @@
 :author: Dave Gordon
 :neo4j-versions: 2.3,3.0
 :tags: heap, memory, jvm, page-cache, cache
-:public:
 :category: operations
 
 The initial and eventual memory configuration parameters can be a moving target, based on how your store changes in size and how your workload increases or changes over time.

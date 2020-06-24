@@ -1,7 +1,6 @@
 = Fix error: No dependency satisfies type interface org.neo4j.graphdb.GraphDatabaseService
 :slug: fix-error-no-dependefix-error-no-dependency-satisfies-type-interface-org-neo4j-graphdb
 :author: Daniel Terlizzi
-:public:
 :category: development
 :neo4j-version: 3.5,4.0
 :tags: upgrade

@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.3, 3.4, 3.5
 :tags: cypher, merge
-:public:
 :category: cypher
 
 When running a https://neo4j.com/docs/cypher-manual/3.5/clauses/merge/[MERGE], which is a combination of MATCH and/or CREATE one may 

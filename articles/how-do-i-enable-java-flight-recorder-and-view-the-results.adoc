@@ -3,7 +3,6 @@
 :zendesk-id: 217664337
 :author: Dana Canzano
 :tags: configuration,jvm
-:public:
 :category: operations
 :neo4j-versions: 3.4,3.5
 :environment: linux,osx

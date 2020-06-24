@@ -3,7 +3,6 @@
 :zendesk-id: 215953117
 :author: Dana Canzano
 :tags: cypher
-:public:
 :category: cypher
 
 Although assigning a node one or more labels provides many benefits (i.e. performance gains from index usage, ability to group nodes into sets, etc), it is possible to create a node without any labels.

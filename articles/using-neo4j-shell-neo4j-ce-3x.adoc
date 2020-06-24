@@ -3,7 +3,6 @@
 :slug: using-neo4j-shell-neo4j-ce-3x
 :neo4j-versions: 3.0
 :tags: import,shell,cypher
-:public:
 :category: operations
 
 From Neo4j 3.0 access to `neo4j-shell` is no longer possible from the desktop-installers for Windows and OSX.

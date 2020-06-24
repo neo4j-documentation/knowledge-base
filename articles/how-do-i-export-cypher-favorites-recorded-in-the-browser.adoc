@@ -3,7 +3,6 @@
 :zendesk-id: 215278877
 :author: Dana Canzano
 :tags: cypher,browser
-:public:
 :category: browser
 :neo4j-versions: 3.5
 

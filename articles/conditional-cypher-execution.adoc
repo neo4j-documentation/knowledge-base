@@ -4,7 +4,6 @@
 :category: cypher
 :tags: cypher, conditional, apoc
 :neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5
-:public:
 
 At some point you're going to write a Cypher query requiring some conditional logic, where you want different Cypher statements executed depending on the case.
 

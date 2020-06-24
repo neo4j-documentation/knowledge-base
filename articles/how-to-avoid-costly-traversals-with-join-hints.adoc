@@ -4,7 +4,6 @@
 :neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5
 :tags: cypher
 :category: cypher
-:public:
 
 When matching a pattern using Cypher, the number of possible paths to evaluate often correlates with query execution time.
 

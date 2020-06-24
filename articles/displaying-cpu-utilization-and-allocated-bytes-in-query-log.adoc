@@ -4,7 +4,6 @@
 :neo4j-versions: 3.4
 :tags: cpu, query.log, configuration
 :category: operations
-:public:
 
 In Neo4j 3.3 and prior versions, when query logging is enabled with the following configuration parameters:
 

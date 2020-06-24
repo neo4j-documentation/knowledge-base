@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.0
 :tags: logging, parameters query-log
-:public:
 :category: operations
 
 Neo4j 3.0 introduces the ability to log the value of query parameters in the `log/query.log` file.

@@ -3,7 +3,6 @@
 :author: Andrew Bowman
 :neo4j-versions: 2.2, 2.3, 3.0, 3.1, 3.2, 3.3, 3.4
 :tags: performance, cypher,cardinality
-:public:
 :category: cypher
 
 Cardinality issues are the most frequent culprit in slow or incorrect Cypher queries.

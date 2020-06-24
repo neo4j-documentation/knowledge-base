@@ -5,9 +5,8 @@
 :category: operations
 :neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
 :tags: storage, disk, filesystem, unix, operations
-:public:
 
-The short answer is no. 
+The short answer is no.
 Although this may seem harmless, the reason for this is not performance related, but rather for control over locking files.
 
 NFS and other filesystems that don't offer locking should not be used to install Neo4j or store the datastore. 

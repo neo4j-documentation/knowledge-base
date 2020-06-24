@@ -4,7 +4,6 @@
 :author: Dave Gordon
 :tags: backup, consistency, performance, operations, consistency-check
 :neo4j-versions: 2.1, 2.2, 2.3, 3.0
-:public:
 :category: operations
 
 If you skip the Consistency Check part of neo4j-backup, or you want to check that all is well with a data store, you can run the tool against an offline store.

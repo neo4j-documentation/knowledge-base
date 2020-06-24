@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.5
 :tags: apoc, parameters,cypher,procedures
-:public:
 :category: cypher
 
 https://neo4j.com/developer/neo4j-apoc/[APOC] allows one to have a stored procedure, 

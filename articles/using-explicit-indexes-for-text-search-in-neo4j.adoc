@@ -4,7 +4,6 @@
 :neo4j-versions: 3.4, 3.5
 :outdated: true
 :tags: fulltext, indexing
-:public:
 :category: cypher
 
 [NOTE]

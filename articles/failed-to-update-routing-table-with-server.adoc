@@ -3,9 +3,7 @@
 :author: Vivek Saran
 :neo4j-versions: 3.5, 4.0
 :tags: cluster, bolt
-:public:
 :category: drivers
-
 
 If you encounter a *Failed to update routing table with server* error in their `$NEO4J_HOME/logs/debug.log` similar to:
 

@@ -3,7 +3,6 @@
 :author: Dave Gordon
 :neo4j-versions: 3.0, 3.1
 :tags: java api, logging, plugin
-:public:
 :category: development
 
 As part of the major changes in 3.0, the way to log to the user log, now neo4j.log (in server mode), has changed. To log within a Server Plugin follow these steps:

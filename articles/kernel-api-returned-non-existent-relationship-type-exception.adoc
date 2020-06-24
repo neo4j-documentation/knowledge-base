@@ -3,7 +3,6 @@
 :author: Vivek Saran
 :neo4j-versions: 3.3, 3.4, 3.5
 :tags: kernel, exception, relationships, transaction,bolt
-:public:
 :category: drivers
 
 In rare situations, the Neo4j Bolt driver throws an IllegalStateException. The top part of the stack appears as:

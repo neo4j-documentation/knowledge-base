@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.2, 3.3, 3.4, 3.5
 :tags: disk,disk-space
-:public:
 :category: operations
 
 If one does not routinely monitor the disk space usage on a Neo4j server one may encounter a 'No space left on device' 

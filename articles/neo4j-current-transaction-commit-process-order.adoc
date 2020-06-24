@@ -3,7 +3,6 @@
 :author: José Rocha
 :neo4j-versions: 3.5
 :tags: transaction, commit
-:public:
 :category: operations
 
 Transactions in Neo4j use a read-committed isolation level, which means they will see data as soon as it has been committed and will

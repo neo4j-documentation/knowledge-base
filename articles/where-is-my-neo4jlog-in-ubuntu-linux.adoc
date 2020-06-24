@@ -3,7 +3,6 @@
 :author: Dave Gordon
 :neo4j-versions: 3.2, 3.3
 :tags: logging, linux, ubuntu
-:public:
 :category: operations
 :environment: linux
 

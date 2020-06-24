@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.2, 3.3
 :tags: cypher, sysinfo
-:public:
 :category: operations
 
 If you need to generate the equivalent output from command `:sysinfo` as run from the Neo4j Browser at http://localhost:7474

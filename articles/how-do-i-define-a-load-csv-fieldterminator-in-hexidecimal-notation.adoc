@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 2.3, 3.0
 :tags: load-csv
-:public:
 :category: cypher
 
 When using https://neo4j.com/docs/developer-manual/current/cypher/#query-load-csv[LOAD CSV] one can define the field delimiter used, 

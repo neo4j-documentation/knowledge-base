@@ -3,7 +3,6 @@
 :author: Dave Gordon
 :neo4j-versions: 2.3, 3.0, 3.1
 :tags: cluster, backup, ha-proxy
-:public:
 :category: cluster
 
 == What are we trying to achieve?

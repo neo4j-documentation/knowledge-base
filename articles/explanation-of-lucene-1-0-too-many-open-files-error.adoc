@@ -3,9 +3,7 @@
 :author: Dana Canzano
 :neo4j-versions: 3.5
 :tags: index, open-files
-:public:
 :category: operations
-
 
 If one encounters a 'Too many open files' error in their $NEO4J_HOME/logs/debug.log similar to
 

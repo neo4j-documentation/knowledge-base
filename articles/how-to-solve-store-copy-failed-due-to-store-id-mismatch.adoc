@@ -3,7 +3,6 @@
 :author: Vivek Saran
 :neo4j-versions: 3.5, 3.4
 :tags: cluster
-:public:
 :category: operations
 
 It is possible that after seeding a cluster or restoring from a backup, you may encounter the following error while starting your cluster:

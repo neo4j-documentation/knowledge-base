@@ -3,7 +3,6 @@
 :author: David Fauth
 :neo4j-versions: 3.5
 :tags: server, ports
-:public:
 :category: operations
 
 In some environments, users are required to run Neo4j on ports lower than 1024 due to corporate policies. The following is a sample configuration showing how to configure Neo4j 3.5 and newer to listen on those ports.
@@ -54,14 +53,14 @@ dbms.connector.https.listen_address=:80
 --
 
 2. Identify the location of the java installation.
-
++
 [source,shell]
 ----
 readlink -f $(which java)
 ----
 
 3. Bind the java executable to the privileged ports (use the path found in step 2).
-
++
 [source,shell]
 ----
 sudo setcap cap_net_bind_service=+eip /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java

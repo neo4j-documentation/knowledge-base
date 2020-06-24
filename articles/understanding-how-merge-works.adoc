@@ -3,7 +3,6 @@
 :author: Andrew Bowman
 :neo4j-versions: 2.2, 2.3, 3.0, 3.1
 :tags: merge, cypher
-:public:
 :category: cypher
 
 == What is MERGE, and how does it work?

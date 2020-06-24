@@ -3,7 +3,6 @@
 :author: Jérémie Phoulchand
 :neo4j-versions: 3.5
 :tags: intellij, enterprise, embedded,installation
-:public:
 :category: development
 
 The link:https://neo4j.com/docs/java-reference/3.5/[Neo4j Java Reference Documentation] generally describes how to embed Neo4j Community Edition within your Java application. If you are licensed for Neo4j Enterprise, this article will guide you through setting up the project to use Neo4j Enterprise embedded within your application.

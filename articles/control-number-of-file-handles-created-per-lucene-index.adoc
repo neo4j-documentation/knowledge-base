@@ -4,7 +4,6 @@
 :neo4j-versions: 3.2, 3.3, 3.4
 :tags: indexing, lucence, open files, cpu, memory
 :category: operations
-:public:
 
 In the more recent Neo4j versions (3.4 onwards), the number of file handles opened by Neo4j may seem to increase compared with that in older versions.
 Native indexes require a per-index constant number of file handles, and this number scales as a function

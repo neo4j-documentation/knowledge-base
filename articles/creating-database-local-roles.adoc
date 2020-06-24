@@ -3,7 +3,6 @@
 :author: Andrew Bowman
 :neo4j-versions: 4.0
 :tags: security, rbac, multi-database
-:public:
 :category: security
 
 Neo4j 4.0 introduced advanced security features in the form of https://neo4j.com/docs/cypher-manual/4.0/administration/security/[role-based access controls], much needed, especially with the introduction of multiple database functionality.

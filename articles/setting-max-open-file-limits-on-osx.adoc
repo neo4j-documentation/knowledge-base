@@ -4,7 +4,6 @@
 :neo4j-versions: 3.2, 3.3, 3.4, 3.5
 :tags: open-files
 :category: installation
-:public:
 :environment: osx
 
 This document provides a process for setting soft and hard max open file limits on MAC OSX. Each thread created by a user

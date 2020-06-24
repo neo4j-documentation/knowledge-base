@@ -3,7 +3,6 @@
 :author: Dave Shiposh
 :neo4j-versions: 3.2, 3.3
 :tags: browser, bolt, websocket
-:public:
 :category: browser
 
 Starting with Neo4j 3.2, the Neo4j Browser only supports Bolt connectivity to the Neo4j Server.  This requires that the network 

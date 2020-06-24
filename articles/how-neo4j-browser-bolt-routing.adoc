@@ -3,7 +3,6 @@
 :author: José Rocha
 :neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
 :tags: connection,tls,routing
-:public:
 :category: drivers
 
 There are two kinds of Bolt drivers specified by URI scheme: the *bolt://* scheme is used to create a direct driver and the *bolt+routing://* scheme is used to create a routing driver.

@@ -4,9 +4,8 @@
 :category: operations
 :tags: ports, causal-cluster
 :neo4j-versions: 2.3, 3.0, 3.1, 3.2
-:public:
 
-If it becomes necessary to validate, particularly in a clustered environment whether 
+If it becomes necessary to validate, particularly in a clustered environment whether
 https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/[Causal Cluster] or 
 https://neo4j.com/docs/operations-manual/current/clustering/high-availability/[High Availability], whether or
 not 1 instance can talk to another instance on a given port one can use linux command https://en.wikipedia.org/wiki/Netcat[`netcat`].

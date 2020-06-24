@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.0, 3.1
 :tags: copy,sql
-:public:
 :category: cypher
 
 With a traditional SQL RDBMS one could perform a `create table as select` (i.e. CTAS) whereby its purpose is to create a

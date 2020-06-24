@@ -3,7 +3,6 @@
 :author: Daniel Terlizzi
 :neo4j-versions: 3.5, 3.4
 :tags: troubleshooting
-:public:
 :category: operations
 
 When troubleshooting issues on Neo4j Streams, use the below list of must gather information points to help investigating.

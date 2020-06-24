@@ -3,7 +3,6 @@
 :author: Dave Gordon
 :neo4j-versions: 2.0,2.1,2.2,2.3
 :tags: unix, installation
-:public:
 :category: installation
 
 [WARNING]

@@ -3,7 +3,6 @@
 :author: José Rocha
 :neo4j-versions: 3.1, 3.2, 3.3, 3.4
 :tags: server,cluster,causal cluster,leader,follower,writes
-:public:
 :category: cluster
 
 To monitor if a Follower is in sync with its Leader, or know how much it is lagging behind, it is possible to check the *Last Commited Transaction Id* from Leader and Follower.

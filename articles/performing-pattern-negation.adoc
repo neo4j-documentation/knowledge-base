@@ -3,7 +3,6 @@
 :author: Andrew Bowman
 :neo4j-versions: all
 :tags: performance, cypher
-:public:
 :category: cypher
 
 Some use cases require matching to nodes which aren't connected to any of some other set of nodes.
