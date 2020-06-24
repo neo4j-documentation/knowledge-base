@@ -13,7 +13,7 @@ buildscript {
 plugins {
     id 'org.asciidoctor.jvm.gems' version '3.2.0' apply false
     id 'org.asciidoctor.jvm.convert' version '3.2.0' apply false
-    id "com.neo4j.gradle.wordpress.WordPressPlugin" version "0.5.0"
+    id "com.neo4j.gradle.wordpress.WordPressPlugin" version "0.6.0"
     id "com.neo4j.gradle.zendesk.ZenDeskPlugin" version "0.2.0"
 }
 
