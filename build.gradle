@@ -148,6 +148,8 @@ ext.getTaxonomies = { taxonomyName, files ->
 task convertWordPressHtml(type: AsciidoctorTask) {
     dependsOn asciidoctorGemsPrepare
 
+    inputs.dir "${rootProject.projectDir}/_templates/wordpress"
+
     asciidoctorj {
         requires "${rootProject.projectDir}/resources/extensions/footer.rb"
         options standalone: true,
