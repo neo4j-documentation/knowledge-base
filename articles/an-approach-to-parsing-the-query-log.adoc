@@ -79,7 +79,7 @@ fi
 Upon running the script and passing the query.log file to be analyzed, for example `./parse_querylog.sh query.log`  output will be similar to
 
 1. when `dbms.logs.query.time_logging_enabled=false`
-
++
 [source,shell]
 ----
 First Query Reported at: 2018-04-10 11:48:36.425+0000
@@ -103,9 +103,9 @@ line:6  2018-04-10 11:48:51.613+0000 INFO  9 ms: bolt-session   bolt            
 ----
 
 2. when `dbms.logs.query.time_logging_enabled=true`
-
++
 (*Note:* the listing of 10 queries per section has been reduced to 2 lines for brevity.  Additonally the Cypher of the query has been reduced)
-
++
 [source,shell]
 ----
 First Query Reported at: 2018-01-24 07:58:13.360+0000

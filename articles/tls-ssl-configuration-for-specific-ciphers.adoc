@@ -29,14 +29,14 @@ jdk.certpath.disabledAlgorithms=MD2, MD4, MD5,  EC keySize < 160, RSA keySize < 
 To debug further in case of any issues, you can use the following steps:
 
 1. You can assess the handshake between the client and neo4j by including the following setting in neo4j.conf (and restart):
-
++
 [source,conf]
 ----
 dbms.jvm.additional=-Djavax.net.debug=ssl:handshake
 ----
 
 2. Run the following to investigate list of available ciphers (example)
-
++
 [source,shell]
 ----
 $ nmap --script ssl-enum-ciphers -p 7473 localhost
@@ -66,7 +66,7 @@ Nmap done: 1 IP address (1 host up) scanned in 0.66 seconds
 ----
 
 3. As well as the following:
-
++
 [source,shell]
 ----
 $openssl s_client -connect <server-name-ip>:7473
