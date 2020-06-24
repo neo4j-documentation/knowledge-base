@@ -4,7 +4,6 @@
 :category: operations
 :tags: backup, error, encryption
 :neo4j-versions: 3.5
-:public:
 
 This article is based on a defect report with a suggested workaround until a fix becomes available.
 

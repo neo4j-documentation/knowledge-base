@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.5
 :tags: backup, transaction
-:public:
 :category: cypher
 
 When running backup for example

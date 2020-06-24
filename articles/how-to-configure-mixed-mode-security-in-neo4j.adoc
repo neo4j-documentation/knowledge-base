@@ -3,7 +3,6 @@
 :author: Dave Gordon
 :neo4j-versions: 3.1, 3.2
 :tags: security, ldap
-:public:
 :category: operations
 
 For environments where you need both LDAP authentication as well as some native user accounts, there is a way to allow this in Neo4j 3.1 and newer. Use the configuration setting `dbms.security.auth_providers` instead of the singular version `dbms.security.auth_provider`. This will allow you to supply a list of providers to use for authentication. 

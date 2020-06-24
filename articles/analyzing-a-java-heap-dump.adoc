@@ -4,7 +4,6 @@
 :category: operations
 :tags: heap-dump, out-of-memory, monitoring
 :neo4j-versions: 3.4, 3.5
-:public:
 
 The purpose of this article is to help you go through the acquired heapdump with Eclipse MAT. It covers how to parse a large heap files and what to look for.
 

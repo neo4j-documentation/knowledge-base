@@ -4,9 +4,7 @@
 :neo4j-versions: 2.3, 3.0
 :author: Dana Canzano
 :tags: cypher
-:public:
 :category: cypher
-
 
 To display the nodes with the most properties defined, run the following Cypher:
 

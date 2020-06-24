@@ -3,9 +3,7 @@
 :author: Jérémie Phoulchand
 :neo4j-versions: 3.5,3.4
 :tags: maven, java, embedded, user-defined-procedures, dependencies, upgrade
-:public:
 :category: development
-
 
 There are multiple ways to include neo4j artifacts.
 In this article, we will focus on maven based on different scenarios or errors.

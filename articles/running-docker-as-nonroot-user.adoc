@@ -4,7 +4,6 @@
 :neo4j-versions: 3.2,3.3,3.4,3.5,4.0
 :tags: startup, permissions, docker
 :category: installation
-:public:
 :environment: docker
 
 When running Neo4j Docker, it will run as `neo4j` user inside the container. But to run docker as a different user one can specify the `--user` argument. 

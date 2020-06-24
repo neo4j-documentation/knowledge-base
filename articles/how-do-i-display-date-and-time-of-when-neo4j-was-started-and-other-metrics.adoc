@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.1
 :tags: functions, apoc, jmx
-:public:
 :category: operations
 
 The following Cypher will utilize the JMX metrics as part of 3.1 Enterprise and display the date/time when Neo4j was started.

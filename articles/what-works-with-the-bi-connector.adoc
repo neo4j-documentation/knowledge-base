@@ -3,7 +3,6 @@
 :author: Shashi Dookhee
 :neo4j-versions: 3.5, 4.0
 :tags: jdbc, sql, tableau, visualization, bi-connector
-:public:
 :category: tools
 
 This article provides an overview of what third-party applications to expect the BI connector work with.

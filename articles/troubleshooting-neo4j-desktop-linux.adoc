@@ -4,7 +4,6 @@
 :neo4j-versions: Neo4j Desktop 1.x
 :tags: desktop, linux
 :category: desktop
-:public:
 
 This page describes common issues users may encounter when running Neo4j Desktop on Linux.
 

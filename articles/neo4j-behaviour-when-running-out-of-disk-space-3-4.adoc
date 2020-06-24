@@ -3,7 +3,6 @@
 :author: José Rocha
 :neo4j-versions: 3.4
 :tags: transaction,consistency,disk-space,disk
-:public:
 :category: operations
 
 Following the improvements on the recovery process after an instance runs out of disk space introduced in v3.4.0, this article aims to offer a view on the behaviour of Neo4j when this happens.

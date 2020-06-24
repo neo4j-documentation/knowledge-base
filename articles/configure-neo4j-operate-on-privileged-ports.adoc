@@ -3,7 +3,6 @@
 :author: David Fauth
 :neo4j-versions: 3.5
 :tags: server, ports
-:public:
 :category: operations
 
 In some environments, users are required to run Neo4j on ports lower than 1024 due to corporate policies. The following is a sample configuration showing how to configure Neo4j 3.5 and newer to listen on those ports.

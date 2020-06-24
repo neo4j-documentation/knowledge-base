@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 2.2, 2.3, 3.0
 :tags: constraint
-:public:
 :category: operations
 
 The following error, via `bin/neo4j-shell`:

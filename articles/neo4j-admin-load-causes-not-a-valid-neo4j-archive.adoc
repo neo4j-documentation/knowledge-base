@@ -3,7 +3,6 @@
 :author: Kambiz Chehresa
 :neo4j-versions: 4.0
 :tags: dump, load, neo4j-admin,linux
-:public:
 :category: operations
 :environment: linux
 

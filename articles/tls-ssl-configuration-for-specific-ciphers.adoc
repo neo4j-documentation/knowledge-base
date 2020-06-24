@@ -3,9 +3,7 @@
 :author: Ali Maddahian
 :neo4j-versions: 3.5
 :tags: ssl, tls, cipher, security, unix, operations
-:public:
 :category: security
-
 
 Per documentation: `dbms.ssl.policy.<policyname>.ciphers` is by default set to the Java platform default allowed cipher suites, which can also be explicitly set to any specific ciphers (separated by ",") to further restrict list of allowed ciphers, thus enabling us to enforce a particular single strong cipher (if needed) and remove any doubt about which cipher gets negotiated and chosen.
 

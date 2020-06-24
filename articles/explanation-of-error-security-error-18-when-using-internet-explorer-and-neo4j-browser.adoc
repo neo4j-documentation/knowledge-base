@@ -3,9 +3,7 @@
 :author: Dana Canzano
 :neo4j-versions: 3.2, 3.3
 :tags: internet-explorer,browser
-:public:
 :category: browser
-
 
 When connecting to the Neo4j Browser `http://localhost:7474` and using Internet Explorer 11, submission of `cypher` statements may result
 in error message 

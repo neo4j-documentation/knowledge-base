@@ -3,7 +3,6 @@
 :author: Andrew Bowman
 :neo4j-versions: 3.1, 3.0, 2.3, 2.2
 :tags: cypher, limit
-:public:
 :category: cypher
 
 Since `LIMIT` applies to the total number of rows of the query, it can't be used in cases when matching from multiple nodes where the limit must be per row.

@@ -4,7 +4,6 @@
 :neo4j-versions: 3.1,3.2,3.3,3.4,3.5
 :tags: installation, server
 :category: operations
-:public:
 
 The neo4j script under the `bin/` directory of any standard Neo4j install is the primary means of shutting down a running Neo4j instance. That script accepts a `stop` argument that will try to shutdown the running instance by sending a `SIGTERM` signal that the JVM interprets as a shutdown command and runs the installed shutdown hooks, which Neo4j implements to ensure a clean shutdown.
 

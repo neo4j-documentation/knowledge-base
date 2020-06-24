@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
 :tags: AWS, S3, upload, download
-:public:
 :category: operations
 
 If one has installed the https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html[AWS CLI] 

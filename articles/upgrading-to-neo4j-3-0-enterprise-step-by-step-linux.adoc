@@ -3,7 +3,6 @@
 :author: Dave Gordon
 :neo4j-versions: 3.0
 :tags: upgrade, linux
-:public:
 :category: operations
 :environment: linux
 

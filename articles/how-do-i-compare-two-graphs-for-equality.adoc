@@ -4,7 +4,6 @@
 :twitter:
 :neo4j-versions: 3.0
 :tags: apoc
-:public:
 :category: cypher
 
 If you are looking to compare 2 graphs (or sub-graphs) to determine if they are equivalent, the following Cypher will produce a md5sum of the nodes and properties to make that comparison. For example, you may wish to compare a test/QA instance with a production instance.

@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.2, 3.3, 3.4
 :tags: apoc, json,import
-:public:
 :category: import-export
 
 The following document describes how to utilize the https://developer.zendesk.com/rest_api/docs/core/introduction[Zendesk API]

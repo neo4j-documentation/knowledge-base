@@ -3,7 +3,6 @@
 :author: Daniel Terlizzi
 :neo4j-versions: 3.4, 3.5
 :tags: jvm, memory, exception, error
-:public:
 :category: installation
 
 It is possible to configure the JVM (Java Virtual Machine) such that upon encountering an OOM (Out-Of-Memory) error it will force an exception and crash or simply shut down the application. Taking action upon first OOM occurrence can help in avoiding further victims of low memory situations that may encounter OOM depending on their memory demand at the time and also reduce the time to recovery. Additionally, this may actually allow the failed operations due to OOM to complete successfully after restarting the application and retry of such operations since the memory footprint has changed. Choosing CrashOnOutOfMemoryError over ExitOnOutOfMemoryError is preferred if diagnosing the issue is a priority.

@@ -5,7 +5,6 @@
 :tags: startup, linux
 :environment: linux
 :category: operations
-:public:
 
 If you want to emulate the Neo4j RPM service with a tar installation on Linux systems, do the following steps:
 

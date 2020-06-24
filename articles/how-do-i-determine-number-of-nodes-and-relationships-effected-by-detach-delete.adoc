@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.2, 3.3, 3.4, 3.5
 :tags: delete
-:public:
 :category: cypher
 
 Prior to running a `match .... detach delete n;` which will find said nodes and delete all relationships associated with said nodes as well as delete the nodes themselves one might want to run a query to determine how many nodes/relationships will be effected.

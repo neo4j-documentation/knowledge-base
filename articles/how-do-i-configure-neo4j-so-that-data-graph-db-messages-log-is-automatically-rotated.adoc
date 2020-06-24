@@ -3,7 +3,6 @@
 :zendesk-id: 215574128
 :author: Dana Canzano
 :tags: server,configuration
-:public:
 :neo4j-versions: 2.3
 :category: operations
 

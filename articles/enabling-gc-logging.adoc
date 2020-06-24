@@ -4,7 +4,6 @@
 :author: Dave Gordon
 :neo4j-versions: 2.1,2.2,2.3,3.0,3.1,3.2,3.3,3.4,3.5
 :tags: logging,garbage collection, heap, memory, jvm
-:public:
 :category: operations
 
 If you are having issues with Garbage Collection (too many pauses, too long of a pause, pauses causing cluster re-election, etc),  you should look at enabling GC logging.

@@ -3,7 +3,6 @@
 :author: Michael Hunger
 :tags: cypher, export, import
 :neo4j-versions: 3.0, 3.1, 2.3
-:public:
 :category: import-export
 
 Oftentimes you want to export a full (or partial) database to a file and import it again without copying the actual database files.

@@ -3,7 +3,6 @@
 :author: Ali Maddahian
 :neo4j-versions: all
 :tags: ha, cluster, bolt, http, https, load balancer
-:public:
 :category: cluster
 
 The legacy HA cluster mode has been deprecated as of Neo4j version 3.5, and will be totally removed from the product in version 4.0, with 4.0 expected to be released near the end of 2019.   

@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 2.2, 2.3, 3.0
 :tags: parameters, neo4j-shell, quotes
-:public:
 :category: cypher
 
 `bin/neo4j-shell` allows for a command line interface to query your graph via Cypher statements and to include parameters to those statements.

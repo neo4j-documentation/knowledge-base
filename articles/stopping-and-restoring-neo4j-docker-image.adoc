@@ -3,7 +3,6 @@
 :author: Umar Muzammil
 :neo4j-versions: 3.1, 3.2, 3.3
 :tags: docker, restore, backup
-:public:
 :environment: docker
 :category: operations
 

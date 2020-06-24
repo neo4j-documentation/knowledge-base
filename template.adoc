@@ -8,12 +8,10 @@
 :neo4j-versions: 2.3, 3.0
 // see taxonomy in readme, remove this comment
 :tags: logging, server
-//:public:
-//:private:
-// category see https://github.com/neo-technology-field/knowledge-base/blob/master/kb-categories.txt
+// category see https://github.com/neo4j-documentation/knowledge-base/blob/master/kb-categories.txt
 :category: cypher
 
-Intro text
+Intro text.
 
 Refer to a  `path/to/file`.
 
@@ -35,6 +33,8 @@ Some bullet points:
 * One
 * Two
 
+// single line comment
+
 . First
 . Second
 
@@ -42,3 +42,15 @@ Some bullet points:
 Multiline comment
 ////
 
+NOTE: An admonition paragraph draws the reader's attention to auxiliary information.
+Its purpose is determined by the label at the beginning of the paragraph.
+
+Here are the other built-in admonition types:
+
+TIP: Pro tip...
+
+IMPORTANT: Don't forget...
+
+WARNING: Watch out for...
+
+CAUTION: Ensure that...

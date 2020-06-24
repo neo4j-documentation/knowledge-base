@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.4, 3.5
 :tags: load-csv
-:public:
 :category: cypher
 
 If one has a CSV file with the following content

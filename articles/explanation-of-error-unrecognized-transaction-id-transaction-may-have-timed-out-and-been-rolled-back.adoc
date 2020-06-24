@@ -3,7 +3,7 @@
 :zendesk-id: 216757677
 :author: Dana Canzano
 :tags: cypher,http
-:public: 3.0,3.1,3.2,3.3,3.4,3.5
+:neo4j-versions: 3.0,3.1,3.2,3.3,3.4,3.5
 :category: operations
 
 When submitting a request via the http://neo4j.com/docs/stable/rest-api-transactional.html[Neo4j Transactional Cypher HTTP endpoint], one may encounter the following error

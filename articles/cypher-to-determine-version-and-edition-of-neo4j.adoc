@@ -3,7 +3,6 @@
 :author: Vivek Saran
 :neo4j-versions: 3.3, 3.4, 3.5
 :tags: edition, version
-:public:
 :category: cypher
 
 If you want to determine version and edition of the running Neo4j instance this can be accomplished via running the following cypher:

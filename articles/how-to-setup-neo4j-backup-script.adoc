@@ -4,9 +4,8 @@
 :neo4j-versions: 3.2, 3.3, 3.4, 3.5
 :tags: backup
 :category: operations
-:public:
 
-For operators of Neo4j looking to implement regular hot backups of a Neo4j database using automated job scheduling, applying this 
+For operators of Neo4j looking to implement regular hot backups of a Neo4j database using automated job scheduling, applying this
 wrapper  around `neo4j-admin backup` will make your job easier. Simply read this guide, customize according to your environment, and 
 set your job scheduler to run the `backupDatabase.sh` wrapper script.    
 

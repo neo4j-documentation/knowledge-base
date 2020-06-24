@@ -3,7 +3,6 @@
 :author: Rohan Kharwar
 :neo4j-versions: 3.3, 3.4
 :tags: configuration
-:public:
 :category: desktop
 
 Organizations have proxy settings in order to access the internet or external websites. 

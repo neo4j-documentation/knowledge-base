@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.2, 3.3
 :tags: relationship, record-id
-:public:
 :category: operations
 
 When running a Cypher statement that creates a new relationship type, for example

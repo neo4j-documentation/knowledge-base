@@ -3,7 +3,6 @@
 :author: Rohan Kharwar
 :neo4j-versions: neo4j-python-driver 1.2
 :tags: python, bolt
-:public:
 :category: drivers
 
 Take the example of Python with the latest Bolt driver 1.2.

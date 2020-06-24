@@ -3,7 +3,6 @@
 :author: Rohan Kharwar
 :neo4j-versions: 3.2, 3.3, 3.4, 3.5
 :tags: aws, s3, import, cli
-:public:
 :category: import-export
 
 Neo4j provides LOAD CSV cypher command to load data from CSV files into Neo4j or access CSV files via HTTPS, HTTP and FTP.

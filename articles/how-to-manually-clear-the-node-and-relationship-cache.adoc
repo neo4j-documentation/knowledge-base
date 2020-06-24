@@ -5,7 +5,6 @@
 :tags: performance, cache, warmup
 :neo4j-versions: 2.1, 2.2
 :outdated: true
-:public:
 :category: operations
 
 [NOTE]

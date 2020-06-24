@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.2, 3.3
 :tags: debug
-:public:
 :category: cypher
 
 If you wish to set a 'breakpoint' in a Cypher statement so as to perform further analysis (i.e. see how many locks are taken, 

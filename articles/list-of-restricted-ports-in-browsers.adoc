@@ -3,7 +3,6 @@
 :author: Umar Muzammil
 :neo4j-versions: all
 :tags: browser, chrome, ports, url
-:public:
 :category: browser
 
 This document provides a list of ports which generate an error when browsing via Chrome. It is a super-set of ports most of which are also restricted in Mozilla Firefox

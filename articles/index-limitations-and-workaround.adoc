@@ -4,7 +4,6 @@
 :neo4j-versions: 4.0
 :outdated: false
 :tags: indexing
-:public:
 :category: operations
 
 In this article we discuss index providers and what limitations and workarounds there are.

@@ -3,7 +3,6 @@
 :author: José Rocha
 :neo4j-versions: 3.3, 3.4, 3.5
 :tags: performance, copy,store, tools
-:public:
 :category: tools
 
 The copy store utilities is a set of tools to compact, copy, fix and analyse Neo4j stores. You might already know this but if not, you can

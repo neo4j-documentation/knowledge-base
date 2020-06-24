@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.0, 4.0
 :tags: indexing, constraint, cypher
-:public:
 :category: cypher
 
 The following can be used to extract index definitions and constraint definitions from an existing database and the resultant

@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.0
 :tags: logging,server,database
-:public:
 :category: import-export
 
 With the inclusion of java stored procedures in Neo4j 3.x, one can run Cypher to connect to a RDBMS using JDBC.  

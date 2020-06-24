@@ -4,7 +4,6 @@
 :neo4j-versions: 3.4, 3.5, 4.0
 :category: security
 :tags: tls, ssl, configuration
-:public:
 
 TLS encryption is required everywhere.
 This is a compilation of few errors you can expect while configuring your server.

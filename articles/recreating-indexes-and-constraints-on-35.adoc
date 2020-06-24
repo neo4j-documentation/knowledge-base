@@ -2,11 +2,10 @@
 :slug: recreating-indexes-and-constraints-on-35
 :author: Dave Shiposh
 :tags: indexing,constraint,upgrade
-:public:
 :category: operations
 :neo4j-versions: 3.5
 
-This arcticle describes the process to drop and recreate all indexes and constraints on 3.5.x.  
+This article describes the process to drop and recreate all indexes and constraints on 3.5.x.
 This is a recommended step after upgrading from versions earlier then 3.5 so that all indexes and constraints can be rebuilt with the latest index provider and take advantage of native indexes.  
 
 More details on index providers can be found in the documentation:  https://neo4j.com/docs/operations-manual/current/performance/index-configuration/schema-indexes/#index-configuration-index-providers

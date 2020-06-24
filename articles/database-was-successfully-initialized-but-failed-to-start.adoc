@@ -3,7 +3,6 @@
 :author: Daniel Terlizzi
 :neo4j-versions: 3.5, 3.4
 :tags: configuration
-:public:
 :category: operations
 
 Sometimes when the database does not start it could be something as simple as unnecessary characters in the neo4j.conf file. For example if you add space and/or tab characters to below setting:

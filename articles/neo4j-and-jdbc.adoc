@@ -4,7 +4,6 @@
 :neo4j-versions: 3.5, 4.0
 :tags: jdbc, sql, tableau, cypher
 :category: tools
-:public:
 
 This page describes the connection between JDBC and Neo4j,
 and when users should use the BI Connector, vs. when they

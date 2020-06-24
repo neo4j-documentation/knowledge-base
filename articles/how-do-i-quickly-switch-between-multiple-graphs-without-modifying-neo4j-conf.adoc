@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.0, 3.1
 :tags: configuration
-:public:
 :category: operations
 
 If you have multiple graphs set up and want to quickly switch between each without modifying `dbms.active_database` in `conf/neo4j.conf`,

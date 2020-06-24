@@ -40,8 +40,6 @@ You can use prose, headlines, sections, images, source-code blocks, links to GH 
 [NOTE]
 But please keep it reasonably short and to the point.
 
-Public articles must be marked with a `:public:` flag.
-
 It contains some additional fields:
 
 * `:author:` (optionally `:twitter:`)

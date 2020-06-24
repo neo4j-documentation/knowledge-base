@@ -4,9 +4,7 @@
 :author: Dave Gordon
 :tags: import, neo4j-import, csv
 :neo4j-versions: 2.1, 2.2, 2.3, 3.1,3.2,3.3,3.4,3.5
-:public:
 :category: import-export
-
 
 [NOTE]
 `neo4j-import` is intended to populate a new, empty database.

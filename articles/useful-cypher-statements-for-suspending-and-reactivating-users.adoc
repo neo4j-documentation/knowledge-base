@@ -3,7 +3,6 @@
 :author: Dana Canzano
 :neo4j-versions: 3.1
 :tags: suspend, activate, security, user
-:public:
 :category: operations
 
 Commencing with Neo4j 3.1 and implementaion of https://neo4j.com/docs/operations-manual/current/security/authentication-authorization/native-user-role-management/[native database users]

@@ -4,7 +4,6 @@
 :author: John Forrest
 :neo4j-versions: 
 :tags: debian,ubuntu
-:public:
 :category: installation
 
 The common cause is an out of date gpg key.

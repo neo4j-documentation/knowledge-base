@@ -4,7 +4,6 @@
 :author: Stefan Armbruster
 :neo4j-versions: 3.0,3.1,3.2,3.3,3.4,3.5
 :tags: cluster, master, writes, load balancer
-:public:
 :category: cluster
 
 There are a few options regarding implementation of a proxy server to direct writes to a Master node and reads to the Slave nodes in a Neo4j cluster.
