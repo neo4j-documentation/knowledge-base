@@ -14,7 +14,7 @@ plugins {
     id 'org.asciidoctor.jvm.gems' version '3.2.0' apply false
     id 'org.asciidoctor.jvm.convert' version '3.2.0' apply false
     id "com.neo4j.gradle.wordpress.WordPressPlugin" version "0.6.0"
-    id "com.neo4j.gradle.zendesk.ZenDeskPlugin" version "0.2.0"
+    id "com.neo4j.gradle.zendesk.ZenDeskPlugin" version "0.3.0"
 }
 
 apply plugin: 'org.asciidoctor.jvm.gems'
@@ -251,4 +251,7 @@ task zenDeskUpload(type: ZenDeskUploadTask) {
     userSegmentId = 1716387
     permissionGroupId = 136448
     sectionId = 200574983
+    // notify subscribers when creating a new article (default: false)
+    // can be configured using the project property "notify" (for instance, via the "-P" command line option): "-Pnotify=true"
+    notifySubscribers = project.hasProperty('notify') ? project.property('notify') : false
 }
