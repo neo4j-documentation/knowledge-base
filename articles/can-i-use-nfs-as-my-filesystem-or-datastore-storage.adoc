@@ -14,10 +14,6 @@ If we can't lock the store files, others can concurrently access them, resulting
 
 Refer to the Neo4j documentation on recommended filesystem storage formats:
 
-http://neo4j.com/docs/stable/deployment-requirements.html#_filesystem[]
+http://neo4j.com/docs/stable/deployment-requirements.html#_filesystem
 
-
-* Last Modified: {docdatetime} by {author}.
-* Relevant for Neo4j Versions: {neo4j-versions}.
-* Relevant keywords {tags}.
 

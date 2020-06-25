@@ -38,7 +38,3 @@ p1=Nora Ephron
 TITLE_KEYS=.*name.*,.*title.*
 neo4j-sh (?)$ match (n:Person {name:'Tom Hanks'})-[:ACTED_IN]->(n1:Movie)<-[:DIRECTED]-(n2:Person {name:{p1}}) return n1.title;
 ----
-
-* Last Modified: {docdatetime} by {author}.
-* Relevant for Neo4j Versions: {neo4j-versions}.
-* Relevant keywords {tags}.
