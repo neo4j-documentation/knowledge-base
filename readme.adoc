@@ -192,10 +192,10 @@ When publishing in "testing", the slug will be automatically prefixed by `+_test
 ==== Examples
 
 .Publish in "testing"
- $ /gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=testing
+ $ ./gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=testing
 
 .Publish in "production"
- $ /gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=production
+ $ ./gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=production
 
 === Publish Zendesk
 
