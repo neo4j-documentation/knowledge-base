@@ -11,31 +11,31 @@ Review our https://neo4j.com/terms/support-terms/[Support Terms] for reference.
 For reference and planning purposes, the following represents a list of the currently supported Neo4j releases, release date, and date at which that release will no longer be supported.
 
 Neo4j Database Enterprise Edition
-[options=header]
+[cols="4*s",options=header]
 |===
-|Release |Release Date |End of Support Date |Compatible Driver Versions 
-|[white]*4.1* |[white]*June 23, 2020* |[white]*December 23, 2021* |[white]*4.1, 4.0* 
-|[white]*4.0* |[white]*January 15, 2020* |[white]*July 14, 2021* |[white]*4.1, 4.0* 
-|[white]*3.5*(**) |[white]*November 29, 2018* |[white]*November 28, 2021* |[white]*4.1, 4.0, 1.7* 
-|[white]*3.4* |[white]*May 17, 2018* |[white]*March 31, 2020 (* [white]** )* |[white]*1.7, 1.6* 
-|[white]*3.3* |[white]*October 24, 2017* |[white]*April 28, 2019* |[white]*1.7, 1.6, 1.5, 1.4* 
-|[white]*3.2* |[white]*May 11, 2017* |[white]*November 31, 2018* |[white]*1.6, 1.5, 1.4, 1.3* 
-|[white]*3.1* |[white]*December 13, 2016* |[white]*June 13, 2018* |[white]*1.6, 1.5, 1.4, 1.3, 1.2, 1.1* 
-|[white]*3.0* |[white]*April 16, 2016* |[white]*October 31, 2017* |[white]*1.5, 1.4, 1.3, 1.2, 1.1, 1.0* 
-|[white]*2.3* |[white]*October 21, 2015* |[white]*April 21, 2017* | 
-|[white]*2.2* |[white]*March 25, 2015* |[white]*September 25, 2016* | 
-|[white]*2.1* |[white]*May 29, 2014* |[white]*November 29, 2015* | 
-|[white]*2.0* |[white]*December 11, 2013* |[white]*June 11, 2015* | 
-|[white]*1.9* |[white]*May 21, 2013* |[white]*November 21, 2014* | 
-|[white]*1.8* |[white]*September 28, 2012* |[white]*March 28, 2014* | 
-|[white]*1.7* |[white]*April 18, 2012* |[white]*October 18, 2013* | 
-|[white]*1.6* |[white]*January 22, 2012* |[white]*July 22, 2013* | 
-|[white]*1.5* |[white]*November 9, 2011* |[white]*March 9, 2013* | 
-|[white]*1.4* |[white]*July 8, 2011* |[white]*January 8, 2013* | 
-|[white]*1.3* |[white]*April 12, 2011* |[white]*September 12, 2012* | 
-|[white]*1.2* |[white]*December 29, 2010* |[white]*June 29, 2012* | 
-|[white]*1.1* |[white]*July 30, 2010* |[white]*January 30, 2012* | 
-|[white]*1.0* |[white]*February 23, 2010* |[white]*August 23, 2011* | 
+|Release |Release Date |End of Support Date |Compatible Driver Versions
+|4.1 |June 23, 2020 |December 23, 2021 |4.1, 4.0
+|4.0 |January 15, 2020 |July 14, 2021 |4.1, 4.0
+|3.5(**) |November 29, 2018 |November 28, 2021 |4.1, 4.0, 1.7
+|3.4 |May 17, 2018 |March 31, 2020 (*) |1.7, 1.6
+|3.3 |October 24, 2017 |April 28, 2019 |1.7, 1.6, 1.5, 1.4
+|3.2 |May 11, 2017 |November 31, 2018 |1.6, 1.5, 1.4, 1.3
+|3.1 |December 13, 2016 |June 13, 2018 |1.6, 1.5, 1.4, 1.3, 1.2, 1.1
+|3.0 |April 16, 2016 |October 31, 2017 |1.5, 1.4, 1.3, 1.2, 1.1, 1.0
+|2.3 |October 21, 2015 |April 21, 2017 |
+|2.2 |March 25, 2015 |September 25, 2016 |
+|2.1 |May 29, 2014 |November 29, 2015 |
+|2.0 |December 11, 2013 |June 11, 2015 |
+|1.9 |May 21, 2013 |November 21, 2014 |
+|1.8 |September 28, 2012 |March 28, 2014 |
+|1.7 |April 18, 2012 |October 18, 2013 |
+|1.6 |January 22, 2012 |July 22, 2013 |
+|1.5 |November 9, 2011 |March 9, 2013 |
+|1.4 |July 8, 2011 |January 8, 2013 |
+|1.3 |April 12, 2011 |September 12, 2012 |
+|1.2 |December 29, 2010 |June 29, 2012 |
+|1.1 |July 30, 2010 |January 30, 2012 |
+|1.0 |February 23, 2010 |August 23, 2011 |
 |===
 
 (*) Note: One-time extension for 3.4 only.
