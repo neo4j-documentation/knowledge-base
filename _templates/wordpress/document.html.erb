@@ -1,42 +1,109 @@
-<!-- Styles copied from https://github.com/asciidoctor/asciidoctor/blob/master/data/stylesheets/asciidoctor-default.css -->
+<!-- Colors taken from the Neo4j style guide -->
 <style>
-.big{font-size:larger}
-.small{font-size:smaller}
-.underline{text-decoration:underline}
-.overline{text-decoration:overline}
-.line-through{text-decoration:line-through}
-.aqua{color:#00bfbf}
-.aqua-background{background-color:#00fafa}
-.black{color:#000}
-.black-background{background-color:#000}
-.blue{color:#0000bf}
-.blue-background{background-color:#0000fa}
-.fuchsia{color:#bf00bf}
-.fuchsia-background{background-color:#fa00fa}
-.gray{color:#606060}
-.gray-background{background-color:#7d7d7d}
-.green{color:#006000}
-.green-background{background-color:#007d00}
-.lime{color:#00bf00}
-.lime-background{background-color:#00fa00}
-.maroon{color:#600000}
-.maroon-background{background-color:#7d0000}
-.navy{color:#000060}
-.navy-background{background-color:#00007d}
-.olive{color:#606000}
-.olive-background{background-color:#7d7d00}
-.purple{color:#600060}
-.purple-background{background-color:#7d007d}
-.red{color:#bf0000}
-.red-background{background-color:#fa0000}
-.silver{color:#909090}
-.silver-background{background-color:#bcbcbc}
-.teal{color:#006060}
-.teal-background{background-color:#007d7d}
-.white{color:#bfbfbf}
-.white-background{background-color:#fafafa}
-.yellow{color:#bfbf00}
-.yellow-background{background-color:#fafa00}
+  /* hack until row/column roles are supported in Asciidoctor: */
+  /* https://github.com/asciidoctor/asciidoctor/issues/1338 */
+  table.neo4j-supported-versions > tbody > tr:nth-child(1) > td > p,
+  table.neo4j-supported-versions > tbody > tr:nth-child(2)> td > p,
+  table.neo4j-supported-versions > tbody > tr:nth-child(3)> td > p {
+    color: #60B389;
+    font-weight: bold;
+  }
+
+  table.neo4j-supported-versions > tbody > tr:nth-child(n+4) > td > p {
+    color: #DE6760;
+    font-weight: normal;
+  }
+
+  .blue {
+    color: #68BBF4
+  }
+
+  .blue-dark {
+    color: #5CA6D9
+  }
+
+  .purple {
+    color: #DC99F7
+  }
+
+  .purple-dark {
+    color: #BD83D4
+  }
+
+  .pink {
+    color: #F993AD
+  }
+
+  .pink-dark {
+    color: #DE8299
+  }
+
+  .red {
+    color: #FD756E
+  }
+
+  .red-dark {
+    color: #DE6760
+  }
+
+  .orange {
+    color: #FDD66E
+  }
+
+  .orange-dark {
+    color: #EBB83A
+  }
+
+  .green {
+    color: #6DCC9C
+  }
+
+  .green-dark {
+    color: #60B389
+  }
+
+  .gray-darker {
+    color: #30333A
+  }
+
+  .gray-dark {
+    color: #525865
+  }
+
+  .gray {
+    color: #9599A1
+  }
+
+  .gray-light {
+    color: #D2D5DA
+  }
+
+  .gray-lighter {
+    color: #EEF1F8
+  }
+
+  .gray-lightest {
+    color: #F9FBFD
+  }
+  .big {
+    font-size: larger
+  }
+
+  .small {
+    font-size: smaller
+  }
+
+  .underline {
+    text-decoration: underline
+  }
+
+  .overline {
+    text-decoration: overline
+  }
+
+  .line-through {
+    text-decoration: line-through
+  }
 </style>
 
 <%= content %>

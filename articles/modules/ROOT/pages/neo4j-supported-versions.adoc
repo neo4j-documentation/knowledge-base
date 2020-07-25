@@ -10,8 +10,10 @@ Review our https://neo4j.com/terms/support-terms/[Support Terms] for reference.
 
 For reference and planning purposes, the following represents a list of the currently supported Neo4j releases, release date, and date at which that release will no longer be supported.
 
+// the table style is defined in _templates/wordpress/document.html.erb
+// supported versions will appear in green with a bold font, while unsupported version will appear in red with a normal font weight.
 Neo4j Database Enterprise Edition
-[cols="4*s",options=header]
+[.neo4j-supported-versions,cols="4*",options=header]
 |===
 |Release |Release Date |End of Support Date |Compatible Driver Versions
 |4.1 |June 23, 2020 |December 23, 2021 |4.1, 4.0
