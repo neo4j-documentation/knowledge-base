@@ -14,7 +14,8 @@ Neo4j Database Enterprise Edition
 [options=header]
 |===
 |Release |Release Date |End of Support Date |Compatible Driver Versions 
-|[white]*4.0* |[white]*January 15, 2020* |[white]*July 15, 2021* |[white]*4.0* 
+|[white]*4.1* |[white]*June 23, 2020* |[white]*June 22, 2023* |[white]*4.1, 4.0* 
+|[white]*4.0* |[white]*January 15, 2020* |[white]*July 14, 2021* |[white]*4.1, 4.0* 
 |[white]*3.5* |[white]*November 29, 2018* |[white]*November 28, 2021* |[white]*4.0, 1.7* 
 |[white]*3.4* |[white]*May 17, 2018* |[white]*March 31, 2020 (* [white]** )* |[white]*1.7, 1.6* 
 |[white]*3.3* |[white]*October 24, 2017* |[white]*April 28, 2019* |[white]*1.7, 1.6, 1.5, 1.4* 
