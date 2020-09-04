@@ -39,6 +39,7 @@ Neo4j Database Enterprise Edition
 |===
 
 (*) Note: One-time extension for 3.4 only.
+
 (**) Note: 3.5 is the last minor version on major version 3.
 
 
