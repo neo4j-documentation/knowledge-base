@@ -3,7 +3,7 @@
 :author: Andrew Bowman
 :category: cypher
 :tags: cypher, conditional, apoc
-:neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5
+:neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5, 4.1
 
 At some point you're going to write a Cypher query requiring some conditional logic, where you want different Cypher statements executed depending on the case.
 
@@ -11,10 +11,124 @@ At this point in time Cypher does not include native conditional functionality t
 
 This article covers the ways you can perform conditional Cypher execution.
 
-.First a note on CASE
+== First a note on CASE
 
 The CASE expression does some conditional logic, but the logic can only be used to output an expression. It cannot be used to conditionally execute Cypher clauses.
 
+
+== Using correlated subqueries in 4.1
+
+Neo4j 4.1 allows correlated subqueries, letting us perform a subquery using variables present mid-query.
+By combining subquery usage with filtering, we can use subqueries to implement conditional Cypher execution.
+
+This requires the use of `WITH` as the first clause within the subquery CALL block, for the purpose of importing variables to the subquery.
+
+This import usage has some special restrictions that do not normally apply to `WITH` usage:
+
+1. You may only include variables from the outer query and no others.
+You cannot perform calculations, aggregations, or introduction of new variables in the initial `WITH`.
+2. You cannot alias any variables within this initial `WITH`.
+3. You cannot follow the initial `WITH` with a `WHERE` clause for filtering.
+
+If you try any of these, you will be met with some kind of error, such as:
+
+```
+Importing WITH should consist only of simple references to outside variables. Aliasing or expressions are not supported.
+```
+or more cryptically, if you try to use a `WHERE` clause after the initial `WITH`
+
+```
+Variable `x` not defined
+```
+(where the variable is the first one present in the `WITH` clause)
+
+You can get around all of these restrictions by simply introducing an additional `WITH` clause after the importing `WITH`, like so:
+
+[source,cypher]
+----
+MATCH (bruce:Person {name:'Bruce Wayne'})
+CALL {
+    WITH bruce
+    WITH bruce
+    WHERE bruce.isOrphan
+    MERGE (batman:Hero {name:'Batman'})
+    CREATE (bruce)-[:SuperheroPersona]->(batman)
+    WITH count(batman) as count
+    RETURN count = 1 as isBatman
+}
+RETURN isBatman
+----
+
+This demonstrates the ability to filter on imported variables to the subquery by adding a second `WITH` clause, which is not restricted in the same way as the initial `WITH` used for the import into the subquery.
+
+=== The subquery must return a row for the outer query to continue
+
+Subqueries are not independent of the outer query, and if they don't yield any rows, the outer query won't have any rows to continue execution.
+
+This can be a problem with conditional Cypher, since by definition you are evaluating a condition as a filter to figure out whether to do something or not.
+
+If that conditional evaluates to false, then the row is wiped out, which is often fine within the subquery itself (you don't want to create Batman if Bruce isn't an orphan yet),
+but you usually want to continue execution no matter what happened in the subquery, and maybe return some boolean value for whether or not the conditional succeeded.
+
+There are some workarounds to avoid having the row wiped out.
+
+=== Use a standalone aggregation to restore a row before the subquery return
+
+An aggregation (such as `count()`), when there are no other non-aggregation variables present to act as a grouping key,
+can restore a row even if the row has been wiped out.
+
+This is because it is valid to get the `count()` of 0 rows, or to do a `collect()` over 0 rows to produce an empty collection.
+
+Again, there must be no other non-aggregation variables present when you perform this aggregation.
+
+In the above example, we are using this technique in the subquery so that the outer query can continue no matter how the conditional evaluates:
+
+[source,cypher]
+----
+    WITH count(batman) as count
+    RETURN count = 1 as isBatman
+----
+
+With that `count()` we will get 0 or 1 no matter how the query evaluated, allowing us a row to continue execution when the subquery finishes.
+
+
+
+=== Use a UNION subquery to cover all possible conditionals
+
+We can instead use a UNION within a subquery, where the set of all the unioned queries covers all possible conditional outcomes.
+This ensures there will be an execution path that succeeds and will return a row, allowing the outer query to continue.
+
+This is also useful for keeping the equivalent of if/else or case logic together, as otherwise you would have to use separate subqueries per conditional block.
+
+With this approach you no longer have to use aggregation to ensure rows remain, you just need to make sure at least one of the UNIONed queries will succeed no matter what.
+
+
+[source,cypher]
+----
+MATCH (bruce:Person {name:'Bruce Wayne'})
+CALL {
+    WITH bruce
+    WITH bruce
+    WHERE bruce.isOrphan
+    MERGE (batman:Hero {name:'Batman'})
+    CREATE (bruce)-[:SuperheroPersona]->(batman)
+    RETURN true as isBatman
+
+    UNION
+
+    WITH bruce
+    WITH bruce
+    WHERE NOT coalesce(bruce.isOrphan, false)
+    SET bruce.name = 'Bruce NOT BATMAN Wayne'
+    RETURN false as isBatman
+}
+RETURN isBatman
+----
+
+Note that we have to use the import `WITH` for each of the UNIONed queries, to ensure each of them imports variables from the outer query,
+and we still must use a second `WITH` to allow us to filter.
+
+Since there is no limit to the number of queries that can be unioned together, you can use this approach to handle multiple conditional evaluations.
 
 == Using FOREACH for write-only Cypher
 
@@ -54,7 +168,7 @@ There are two types of procedures:
 Only the first condition that evaluates to true will execute its associated query. If no condition is true, then an else query can be supplied as a default.
 Cannot write to the graph.
 
-.Read and write variations
+=== Read and write variations
 
 The procedures shown above have read permission only, they are not allowed to write to the graph, and so if there are any write operations
 in the conditional Cypher within, the query will error out.
@@ -89,14 +203,14 @@ As such, be careful to properly handle quotes within your query string. If the q
 
 Using these procedures can be tricky. Here are some more tips to help avoid the most common tripping points.
 
-.Dealing with quotes/escapes in complex nested queries
+=== Dealing with quotes/escapes in complex nested queries
 
 For more complicated queries (such as nested queries that must handle quotes at multple levels),
 consider either defining the query string as a variable first, then pass the variable into the procedure,
 or alternately pass the conditional queries as parameters to the query itself.
 This might save you from the headaches of dealing with escape characters within Java strings.
 
-.Pass parameters that must be visible within the conditional queries
+=== Pass parameters that must be visible within the conditional queries
 
 When executed, the conditional Cypher queries do not have visibility to the variables outside of the CALL.
 
@@ -112,7 +226,7 @@ CALL apoc.do.when(bruceWayne.isOrphan, "MERGE (batman:Hero {name:'Batman'}) CREA
 The params map is the last argument of the call: `{bruce:bruceWayne}`, and allows the `bruceWayne` variable to be visible to any of the conditional queries as `bruce`.
 Additional parameters can be added to the params map if needed.
 
-.Conditional queries must RETURN something if you want to keep executing the query after the CALL
+=== Conditional queries must RETURN something if you want to keep executing the query after the CALL
 
 Currently, when a (non-empty) conditional query is executed, and the query doesn't RETURN anything, nothing is YIELDed for the row,
 wiping out the row. For that original row, anything after the CALL is now a no-op, since there is no longer a row to execute upon (Cypher operations execute per row).

@@ -2,11 +2,19 @@
 :slug: enabling-gc-logging
 :zendesk-id: 204225303
 :author: Dave Gordon
-:neo4j-versions: 2.1,2.2,2.3,3.0,3.1,3.2,3.3,3.4,3.5
+:neo4j-versions: 3.5, 4.0
 :tags: logging,garbage collection, heap, memory, jvm
 :category: operations
 
-If you are having issues with Garbage Collection (too many pauses, too long of a pause, pauses causing cluster re-election, etc),  you should look at enabling GC logging.
+== What is Garbage collection and why enabling it?
+
+A garbage collection event is a complete pause of the java application (ie: neo4j-server).
+
+It can be identified in the debug.log as a `stop-the-world` event.
+
+For example:
+
+If you notice issues with them such as too many pauses, too long of a pause, pauses causing cluster re-election, etc,  you can enabling GC logging for easier integration with monitoring parsers.
 
 Keep in mind the following regarding GC logging:
 
@@ -15,47 +23,40 @@ Keep in mind the following regarding GC logging:
 * It will add minor overhead
 * You might consider enabling this option on your live environments
 
-== For Neo4j 2.x releases
-Uncomment these lines in `conf/neo4j-wrapper.conf`:
+== Enabling GC logging
+
+As indicated in the product documentation in https://neo4j.com/docs/operations-manual/3.5/reference/configuration-settings/#config_dbms.logs.gc.enabled[3.5] or https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.logs.gc.enabled[newer], you can uncomment the following line to enable it:
 
 [source,conf]
 ----
-#wrapper.java.additional=-Xloggc:data/log/neo4j-gc.log
-#wrapper.java.additional=-XX:+PrintGCDetails
-#wrapper.java.additional=-XX:+PrintGCDateStamps
-#wrapper.java.additional=-XX:+PrintGCApplicationStoppedTime
-#wrapper.java.additional=-XX:+PrintTenuringDistribution
+#dbms.logs.gc.enabled=true
 ----
-
-And add this line:
-
-[source,conf]
-----
-wrapper.java.additional=-XX:+PrintGCCause
-----
-
-The log file will be written to: data/log/neo4j-gc.log
-
-== For Neo4j 3.x releases
-Uncomment these lines below in `conf/neo4j.conf` that are prefaced by # dbms.:
-
-[source,conf]
-----
-# To enable GC Logging, uncomment this line
-# dbms.logs.gc.enabled=true
-
-# GC Logging Options
-# see http://docs.oracle.com/cd/E19957-01/819-0084-10/pt_tuningjava.html#wp57013 for more information.
-#dbms.logs.gc.options=-XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+PrintPromotionFailure -XX:+PrintTenuringDistribution
-
-# Number of GC logs to keep.
-# dbms.logs.gc.rotation.keep_number=5
-
-# Size of each GC log that is kept.
-# dbms.logs.gc.rotation.size=20m
----- 
-
-The log file will be written to the logs directory as specified by
-https://neo4j.com/docs/operations-manual/current/configuration/file-locations/[here] and named `gc.log.<#>`
 
 Save the file and restart your server.
+
+===  GC log location
+
+The log file will be written to the logs directory as specified
+https://neo4j.com/docs/operations-manual/current/configuration/file-locations/[here] and named `gc.log.<#>`
+
+== Additional options
+
+You can review our operational manual (https://neo4j.com/docs/operations-manual/3.5/reference/configuration-settings/#config_dbms.logs.gc.rotation.keep_number[3.5] or https://neo4j.com/docs/operations-manual/reference/configuration-settings/#config_dbms.logs.gc.rotation.keep_number[newer]) for additional settings such as the number of rotated files or their size.
+
+== dbms.gc.log.options changes
+
+`dbms.gc.log.options` differs due to the upgrade from Java 8 to 11 in 4.0.x.
+
+We recommend to leave this commented so neo4j starts with working settings in both versions.
+
+You can review those differences in the table below.
+
+
+.Differences between 3.5.x and 4.0.x
+[opts=headers,cols="a,m"]
+|===
+|neo4j version | configuration value
+|3.5.x | #dbms.logs.gc.options=-XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+PrintPromotionFailure -XX:+PrintTenuringDistribution
+|4.0.x | #dbms.logs.gc.options=-Xlog:gc*,safepoint,age*=trace
+|===
+

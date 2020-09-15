@@ -1,36 +1,52 @@
 = Tuning GC algorithms
 :slug: tuning-gc-algorithms
 :author: Jeremie Phoulchand
-:neo4j-versions: 3.4, 3.5
+:neo4j-versions: 3.5, 4.0
 :tags: configuration
 :category: performance
 
 == Introduction
 
-There are several Garbage Collection algorithms available and the list is expanding.
-We will not review all of them but focus on the G1GC and two new ones.
+There are several Garbage Collection algorithms available in Java.
+You can find the supported JDKs in our 
+https://neo4j.com/docs/operations-manual/current/installation/requirements/#deployment-requirements-software[product requirements] section.
 
-== G1GC
+We will review some of the available GCs and their main features.
 
-This is the default GC algorithm since Java 9. This is the one used for internal testing.
+
+== G1
+
+This is the default GC algorithm since Java 9. This is the one used for internal testing and used by default in neo4j.
 It is available in every implementation.
 
 == Shenandoah
 
-This is an experimental feature available in some releases of OpenJDK on Linux only. Especially, the Red Hat one.
+It is officially available in some releases of OpenJDK since Java 8.
+
+It is currently not available in Oracle JDK.
+
 It allows you to have pauseless GCs (<10 ms) but at the expense of an higher CPU usage (20% additional CPU runtime usage).
+
 
 WARNING: Please note that we do NOT test those algorithms therefore we will NOT be able to emit a recommendation.
 Customers are free to test it on a lower environment and choose the one that suits them the best.
 
-https://wiki.openjdk.java.net/display/shenandoah/Main
+You can enable it by commenting the default `dbms.jvm.additional=-XX:+UseG1GC` and adding `dbms.jvm.additional=-XX:+UseShenandoahGC` in neo4j.conf 
+
+[source,conf]
+----
+#dbms.jvm.additional=-XX:+UseG1GC
+dbms.jvm.additional=-XX:+UseShenandoahGC
+----
+
+You can find more information https://wiki.openjdk.java.net/display/shenandoah/Main[here]
 
 == C4 Azul
 
 This version had its own proprietary pauseless algorithm which is supported.
 This is a *paid* algorithm so you might need to get a licence first.
 
-https://www.azul.com/resources/azul-technology/azul-c4-garbage-collector/
+You can find more information https://www.azul.com/resources/azul-technology/azul-c4-garbage-collector/[here]
 
 WARNING: Please note that we do NOT test those algorithms therefore we will NOT be able to emit a recommendation.
 Customers are free to test it on a lower environment and choose the one that suits them the best.

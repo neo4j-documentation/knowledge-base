@@ -1,0 +1,36 @@
+= Add a Neo4j instance to a running embedded HA application
+:slug: add-a-neo4j-instance-to-an-embedded-ha-application
+:author: Vivek Saran
+:neo4j-versions: 3.4,3.5
+:tags: embedded, ha
+:category: cluster
+
+There are situations when we would like to use the Neo4j Browser to access an embedded HA cluster.
+
+The documented approach to accomplish that goal requires changing the embedded application code as described in the Neo4j documentation:
+
+https://neo4j.com/docs/java-reference/3.4/tutorials-java-embedded/#tutorials-java-embedded-bolt/[Accessing Neo4j embedded via the Bolt protocol]
+
+There is another approach that does not require changing application code. This second approach involves adding an additional server mode instance to the cluster. Here are the steps:
+
+- Install a new Neo4j Enterprise server mode instance (using tarball/zip or other means) with the same version of Neo4j that is operational in the embedded application.
+- Edit the `neo4j.conf` file and update the following parameters:
+
+[source,conf]
+----
+dbms.mode=HA
+ha.server_id=20 # this is just a high number to easily identify that it is a server instance
+ha.slave_only=true
+ha.initial_hosts=<initial hosts to only include the members of the embedded HA cluster>
+----
+
+We don't need to add the new server instance to `ha.initial_hosts` unless it is going to be a permanent fixture in the cluster, and will be required for the cluster to startup. We have set `ha.slave_only=true` because we want to prevent this instance from becoming the Master. 
+It will, however, be able to accept writes.
+
+- Start Neo4j on the new instance. 
+
+During startup, the new instance will connect to one of the initial hosts and request to join the cluster. Part of the startup process is to discover who else is in the cluster, including instances that may not be in the inital_hosts that joined later, and also to know if any members from the inital_hosts have failed.
+
+We now have a Neo4j instance where we can use the Neo4j Browser to communicate with the graph database as we do in a conventional server mode HA cluster.
+
+

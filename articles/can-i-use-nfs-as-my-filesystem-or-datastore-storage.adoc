@@ -6,7 +6,7 @@
 :neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
 :tags: storage, disk, filesystem, unix, operations
 
-The short answer is no.
+The short answer is no. 
 Although this may seem harmless, the reason for this is not performance related, but rather for control over locking files.
 
 NFS and other filesystems that don't offer locking should not be used to install Neo4j or store the datastore. 
@@ -14,10 +14,4 @@ If we can't lock the store files, others can concurrently access them, resulting
 
 Refer to the Neo4j documentation on recommended filesystem storage formats:
 
-http://neo4j.com/docs/stable/deployment-requirements.html#_filesystem[]
-
-
-* Last Modified: {docdatetime} by {author}.
-* Relevant for Neo4j Versions: {neo4j-versions}.
-* Relevant keywords {tags}.
-
+https://neo4j.com/docs/operations-manual/current/installation/requirements/#deployment-requirements-software

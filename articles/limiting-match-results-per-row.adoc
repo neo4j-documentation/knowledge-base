@@ -1,11 +1,11 @@
 = Limiting MATCH results per row
 :slug: limiting-match-results-per-row
 :author: Andrew Bowman
-:neo4j-versions: 3.1, 3.0, 2.3, 2.2
+:neo4j-versions: 4.1, 4.0, 3.5, 3.4, 3.3, 3.2, 3.1, 3.0, 2.3, 2.2
 :tags: cypher, limit
 :category: cypher
 
-Since `LIMIT` applies to the total number of rows of the query, it can't be used in cases when matching from multiple nodes where the limit must be per row.
+Since `LIMIT` applies to the total number of rows of the query, it can't be used in cases when matching from multiple nodes where the limit must be on match results per row.
 
 Take an example case using the Movies database.
 
@@ -14,15 +14,98 @@ If you needed a query to get all the actors from The Matrix, and for each actor,
 [source,cypher]
 ----
 MATCH (:Movie{title:'The Matrix'})<-[:ACTED_IN]-(p:Person)
-MATCH (p)-[:ACTED_IN]->(m)
-RETURN p, m LIMIT 3
+                   MATCH (p)-[:ACTED_IN]->(m)
+                   RETURN p, m LIMIT 3
 ----
 
 The above query won't return the desired results. The `LIMIT` will instead make the query return only 3 rows total.
 
-== Some solutions to apply a limit to match results per-row
+Here are some solutions to apply a limit to match results per-row
 
-=== Take the interested slice of a collection
+== Use LIMIT within a subquery in 4.1
+
+Neo4j 4.1 allows correlated subqueries, letting us perform a subquery using variables present mid-query.
+
+Since subqueries execute per row, we can perform the MATCH and apply the LIMIT within the subquery, giving us the easiest means of limiting match results per row.
+
+This requires the use of `WITH` as the first clause within the subquery CALL block, for the purpose of importing variables to the subquery.
+
+[source,cypher]
+----
+MATCH (:Movie{title:'The Matrix'})<-[:ACTED_IN]-(p:Person)
+CALL {
+    WITH p
+    MATCH (p)-[:ACTED_IN]->(m)
+    RETURN m
+    LIMIT 3
+}
+
+RETURN p, m
+----
+
+This will correctly return all actors in the matrix and up to 3 of the movies they have acted in.
+
+If we wanted each actor only once, with the collection of up to 3 movies per actor, we could collect those movies within the subquery after the limit:
+
+[source,cypher]
+----
+MATCH (:Movie{title:'The Matrix'})<-[:ACTED_IN]-(p:Person)
+CALL {
+    WITH p
+    MATCH (p)-[:ACTED_IN]->(m)
+    WITH m
+    LIMIT 3
+    RETURN collect(m) as movies
+}
+
+RETURN p, movies
+----
+
+Be aware that this `WITH` import has some special restrictions that do not normally apply to `WITH` usage:
+
+1. You may only include variables from the outer query and no others.
++ You cannot perform calculations, aggregations, or introduction of new variables in the initial `WITH`.
+2. You cannot alias any variables within this initial `WITH`.
+3. You cannot follow the initial `WITH` with a `WHERE` clause for filtering.
+
+If you try any of these, you will be met with some kind of error, such as:
+
+----
+Importing WITH should consist only of simple references to outside variables. Aliasing or expressions are not supported.
+----
+
+or more cryptically, if you try to use a `WHERE` clause after the initial `WITH`
+
+----
+Variable `x` not defined
+----
+
+(where the variable is the first one present in the `WITH` clause)
+
+You can get around all of these restrictions by simply introducing an additional `WITH` clause after the importing `WITH`, like so:
+
+[source,cypher]
+----
+MATCH (:Movie{title:'The Matrix'})<-[:ACTED_IN]-(p:Person)
+CALL {
+    WITH p
+    WITH p as actor
+    MATCH (actor)-[:ACTED_IN]->(m)
+    RETURN m
+    LIMIT 3
+}
+
+RETURN p, m
+----
+
+This shows how we can alias (or filter, if we wanted) the imported variables, but not on the initial import `WITH` itself.
+
+
+.For 4.0.x and earlier
+
+For earlier versions, native correlated subqueries are not available, so other workarounds must be used.
+
+== Take the interested slice of a collection
 
 One common solution is to `collect()` and take the interested slice:
 
@@ -51,7 +134,7 @@ RETURN p, head([(p)-[:ACTED_IN]->(m) | m]) as movie
 
 While this works when there are few relationships per node, it may become infeasible on supernodes with larger numbers of relationships, as it must expand all `:ACTED_IN` relationships before collecting.
 
-=== Use apoc.cypher.run() to execute a limited subquery
+== Use apoc.cypher.run() to execute a limited subquery
 
 Neo4j doesn't currently offer native subquery support aside from pattern comprehension, but even those don't support `LIMIT`.
 
@@ -70,7 +153,7 @@ RETURN p, value.m AS movie
 
 This approach is efficient since by using `LIMIT` we don't have to pay the cost of expanding all `:ACTED_IN` relationships, we only need to expand 3 per row.
 
-=== Use APOC path expander using end node or termination filters and `limit` param
+== Use APOC path expander using end node or termination filters and `limit` param
 
 With Neo4j 3.1.3 and higher, and link:https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC Procedures] 3.1.3.6 and higher, you can use use new path expander features to limit expansion to certain nodes.
 

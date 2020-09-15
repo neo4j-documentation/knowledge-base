@@ -1,0 +1,76 @@
+= Use Java Runtime 11 with Neo4J 3.5.x
+:slug: use-java-runtime-11-with-neo4j-3-5-x
+:author: Jérémie Phoulchand
+:neo4j-versions: 3.5
+:tags: jdk, jre, java11
+:public:
+:category: operations
+
+Neo4j 3.5.x supports Java 11 as runtime, however custom code should still be compiled against Java 8.
+As a best practice, it is recommended to maintain your infrastructure environment on supported components (Hypervisor, Operating System, Java Virtual Machine). 
+In this example, we will show you how to upgrade the Java JDK from version 8 to Java JDK 11 on Linux.
+
+
+== Java JDK 11 Installation
+
+The first step is to install Java 11, you can refer to your preferred vendor instructions.
+We recommend to use a JDK to be able to run Neo4j in production.
+Java diagnostic commands might be required when engaging Neo4J support:
+
+* `neo4j-admin report` command requires a JDK.
+* `jstack` or `jmap` dumps the heap memory into a file which can be requested to troubleshoot issues.
+* `jfr` :  profiling tool used to gather diagnostics and profiling data from a running Java application. It is available for free since java 11.
+
+At this stage, Java 8 will still be used. It is allowed to have multiple  JVM installations on the same machine.
+
+`java -version` will still display Java 8.
+
+== Switch to Java 11 as default
+
+To use Java 11 runtime by default, 
+
+For RedHat, CentOS, Fedora, Amazon AMI: run `sudo alternatives --config java` 
+For Debian-based systems, Debian, Ubuntu, Suse: run `sudo update-alternatives --config java` 
+
+Pick the right version and press enter. 
+There are 2 installed binaries that provides 'java' in this example:
+
+[source,shell]
+----
+$ sudo alternatives --config java
+
+Selection    Command
+1           java-1.8.0-openjdk.x86_64 (/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.252.b09-2.amzn2.0.1.x86_64/jre/bin/java)
+2           /usr/lib/jvm/java-11-amazon-corretto/bin/java
+----
+
+Choose the second option and press enter to validate.
+
+`java -version` should now display Java 11.
+
+== Edit Neo4J.conf
+
+* Comment or remove the following line:
+
+[source,conf]
+----
+dbms.logs.gc.options=-XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+PrintPromotionFailure -XX:+PrintTenuringDistribution
+----
+
+* Uncomment the following setting:
+
+[source,conf]
+----
+dbms.logs.gc.options=-Xlog:gc,safepoint,age=trace
+----
+
+== Start Neo4J
+
+You will immediately see WARNING messages in your neo4j.log
+You can safely disregard them  as shown below:
+
+----
+WARNING: Please consider reporting this to the maintainers of org.eclipse.collections.impl.utility.ArrayListIterate
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+----

@@ -1,0 +1,51 @@
+= Recovering Local Bloom Perspectives
+:slug: recovering-local-bloom-perspectives
+:author: Jon Harris
+:neo4j-versions: 3.x,4.x
+:tags: bloom,perspectives,recovery
+:category: bloom
+
+== Summary
+
+When Bloom is connected to a Neo4j server that does not have the Bloom plugin installed it stores perspectives locally in the Web Browser or Neo4j Desktop's local storage.
+
+In some rare instances users may experience trouble starting up Bloom and and it can be necessary to clear this local storage to resume normal functioning, which would result in the loss of all local perspectives.
+
+To remedy this problem, Bloom version 1.3.2 and above provides a command that you can run from the developer tools that will export all local perspectives to a zip file.
+
+The provided command can be run even if the Bloom user interface has not successfully loaded.
+
+=== Opening Developer Tools in a Web Browser
+
+==== Chrome
+
+- Command+Option+J (Mac)
+- Control+Shift+J (Windows, Linux)
+
+==== Firefox / Edge
+
+- Command+Option+I (Mac)
+- Control-Shift+I or F12 (Windows, Linux)
+
+=== Opening Developer Tools in Neo4j Desktop
+
+To access the developer tools while running Bloom in Neo4j Desktop you need to enable development mode in Neo4j Desktop before starting Bloom.
+
+This can be done by scrolling to the bottom of the Settings page of Neo4j Desktop, and checking the "Enable development mode" checkbox under the "Developer tools" heading.
+
+Once this is done, restart Bloom and you should see "Reload App" and "App Developer tools" buttons in a panel across the top.
+
+Click the "App Developer tools" button.
+
+=== Running the command from developer tools
+
+Once you have opened the developer tools via the appropriate steps above, you can type or paste the following command into the Console (may require clicking on the "Console" tab first), and then press enter/return key to execute it:
+
+[source,javascript]
+----
+window.exportLocalPerspectives()
+----
+
+This will trigger a download of a zip file containing all the perspectives stored locally by Bloom.
+
+The individual perspectives inside the zip file can later be imported into Bloom via its user interface.

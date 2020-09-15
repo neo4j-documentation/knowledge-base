@@ -81,6 +81,6 @@ neo4j-sh (?)$ match (n:Movie) return n;
  1 row
 ----
 
-NOTE: The header for a string array column needs to have :string[], which is case sensitive.
+NOTE: The header for a string array column needs to have `:string[]`, which is case sensitive.
 
 

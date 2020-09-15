@@ -1,7 +1,7 @@
 = Post-UNION processing
 :slug: post-union-processing
 :author: Andrew Bowman
-:neo4j-versions: 4.0, 3.5, 3.4, 3.3, 3.2, 3.1, 3.0
+:neo4j-versions: 4.1, 4.0, 3.5, 3.4, 3.3, 3.2, 3.1, 3.0
 :tags: cypher, union
 :category: cypher
 
@@ -31,11 +31,84 @@ This allows us to keep working with the results of the UNION subquery.
 However, with the initial 4.0 release only uncorrelated subqueries are supported, meaning the subquery cannot use variables from outside the call.
 This means that using a subquery for post-UNION processing in the middle of a more complex query may not be possible, as you cannot pass in variables from the outer query for use within the subquery.
 
-Correlated subqueries, which are more useful and can use variables from outside the subquery, are currently only available when using https://neo4j.com/docs/operations-manual/4.0-preview/fabric/introduction/[Neo4j Fabric],
-though this functionality is scheduled to be implemented for regular Cypher queries in a future minor release.
+In 4.0.x, correlated subqueries, which are more useful and can use variables from outside the subquery, are currently only available when using https://neo4j.com/docs/operations-manual/4.0/fabric/introduction/[Neo4j Fabric].
 
+== Post-UNION processing enhancements in 4.1
+
+With the release of 4.1, the CALL subquery functionality has been enhanced to allow correlated subqueries.
+This lets us use existing variables mid-query within the subquery.
+
+This requires the use of `WITH` as the first clause within the subquery CALL block, for the purpose of importing variables to the subquery.
+
+When using `UNION` or `UNION ALL`, we can provide a similar importing `WITH` clause for each of the unioned queries:
+
+[source,cypher]
+----
+MATCH (m:Movie {title:'The Matrix'})
+CALL {
+    WITH m
+    MATCH (m)<-[:ACTED_IN]-(p)
+    RETURN p
+    UNION
+    WITH m
+    MATCH (m)<-[:DIRECTED]-(p)
+    RETURN p
+}
+RETURN p.name as name
+ORDER BY name ASC
+----
+
+This will correctly return the alphabetically-sorted names of all actors and directors for The Matrix.
+
+This import usage has some special restrictions that do not normally apply to `WITH` usage:
+
+1. You may only include variables from the outer query and no others.
++ You cannot perform calculations, aggregations, or introduction of new variables in the initial `WITH`.
+2. You cannot alias any variables within this initial `WITH`.
+3. You cannot follow the initial `WITH` with a `WHERE` clause for filtering.
+
+If you try any of these, you will be met with some kind of error, such as:
+
+----
+Importing WITH should consist only of simple references to outside variables. Aliasing or expressions are not supported.
+----
+
+or more cryptically, if you try to use a `WHERE` clause after the initial `WITH`
+
+----
+Variable `x` not defined
+----
+
+(where the variable is the first one present in the `WITH` clause)
+
+You can get around all of these restrictions by simply introducing an additional `WITH` clause after the importing `WITH`, like so:
+
+[source,cypher]
+----
+MATCH (m:Movie)
+WHERE m.title CONTAINS 'Matrix'
+CALL {
+    WITH m
+    WITH m as movie
+    MATCH (m)<-[:DIRECTED]-(p)
+    RETURN p.name as name
+    UNION
+    WITH m
+    WITH m
+    WHERE m.title CONTAINS 'Reloaded'
+    MATCH (m)<-[:ACTED_IN]-(p)
+    RETURN p.name as name
+}
+RETURN DISTINCT name
+ORDER BY name ASC
+----
+
+This demonstrates both the ability to alias the imported variable as well as to filter the imported variable provided we use a second `WITH` clause,
+which is not restricted in the same way as the initial `WITH` used for the import into the subquery.
 
 .For 3.5.x and earlier
+
+For earlier versions, native subqueries are not available, so other workarounds must be used.
 
 == Combine collections, then `UNWIND` back to rows and apply `DISTINCT`
 

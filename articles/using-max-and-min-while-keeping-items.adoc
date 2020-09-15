@@ -1,0 +1,75 @@
+= Using max() and min() while keeping items
+:slug: using-max-and-min-while-keeping-items
+:author: Andrew Bowman
+:neo4j-versions: 4.0, 3.5
+:tags: cypher, aggregations, max, min
+:category: cypher
+
+The aggregation functions of `max()` and `min()` are very useful, but you can sometimes find yourself fighting against Cypher's aggregation behavior for cases that should be simple.
+
+This often comes up when you want to calculate the `max()` or `min()` or something, but keep the item or items associated with that maximum or minimum value.
+
+Let's use a very simple example, a graph of people who bought food at a store:
+
+----
+(:Person {name})-[:BOUGHT]->(:FoodItem {name})
+----
+
+We want to find, per person, the food item or items that they bought the most.
+
+== Complex when it should be simple
+
+We can easily use `max()` to find the count of the food item that they bought the most:
+
+[source,cypher]
+----
+MATCH (person:Person)-[:BOUGHT]->(food:FoodItem)
+WITH person, food, count(food) as timesBought
+RETURN person, max(timesBought) as mostBoughtCount
+----
+
+But we lose the data associated with the food that generated that result! WHICH food item was bought that many times?
+And was it just a single food item, or were there ties among several?
+
+If we keep `food` in scope like so: `RETURN person, food, max(timesBought) as mostBoughtCount`, we get a wrong result, since each food is listed on its own row, and the `mostBoughtCount` is for each food and not aggregated across all of them.
+
+If we collect() the food like so: `RETURN person, collect(food) as foods, max(timesBought) as mostBoughtCount`, while `mostBoughtCount` is correct, we've collected all the foods, and have no idea which one is associated with that maximum value.
+
+We're forced to abandon this approach and instead perform an ordering, a collect(), then keep the top result:
+
+[source,cypher]
+----
+MATCH (person:Person)-[:BOUGHT]->(food:FoodItem)
+WITH person, food, count(food) as timesBought
+ORDER BY timesBought DESC
+RETURN person, collect(food)[0] as favoriteFood, max(timesBought) as mostBoughtCount
+----
+
+But again, what about ties? A person might have several favorite foods tied in their mostBoughtCount.
+We might spend a lot of time refactoring that query, doing collects() and UNWINDs and counting and comparison, and the query gets even more complex.
+
+== APOC Procedures helps keep things simple
+
+First, we were granted custom procedures, then we were given custom functions, and last we received the ability to write custom aggregation functions.
+As of APOC 3.5.0.5, new functions were added that help out in these cases.
+
+[cols="1m,5"]
+|===
+| apoc.agg.maxItems(item, value, groupLimit: -1) | returns a map {items:[], value:n} where `value` is the maximum value present, and `items` are all items with the same value. The number of items can be optionally limited.
+|===
+
+There is an `apoc.agg.minItems()` as well that works similarly.
+
+In short, this function lets us use the equivalent of min() or max(), but also to keep the item or items associated with that value.
+
+If we add this to our query we get:
+
+[source,cypher]
+----
+MATCH (person:Person)-[:BOUGHT]->(food:FoodItem)
+WITH person, food, count(food) as timesBought
+WITH person, apoc.agg.maxItems(food, timesBought) as maxData
+RETURN person, maxData.items as favoriteFoods, maxData.value as mostBoughtCount
+----
+
+This lets us keep all the foods that tied as favorites, and if we did want to limit ties, we could add that as an additional parameter to the function call.
