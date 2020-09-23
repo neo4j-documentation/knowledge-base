@@ -43,3 +43,42 @@ return query, queryId
 You can modify the above query based on either certain parameters for queries or for certain users that should not be killed.
 
 Note: This applies to Neo4j 3.1 and newer only!
+
+So far, so good. If we execute the above query once, it will check once for those long running queries. No repetition what so ever, so far.
+In order to automate this, we can use apoc:
+
+[source,cypher]
+----
+CALL apoc.periodic.repeat("kill long-running queries", "
+    call dbms.listQueries() yield query, elapsedTimeMillis, queryId, username
+    where NOT username contains toLower("neo4j")
+    and elapsedTimeMillis >30000
+    with query, collect(queryId) as q
+    call dbms.killQueries(q) yield queryId
+    return query, queryId
+", 10)
+----
+
+In that case, the query to check for the long running queries would be executed every ten seconds on the instance and database,
+where we have executed the apoc command. Adjust the timing parameters to your needs.
+
+In case you want to manually cancel the job, you can use:
+[source,cypher]
+----
+CALL apoc.periodic.cancel("kill long-running queries")
+----
+
+Note, that those jobs added via `apoc.periodic.repeat` do not survive restarts of the database.
+So if we want to install that permanently, we can use apoc's initializer (https://neo4j.com/labs/apoc/4.1/operational/init-script/):
+
+Add the following line to your `conf/apoc.conf` file (see also https://neo4j.com/labs/apoc/4.1/config/):
+
+[source,conf]
+----
+apoc.initializer.cypher.1=CALL apoc.periodic.repeat("kill long-running queries", "CALL dbms.listQueries() yield query, elapsedTimeMillis, queryId, username WHERE username contains toLower('neo4j') AND elapsedTimeMillis > 10000 WITH query, collect(queryId) as q CALL dbms.killQueries(q) yield queryId return query, queryId", 10)
+----
+
+Note that this is on instance level and applies to all databases.
+
+You might want to use a dedicated cypher file on disk to store the query, so that you don't have complex queries in the config file.
+Here is an example for doing so: https://neo4j.com/labs/apoc/4.1/operational/init-script/
