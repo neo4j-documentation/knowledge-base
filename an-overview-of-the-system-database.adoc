@@ -28,18 +28,18 @@ Refer to Fig 2 below.
 
 ![](https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/reconciler.gif)
 
-The `system` database is replicated across the cluster, and there is a leader for it just like any other database. Every database in 4.0 and going forward is in an independent raft group. That means core-1 could be the leader for the `system` database, whereas `core-2 could be the leader for the `mydb` database.
-Everything inside the `system` database is stored in a graph data model. However, only DDL commands (CREATE, DROP, SHOW, etc.) could be executed in this database, not the regular Cypher commands (MATCH, for example). There are nodes representing other databases (`neo4j` and `mydb` in this example from Fig 2).
+The `system` database is replicated across the cluster, and there is a leader for it just like any other database. Every database in 4.0 and going forward is in an independent raft group. That means core-1 could be the leader for the `system` database, whereas core-2 could be the leader for `mydb` database.
+Everything inside the `system` database is also stored in a graph data model. However, only DDL commands (CREATE, DROP, SHOW, etc.) could be executed in this database, not the regular Cypher commands (MATCH, for example). There are nodes representing other databases (`neo4j` and `mydb` in this example from Fig 2).
 
-The **reconciler** talks to another component called the **database manager**, which manages the actual databases. Every instance reconciles the local copies of all the databases. If the reconciler on core-2 (in the above example) knows that `mydb` become online in the leader (core-1), it ensures that `mydb` becomes online in this instance as well. The system database in every instance has a reconciler and a database manager.
+The **reconciler** talks to another component called the **database manager**, which manages the actual databases. Every instance reconciles the local copies of all the databases. If the reconciler on core-2 (in the above example) knows that `mydb` became online in the leader (core-1), it ensures that `mydb` becomes online in this instance as well. The `system` database in every instance has a reconciler and a database manager.
 
 The reconciler’s job is to reconcile between the desired state (STOPPED, STARTED, DROPPED) and the current state.
 
-When a database with the name `mydb` is created, a node with the label `mydb` gets created in the `system` database. The node has a few other properties such as `createdAt`, `status`, `databaseId`, as shown in the picture above. The interesting thing to note is that when the `mydb` database is dropped, the label of the node will change to `Deletedmydb`.
+When a database with the name `mydb` is created, a node with the label `mydb` gets created in the `system` database. The node has a few other properties such as `createdAt`, `status`, `databaseId`, as shown in the picture above. The interesting thing to note is that when `mydb` database is dropped, the label of the node will change to `Deletedmydb`.
 
 The property that uniquely identifies a database internally, is the databaseId, which is of type UUID. So, you may DROP a database `neo4j` and then CREATE it again. Internally, the first one will exist with the `Deletednoe4j` label, and the new one will have the `neo4j` label with a different `databaseId`.
 
-When you backup the `system` database, remember that it has the operational configuration in it. For example, when the online backup of the `system` database was taken, if the `mydb` database was stopped at that time when you restore the `system` database backup, the `mydb` will have the stopped state. So, the operational state is always defined by what is in the `system` database.
+When you backup the `system` database, remember that it has the operational configuration in it. Let's say, when the online backup of the `system` database was taken, `mydb` database was stopped at that time. So, when you restore the `system` database backup, `mydb` will have the stopped state. So, the operational state is always defined by what is in the `system` database.
 
 Following is a state diagram (Fig 3) of the all the states reconciler will publish when the `SHOW DATABASES` command is executed.
 
@@ -52,12 +52,11 @@ However, if there are other instances in the cluster that actively have an `Xdb`
 
 Finally, here are a few more points to note from a multi database operations standpoint:
 
-1.	The system database needs to be backed up with the same method and the same frequency that other databases are backed up.
-2.	If you look at the `debug.log`, the MemberId of the raft membership will not be different for each database. All databases within one instance will have the same MemberId.
-3.	All multi-database administrative commands must be run against the system database. 
-4.	These administrative commands are automatically routed to the system database when connected to the DBMS over Bolt.
-5.	The native users are stored in the `system` database, that is where the security model lives.
-6.	The `neo4j-admin unbind` runs on all the database in the DBMS.
-7.	The `dbms.memory.pagecache.size` ,`dbms.memory.heap.initial_size`, and `dbms.memory.heap.max_size` settings are all at the instance level. All the databases operate under one JVM, they share the same page cache and heap.
+1.	The `system` database needs to be backed up with the same frequency that other databases are backed up.
+2.	If you look at the `debug.log`, the `MemberId` of the raft membership will not be different for each database. All databases within one instance will have the same `MemberId`.
+3.	All multi-database administrative commands must be run against the `system` database. These administrative commands are automatically routed to the `system` database when connected to the DBMS over Bolt.
+4.	The native users are stored in the `system` database, that is where the security model lives.
+5.	The `neo4j-admin unbind` runs on all the database in the DBMS.
+6.	The `dbms.memory.pagecache.size` ,`dbms.memory.heap.initial_size`, and `dbms.memory.heap.max_size` settings are all at the instance level. All the databases operate under one JVM, they share the same page cache and heap.
 
 
