@@ -139,8 +139,11 @@ task convertWordPressHtml(type: AsciidoctorTask) {
         options standalone: true,
                 template_dirs: ["${rootProject.projectDir}/_templates/wordpress"]
     }
-    baseDir file("${projectDir}/articles")
-    sourceDir file("${projectDir}/articles")
+    baseDir file("${projectDir}/articles/modules/ROOT/pages")
+    sourceDir file("${projectDir}/articles/modules/ROOT/pages")
+    sources {
+      exclude 'index.adoc'
+    }
     outputDir file("${projectDir}/build/wordpress/html")
 }
 
@@ -220,8 +223,11 @@ task convertZenDeskHtml(type: AsciidoctorTask) {
         options standalone: false,
                 template_dirs: ["${rootProject.projectDir}/_templates"]
     }
-    baseDir file("${projectDir}/articles")
-    sourceDir file("${projectDir}/articles")
+    baseDir file("${projectDir}/articles/modules/ROOT/pages")
+    sourceDir file("${projectDir}/articles/modules/ROOT/pages")
+    sources {
+        exclude 'index.adoc'
+    }
     outputDir file("${projectDir}/build/zendesk/html")
 
     doLast {

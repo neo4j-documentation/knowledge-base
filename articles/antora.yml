@@ -1,0 +1,5 @@
+name: kb
+title: Knowledge Base
+version: 'master'
+nav:
+  - modules/ROOT/nav.adoc
