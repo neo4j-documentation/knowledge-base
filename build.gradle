@@ -142,7 +142,7 @@ task convertWordPressHtml(type: AsciidoctorTask) {
     baseDir file("${projectDir}/articles/modules/ROOT/pages")
     sourceDir file("${projectDir}/articles/modules/ROOT/pages")
     sources {
-      exclude 'index.adoc'
+        excludes.addAll(['tags.adoc', 'categories.adoc', 'index.adoc'])
     }
     outputDir file("${projectDir}/build/wordpress/html")
 }
@@ -226,7 +226,7 @@ task convertZenDeskHtml(type: AsciidoctorTask) {
     baseDir file("${projectDir}/articles/modules/ROOT/pages")
     sourceDir file("${projectDir}/articles/modules/ROOT/pages")
     sources {
-        exclude 'index.adoc'
+        excludes.addAll(['tags.adoc', 'categories.adoc', 'index.adoc'])
     }
     outputDir file("${projectDir}/build/zendesk/html")
 
