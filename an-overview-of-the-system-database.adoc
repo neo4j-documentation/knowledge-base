@@ -12,11 +12,11 @@ This article provides a brief architectural overview of the `system` database.
 
 The role of the `system` database is to **define the configuration** for the other databases. There could be various types of configuration for the databases. For example:
 
-*	operational configuration
-    -	existence (exists or not)
-    -	status (online/offline)
-*	security configuration (RBAC)
-* neo4j,conf  (this is not yet maintained by the `system` database, but there are plans in the future versions)
+* operational configuration
+** existence (exists or not)
+** status (online/offline)
+* security configuration (RBAC)
+* neo4j,conf (this is not yet maintained by the `system` database, but there are plans in the future versions)
 
 
 
@@ -58,5 +58,4 @@ Finally, here are a few more points to note from a multi database operations sta
 4.	The native users are stored in the `system` database, that is where the security model lives.
 5.	The `neo4j-admin unbind` runs on all the database in the DBMS.
 6.	The `dbms.memory.pagecache.size` ,`dbms.memory.heap.initial_size`, and `dbms.memory.heap.max_size` settings are all at the instance level. All the databases operate under one JVM, they share the same page cache and heap.
-
 
