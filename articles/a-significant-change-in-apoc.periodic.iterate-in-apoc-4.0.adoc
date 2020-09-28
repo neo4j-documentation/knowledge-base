@@ -1,0 +1,43 @@
+= A significant change in apoc.periodic.iterate() in apoc 4.0
+:slug: a-significant-change-in-apoc-periodic-iterate-in-apoc-4-0
+:author: Vivek Saran
+// relevant versions
+:neo4j-versions: 4.0, 4.1
+:tags: apoc
+// category see https://github.com/neo4j-documentation/knowledge-base/blob/master/kb-categories.txt
+:category: cypher
+
+In 3.5 an entity (node, relationship, path) could be acquired in one transaction and safely reused by another.
+
+However, in 4.0 these entities do hold a reference to their originating transaction. 
+
+The problem might occur in any APOC calls that open new transactions, e.g. apoc.periodic.iterate (and couple more). 
+Anything you hand over from the driving statement must be rebound in the action statement.
+
+This means that we basically need to rebind entities that originate in a different transaction.
+
+Rebinding means, doing a `MATCH (n) WHERE id(n) = id(myKnownNode)`.
+
+As an example, the following statement would work perfectly in 3.5.x:
+
+[source,cypher]
+----
+CALL apoc.periodic.iterate('MATCH (:Account)-[r:ASSOCIATED_WITH]->() RETURN r',
+    'CALL apoc.do.case(.....) YIELD value RETURN value',
+     {batchSize: 10000, parallel: false, iterateList: true});
+----
+
+But, in 4.0.x, the above statement will need to be modified as:
+
+[source,cypher]
+----
+CALL apoc.periodic.iterate('MATCH (:Account)-[r:ASSOCIATED_WITH]->() RETURN id(r) as id',
+    'MATCH ()-[r]->() WHERE id(r)=id CALL apoc.do.case(.....) YIELD value RETURN value', 
+    {batchSize: 10000, parallel: false, iterateList: true});
+----
+
+Note that in the first (outer statement), we changed `RETURN r` to `RETURN id(r) as id`. 
+
+In the second (inner statement), we inserted `MATCH ()-[r]->() WHERE id(r)=id` before the `CALL apoc.do.case()`.
+
+For other highly useful procedures from the APOC library, please refer to the https://neo4j.com/labs/apoc/4.0/[APOC User Guide 4.0].
