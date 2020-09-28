@@ -20,7 +20,7 @@ The role of the `system` database is to **define the configuration** for the oth
 
 
 
-![](https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/configuration.gif)
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/configuration.gif[]
 
 
 A lot of interesting operational work happens (behind the scenes) both in standalone and clustered environments, which is handled by a component called the **reconciler**. 
@@ -58,4 +58,3 @@ Finally, here are a few more points to note from a multi database operations sta
 4.	The native users are stored in the `system` database, that is where the security model lives.
 5.	The `neo4j-admin unbind` runs on all the database in the DBMS.
 6.	The `dbms.memory.pagecache.size` ,`dbms.memory.heap.initial_size`, and `dbms.memory.heap.max_size` settings are all at the instance level. All the databases operate under one JVM, they share the same page cache and heap.
-
