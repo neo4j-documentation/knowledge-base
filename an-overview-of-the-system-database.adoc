@@ -25,7 +25,7 @@ image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/configuration.gif
 A lot of interesting operational work happens (behind the scenes) both in standalone and clustered environments, which is handled by a component called the **reconciler**. 
 Refer to Fig 2 below.
 
-![](https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/reconciler.gif)
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/reconciler.gif[]
 
 The `system` database is replicated across the cluster, and there is a leader for it just like any other database. Every database in 4.0 and going forward is in an independent raft group. That means core-1 could be the leader for the `system` database, whereas core-2 could be the leader for `mydb` database.
 Everything inside the `system` database is also stored in a graph data model. However, only DDL commands (CREATE, DROP, SHOW, etc.) could be executed in this database, not the regular Cypher commands (MATCH, for example). There are nodes representing other databases (`neo4j` and `mydb` in this example from Fig 2).
