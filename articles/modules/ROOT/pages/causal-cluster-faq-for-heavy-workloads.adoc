@@ -22,7 +22,7 @@ Causal Clustering relies on the Raft protocol to ensure that the data is safely 
 
 One way to measure the lag would be to set up a simple test case with 2 clients using bookmarks whilst under heavy load. This test case would have client 1 write to the database and use a bookmark, recording the time of commit; then have client 2 try to read the data using the same bookmark and record the time it took for the data to be available. Measuring this with different workloads will give you an idea of what to expect and how that value changes with your load.
 
-[INFO]
+[TIP]
 ====
 You can read more about causal chaining and bookmarks in link:https://neo4j.com/docs/developer-manual/3.4/drivers/sessions-transactions/#driver-transactions-causal-chaining[our documentation]
 ====

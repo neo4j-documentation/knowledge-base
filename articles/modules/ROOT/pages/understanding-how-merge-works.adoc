@@ -124,7 +124,7 @@ For example, if we have default property values we want to set on creation.
 
 The ON MERGE and ON CREATE clauses give us the control we need. This also makes it possible to re-run queries and ensure we aren't overriding existing properties with defaults.
 
-Here's an example when setting student report cards and grades, assuming `{grades}` is a map parameter of grades we want to set when creating a new :ReportCard node.
+Here's an example when setting student report cards and grades, assuming `+{grades}+` is a map parameter of grades we want to set when creating a new :ReportCard node.
 
 [source,cypher]
 ----

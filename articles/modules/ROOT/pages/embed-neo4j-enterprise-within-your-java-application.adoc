@@ -18,7 +18,7 @@ Specify its name embedded and the base package
 
 Create a folder .m2 in your home directory
 
-Create the ${HOME}/.m2/settings.xml file as following.
+Create the `+${HOME}/.m2/settings.xml+` file as following.
 
 Refer to the KB https://support.neo4j.com/hc/en-us/articles/360012742113-Dependency-location-for-Neo4j-Enterprise-Edition-artifacts[Dependency location]
 

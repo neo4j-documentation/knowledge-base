@@ -176,7 +176,7 @@ session required pam_limits.so
 ----
 
 Keep in mind that limits can be easily modified by anything responsible for execution of your processes. If running `ulimit -n` 
-(with the correct user) is giving you the number you just set, but cat `/proc/{process_id}/limits` is still printing the low number,
+(with the correct user) is giving you the number you just set, but cat `+/proc/{process_id}/limits+` is still printing the low number,
 you almost certainly have a process manager, an init script, or something similar overriding your limits. One last thing worth noting
 is that processes inherit the limits of the parent process.
 

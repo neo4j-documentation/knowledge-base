@@ -66,7 +66,7 @@ match (n:Person) where n.id={param1} return n;   {param1: 101}
 ----
 
 in this case Neo4j has moved the predicate `{id:101}` from the `MATCH` pattern to the `WHERE` clause, and has
-parameterized `101` value into a parameter, e.g. `n.id={param1}`.  Usage of parameters is further detailed
+parameterized `101` value into a parameter, e.g. `+n.id={param1}+`.  Usage of parameters is further detailed
 http://neo4j.com/docs/developer-manual/current/cypher/syntax/parameters/#cypher-parameters[here]
 
 The AST doesn't store information such as white spaces and casing of keywords, and since it has been parameterized, literal values

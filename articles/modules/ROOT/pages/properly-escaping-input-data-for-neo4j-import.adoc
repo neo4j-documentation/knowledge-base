@@ -16,7 +16,7 @@ http://neo4j.com/docs/stable/import-tool.html[]
 
 == Escaping commas within the CSV:
 
-[Note]
+[NOTE]
 This applies to escaping any delimiter you use in place of a comma, if specified.
 Neo4j only supports single character delimiters.
 

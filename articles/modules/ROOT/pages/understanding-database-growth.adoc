@@ -98,8 +98,8 @@ In summary the experience is as follows relative to these 2 files (and with file
 4.0K    neostore.nodestore.db.id
 ----
 
-* step 3:  remove 5 million :Person nodes  (i.e. `CALL apoc.periodic.commit("match (n:Person) with n limit {limit} delete n return
-count(*)",{limit:50000});`)   -- at which point the graph is now empty
+* step 3:  remove 5 million :Person nodes  (i.e. `+CALL apoc.periodic.commit("match (n:Person) with n limit {limit} delete n return
+count(*)",{limit:50000});+`)   -- at which point the graph is now empty
 +
 ----
 72M     neostore.nodestore.db

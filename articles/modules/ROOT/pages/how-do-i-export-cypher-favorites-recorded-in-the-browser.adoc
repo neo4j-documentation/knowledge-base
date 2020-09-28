@@ -27,7 +27,7 @@ To export favorites, use the Developer Console of Google Chrome and connect to 
 * Use the keyboard shortcut kbd:[Command + Option + J] (Mac) or kbd:[Control+ Shift + J] (Windows/Linux).
 
 3. Enter the following in the Developer Console and hit return
-
++
 [source,javascript]
 ----
 var res = JSON.parse(localStorage.getItem('neo4j.documents')) 
@@ -37,7 +37,7 @@ for (x in res) {
 ----
  
 4. Your output should be similar to the following, which lists the statements to recreate your Favorites
- 
++
 image:http://imgur.com/N7vlucN.png[image]
 
 
