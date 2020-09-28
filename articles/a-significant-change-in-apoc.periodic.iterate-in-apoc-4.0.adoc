@@ -1,6 +1,4 @@
 = A significant change in apoc.periodic.iterate() in apoc 4.0
-// CHANGE THIS, REMOVE COMMENTS BEFORE MERGE
-// ANY SLUG CHANGES WILL CAUSE POSTS TO BE RE-CREATED, BREAKING EXISTING LINKS
 :slug: a-significant-change-in-apoc-periodic-iterate-in-apoc-4-0
 :author: Vivek Saran
 // relevant versions
@@ -44,4 +42,3 @@ Note that in the first (outer statement), we changed `RETURN r` to `RETURN id(r)
 In the second (inner statement), we inserted `MATCH ()-[r]->() WHERE id(r)=id` before the `CALL apoc.do.case()`.
 
 For other highly useful procedures from the APOC library, please refer to the https://neo4j.com/labs/apoc/4.0/[APOC User Guide 4.0].
-
