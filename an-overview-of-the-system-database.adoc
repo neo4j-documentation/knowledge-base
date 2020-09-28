@@ -42,7 +42,7 @@ When you backup the `system` database, remember that it has the operational conf
 
 Following is a state diagram (Fig 3) of the all the states reconciler will publish when the `SHOW DATABASES` command is executed.
 
-![](https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/states.gif)
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/states.gif[]
 
 The existence of a folder (for example, `$neo4j_home/data/database/mydb`) in the file system does not define the database's presence. It is determined by what is in the `system` database. If the database is not in the `system` database, then it is not registered even if the folder is there. To have the system pick up the database, you will need to execute `CREATE DATABASE mydb`.
 
