@@ -1,0 +1,32 @@
+site:
+  title: Neo4j KB
+  url: /kb
+  start_page: kb::index.adoc
+
+content:
+  sources:
+  - url: .
+    branches: 'HEAD'
+    start_path: 'articles'
+
+output:
+  dir: ./public/
+
+ui:
+  bundle:
+    url: https://github.com/neo4j-documentation/docs-refresh/raw/master/ui/build/ui-bundle.zip
+    snapshot: true
+
+urls:
+  html_extension_style: indexify
+
+asciidoc:
+  extensions:
+    - ./resources/extensions/slug-checker.js
+  attributes:
+    experimental: ''
+    page-component: kb
+    page-theme: kb
+    page-breadcrumbs:
+      - name: Neo4j KB
+        url: https://neo4j.com/developer/kb/

@@ -14,3 +14,5 @@ articles/kb-book.html
 articles/book
 .gradle/
 build/
+public/
+node_modules/
