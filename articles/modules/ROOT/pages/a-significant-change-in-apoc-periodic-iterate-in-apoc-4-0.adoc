@@ -1,10 +1,8 @@
 = A significant change in apoc.periodic.iterate() in apoc 4.0
 :slug: a-significant-change-in-apoc-periodic-iterate-in-apoc-4-0
 :author: Vivek Saran
-// relevant versions
 :neo4j-versions: 4.0, 4.1
 :tags: apoc
-// category see https://github.com/neo4j-documentation/knowledge-base/blob/master/kb-categories.txt
 :category: cypher
 
 In 3.5 an entity (node, relationship, path) could be acquired in one transaction and safely reused by another.
