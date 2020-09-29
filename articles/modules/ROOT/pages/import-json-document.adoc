@@ -66,7 +66,3 @@ Or for a one off, you can also use the REST commands in Neo4j Browser, like this
 ----
 
 See this blog post for more detail: http://neo4j.com/blog/cypher-load-json-from-url/
-
-* Last Modified: {docdatetime} by {author}.
-* Relevant for Neo4j Versions: {neo4j-version}. 
-* Relevant keywords {tags}.
