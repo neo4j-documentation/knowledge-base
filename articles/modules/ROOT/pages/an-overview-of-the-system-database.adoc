@@ -15,7 +15,7 @@ The role of the `system` database is to **define the configuration** for the oth
 ** existence (exists or not)
 ** status (online/offline)
 * security configuration (RBAC)
-* neo4j,conf (this is not yet maintained by the `system` database, but there are plans in the future versions)
+* `neo4j.conf` (this is not yet maintained by the `system` database, but there are plans in the future versions)
 
 
 
@@ -36,7 +36,7 @@ The reconciler’s job is to reconcile between the desired state (STOPPED, START
 
 When a database with the name `mydb` is created, a node with the label `mydb` gets created in the `system` database. The node has a few other properties such as `createdAt`, `status`, `databaseId`, as shown in the picture above. The interesting thing to note is that when `mydb` database is dropped, the label of the node will change to `Deletedmydb`.
 
-The property that uniquely identifies a database internally, is the databaseId, which is of type UUID. So, you may DROP a database `neo4j` and then CREATE it again. Internally, the first one will exist with the `Deletednoe4j` label, and the new one will have the `neo4j` label with a different `databaseId`.
+The property that uniquely identifies a database internally, is the `databaseId`, which is of type UUID. So, you may DROP a database `neo4j` and then CREATE it again. Internally, the first one will exist with the `Deletednoe4j` label, and the new one will have the `neo4j` label with a different `databaseId`.
 
 When you backup the `system` database, remember that it has the operational configuration in it. Let's say, when the online backup of the `system` database was taken, `mydb` database was stopped at that time. So, when you restore the `system` database backup, `mydb` will have the stopped state. So, the operational state is always defined by what is in the `system` database.
 
