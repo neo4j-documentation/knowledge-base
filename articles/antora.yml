@@ -1,0 +1,8 @@
+name: kb
+title: Knowledge Base
+version: 'master'
+nav:
+  - modules/ROOT/nav.adoc
+asciidoc:
+  attributes:
+    page-layout: 'kb-article@'

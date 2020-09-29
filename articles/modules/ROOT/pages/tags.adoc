@@ -1,0 +1,2 @@
+= Tag
+:page-layout: kb-tags
