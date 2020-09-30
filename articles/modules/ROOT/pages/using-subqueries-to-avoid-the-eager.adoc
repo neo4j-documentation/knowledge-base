@@ -1,0 +1,130 @@
+= Using Subqueries to Avoid the Eager
+
+:slug: using-subqueries-to-avoid-the-eager
+:author: Andrew Bowman
+:neo4j-versions: 4.1, 3.5
+:tags: cypher, performance, load-csv
+:category: cypher
+
+If you've used `USING PERIODIC COMMIT LOAD CSV` to import data into Neo4j, it's likely at some point that you've been bitten by the Eager:
+Some operations require eagerly pulling in interim results for all rows, which effectively disables the `PERIODIC COMMIT` behavior, possibly causing you to go out of memory when running on a large input dataset.
+
+The culprit, in an EXPLAIN query plan, is usually the Eager operator, with a dark blue header.
+
+This article provides some ways to avoid Eager operators (and their consequences) by isolating parts of your Cypher queries with subqueries.
+
+NOTE: We won't be talking about EagerAggregations here, which result from aggregation functions like count() and collect().
+We have a separate article for those, but they can be similarly isolated via subqueries. You probably shouldn't be using aggregations when doing a data load anyway.
+
+What does the Eager operator mean? It means that your query is going to be processed differently than you may expect,
+with operations being applied to all rows before continuing to the next operation (also to be applied on all rows), which may be memory-intensive, could cause high GC pauses, and definitely prevents you from doing batch commiting as you intended to when `USING PERIODIC COMMIT`.
+
+Why does this happen? To minimize the side effects of query processing where updates from earlier processing affect operations on subsequent row processing.
+For example, creating a node in the later part of the query, affecting the matching in the earlier part of the query, but only on subsequent rows.
+
+TIP: For a more in-depth exploration of the Eager operator, including a neat visual diagram of how it affects query processing, read https://community.neo4j.com/t/cypher-sleuthing-the-eager-operator/10730[Cypher Sleuthing: the eager operator] by Jennifer Reif.
+
+WARNING: he purpose of the Eager is to prevent these side effects, but in using the workarounds here we are essentially tricking the query planner into not planning an eager operation, and in doing so you must accept that side effects may occur:
+The results of execution on earlier rows will affect the execution when run on later rows.
+
+== Hunting the Eager
+
+The toughest part of applying this is figuring out which parts of your query are causing the planning of an Eager operation.
+
+The purpose of Eager is to prevent side-effects, results of some parts of the query that write to the graph interfering with other parts of the query that may read that change.
+
+As such, look for operations in your query that would interfere with each other, such as CREATEs and MATCHes using the same node labels, or multiple MERGEs on nodes of the same label.
+The same applies to relationships, so watch out for parts of the query that write a relationship that could be read in another part of the query.
+The Eager operator in the query plan often (but not always) follows one of the write operations involved.
+
+Remember also that MERGE is both a read and write operation.
+
+As Eager operators are inserted by the query planner, we can test our queries with EXPLAIN, no need for a more costly PROFILE.
+
+You can test if parts of your query contribute to an Eager operator by removing them from the query, though that's often easier said than done.
+
+TIP: Keep the query simple. The more complex your query, the harder it's going to be to figure out which parts of the query result in the Eager, and it may be harder to apply subqueries to circumvent the Eager.
+
+== Isolating and eliminating the Eager
+
+Once you've identified what's contributing to the Eager operator, you can isolate it with a subquery, which were introduced in Neo4j 4.1.
+
+Let's take an example from Jennifer Reif's article linked above (you can run this on any graph, it doesn't even need to have data):
+
+[source,cypher]
+----
+EXPLAIN
+UNWIND [1,2,3,4,5] as id
+MERGE (c:Customer {id: id})
+MERGE (e:Employee {id: c.id*10})
+WITH c, e, id
+MATCH (p:Customer {id: id})
+MERGE (e)-[r:DEDICATED_TO]->(c)
+----
+
+This query will produce an Eager operator following operations associated with the MERGE of the `(c:Customer)` node.
+
+The two lines of the query interfering with each other are the previously mentioned MERGE of the `(c:Customer)` node,
+and the MATCH of the `(p:Customer {id: id})` node, even if we're not doing anything with it.
+
+The easiest thing to do would be to eliminate it, since we know from the article that removing it would prevent the Eager,
+but let's try isolating it with a subquery instead:
+
+[source,cypher]
+----
+EXPLAIN
+UNWIND [1,2,3,4,5] as id
+MERGE (c:Customer {id: id})
+MERGE (e:Employee {id: c.id*10})
+WITH c, e, id
+CALL {
+    WITH id
+    MATCH (p:Customer {id: id})
+    RETURN p
+}
+MERGE (e)-[r:DEDICATED_TO]->(c)
+----
+
+From the EXPLAIN plan, the Eager operator is gone.
+
+NOTE: If there are several parts of the query that are conflicting on the same nodes, it will not be enough to isolate only one of them.
+There should be no unisolated parts that can interfere with each other, otherwise expect to see the Eager.
+
+== Using APOC procs as subqueries
+
+If you aren't running Neo4j 4.1 or higher, you can make use of some procs in APOC to act as subqueries for the same effect.
+
+Notably, `apoc.cypher.run()` for read subqueries, and `apoc.cypher.doIt()` when it needs to write to the graph.
+
+Here's another similar query that results in an Eager operator in the plan:
+
+[source,cypher]
+----
+EXPLAIN
+UNWIND [1,2,3,4,5] as id
+MERGE (c:Customer {id: id})
+MERGE (e:Employee {id: c.id*10})
+ON CREATE SET e:Customer // this is the new part
+WITH c, e
+MERGE (e)-[r:DEDICATED_TO]->(c)
+----
+
+In this one, we conditionally add the :Customer label to the :Employee node. Now the two MERGEs might interfere with each other.
+
+We can apply `apoc.cypher.doIt()` as a subquery, using it exactly as we would a native subquery:
+
+[source,cypher]
+----
+EXPLAIN
+UNWIND [1,2,3,4,5] as id
+MERGE (c:Customer {id: id})
+WITH c
+CALL apoc.cypher.doIt("
+	MERGE (e:Employee {id: c.id*10})
+	ON CREATE SET e:Customer",
+    {c:c}) YIELD value
+WITH c, value.e as e
+MERGE (e)-[r:DEDICATED_TO]->(c)
+----
+
+Just like before, isolating the scope with a subquery prevents the planner from adding the Eager.
