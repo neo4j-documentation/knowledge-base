@@ -11,7 +11,7 @@ Activation keys are mini-contracts that are signed by Neo4j, granting access to 
 features are entire applications like "Neo4j Desktop" or "Neo4j Bloom" but they may be also be used to
 toggle features within an application, like the experimental "application drawer" in Neo4j Desktop.
 
-The content of an activation-key is signed with a private cryptographic key. Applications like Neo4j Desktop 
+The content of an activation-key is signed with a private cryptographic key. Applications like Neo4j Desktop
 contain the paired cryptographic public key, allowing them to validate that the activation-key has not
 been altered. Neo4j Desktop itself has been code-signed for distribution on Windows and MacOS, forming a
 chain of trust which allows us to make use of the activation-key.
@@ -22,21 +22,21 @@ To be buzzword-friendly, you could say that an activation key is a single-link b
 
 Neo4j Desktop supports using activation keys for a few features:
 
-- registering Neo4j Desktop itself, as a manual alaternative to the Social Sign-in registration
+- registering Neo4j Desktop itself, as a manual alternative to the Social Sign-in registration
 - activating Graph-Apps: Neo4j Bloom, Neo4j ETL
 - activatinng some experimental features
 
 Business rules for keys in Neo4j Desktop:
 
 - activating a Graph-App installs that app. Once installed, the app can be used forever.
-- an expired Graph-App key can not be used for installation. 
+- an expired Graph-App key can not be used for installation.
 - an expired Graph-App key will be prevent updates from being installed, but will _not_ disable the Graph-App
 
 === Installing Activation Keys
 
 1. Start Neo4j Desktop
-2. Open the "User" drawer
-3. Click on "+ Add Activation Key"
+2. Open the "Software Keys" drawer
+3. Click on "+ Add software Key"
 4. Paste in the _entire_ contents of the activation key
 
 Problem solving:
