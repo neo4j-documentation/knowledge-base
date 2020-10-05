@@ -199,6 +199,44 @@ When publishing in "testing", the slug will be automatically prefixed by `+_test
 
 === Publish Zendesk
 
+Articles can be published on the Enterprise Customer Support (support.neo4j.com) and/or on the Aura Customer Support.
+By default, all articles are published on the Enterprise Customer Support.
+If you don't want to publish on the Enterprise Customer Support for a specific article, you can add the following attribute in the article header:
+
+[source,asciidoc]
+----
+:enterprise!:
+----
+
+If you want to publish on the Aura Customer Support, then you need to add the following attribute in the article header:
+
+[source,asciidoc]
+----
+:aura:
+----
+
+The `aura` attribute can take a comma-separated list of values.
+Currently, the following list of values is supported (with their corresponding section id):
+
+[cols="1m,1m",opts=header]
+|====
+|Value
+|Id
+
+|help-center/knowledge-base
+|360005376634
+
+|home-page/getting-started
+|360005850813
+|====
+
+Here's an example where the article will be published on both the "Help Center > Knowledge Base" section and on the "Home Page > Getting Started" section:
+
+[source,asciidoc]
+----
+:aura: help-center/knowledge-base,home-page/getting-started
+----
+
 ==== Properties
 
 You can define the properties using `-P` in the Gradle command line.
@@ -209,10 +247,7 @@ Email of an Agent account on Zendesk
 `zendesk-apitoken`::
 API token generated from the Admin page on Zendesk
 
-`zendesk-host`::
-Host of the Zendesk instance (for instance: `support.neo4j.com`)
-
 ==== Examples
 
 .Publish
- $ ./gradlew zenDeskUpload -Pzendesk-email="user@neo4j.com" -Pzendesk-host="support.neo4j.com" -Pzendesk-apitoken="apitoken"
+ $ ./gradlew zenDeskUpload -Pzendesk-email="user@neo4j.com" -Pzendesk-apitoken="apitoken"
