@@ -30,7 +30,9 @@ Please note that in order for bolt+routing to work correctly the current user mu
 
 Symptom: you can connect to Neo4j Browser and enter credentials, but fail to connect with a message about WebSocket connection failures.
 
-It looks like this: https://imgur.com/3Y7NBDg.png
+It looks like this:
+
+image::https://imgur.com/3Y7NBDg.png[]
 
 Explanation: this is commonly seen with Firefox and some versions of Internet Explorer, when Neo4j Browser is used with an untrusted
 SSL certificate. When users click to accept the exception and permit traffic, those browsers authorize that action for only the port
