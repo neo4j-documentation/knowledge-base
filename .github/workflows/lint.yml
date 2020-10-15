@@ -1,0 +1,34 @@
+name: Lint
+
+on:
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+      - name: Install dependencies
+        run: |
+          npm ci
+      - name: Lint
+        run: |
+          FORCE_COLOR=1 npm run lint
+      - name: Annotate
+        uses: yuzutech/annotations-action@v0.2.0
+        with:
+          title: 'report'
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          input: './annotations.json'
+          # when the pull request is created from a fork repository,
+          # the token won't have write permissions to the origin repository.
+          ignore-unauthorized-error: true
+        # the previous task `npm run lint` will return 1 as exit code if there are any issues,
+        # but we still want to execute this task to annotate the code.
+        if: ${{ always() }}

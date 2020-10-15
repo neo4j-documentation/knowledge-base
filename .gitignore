@@ -16,3 +16,4 @@ articles/book
 build/
 public/
 node_modules/
+annotations.json

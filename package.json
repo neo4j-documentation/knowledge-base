@@ -4,7 +4,8 @@
   "description": "Neo4j Knowledge Base",
   "main": "index.js",
   "scripts": {
-    "watch": "node watch.js",
+    "lint": "node tasks/lint.js",
+    "watch": "node tasks/watch.js",
     "build": "antora --generator @neo4j/developer-site-generator local-antora-playbook.yml"
   },
   "repository": {
@@ -21,7 +22,9 @@
   "devDependencies": {
     "@antora/cli": "^2.3.4",
     "@neo4j/developer-site-generator": "git+https://github.com/neo4j-documentation/developer-site-generator.git#v0.1.0",
+    "@asciidoctor/core": "^2.2.0",
     "browser-sync": "^2.26.12",
+    "chalk": "^4.1.0",
     "cheerio": "^1.0.0-rc.3",
     "chokidar": "^3.4.2",
     "express": "^4.17.1"

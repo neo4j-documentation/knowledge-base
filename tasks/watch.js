@@ -1,14 +1,14 @@
 const chokidar = require('chokidar')
 const browserSync = require("browser-sync")
 const generator = require('@antora/site-generator-default')
-const Lock = require('./lock.js')
+const Lock = require('./extra/lock.js')
 const processorLock = new Lock()
 
 const antoraArgs = ['--playbook', 'local-antora-playbook.yml']
 
 browserSync({server: "./public"})
 
-const watcher = chokidar.watch(['articles/modules/ROOT/**'],
+const watcher = chokidar.watch([`${__dirname}../articles/modules/ROOT/**`],
   {
     ignored: /(^|[\/\\])\../, // ignore dotfiles
     persistent: true
