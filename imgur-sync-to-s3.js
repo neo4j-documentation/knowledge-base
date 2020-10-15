@@ -59,7 +59,7 @@ async function getImage(url) {
       }
     }
     const profileOption = process.env.AWS_PROFILE ? ` --profile ${process.env.AWS_PROFILE}` : ''
-    const awsS3SyncCommand = `aws s3 sync . s3://support.neotechnology.com/KBs --acl public-read${profileOption}`;
+    const awsS3SyncCommand = `aws s3 sync . s3://dev.assets.neo4j.com/kb-content --acl public-read${profileOption}`;
     console.log(awsS3SyncCommand)
     const result = execSync(awsS3SyncCommand, {
       cwd: buildDir
