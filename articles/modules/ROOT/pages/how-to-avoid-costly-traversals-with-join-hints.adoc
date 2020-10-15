@@ -34,7 +34,7 @@ RETURN a, count(a) as likesInCommon
 
 If the planner decides to use only a single starting point for this query and doesn't recognize a potential supernode issue, it's possible that it may choose to plan expansion through the :Artist node, which could be very costly:
 
-image:img/without-join-hint.png[image,role="popup-link"]
+image::https://s3.amazonaws.com/support.neotechnology.com/KBs/without-join-hint.png[image,role="popup-link"]
 
 As the Cypher query planner has the ability to rearrange the ordering of adjacent MATCH patterns (and across some WITH clauses), simply reordering my pattern isn't enough.
 I can use a join hint to ensure we only traverse *to* the node in question, but not through it or away from it.
@@ -48,4 +48,4 @@ RETURN a, count(a) as likesInCommon
 
 From the query plan we can see that from the same starting point we traverse two different paths toward `a`, but not through it, and perform a node hash join to unify the paths on the common artist nodes.
 
-image:img/with-join-hint.png[image,role="popup-link"]
+image::https://s3.amazonaws.com/support.neotechnology.com/KBs/with-join-hint.png[image,role="popup-link"]
