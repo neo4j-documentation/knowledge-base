@@ -11,7 +11,7 @@
 It is common to start the database as different users, this can leave store files owned by other user ids.  
 ( e.g. root )
 
-In such case, you might want to fix the store files and directory. For example : `${NEO4J_HOME}/data/databases/graph.db/`
+In such case, you might want to fix the store files and directory. For example : `+${NEO4J_HOME}/data/databases/graph.db/+`
 
 == Disk space is full
 

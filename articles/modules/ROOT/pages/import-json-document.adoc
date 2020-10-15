@@ -28,7 +28,7 @@ We create an constraint first:
 CREATE CONSTRAINT ON (p:Person) ASSERT p.name IS UNIQUE;
 ----
 
-Then we can use this Cypher statement to map the JSON into the graph using a `{json}` parameter.
+Then we can use this Cypher statement to map the JSON into the graph using a `+{json}+` parameter.
 
 [source,cypher]
 ----
