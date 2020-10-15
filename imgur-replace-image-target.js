@@ -25,7 +25,7 @@ const imgurImageReplaceMacroRx = /(image::?)(https?:\/\/(:?i\.)?imgur.com\/([a-z
             } else {
               imageName = file.replace(/\.adoc$/, '') + '-' + imageName
             }
-            return `${imageMacro}${imageName}[${attributesList}]`
+            return `${imageMacro}https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/${imageName}[${attributesList}]`
           }))
         }
         fs.writeFileSync(filePath, data.join('\n'), 'utf8')
