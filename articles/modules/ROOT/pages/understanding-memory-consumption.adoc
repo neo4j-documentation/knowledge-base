@@ -37,7 +37,7 @@ Below is a picture of how this all falls into place:
 
 .Memory consumption in Neo4j
 [caption="Figure 1: "]
-image::https://s3.amazonaws.com/support.neotechnology.com/KBs/memory_consumption_neo4j.png[Memory consumption in Neo4j,75%,75%]
+image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/memory_consumption_neo4j.png[Memory consumption in Neo4j,75%,75%]
 
 {nbsp} +
 

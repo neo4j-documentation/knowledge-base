@@ -18,7 +18,7 @@ Imagine the following scenario:
 
 .North & South DCs
 [caption="Figure 1: "]
-image::https://s3.amazonaws.com/support.neotechnology.com/KBs/dcs.png[North & South DCs,50%,50%]
+image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/dcs.png[North & South DCs,50%,50%]
 
 {nbsp} +
 
