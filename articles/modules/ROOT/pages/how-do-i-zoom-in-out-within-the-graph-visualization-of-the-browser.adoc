@@ -9,8 +9,8 @@ Within the graph visualization pane of the browser (reached locally at http://lo
 
 To enter *Full Screen* mode, within the graph visualization pane click the icon depicted in the example below:
 
-image:http://i.imgur.com/LWpSo1j.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/how-do-i-zoom-in-out-within-the-graph-visualization-of-the-browser-LWpSo1j.png[image]
 
 To zoom in/out, click the icon depicted in the example below:
 
-image:http://imgur.com/IyCh5Ec.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/how-do-i-zoom-in-out-within-the-graph-visualization-of-the-browser-IyCh5Ec.png[image]

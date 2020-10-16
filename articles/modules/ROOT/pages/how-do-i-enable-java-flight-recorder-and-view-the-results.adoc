@@ -84,4 +84,4 @@ The resultant Java Flight Recorder file can be analyzed using http://www.oracle.
 To start Java Mission Control run $JAVA_HOME/jmc.
 Once started, using menu File / Open File, one can then browse to the flight recorder file.
 
-image:http://i.imgur.com/wQlnDRn.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/how-do-i-enable-java-flight-recorder-and-view-the-results-wQlnDRn.png[image]

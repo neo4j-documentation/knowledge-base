@@ -20,7 +20,7 @@ To enable authentication, use parameter `dbms.security.auth_enabled=true` define
 
 After installing and launching the http://chromerestclient.appspot.com/[Google Chrome Advanced REST Client] application, your browser should appear as follows:
 
-image:http://imgur.com/qq4KTt1.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/a-lightweight-approach-to-testing-the-neo4j-rest-api-with-authentication-qq4KTt1.png[image]
 
 For the field labeled `URL`, this should be replaced with the URL to the Neo4j server, for example, `http://localhost:7474/user/neo4j`.
 
@@ -36,22 +36,22 @@ Upon clicking the Form tab, you can define the payload for the REST request.
 Define the `Name` field as `Authorization`.
 Click the `value` field and you should see a `CONSTRUCT` pop-up, for example:
 
-image:http://imgur.com/Zl1Bciq.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/a-lightweight-approach-to-testing-the-neo4j-rest-api-with-authentication-Zl1Bciq.png[image]
 
 Clicking `CONSTRUCT` will then allow you to define the payload for this
 request. 
 Specifically, we need to define the username/password, for example, `neo4j`/`mypassword`. 
 
-image:http://imgur.com/9wnIEUs.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/a-lightweight-approach-to-testing-the-neo4j-rest-api-with-authentication-9wnIEUs.png[image]
 
 Clicking *[OK]* should then return you back to a display similar to
 
-image:http://imgur.com/D5ut2II.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/a-lightweight-approach-to-testing-the-neo4j-rest-api-with-authentication-D5ut2II.png[image]
 
 Finally, clicking **[SEND]** will submit the request.
 You should see output similar to the following:
 
-image:http://imgur.com/cFIYTQW.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/a-lightweight-approach-to-testing-the-neo4j-rest-api-with-authentication-cFIYTQW.png[image]
 
 The output above including Status: `200 OK` indicates the request was properly processed.
 A status of `4xx` would be indicative of a failure.

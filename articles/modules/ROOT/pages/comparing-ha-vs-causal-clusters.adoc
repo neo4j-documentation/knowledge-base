@@ -67,4 +67,4 @@ That said, for existing HA applications, customers can migrate from HA to Causal
 For a comprehensive listing of all new features introduced for every 3.x release, please refer to the table below:
 
 
-image:https://i.imgur.com/HOKLkqg.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/comparing-ha-vs-causal-clusters-HOKLkqg.png[image]

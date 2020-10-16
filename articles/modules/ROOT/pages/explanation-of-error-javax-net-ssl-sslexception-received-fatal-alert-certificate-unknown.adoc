@@ -21,13 +21,13 @@ This is usually as a result of either a bad certificate recorded at the client o
 
 For example, as depicted from the screenshot and when using Google Chrome Browser and clicking on the padlock icon next to the url
 
-image:https://imgur.com/AeiF9bD.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/explanation-of-error-javax-net-ssl-sslexception-received-fatal-alert-certificate-unknown-AeiF9bD.png[image]
 
 you should see that this reports `Certificate Valid`.
 
 Further if you click the text for `Certificate Valid` it should report similar to
 
-image:https://imgur.com/7CMuQOe.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/explanation-of-error-javax-net-ssl-sslexception-received-fatal-alert-certificate-unknown-7CMuQOe.png[image]
 
 and describe to which domain the certificate is `Issued to:`
 

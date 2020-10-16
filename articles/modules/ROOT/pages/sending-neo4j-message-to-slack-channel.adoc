@@ -32,4 +32,4 @@ curl -X POST -H 'Content-type: application/json' --data "$msg"  https://hooks.sl
 
 will result in a message to your Slack channel similar to
 
-image:https://i.imgur.com/3q6Qlhp.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/sending-neo4j-message-to-slack-channel-3q6Qlhp.png[image]

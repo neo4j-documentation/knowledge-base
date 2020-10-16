@@ -14,7 +14,7 @@ However both the Browser and the stored procedure will display the property keys
 associated with any nodes, for example
 
 
-image::https://imgur.com/F4vcMTi.png[image,role="popup-link"]
+image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/why-do-my-deleted-property-keys-appear-F4vcMTi.png[image,role="popup-link"]
 
 Unlike `labels` and `relationship types` which have underlying meta-data that report the number of objects for each, there is no 
 meta-data for property keys.

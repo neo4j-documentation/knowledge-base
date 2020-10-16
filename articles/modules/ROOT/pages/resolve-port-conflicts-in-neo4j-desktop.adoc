@@ -10,13 +10,13 @@ Occasionally upon upgrade or re-install, Neo4j Desktop may throw a repetitive po
 certain cases. Attempting to start the database with the play button results in a port conflict notification prompting to 
 fix configuration. Clicking on fix configuration changes nothing and the database does not start up. 
 
-image::https://imgur.com/tpM1H1i.png[Desktop Port Conflict1]
+image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/desktop-port-conflict1.png[Desktop Port Conflict1]
 
 Database does start up using `bin\neo4j console` and is accessible via a standalone chrome browser, whilst launching the neo4j 
 browser throws the error suggesting invalid credentials, use :server connect. Issuing :server connect throws the error 
 credentials provided could not be used.
 
-image::https://imgur.com/A7QPEvS.png[Desktop Port Conflict2]
+image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/desktop-port-conflict2.png[Desktop Port Conflict2]
 
 First thing to check is whether the default/configured http, https, bolt ports are allowed in the OS firewall and/or antivirus.
 The second check is to do an `nc -l -p <port>` which will check the port availability locally and also whether the port is 

@@ -39,15 +39,15 @@ log_group_name = /neo4j/logs
 CloudWatch provides a user interface to view the log files.
 Once you log into your Amazon console and select CloudWatch, you will be presented with the following console:
 
-image:http://i.imgur.com/Zm39Ni1.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/amazon-cloudwatch-configuration-for-neo4j-logs-Zm39Ni1.png[image]
 
 Selecting the `/neo4j/logs` group brings you to a page to select your logstream:
 
-image:http://i.imgur.com/rNNfSh4.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/amazon-cloudwatch-configuration-for-neo4j-logs-rNNfSh4.png[image]
 
 Finally, you can select on the server id and view the actual log file:
 
-image:http://i.imgur.com/cUb50JD.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/amazon-cloudwatch-configuration-for-neo4j-logs-cUb50JD.png[image]
 
 .Configuring a Metric
 CloudWatch allows you to configure custom metrics to monitor events of interest.
@@ -57,7 +57,7 @@ For our example, we will configure a metric to look for a master failover.
 The steps to configure a custom metric are documented https://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/CountingLogEventsExample.html[here].
 After selecting our Log Group, you will click on the Create Metric Filter button.
 
-image:http://i.imgur.com/Vf6iEPL.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/amazon-cloudwatch-configuration-for-neo4j-logs-Vf6iEPL.png[image]
 
 For the filter pattern, use the text: "unavailable as master".
 When you are finished, you will assign the metric.

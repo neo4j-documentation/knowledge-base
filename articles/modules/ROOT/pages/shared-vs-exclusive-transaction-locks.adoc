@@ -52,7 +52,7 @@ call dbms.listActiveLocks(`currentQueryId`) YIELD mode, resourceType
 RETURN mode, resourceType
 ----
  
-image::https://imgur.com/oI2r89x.png[Shared Lock]
+image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/shared-lock.png[Shared Lock]
 
 The above cypher MATCH statement modifies the node, so an exclusive lock is taken on the node. The SHARED LABEL locks are for the
 _schema_ of the database. They will prevent other transactions from modifying the schema in a way that involves those labels, 

@@ -22,6 +22,6 @@ Once there, simply invoke the `clear()` method.
 
 Here is a screen capture of what JConsole looks like when executing this operation:
 
-image:http://imgur.com/NN28Uqg.png[]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/how-to-manually-clear-the-node-and-relationship-cache-NN28Uqg.png[]
 
 

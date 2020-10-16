@@ -18,4 +18,4 @@ To resolve the issue, simply remove the currently downloaded JVM copy which can 
 %APPDATA%/Neo4j Desktop/Application/distributions/java/
 ----
 
-image:https://i.imgur.com/fReVtRl.jpg[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/extracting-java-error-during-neo4j-desktop-install-fReVtRl.jpg[image]

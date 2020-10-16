@@ -40,11 +40,11 @@ And the following sample neo4j parameters set for a single neo4j instance alread
 
 Following are sample cpu and memory profiles for the above single instance over a 6 month period:
 
-image::https://i.imgur.com/tdxPujf.png[CPU Profile]
+image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/cpu-profile.png[CPU Profile]
 
 We can see the CPU peaking occasionally at 30% which seems reasonably low if a second instance were to be added to the host machine.
 
-image::https://i.imgur.com/OLuaCT0.png[Memory Profile]
+image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/memory-profile.png[Memory Profile]
 
 We can see that memory usage has peaked frequently above 90% and then 50% at times.
 

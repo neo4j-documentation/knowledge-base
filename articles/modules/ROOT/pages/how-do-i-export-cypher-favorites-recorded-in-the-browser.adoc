@@ -9,12 +9,12 @@
 Cypher Favorites are common Cypher statements which one can save to the left panel of the Neo4j browser.
 A Favorite is created by entering the Cypher at the top prompt and then clicking the Favorite icon to the right as depicted:
 
-image:http://imgur.com/lXx25UL.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/how-do-i-export-cypher-favorites-recorded-in-the-browser-lXx25UL.png[image]
 
 After clicking on the Favorite Icon, the title of the Cypher statement (in this case 'my favorite Cypher') will be added to the left panel of the browser.
 For example:
 
-image:http://imgur.com/isB2JKw.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/how-do-i-export-cypher-favorites-recorded-in-the-browser-isB2JKw.png[image]
 
 These favorites are stored in local browser storage and as such are centric to the user/browser who has recorded those favorites.
 Additionally, if one clears their browser cache, recorded favorites will be removed.
@@ -38,6 +38,6 @@ for (x in res) {
  
 4. Your output should be similar to the following, which lists the statements to recreate your Favorites
 +
-image:http://imgur.com/N7vlucN.png[image]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/how-do-i-export-cypher-favorites-recorded-in-the-browser-N7vlucN.png[image]
 
 
