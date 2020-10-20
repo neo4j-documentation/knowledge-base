@@ -7,7 +7,7 @@
 :neo4j-versions: 3.4,3.5
 
 Commencing with Neo4j 2.3.x it is possible to create the equivalent of a primary key on a property of a label.
-For example the following Cypher 
+For example the following Cypher:
 
 [source,cypher]
 ----

@@ -19,7 +19,9 @@ While this will adequately handle and terminate an executing query that exceeds 
 
 Debug logs may report termination of the query, but often after a long time has elapsed:
 
-`WARN  [o.n.k.g.TimeoutGuard] Transaction timeout. (Overtime: 523299 ms)`
+....
+WARN  [o.n.k.g.TimeoutGuard] Transaction timeout. (Overtime: 523299 ms)
+....
 
 == A separate timeout must be set on lock acquisition
 

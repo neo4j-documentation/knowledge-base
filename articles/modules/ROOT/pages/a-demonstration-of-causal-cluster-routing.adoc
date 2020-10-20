@@ -11,12 +11,16 @@ https://neo4j.com/docs/developer-manual/current/drivers/client-applications/#_ro
 
 The initial scenario is described with https://neo4j.com/docs/operations-manual/current/tutorial/local-causal-cluster/[local cluster] setup with 3 core instances, 1 LEADER and 2 FOLLOWERS.   Using dbms.cluster.overview() the output reports
 
-[source,shell]
+[source,shell,role=noheader]
 ----
- ./cypher-shell -a bolt://192.168.0.97:7617
+$ ./cypher-shell -a bolt://192.168.0.97:7617
 Connected to Neo4j 3.2.2 at bolt://192.168.0.97:7617.
 Type :help for a list of available commands or :exit to exit the shell.
 Note that Cypher queries must end with a semicolon.
+----
+
+[source,cypher-shell,role=noheader]
+----
 neo4j> call dbms.cluster.overview() yield addresses, role;
 +-----------------------------------------------------------------------------------------------+
 | addresses                                                                    | role           |
@@ -32,12 +36,16 @@ The above detail is also available through the browser by running `:sysinfo`
 if a connection is made to the 3rd instance (i.e. a FOLLOWER) and the routing attribute is not included, then writes are not possible
 on the FOLLOWER and this is expected, for example
 
-[source,shell]
+[source,shell,role=noheader]
 ----
-./cypher-shell -a bolt://192.168.0.97:7637
+$ ./cypher-shell -a bolt://192.168.0.97:7637
 Connected to Neo4j 3.2.2 at bolt://192.168.0.97:7637.
 Type :help for a list of available commands or :exit to exit the shell.
 Note that Cypher queries must end with a semicolon.
+----
+
+[source,cypher-shell,role=noheader]
+----
 neo4j> create (m:Person {id:123});
 No write operations are allowed directly on this database. Writes must pass through the leader. The role of this server is: FOLLOWER
 neo4j> :exit
@@ -46,12 +54,16 @@ neo4j> :exit
 however if a connection is made to this same FOLLOWER instance and the `bolt+routing` attribute is included, then Writes are possible,
 for example
 
-[source,shell]
+[source,shell,role=noheader]
 ----
-./cypher-shell -a bolt+routing://192.168.0.97:7637
+$ ./cypher-shell -a bolt+routing://192.168.0.97:7637
 Connected to Neo4j 3.2.2 at bolt://192.168.0.97:7637.
 Type :help for a list of available commands or :exit to exit the shell.
 Note that Cypher queries must end with a semicolon.
+----
+
+[source,cypher-shell,role=noheader]
+----
 neo4j> create (m:Person {id:123});
 0 rows available after 791 ms, consumed after another 3 ms
 neo4j> :exit
@@ -60,12 +72,16 @@ neo4j> :exit
 in this case although cypher-shell was initiated and described to connect to the FOLLOWER on port :7637, as a result of 
 the bolt+routing, the connection was actually redirected to the LEADER, for example
 
-[source,shell]
+[source,shell,role=noheader]
 ----
-./cypher-shell -a bolt+routing://192.168.0.97:7637
+$ ./cypher-shell -a bolt+routing://192.168.0.97:7637
 Connected to Neo4j 3.2.2 at bolt+routing://192.168.0.97:7637.
 Type :help for a list of available commands or :exit to exit the shell.
 Note that Cypher queries must end with a semicolon.
+----
+
+[source,cypher-shell,role=noheader]
+----
 neo4j> call dbms.cluster.role();
 +----------+
 | role     |
@@ -77,7 +93,7 @@ neo4j> call dbms.cluster.role();
 Finally, if the LEADER fails after the intial cypher-shell connection has been established, and thus re-eleection has resulted 
 in the FOLLOWER from instance 3 being reported as the new LEADER, as evidence
 
-[source,shell]
+[source,cypher-shell,role=noheader]
 ----
 neo4j> call dbms.cluster.overview();
 +-------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -90,7 +106,7 @@ neo4j> call dbms.cluster.overview();
 
 the cypher-shell connection is able to continue, for example
 
-[source,shell]
+[source,cypher-shell,role=noheader]
 ----
 neo4j> create (n:Person {id:456});
 0 rows available after 133 ms, consumed after another 1 ms
@@ -100,9 +116,8 @@ Added 1 nodes, Set 1 properties, Added 1 labels
 In this case the cypher-shell client has been updated with a new routing table and thus sends WRITEs to the NEW leader at :7637.
 
 If connection had not been established with `bolt+routing' then the connection would have gone to the instance defined by its :port
-and if that Neo4j instance exits, then future submissions via cypher-shell will results in
+and if that Neo4j instance exits, then future submissions via cypher-shell will results in:
 
-[source,shell]
-----
+....
 SSL Connection terminated while receiving data. This can happen due to network instabilities, or due to restarts of the database.
-----
+....

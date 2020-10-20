@@ -12,17 +12,17 @@ be used to capture low level Java properties and run-time data about Java proces
 
 Per https://docs.oracle.com/javase/8/docs/technotes/guides/troubleshoot/tooldescr002.html
 
-----
+....
 The Java Flight Recorder (JFR) is a commercial feature. You can use it for free on developer desktops/laptops, and for
 evaluation purposes in test, development, and production environments. However, to enable JFR on a production server,
 you require a commercial license. Using JMC UI for other purposes on the JDK does not require a commercial license.
-----
+....
 
 To enable the Java Flight Recorder the following JVM options should be added to the `neo4j.conf`
 
 For 3.x
 
-[source,conf]
+[source,properties]
 ----
 dbms.jvm.additional=-XX:+UnlockCommercialFeatures
 dbms.jvm.additional=-XX:+FlightRecorder
@@ -33,46 +33,50 @@ and then Neo4j needs to be restarted for these changes to take effect.
 
 To begin a time based recording, at the command line run:
 
-`$JAVA_HOME/jcmd <pid> JFR.start duration=3600s filename=myrecording.jfr settings=/usr/lib/jvm/java-8-oracle/jre/lib/jfr/profile.jfc `
+[source,shell]
+----
+$ $JAVA_HOME/jcmd <pid> JFR.start duration=3600s filename=myrecording.jfr settings=/usr/lib/jvm/java-8-oracle/jre/lib/jfr/profile.jfc
+----
 
 replacing <pid> with the linux pid for the Neo4j process (i.e.  `ps -eaf | grep java`).  
 
 The inclusion of `duration=3600s`, should have resulted in a recording that spanned 1 hour and this file will be written to at the completion of the 1 hour run.
 
 The reference to `filename=myrecording.jfr` above, describes the output file to be produced.
-When no path is defined the resultant file will be recorded at `$NEO4J_HOME`.  Alternatively one could define filename with a full path reference, for example filename=/tmp/myrecording.jfr
+When no path is defined the resultant file will be recorded at `$NEO4J_HOME`.
+Alternatively one could define filename with a full path reference, for example `filename=/tmp/myrecording.jfr`.
 
 Also the location of the profile.jfc may be at a different directory/path for your given install.   
-The expected path is in $JRE_HOME/lib/jfr 
+The expected path is in `$JRE_HOME/lib/jfr`.
 
-If you do not know how long to run the recording since the issue may be intermittent, run
+If you do not know how long to run the recording since the issue may be intermittent, run:
 
 [source,shell]
 ----
-$JAVA_HOME/jcmd <pid> JFR.start settings=/usr/lib/jvm/java-8-oracle/jre/lib/jfr/profile.jfc
+$ $JAVA_HOME/jcmd <pid> JFR.start settings=/usr/lib/jvm/java-8-oracle/jre/lib/jfr/profile.jfc
 ----
 
 and to which this will report 
 
-----
+....
 3962:
 Started recording 1. No limit (duration/maxsize/maxage) in use.
 
 Use JFR.dump recording=1 filename=FILEPATH to copy recording data to file.
-----
+....
 
-and to then dump the recording to a file run
-
-[source,shell]
-----
-jcmd <pid> JFR.dump recording=<recording #> filename=<filename>
-----
-
-and then to completely stop the recording, though this does not dump the contents of the recording to a file run
+and to then dump the recording to a file run:
 
 [source,shell]
 ----
-jcmd <pid> JFR.stop recording=<recording #>
+$ jcmd <pid> JFR.dump recording=<recording #> filename=<filename>
+----
+
+and then to completely stop the recording, though this does not dump the contents of the recording to a file run:
+
+[source,shell]
+----
+$ jcmd <pid> JFR.stop recording=<recording #>
 ----
 
 To view the results start Java Mission Control (`$JAVA/HOME/jmc`).

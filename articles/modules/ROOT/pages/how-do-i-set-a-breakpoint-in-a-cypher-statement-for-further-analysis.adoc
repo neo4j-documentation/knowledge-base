@@ -5,11 +5,12 @@
 :tags: debug
 :category: cypher
 
-If you wish to set a 'breakpoint' in a Cypher statement so as to perform further analysis (i.e. see how many locks are taken, 
-memory utilization) one can add a call to https://neo4j-contrib.github.io/neo4j-apoc-procedures/index32.html#_utilities[apoc.utils.sleep(XXX)] 
-which will result in the query sleeping for XXXX msec.  
+If you wish to set a 'breakpoint' in a Cypher statement so as to perform further analysis
+(i.e. see how many locks are taken, memory utilization)
+one can add a call to https://neo4j-contrib.github.io/neo4j-apoc-procedures/index32.html#_utilities[apoc.utils.sleep(XXX)]
+which will result in the query sleeping for XXXX msec.
 
-For example 
+For example:
 
 [source,cypher]
 ----

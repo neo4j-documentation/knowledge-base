@@ -12,19 +12,19 @@ Neo4j 3.0 through Neo4j 3.3 one can run:
 
 [source,shell]
 ----
-grep -n -i blocked debug.log | sort -r -n -k 11 | head -10
+$ grep -n -i blocked debug.log | sort -r -n -k 11 | head -10
 ----
 
 which will result in output similar to:
 
-----
+....
 7830:2016-12-05 19:04:23.865+0000 WARN  [o.n.k.i.c.MonitorGc] GC Monitor: Application threads blocked for 707ms.
 3283:2016-12-02 13:25:52.264+0000 WARN  [o.n.k.i.c.MonitorGc] GC Monitor: Application threads blocked for 579ms.
 6360:2016-12-02 15:38:35.502+0000 WARN  [o.n.k.i.c.MonitorGc] GC Monitor: Application threads blocked for 381ms.
 6349:2016-12-02 15:02:33.156+0000 WARN  [o.n.k.i.c.MonitorGc] GC Monitor: Application threads blocked for 285ms.
 6361:2016-12-02 15:50:45.560+0000 WARN  [o.n.k.i.c.MonitorGc] GC Monitor: Application threads blocked for 274ms.
 6920:2016-12-05 16:57:47.170+0000 WARN  [o.n.k.i.c.MonitorGc] GC Monitor: Application threads blocked for 251ms.
-----
+....
 
 The example `grep` command will perform a case-insensitive search (as a result of the -i argument) of the `debug.log` for the string 
 'blocked' and return the respective line number (as a result of the `-n` argument).  These results are then sorted by way of the 
@@ -35,12 +35,12 @@ For Neo4j 3.4 and above run
 
 [source,shell]
 ----
-grep -n "VM stop-the-world" debug.log | sort -t= -nrk2 | head -10
+$ grep -n "VM stop-the-world" debug.log | sort -t= -nrk2 | head -10
 ----
 
 which will result in output similar to
 
-----
+....
 27675:2019-04-09 10:39:27.115+0000 WARN [o.n.k.i.c.VmPauseMonitorComponent] Detected VM stop-the-world pause: {pauseTime=516, gcTime=508, gcCount=1}
 2671:2019-04-08 08:03:12.921+0000 WARN [o.n.k.i.c.VmPauseMonitorComponent] Detected VM stop-the-world pause: {pauseTime=483, gcTime=487, gcCount=1}
 27885:2019-04-09 11:01:07.033+0000 WARN [o.n.k.i.c.VmPauseMonitorComponent] Detected VM stop-the-world pause: {pauseTime=371, gcTime=422, gcCount=1}
@@ -51,4 +51,4 @@ which will result in output similar to
 14519:2019-04-08 20:37:12.126+0000 WARN [o.n.k.i.c.VmPauseMonitorComponent] Detected VM stop-the-world pause: {pauseTime=253, gcTime=345, gcCount=1}
 3983:2019-04-08 11:17:23.039+0000 WARN [o.n.k.i.c.VmPauseMonitorComponent] Detected VM stop-the-world pause: {pauseTime=301, gcTime=322, gcCount=1}
 16110:2019-04-09 07:19:25.626+0000 WARN [o.n.k.i.c.VmPauseMonitorComponent] Detected VM stop-the-world pause: {pauseTime=318, gcTime=314, gcCount=1}
-----
+....

@@ -27,7 +27,7 @@ If you are running any version up to 3.2.x (inclusive) and want to drill down to
 
 [source,shell]
 ----
-java -cp "lib/*" org.neo4j.kernel.impl.util.dbstructure.DbStructureTool MyDatabaseStats.java /data/databases/graph.db > ./MyDatabaseStats.java
+$ java -cp "lib/*" org.neo4j.kernel.impl.util.dbstructure.DbStructureTool MyDatabaseStats.java /data/databases/graph.db > ./MyDatabaseStats.java
 ----
 
 [NOTE]
@@ -165,7 +165,7 @@ implements Visitable<DbStructureVisitor>
 
     public void accept( DbStructureVisitor visitor )
     {
-    	visitor.visitLabel( 0, "User" );
+        visitor.visitLabel( 0, "User" );
         visitor.visitLabel( 1, "Device" );
         visitor.visitLabel( 2, "Accessory" );
         visitor.visitPropertyKey( 0, "uuid" );

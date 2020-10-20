@@ -10,80 +10,95 @@ Neo4j 4.0 allows for multiple running databases. You can use `neo4j-admin import
 == Neo4j-Admin Import Standalone Server
 
 . Run the Neo4j-Admin import to create the database. In this example, we are running a bulk import into a new database called dataload1. Node labels are STORE.
++
+[source,shell]
+----
+$ ./bin/neo4j-admin import --database=dataload1 --nodes=:STORE="/home/ubuntu/tmp/header.csv,/home/ubuntu/tmp/nodes.csv" --skip-duplicate-nodes=true --high-io=true
+----
 
-[source,cypher]
-----
-./bin/neo4j-admin import --database=dataload1 --nodes=:STORE="/home/ubuntu/tmp/header.csv,/home/ubuntu/tmp/nodes.csv" --skip-duplicate-nodes=true --high-io=true
-----
-[start=2]
 . Log into Neo4j 4.0
-[source,cypher]
++
+[source,cypher-shell,role=noheader]
 ----
-:use system
-create database dataload1
-show databases
-:use dataload1
-MATCH (n:STORE) return n limit 3;
+neo4j> :use system
+neo4j> create database dataload1
+neo4j> show databases
+neo4j> :use dataload1
+neo4j> MATCH (n:STORE) return n limit 3;
 ----
 
-[start=3]
 . Run a second Neo4j-Admin import to create another database. In this example, we are running a bulk import into a new database called dataload2. Node labels are STORE.
++
+[source,shell]
+----
+$./bin/neo4j-admin import --database=dataload2 --nodes=:STORE="/home/ubuntu/tmp/header.csv,/home/ubuntu/tmp/nodes.csv" --skip-duplicate-nodes=true --high-io=true
+----
 
-[source,cypher]
-----
-./bin/neo4j-admin import --database=dataload2 --nodes=:STORE="/home/ubuntu/tmp/header.csv,/home/ubuntu/tmp/nodes.csv" --skip-duplicate-nodes=true --high-io=true
-----
-[start=4]
 . Log into Neo4j 4.0
-[source,cypher]
++
+[source,cypher-shell,role=noheader]
 ----
-:use system
-create database dataload2
-show databases
-:use dataload2
-MATCH (n:STORE) return n limit 3;
+neo4j> :use system
+neo4j> create database dataload2
+neo4j> show databases
+neo4j> :use dataload2
+neo4j> MATCH (n:STORE) return n limit 3;
 ----
 
 == Neo4j-Admin Import Cluster
 
-. Run the Neo4j-Admin import on each cluster memeber to create the database. In this example, we are running a bulk import into a new database called dataload1. Node labels are STORE.
+. Run the Neo4j-Admin import on each cluster member to create the database. In this example, we are running a bulk import into a new database called dataload1. Node labels are STORE.
++
+[source,shell]
+----
+$ ./bin/neo4j-admin import --database=dataload1 --nodes=:STORE="/home/ubuntu/tmp/header.csv,/home/ubuntu/tmp/nodes.csv" --skip-duplicate-nodes=true --high-io=true
+----
 
-[source,cypher]
-----
-./bin/neo4j-admin import --database=dataload1 --nodes=:STORE="/home/ubuntu/tmp/header.csv,/home/ubuntu/tmp/nodes.csv" --skip-duplicate-nodes=true --high-io=true
-----
-[start=2]
 . Log into the Neo4j 4.0 Cluster Leader. Once the database is created on the cluster leader, it will be propagated to the other cluster members.
-[source,cypher]
++
+[source,cypher-shell,role=noheader]
 ----
-:use system
-create database dataload1
-show databases
-:use dataload1
-MATCH (n:STORE) return n limit 3;
+neo4j> :use system
+neo4j> create database dataload1
+neo4j> show databases
+neo4j> :use dataload1
+neo4j> MATCH (n:STORE) return n limit 3;
 ----
 
 == Neo4j-Admin Restore
+
 In this example, we will backup the dataload1 database and use it to create a new dataload3 database.
 
-[source,cypher]
+[source,shell]
 ----
-./bin/neo4j-admin backup --backup-dir=/home/ubuntu/tmp/backups --database=dataload1
-./bin/neo4j-admin restore --from=/home/ubuntu/tmp/backups/dataload1 --database=dataload3
-:use system
-create database dataload3
-show databases
-:use dataload3
-MATCH (n:STORE) return n limit 3;
+$ ./bin/neo4j-admin backup --backup-dir=/home/ubuntu/tmp/backups --database=dataload1
+$ ./bin/neo4j-admin restore --from=/home/ubuntu/tmp/backups/dataload1 --database=dataload3
+----
+
+[source,cypher-shell,role=noheader]
+----
+neo4j> :use system
+neo4j> create database dataload3
+neo4j> show databases
+neo4j> :use dataload3
+neo4j> MATCH (n:STORE) return n limit 3;
 ----
 
 If you want to replace an existing 4.0 database using `neo4j-admin restore`, you would run the following:
-[source,cypher]
+[source,cypher-shell,role=noheader]
 ----
-:use system
-stop database dataload2
-./bin/neo4j-admin restore --from=/home/ubuntu/tmp/backups/dataload1 --database=dataload2 --force
-start database dataload2
-MATCH (n:STORE) return n limit 3;
+neo4j> :use system
+neo4j> stop database dataload2
+----
+
+[source,shell]
+----
+$ ./bin/neo4j-admin restore --from=/home/ubuntu/tmp/backups/dataload1 --database=dataload2 --force
+----
+
+[source,cypher-shell,role=noheader]
+----
+neo4j> start database dataload2
+neo4j> MATCH (n:STORE) return n limit 3;
 ----
 

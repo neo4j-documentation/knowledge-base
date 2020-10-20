@@ -7,14 +7,14 @@
 
 When configuring LDAP with certificates you may encounter the following issue:
 
-----
+....
 2018-12-24 08:11:14.788+0000 ERROR [someuser]: failed to log in: invalid principal or credentials (LDAP naming error while attempting to authenticate user.) (neo4j01.test.dom:636) (sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target)
-----
+....
 
 The problem appears when your server uses a self-signed certificate. To workaround it, you can add this certificate to the list of trusted certificates for your JVM.
 The Root Certificate will need to be added to the Java CAstore using **keytool**.
 
 [source,shell]
 ----
-keytool -import -alias _alias_name_ -keystore ..\lib\security\cacerts -file _path_to_cer_file
+$ keytool -import -alias _alias_name_ -keystore ..\lib\security\cacerts -file _path_to_cer_file
 ----

@@ -45,18 +45,18 @@ NOTE 3: The `debugInfo.sh` script will output results to the screen and also to 
 
 [source,shell]
 ----
-  $ pwd
-  /home/neo4j
+$ pwd
+/home/neo4j
 
-  $ ls -la 
-  total 40
-  drwxrwxr-x   2 neo4j neo4j   112 Dec 19 13:23 .
-  drwx------. 13 neo4j neo4j  4096 Dec 13 17:01 ..
-  -rwx------   1 neo4j neo4j 17521 Dec 13 17:04 debugInfo.sh
-  -rw-rw-r--   1 neo4j neo4j   427 Dec 13 16:47 debugLogErrorsFile.neo4j
-  -rw-rw-r--   1 neo4j neo4j  1671 Dec 13 16:51 debugLogExcludeFile.neo4j
+$ ls -la
+total 40
+drwxrwxr-x   2 neo4j neo4j   112 Dec 19 13:23 .
+drwx------. 13 neo4j neo4j  4096 Dec 13 17:01 ..
+-rwx------   1 neo4j neo4j 17521 Dec 13 17:04 debugInfo.sh
+-rw-rw-r--   1 neo4j neo4j   427 Dec 13 16:47 debugLogErrorsFile.neo4j
+-rw-rw-r--   1 neo4j neo4j  1671 Dec 13 16:51 debugLogExcludeFile.neo4j
 
-  $ ./debugInfo.sh debug.log $NEO4J_HOME/logs/debug.log
+$ ./debugInfo.sh debug.log $NEO4J_HOME/logs/debug.log
 ----
 
 NOTE 1: The script will parse the debug.log from the location provided and output results to the screen and also to the default output file called `debugInfo.txt` in the working directory.

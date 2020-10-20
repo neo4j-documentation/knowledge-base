@@ -20,6 +20,7 @@ WITH p, p {.*} as snapshot
 SET p.name = 'The One'
 RETURN snapshot
 ----
+
 The returned map result will still have the name property set to 'Keanu Reeves'.
 
 Note that the result is a map, not a node, so node id and labels are not included in the returned data.
@@ -35,6 +36,7 @@ WITH p, p {.*, .lastUpdated} as snapshot
 SET p.lastUpdated = TIMESTAMP()
 RETURN snapshot
 ----
+
 If the `lastUpdated` property didn't exist on the node, it will still be returned in the map with a null value instead of not appearing at all.
 
 == Neo4j 3.0 and below
@@ -48,6 +50,7 @@ WITH p, properties(p) as snapshot
 SET p.name = 'The One'
 RETURN snapshot
 ----
+
 The returned map result will still have the name property set to 'Keanu Reeves'.
 
 Note that the result is a map, not a node, so node id and labels are not included in the returned data.
@@ -64,4 +67,5 @@ CALL apoc.map.setKey(props, 'lastUpdated', null) YIELD value as snapshot
 SET p.lastUpdated = timestamp()
 RETURN snapshot
 ----
+
 If the `lastUpdated` property didn't exist on the node, it will still be returned in the map with a null value instead of not appearing at all.

@@ -22,4 +22,4 @@ Begin
 create (n:ZipCode {name:'94401'}) return n;
 ----
 
-then the CREATE CONSTRAINT will not progress until the open transaction is comitted/rolled back.
+then the CREATE CONSTRAINT will not progress until the open transaction is committed/rolled back.

@@ -15,17 +15,16 @@ For importing files that contain semicolon separated cypher commands, you can al
 * https://github.com/nicolewhite/cycli[CyCli-Shell (Python)] (`pip install cycli`)
 * https://cleishm.github.io/libneo4j-client/[libneo4j-client (Ansi-C)]
 
-
 The http://hub.docker.com/_/neo4j[official Neo4j-Docker image] can also come handy.
 
 [source,shell]
 ----
-docker pull neo4j
-CONTAINER=$(docker run -d --name neo4j -p 7474:7474 -v /path/to/data:/data -v /path/to/csv-files:/var/lib/neo4j/import neo4j)
-echo "Running Neo4j as $CONTAINER, waiting for startup"
-sleep 10
+$ docker pull neo4j
+$ CONTAINER=$(docker run -d --name neo4j -p 7474:7474 -v /path/to/data:/data -v /path/to/csv-files:/var/lib/neo4j/import neo4j)
+$ echo "Running Neo4j as $CONTAINER, waiting for startup"
+$ sleep 10
 # to import a file from `/path/to/csv-files/import.cypher`
-docker exec $CONTAINER /var/lib/neo4j/bin/neo4j-shell -f /var/lib/neo4j/import/import.cypher
+$ docker exec $CONTAINER /var/lib/neo4j/bin/neo4j-shell -f /var/lib/neo4j/import/import.cypher
 # or for interactive mode
-docker exec -ti $CONTAINER /var/lib/neo4j/bin/neo4j-shell
+$ docker exec -ti $CONTAINER /var/lib/neo4j/bin/neo4j-shell
 ----

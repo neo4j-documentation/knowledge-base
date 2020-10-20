@@ -11,9 +11,9 @@ Neo4j pagecache will be preserved across database restarts and as such a need to
 As a result of the PR, at every 60 seconds we will record the pages of the Neo4j pagecache and store this data at `graph.db/profile`.
 Contents of this directory are similar to
 
-[source,shell]
+[source,shell,role=noheader]
 ----
-ls -al
+$ ls -al
 total 80
 drwxrwxr-x 2 neo4j neo4j 4096 Apr 18 12:12 .
 drwxrwxr-x 6 neo4j neo4j 4096 Apr 18 12:06 ..

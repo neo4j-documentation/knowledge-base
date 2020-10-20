@@ -24,10 +24,10 @@ load csv with headers from 'file:///test.csv' as row with row limit 1 return key
 
 which will return output similar to
 
-----
+....
 +---------------------------------------------------------------------+
 | keys(row)                                                           |
 +---------------------------------------------------------------------+
 | ["country", "addr2", "city", "addr1", "dob", "name", "state", "id"] |
 +---------------------------------------------------------------------+
-----
+....

@@ -8,7 +8,6 @@
 It can be frustrating when it seems like a WHERE clause isn't working.
 You can use these approaches to figure out what's wrong.
 
-
 == Check for WHERE clauses following OPTIONAL MATCH
 
 WHERE clauses can't be used on their own, they are always paired with a MATCH, WITH, or OPTIONAL MATCH, and it is this pairing that defines behavior when a WHERE clause evaluates to false.
@@ -85,7 +84,7 @@ Extra whitespace in property keys is rarer, but can happen, such as when importi
 
 For example, if we tried to import a csv file with the following header:
 
-`nickName, firstName,lastName&nbsp;`
+`nickName, firstName,lastName`
 
 There is some leading whitespace before `firstName`, and trailing whitespace after `lastName`.
 When imported, the property keys themselves will include leading and trailing whitespace, so the actual property keys become "nickName", " firstName" and "lastName ", and may quickly become a source of confusion, if undetected.

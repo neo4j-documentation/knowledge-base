@@ -11,10 +11,11 @@ If you want to determine version and edition of the running Neo4j instance this 
 ----
 call dbms.components() yield name, versions, edition unwind versions as version return name, version, edition;
 ----
+
 The expected output will be:
 
-----
+....
 name        | version   | edition
 ------------|-----------|-----------
 Neo4j Kernel¦  3.5.6    ¦enterprise
-----
+....

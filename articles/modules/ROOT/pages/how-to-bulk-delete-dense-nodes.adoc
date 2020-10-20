@@ -36,4 +36,4 @@ DELETE n
 RETURN updates, executions, runtime, batches
 ----
 
-Additionally please consider reviewing KB document `Large Delete Transaction Best Practices in Neo4j` for other considerations
+Additionally, please consider reviewing KB document `Large Delete Transaction Best Practices in Neo4j` for other considerations

@@ -13,7 +13,7 @@ https://trello.com/guide/board_basics.html[taxonomy] includes boards, lists, and
 
 When using the Trello API you must register an API key and token as they are required to access the URL. The key and token can be created  https://trello.com/app-key[here]. In the example below, the generated key and token are:   
 
-[source,conf]
+[source,properties]
 ----
 key=00981709d8fa49b9fb3c66f41178c14h
 token=06128ee9bb10787d6fdee4942c12b5de5f39be11794fcb0604e072e1940475e2
@@ -29,35 +29,36 @@ to only retrieve createCards actions that I have taken.
 
 [source,json]
 ----
-   {
-        "id": "56f29d59ef82d7312c56710f",
-        "idMemberCreator": "5637836872deaba954947610",
-        "data": {
-            "board": {
-                "name": "New Features Board",
-                "id": "563ce96c73ae60bc1a3d40"
-                "shortLink": "bYO0FVJ7Q",
-            },
-            "list": {
-                "name": "Inbox",
-                "id": "55f7f0db68294b2a319c0519"
-            }card": {
-                "shortLink": "OwUvlhf7",
-                "idShort": 464,
-                "name": "request for support of Java8",
-                "id": "734"
-            }
-        },
-        "type": "createCard",
-        "date": "2014-01-15T13:42:49.055Z",
-        "memberCreator": {
-            "id": "123",
-            "avatarHash": "1f5a1bc9710166186f6fdd8c8b806c58",
-            "fullName": "Dana Canzano",
-            "initials": "DC",
-            "username": "danacanzano"
-        }
+{
+  "id": "56f29d59ef82d7312c56710f",
+  "idMemberCreator": "5637836872deaba954947610",
+  "data": {
+    "board": {
+      "name": "New Features Board",
+      "id": "563ce96c73ae60bc1a3d40",
+      "shortLink": "bYO0FVJ7Q"
     },
+    "list": {
+      "name": "Inbox",
+      "id": "55f7f0db68294b2a319c0519"
+    },
+    "card": {
+      "shortLink": "OwUvlhf7",
+      "idShort": 464,
+      "name": "request for support of Java8",
+      "id": "734"
+    }
+  },
+  "type": "createCard",
+  "date": "2014-01-15T13:42:49.055Z",
+  "memberCreator": {
+    "id": "123",
+    "avatarHash": "1f5a1bc9710166186f6fdd8c8b806c58",
+    "fullName": "Dana Canzano",
+    "initials": "DC",
+    "username": "danacanzano"
+  }
+}
 ----
 
 The following Cypher will process the JSON results of the `/1/member/me/actions` request:

@@ -8,8 +8,7 @@
 When attempting to start Neo4j and one is running a Neo4j 4.0.x release and where `x` is <=2 the following error may be 
 encountered and logged in `logs\debg.log`
 
-[source,shell]
-----
+....
 Caused by: org.neo4j.kernel.lifecycle.LifecycleException: Component 'org.neo4j.internal.recordstorage.RecordStorageEngine$2@783ae61f' failed to initialize. Please see the attached cause exception "The PropertyKey NamedToken[name:prop1, id:321, internal:false] is not unique, it existed as null.".
         at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.init(LifeSupport.java:426)
         at org.neo4j.kernel.lifecycle.LifeSupport.init(LifeSupport.java:66)
@@ -17,7 +16,7 @@ Caused by: org.neo4j.kernel.lifecycle.LifecycleException: Component 'org.neo4j.i
         at org.neo4j.kernel.database.Database.start(Database.java:462)
         ... 13 more
 Caused by: org.neo4j.token.api.NonUniqueTokenException: The PropertyKey NamedToken[name:prop1, id:321, internal:false] is not unique, it existed as null.
-----
+....
 
 This error has only been reported if your environment was previously on a Neo4j 3.5.x release and then later upgraded to 4.0.x, where `x` 
 is <=2.

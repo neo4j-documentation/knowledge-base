@@ -203,11 +203,12 @@ MATCH (movie:Movie)
 WITH movie, [(movie)<-[:DIRECTED]-(director) | director] as directors, [(movie)<-[:ACTED_IN]-(actor) | actor] as actors
 RETURN movie, actors, directors
 ----
+
 In Neo4j 3.3.5, the PROFILE for this has 331 db hits.
 
 Of course, on queries on small graphs like this with small result sets, and few operations, the difference is negligible when we look at timing differences.
 
-However as graph data grows, as well as the complexity of graph queries and results, keeping cardinality low and avoiding multiplicative db hits becomes the difference between a quick streamlined query and one that may exceed acceptable execution time.
+However, as graph data grows, as well as the complexity of graph queries and results, keeping cardinality low and avoiding multiplicative db hits becomes the difference between a quick streamlined query and one that may exceed acceptable execution time.
 
 === Use DISTINCT or an aggregation to reset cardinality
 
@@ -244,7 +245,6 @@ Why? Because cardinality does not reset automatically. Even though we have `WITH
 
 To fix this, we need to either use DISTINCT or an aggregation to reset the cardinality so there is only a single row per distinct `movie`.
 
-
 [source,cypher]
 ----
 MATCH (movie:Movie)<-[:ACTED_IN]-(actor)
@@ -265,7 +265,6 @@ WITH movie, count(movie) as size
 MATCH (movie)<-[:DIRECTED]-(director)
 CREATE (director)-[:WORKED_ON {role:'director'}]->(movie)
 ----
-
 
 == DISTINCT nodes from variable-length paths
 
@@ -341,6 +340,7 @@ WITH movie, actors, collect(director) as directors
 RETURN movie, actors, directors
 LIMIT 1
 ----
+
 In Neo4j 3.3.5 the PROFILE for this has 331 db hits.
 
 [source,cypher]

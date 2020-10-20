@@ -21,9 +21,9 @@ CALL db.indexes() YIELD description RETURN 'Number of Indexes: ' + count(*) AS o
 CALL dbms.procedures() YIELD name RETURN 'Number of Procedures: ' + count(*) AS output
 ----
 
-To which sample output is as follows
+To which sample output is as follows:
 
-----
+....
 Number of Nodes: 50013
 Number of Relationships: 4
 Number of Labels: 4
@@ -32,4 +32,4 @@ Number of Property Keys: 9
 Number of Constraints:2
 Number of Indexes: 7
 Number of Procedures: 215
-----
+....

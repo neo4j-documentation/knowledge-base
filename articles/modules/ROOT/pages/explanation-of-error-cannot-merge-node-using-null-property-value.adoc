@@ -27,10 +27,9 @@ merge (emp:Employee {id: row.id}) set emp.name=row.name, emp.employee_numer=row.
 
 this will error with
 
-[source,shell]
-----
+....
 Cannot merge node using null property value for id
-----
+....
 
 One can avoid this error by rerunning the cypher statement as
 

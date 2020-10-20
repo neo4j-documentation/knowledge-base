@@ -9,7 +9,7 @@ Neo4j 3.4.0 only supports TLSv1.2 by default. IBM JDK9 uses the TLSv1 protocol b
 
 To enable TLSv1.2 in the IBM JDK, set the following `JAVA OPT`:
 
-[source,shell]
+[source,bash]
 ----
 export JAVA_OPTS='-Dcom.ibm.jsse2.overrideDefaultTLS=true'
 ----

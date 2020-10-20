@@ -37,7 +37,7 @@ https://docs.docker.com/docker-for-mac/install/#install-and-run-docker-for-mac
 
 [source,shell]
 ----
-sudo docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Neo4j1234' \
+$ sudo docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Neo4j1234' \
    -p 1433:1433 --name sql1 \
    -d microsoft/mssql-server-linux:2017-latest
 ----
@@ -56,27 +56,23 @@ enter your bash password.
 
 [source,sql]
 ----
- > CREATE DATABASE TestDB ↵
- > Go ↵
- created
- > SELECT Name from sys.Databases ↵
- > Go ↵
+CREATE DATABASE TestDB;
+-- created
+SELECT Name from sys.Databases;
 ----
  
 - Verify that TestDB created above is in the list of dbs
  
 [source,sql]
 ----
- > CREATE SCHEMA testschema ↵
- > Go ↵
+CREATE SCHEMA testschema;
 ----
 
 - Confirm that schema has been created:
 
 [source,sql]
 ----
-> SELECT * FROM sys.schemas ↵
-> Go ↵
+SELECT * FROM sys.schemas;
 ----
 
 - Create a temporary table using the testschema created above. Columns within the table will be determined by what 
@@ -85,7 +81,7 @@ a csv with random weather data was uploaded to the following table (this article
 
 [source,sql]
 ----
-> CREATE TABLE testschema.weather  
+CREATE TABLE testschema.weather
 (ID int,  
 StationCode nvarchar(50),
 Date date,
@@ -95,8 +91,7 @@ Tmin float,
 Tobs float,
 Latitude float,
 Longitude float,
-Fy int) ↵
-> Go ↵
+Fy int);
 ----
 
 - Some test data (or your actual data) now needs to be imported to the weather table (or your desired table) created above. 
@@ -110,8 +105,7 @@ execute the following from the sqlcmd prompt within the sql1 container:
 
 [source,sql]
 ----
-> BULK INSERT testschema.weather from '/weather.txt' with (FIRSTROW=2, fieldterminator = ',', rowterminator = '0x0a') ↵
-> Go ↵
+BULK INSERT testschema.weather from '/weather.txt' with (FIRSTROW=2, fieldterminator = ',', rowterminator = '0x0a');
 ----
 
 == Step 3: Export the relational data to Neo4j using the Neo4j ETL cli
@@ -127,7 +121,7 @@ command. Here's an example command used to generate the import mapping file:
 
 [source,shell]
 ----
-./neo4j-etl generate-metadata-mapping \
+$ ./neo4j-etl generate-metadata-mapping \
 --rdbms:url "jdbc:sqlserver://localhost:1433;databaseName=TestDB" \
 --rdbms:schema "TestDB.testschema" \
 --rdbms:user sa \
@@ -145,7 +139,7 @@ command. Here's an example command used to generate the import mapping file:
 
 [source,shell]
 ----
-./neo4j-etl export \
+$ ./neo4j-etl export \
 --rdbms:url "jdbc:sqlserver://localhost:1433;databaseName=TestDB" \
 --rdbms:user "sa" \
 --rdbms:password "Neo4j1234" \

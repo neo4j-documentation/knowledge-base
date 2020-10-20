@@ -22,103 +22,102 @@ For cluster upgrades, refer to the same steps apply, combined with the additiona
 *Steps:*
 
 . Navigate to the NEO4J_HOME directory: 
-
-[source,shell]
-----
-cd /var/lib/neo4j/
-----
 +
+[source,shell,role=noheader]
+----
+$ cd /var/lib/neo4j/
+----
+
 . Get the 3.0 software: 
-
-[source,shell]
-----
-wget http://www.neo4j.com/customer/download/neo4j-enterprise-3.0.4-unix.tar.gz
-----
 +
+[source,shell,role=noheader]
+----
+$ wget http://www.neo4j.com/customer/download/neo4j-enterprise-3.0.4-unix.tar.gz
+----
+
 . Backup the existing Neo4j 2.3.7 install: 
-
-[source,shell]
-----
-./neo4j-enterprise-2.3.7/bin/neo4j-backup -to /tmp/neo4j_2.3.7_backup -host 127.0.0.1
-----
 +
+[source,shell,role=noheader]
+----
+$ ./neo4j-enterprise-2.3.7/bin/neo4j-backup -to /tmp/neo4j_2.3.7_backup -host 127.0.0.1
+----
+
 . Unpack the 3.0 software: 
-
-[source,shell]
-----
-tar -xzf neo4j-enterprise-3.0.4-unix.tar.gz
-----
 +
+[source,shell,role=noheader]
+----
+$ tar -xzf neo4j-enterprise-3.0.4-unix.tar.gz
+----
+
 . Chown the 3.0 directory: 
-
-[source,shell]
-----
-chown -R neo4j:neo4j ./neo4j-enterprise-3.0.4
-----
 +
+[source,shell,role=noheader]
+----
+$ chown -R neo4j:neo4j ./neo4j-enterprise-3.0.4
+----
+
 . Stop the Neo4j 2.3.7 server: 
-
-[source,shell]
-----
-./neo4j-enterprise-2.3.7/bin/neo4j stop
-----
 +
+[source,shell,role=noheader]
+----
+$ ./neo4j-enterprise-2.3.7/bin/neo4j stop
+----
+
 . Move to the Neo4j 3.0 home directory: 
-
-[source,shell]
-----
-cd neo4j-enterprise-3.0.4
-----
 +
+[source,shell,role=noheader]
+----
+$ cd neo4j-enterprise-3.0.4
+----
+
 . Use the new config migrator tool to migrate the configuration from the Neo4j 2.3.7 install to the new Neo4j 3.0:
-
-[source,shell]
-----
-java -jar config-migrator.jar /var/lib/neo4j/neo4j-enterprise-2.3.7 .
-----
 +
-. Use `neo4j-admin` to migrate the datastore from its 2.3.7 location to 3.0: 
-
-[source,shell]
+[source,shell,role=noheader]
 ----
-neo4j@ubuntu:/var/lib/neo4j/neo4j-enterprise-3.0.4$ ./bin/neo4j-admin import --mode=database --database=graph.db --from=/var/lib/neo4j/neo4j-enterprise-2.3.7/data/graph.db
-neo4j@ubuntu:/var/lib/neo4j/neo4j-enterprise-3.0.4$ ls data/databases/
+$ java -jar config-migrator.jar /var/lib/neo4j/neo4j-enterprise-2.3.7 .
+----
+
+. Use `neo4j-admin` to migrate the datastore from its 2.3.7 location to 3.0: 
++
+[source,shell,role=noheader]
+----
+$ ./bin/neo4j-admin import --mode=database --database=graph.db --from=/var/lib/neo4j/neo4j-enterprise-2.3.7/data/graph.db
+$ ls data/databases/
 graph.db
 ----
-+
+
 . Edit the `conf/neo4j.conf` file, and:
 .. Uncomment the line: `dbms.allow_format_migration=true`
 .. Uncomment the line: `dbms.active_database=graph.db`  *Note:* Change this to the name of the database if not graph.db
-+
+
 . Copy the authentication details from the 2.3.7 install to 3.0 (if you have authentication enabled): 
-
-[source,shell]
-----
-cp -R /var/lib/neo4j/neo4j-enterprise-2.3.7/conf/ssl ./conf/ssl
-----
 +
+[source,shell,role=noheader]
+----
+$ cp -R /var/lib/neo4j/neo4j-enterprise-2.3.7/conf/ssl ./conf/ssl
+----
+
 . Copy plugins from the 2.3.7 install to 3.0 (if you have any): 
-
-[source,shell]
-----
-cp /var/lib/neo4j/neo4j-enterprise-2.3.7/plugins/* ./plugins
-----
 +
-. Start Neo4j: `./bin/neo4j start` _or_ `./bin/neo4j console`
-
-[source,shell]
+[source,shell,role=noheader]
 ----
-neo4j@ubuntu:/var/lib/neo4j/neo4j-enterprise-3.0.4$ ./bin/neo4j start
+$ cp /var/lib/neo4j/neo4j-enterprise-2.3.7/plugins/* ./plugins
+----
+
+. Start Neo4j: `./bin/neo4j start` _or_ `./bin/neo4j console`
++
+[source,shell,role=noheader]
+----
+$ ./bin/neo4j start
 Starting Neo4j.
 Started neo4j (pid 39823). By default, it is available at http://localhost:7474/
 There may be a short delay until the server is ready.
 See /var/lib/neo4j/neo4j-enterprise-3.0.4/logs/neo4j.log for current status.
 ----
-+
-. Tail the `neo4j.log` to see the progress of the store upgrade, and make sure the database comes online:
 
-[source,shell]
-----
+. Tail the `neo4j.log` to see the progress of the store upgrade, and make sure the database comes online:
++
+....
 2016-04-15 19:58:20.310+0000 INFO  Starting...
 2016-04-15 19:58:21.568+0000 INFO  Initiating metrics...
 2016-04-15 19:58:21.898+0000 INFO  Starting upgrade of database
@@ -160,7 +159,7 @@ See /var/lib/neo4j/neo4j-enterprise-3.0.4/logs/neo4j.log for current status.
 2016-04-15 19:58:28.447+0000 INFO  Started.
 2016-04-15 19:58:28.844+0000 INFO  Mounted REST API at: /db/manage
 2016-04-15 19:58:30.920+0000 INFO  Remote interface available at http://localhost:7474/
-----
+....
 
 == Linux Upgrade Using Debian (apt-get)
 
@@ -172,23 +171,22 @@ See /var/lib/neo4j/neo4j-enterprise-3.0.4/logs/neo4j.log for current status.
 *Steps:*
 
 . Update using apt-get: 
-
-[source,shell]
-----
-sudo apt-get update
-----
 +
+[source,shell,role=noheader]
+----
+$ sudo apt-get update
+----
+
 . Install neo4j-enterprise=3.0.4
-
-[source,shell]
-----
-sudo apt-get install neo4j-enterprise=3.0.4
-----
 +
-. When prompted, select the option N, as we will rectify this later:
-
-[source,shell]
+[source,shell,role=noheader]
 ----
+$ sudo apt-get install neo4j-enterprise=3.0.4
+----
+
+. When prompted, select the option N, as we will rectify this later:
++
+....
 Configuration file '/etc/neo4j/neo4j-wrapper.conf'
  ==> Modified (by you or by a script) since installation.
  ==> Package distributor has shipped an updated version.
@@ -199,45 +197,44 @@ Configuration file '/etc/neo4j/neo4j-wrapper.conf'
       Z     : start a shell to examine the situation
  The default action is to keep your current version.
 *** neo4j-wrapper.conf (Y/I/N/O/D/Z) [default=N] ?  N
-----
-+
+....
+
 . Stop neo4j: 
-
-[source,shell]
-----
-service neo4j stop
-----
 +
+[source,shell,role=noheader]
+----
+$ service neo4j stop
+----
+
 . Run the config-migrator.jar utility that ships with Neo4j 3.0:
-
-[source,shell]
-----
-sudo java -jar /usr/share/neo4j/bin/tools/config-migrator.jar /var/lib/neo4j/ .
-----
 +
+[source,shell,role=noheader]
+----
+$sudo java -jar /usr/share/neo4j/bin/tools/config-migrator.jar /var/lib/neo4j/ .
+----
+
 . Copy the new configuration files into /etc/conf, and move the old ones out, or remove them after you confirm the newly generated config files are correct:
-
-[source,shell]
-----
-neo4j@ubuntu:/var/lib/neo4j$ mkdir /etc/neo4j_archive
-neo4j@ubuntu:/var/lib/neo4j$ mv /etc/neo4j/* /etc/neo4j_archive/
-neo4j@ubuntu:/var/lib/neo4j$ cp /var/lib/neo4j/conf/* /etc/neo4j
-----
 +
+[source,shell,role=noheader]
+----
+$ mkdir /etc/neo4j_archive
+$ mv /etc/neo4j/* /etc/neo4j_archive/
+$ cp /var/lib/neo4j/conf/* /etc/neo4j
+----
+
 . Copy auth if applicable (need to test this actually)
-+
 . Update /etc/neo4j/neo4j.conf with link:http://neo4j.com/docs/operations-manual/3.0/reference/#config_dbms.allow_format_migration[allow_format_migration] setting to true, and any other required settings.
-+
+
 . Start the database:
-
-[source,shell]
++
+[source,shell,role=noheader]
 ----
-service neo4j start
+$ service neo4j start
 ----
 
-*Where things live after a debian install:*
+*Where things live after a Debian install:*
 
-* /var/lib/neo4j: data, certificates
-* /var/log/neo4j: logs
-* /usr/share/neo4j/: bin, lib, tools
-* /etc/neo4j: conf files
+`/var/lib/neo4j`:: data, certificates
+`/var/log/neo4j`:: logs
+`/usr/share/neo4j/`:: bin, lib, tools
+`/etc/neo4j`:: conf files

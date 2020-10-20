@@ -42,9 +42,9 @@ CREATE (n:Movies {name:row.title})
 
 If running the above results in error message similar to:
 
-----
+....
 No suitable driver found for jdbc:mysql://localhost:3306/proddb1?user=root&password=football
-----
+....
 
 you may need to first manually load the driver by calling:
 
@@ -75,5 +75,5 @@ It should be noted that the `apoc.load.jdbc` call is simply providing connectivi
 The second argument can be any SQL statement, and that includes a SQL statement that may modify the source database through an UPDATE, DROP, TRUNCATE, etc.
 If required, you might want to connect to the RDBMS with a user who only has SELECT privileges.
 
-Also when loading data from JDBC, be mindful of datatypes and any necessary conversions; for example whereas MySQL supports a native DATE datatype, Neo4j does not.  
+Also, when loading data from JDBC, be mindful of datatypes and any necessary conversions; for example whereas MySQL supports a native DATE datatype, Neo4j does not.
 For example, to get the column with DATE data type, convert the value to a String when importing into Neo4j.

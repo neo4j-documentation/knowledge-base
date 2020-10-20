@@ -30,7 +30,7 @@ RETURN value
 
 The output looks like this:
 
-----
+....
 ╒═════════════════════╕
 │"value"              │
 ╞═════════════════════╡
@@ -42,7 +42,7 @@ The output looks like this:
 ├─────────────────────┤
 │[true,true]          │
 └─────────────────────┘
-----
+....
 
 We can instead filter to get the maximum win streak:
 
@@ -112,7 +112,7 @@ LIMIT 3
 
 Our results are:
 
-----
+....
 ╒══════════════════╤═══════════════╕
 │"teamName"        │"longestStreak"│
 ╞══════════════════╪═══════════════╡
@@ -120,7 +120,7 @@ Our results are:
 ├──────────────────┼───────────────┤
 │"Amiens SC"       │2              │
 └──────────────────┴───────────────┘
-----
+....
 
 We only see two results here because in our dataset none of the other teams won any games, so there's no streak to report.
 
@@ -154,7 +154,7 @@ RETURN team.name as teamName, longestStreak, [opponent IN streak | opponent.name
 
 And the query results:
 
-----
+....
 ╒══════════════════╤═══════════════╤══════════════════════════════════════════════════╕
 │"teamName"        │"longestStreak"│"beat"                                            │
 ╞══════════════════╪═══════════════╪══════════════════════════════════════════════════╡
@@ -162,7 +162,7 @@ And the query results:
 ├──────────────────┼───────────────┼──────────────────────────────────────────────────┤
 │"Amiens SC"       │2              │["Paris St-Germain","Paris St-Germain"]           │
 └──────────────────┴───────────────┴──────────────────────────────────────────────────┘
-----
+....
 
 Note the use of CASE on a win to do a custom projection of the opponent faced in the game:
 

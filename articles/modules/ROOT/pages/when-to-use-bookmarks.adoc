@@ -5,15 +5,16 @@
 :tags: cluster,causal,leader,follower,bookmarks,drivers
 :category: cluster
 
-Bookmarks are part of a broader topic: *Causal consistency*. We recommend reading the 
-link:https://neo4j.com/docs/operations-manual/current/clustering/introduction/[introduction to Neo4j Causal Clustering] and
-the link:https://neo4j.com/docs/operations-manual/current/clustering/lifecycle/[lifecycle of a Neo4j Causal Cluster] before 
-reading further. Pay special attention to
-link:https://neo4j.com/docs/operations-manual/current/clustering/introduction/#causal-consistency-explained[Causal Consistency explained].
+Bookmarks are part of a broader topic: *Causal consistency*.
+We recommend reading the
+https://neo4j.com/docs/operations-manual/current/clustering/introduction/[introduction to Neo4j Causal Clustering] and
+the https://neo4j.com/docs/operations-manual/current/clustering/lifecycle/[lifecycle of a Neo4j Causal Cluster] before
+reading further.
+Pay special attention to
+https://neo4j.com/docs/operations-manual/current/clustering/introduction/#causal-consistency-explained[Causal Consistency explained].
 
 Bookmarks ensure than when reading data from the cluster, that data read represents the user's most recent view of the graph.
-When using bookmarked transactions, you are effectively saying: "Use a particular instance, only when its able to honour this 
-bookmark" (in other words, after they processed and applied the bookmark).
+When using bookmarked transactions, you are effectively saying: "Use a particular instance, only when its able to honour this bookmark" (in other words, after they processed and applied the bookmark).
 
 Unfortunately there isn't a one-size-fits-all scenario when it comes to understanding when it makes sense to use bookmarks. 
 If we look back at all the information about raft and application of transactions to the followers (links above), we know this:

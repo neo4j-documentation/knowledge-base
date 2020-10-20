@@ -18,7 +18,7 @@ driver = GraphDatabase.driver(uri, auth=("neo4j", "Password"))
 
 and when run it gives the following error:
 
-----
+....
 Traceback (most recent call last):
   File "/Users/rk/Documents/Work/Python-Bolt/boltTest.py", line 3, in <module>
     driver = GraphDatabase.driver(uri, auth=("neo4j", "Password"))
@@ -35,23 +35,33 @@ Traceback (most recent call last):
   File "/Library/Python/2.7/site-packages/neo4j/bolt/connection.py", line 457, in connect
     raise ServiceUnavailable("Failed to establish connection to {!r}".format(address))
 neo4j.exceptions.ServiceUnavailable: Failed to establish connection to ('::1', 7687, 0, 0)
-----
+....
 
-There are two options to resolve this
+There are two options to resolve this:
 
 * Either change the `localhost` to `127.0.0.1` and then run it with the current settings.
-  As shown below
+As shown below:
++
+[source,python]
+----
+from neo4j.v1 import GraphDatabase
+uri = "bolt://127.0.0.1:7687"
+driver = GraphDatabase.driver(uri, auth=("neo4j", "Password"))
+----
 
-   from neo4j.v1 import GraphDatabase
-   uri = "bolt://127.0.0.1:7687"
-   driver = GraphDatabase.driver(uri, auth=("neo4j", "Password"))
-
-* Second option is to set the following parameter in `conf/neo4j.conf` file as shown below. We are defining it to connect from any address i.e. 0.0.0.0. Restart the database and then run it as 
- 
-    //Set in conf/neo4j.conf file 
-    dbms.connector.bolt.listen_address=0.0.0.0:7687
-
-   //Run the code as
-   from neo4j.v1 import GraphDatabase
-   uri = "bolt://localhost:7687"
-   driver = GraphDatabase.driver(uri, auth=("neo4j", "Password")) 
+* Second option is to set the following parameter in `conf/neo4j.conf` file as shown below:
++
+[source,properties,role=noheader]
+----
+dbms.connector.bolt.listen_address=0.0.0.0:7687
+----
++
+We are defining it to connect from any address (i.e. `0.0.0.0`).
+Restart the database and run the code as:
++
+[source,python]
+----
+from neo4j.v1 import GraphDatabase
+uri = "bolt://localhost:7687"
+driver = GraphDatabase.driver(uri, auth=("neo4j", "Password"))
+----

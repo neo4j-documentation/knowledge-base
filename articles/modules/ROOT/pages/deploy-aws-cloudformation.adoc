@@ -77,7 +77,7 @@ parameters as you see fit:
 
 [source,shell]
 ----
-aws cloudformation create-stack \
+$ aws cloudformation create-stack \
    --stack-name StackyMcGrapherston \
    --template-body file://neo4j-enterprise-stack.json \
    --parameters ParameterKey=ClusterNodes,ParameterValue=3 \

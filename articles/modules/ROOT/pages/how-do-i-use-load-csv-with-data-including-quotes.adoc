@@ -11,18 +11,20 @@ For example if your data file (courses.csv) included the following content
 
 [source,csv]
 ----
-COURSE_ID|COURSE_TITLE
+COURSE_ID,COURSE_TITLE
 1215,"""Graphs are EveryWhere"" : An Introduction to Neo4j"
 ----
 
-and using the folloiwng LOAD CSV command
+and using the following LOAD CSV command
 
 [source,cypher]
 ----
 LOAD CSV WITH HEADERS FROM "file:///courses.csv" AS row CREATE (:Course { courseID: toInt(row.COURSE_ID), courseTitle: row.COURSE_TITLE});
 ----
 
-the this would create a Course node with the following properties
+this would create a Course node with the following properties
 
-courseID = 1215 +
+....
+courseID = 1215
 courseTitle = "Graphs are Everywhere" : An Introduction to Neo4j
+....

@@ -11,11 +11,11 @@ diagnose network latency and packet loss in a Causal Cluster. The tool is common
 Installation and various usage options are beyond the scope of this article. A good reference for these can be found at 
 the linode website referenced at the end of this article.
 
-*OSX Installation*
+== OSX Installation
 
 [source,shell]
 ----
-brew install mtr`
+$ brew install mtr
 ----
 
 this should allow execution as `sudo /usr/local/sbin/mtr` however, executing the below two commands simplifies execution as 
@@ -23,34 +23,35 @@ this should allow execution as `sudo /usr/local/sbin/mtr` however, executing the
 
 [source,shell]
 ----
-sudo ln /usr/local/Cellar/mtr/0.92/sbin/mtr /usr/local/bin/mtr
-sudo ln /usr/local/Cellar/mtr/0.92/sbin/mtr-packet /usr/local/bin/mtr-packet
+$ sudo ln /usr/local/Cellar/mtr/0.92/sbin/mtr /usr/local/bin/mtr
+$ sudo ln /usr/local/Cellar/mtr/0.92/sbin/mtr-packet /usr/local/bin/mtr-packet
 ----
 
 To install using MacPorts, run 
 
 [source,shell]
 ----
-port install mtr
+$ port install mtr
 ----
 
-*Linux (Debian/Ubuntu)*
 
-[source,shell]
-----
-apt update && apt upgrade
-apt install mtr-tiny
-----
-
-*CentOS/RHEL/Fedora*
+== Linux (Debian/Ubuntu)
 
 [source,shell]
 ----
-yum update
-yum install mtr
+$ apt update && apt upgrade
+$ apt install mtr-tiny
 ----
 
-*Parameters*
+== CentOS/RHEL/Fedora
+
+[source,shell]
+----
+$ yum update
+$ yum install mtr
+----
+
+== Parameters
 
 |===
 |Usage |Verbose version |Description 
@@ -247,6 +248,6 @@ e.g. `sudo mtr -c 5 -T -P 7689 192.168.8.103`:
 
 image::https://imgur.com/3j3mUo0.png[Intra-cluster MTR trace]
 
-https://www.linode.com/docs/networking/diagnostics/diagnosing-network-issues-with-mtr/
-https://support.mulesoft.com/s/article/How-to-use-mtr-to-diagnose-packet-loss-problem-with-a-TCP-port
-https://github.com/traviscross/mtr
+- https://www.linode.com/docs/networking/diagnostics/diagnosing-network-issues-with-mtr/
+- https://support.mulesoft.com/s/article/How-to-use-mtr-to-diagnose-packet-loss-problem-with-a-TCP-port
+- https://github.com/traviscross/mtr

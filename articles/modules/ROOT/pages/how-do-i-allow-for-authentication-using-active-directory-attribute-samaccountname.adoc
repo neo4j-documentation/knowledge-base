@@ -9,7 +9,7 @@ Commencing with Neo4j https://github.com/neo4j/neo4j/wiki/Neo4j-3.2-changelog#32
 Active Directory attribute samAccountName as opposed to the LDAP Display Name attribute.  The following `conf/neo4j.conf` parameters
 must be enabled to use samAccountName.
 
-[source,conf]
+[source,properties]
 ----
 dbms.security.auth_enabled=true
 dbms.security.auth_provider=ldap
@@ -43,14 +43,18 @@ image:https://imgur.com/bsF7qi6.png[image,width=370]
 
 Upon doing so connection is possible, as evidence
 
-[source,shell]
+[source,shell,role=noheader]
 ----
-./cypher-shell 
+$ ./cypher-shell
 username: neouser
 password: ********
 Connected to Neo4j 3.2.2 at bolt://localhost:7687 as user neouser.
 Type :help for a list of available commands or :exit to exit the shell.
 Note that Cypher queries must end with a semicolon.
+----
+
+[source,cypher-shell,role=noheader]
+----
 neo4j> create (n:Person {id:1});
 0 rows available after 231 ms, consumed after another 1 ms
 Added 1 nodes, Set 1 properties, Added 1 labels

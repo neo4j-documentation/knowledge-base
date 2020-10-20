@@ -5,18 +5,19 @@
 :tags: heap-dump, out-of-memory, monitoring
 :neo4j-versions: 3.4, 3.5
 
-The purpose of this article is to help you go through the acquired heapdump with Eclipse MAT. It covers how to parse a large heap files and what to look for.
+The purpose of this article is to help you go through the acquired heapdump with Eclipse MAT.
+It covers how to parse a large heap files and what to look for.
 
 When you experience an OutOfMemory exception, it will produce a .hprof file if you have the below settings in the neo4j.conf file:
 
-[source,conf]
+[source,properties]
 ----
 dbms.jvm.additional=-XX:+HeapDumpOnOutOfMemoryError
 ----
 
 NOTE: You can also add tweak the below settings to specify the directory path but ensure that you have enough disk space when such error occurs.
 
-[source,conf]
+[source,properties]
 ----
 dbms.jvm.additional=-XX:HeapDumpPath=/var/tmp/dumps
 dbms.jvm.additional=-XX:OnOutOfMemoryError="tar cvzf /var/tmp/dump.tar.gz /var/tmp/dump;split -b 1G /var/tmp/dump.tar.gz;"
@@ -41,11 +42,10 @@ Edit MemoryAnalyzer.ini (on macOS, it is located in /Applications/mat.app/Conten
 
 Add or change the settings:
 
-[source,conf]
-----
+....
 -Xms10G
 -Xmx25G
-----
+....
 
 === On a remote machine
 
@@ -59,7 +59,7 @@ Note down both instanceid and storageid to make sure the ressource have properly
 
 If the heap is about 61GB, you need twice as much disk space for parsing. As illustrated below:
 
-[source,shell]
+[source,shell,role=nocopy]
 ----
 $ du -ch java_pid19820*
 116M	java_pid19820.a2s.index
@@ -84,8 +84,7 @@ $ du -ch java_pid19820*
 . Unzip it in a directory
 . Edit MemoryAnalyzer.ini to adjust both -Xms and -Xmx memory settings :
 
-[source,shell]
-----
+....
 -startup
 plugins/org.eclipse.equinox.launcher_1.5.0.v20180512-1130.jar
 --launcher.library
@@ -93,7 +92,7 @@ plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.700.v20180518-1200
 -vmargs
 -Xms30G
 -Xmx100G
-----
+....
 
 === Parse the file on a remote machine
 
@@ -113,13 +112,13 @@ Example:
 
 [source,shell]
 ----
-#on the remote machine
-mkdir ${REMOTE_DIR}/parsed_files
-mv *.index ${REMOTE_DIR}/parsed_files/
+# on the remote machine
+$ mkdir ${REMOTE_DIR}/parsed_files
+$ mv *.index ${REMOTE_DIR}/parsed_files/
 
-#on your local machine
-rsync -P  -e "ssh -i ${PATH_TO_KEY}"  ec2-user@${REMOTE_IP}:${REMOTE_DIR}/heapdump.zip .
-rsync -Prz  -e "ssh -i ${PATH_TO_KEY}  ec2-user@${REMOTE_IP}:${REMOTE_DIR}/parsed_files/ .
+# on your local machine
+$ rsync -P  -e "ssh -i ${PATH_TO_KEY}"  ec2-user@${REMOTE_IP}:${REMOTE_DIR}/heapdump.zip .
+$ rsync -Prz  -e "ssh -i ${PATH_TO_KEY}  ec2-user@${REMOTE_IP}:${REMOTE_DIR}/parsed_files/ .
 ----
 
 == Open Eclipse MAT
@@ -160,7 +159,7 @@ So if you have a large amount of memory in the heap, there should be a potential
 
 To find it, look for the thread name in the thread dumps.
 
-[source,shell]
+[source,shell,role=nocopy]
 ----
 $ grep neo4j.BoltWorker-394 *
 
@@ -172,7 +171,7 @@ $ grep neo4j.BoltWorker-394 *
 Note that the thread dumps are included in the heap dump. They are available in plain text in the file but you don't have the STATE information in Eclipse Mat.
 You can have them with other tools such as VisualVM:
 
-[source,shell]
+[source,shell,role=nocopy]
 ----
 $ head -10 java_pid19820.threads
 Thread 0x7fd64b0e1610

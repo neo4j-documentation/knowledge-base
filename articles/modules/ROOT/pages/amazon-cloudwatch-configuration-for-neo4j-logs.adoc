@@ -25,7 +25,7 @@ In a new EC2 instance, you will need to configure the _agent configuration file_
 The configuration options are described in the http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/AgentReference.html[CloudWatch Logs Agent Reference].
 For Neo4j 3.0, the following configuration will work:
 
-[source,shell]
+[source,toml]
 ----
 [neo4j.log]
 datetime_format = %Y-%m-%d %H:%M:%S%f%z 

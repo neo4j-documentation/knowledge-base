@@ -7,14 +7,14 @@
 
 Occasionally, following upgrades, one might encounter Neo4j server initialisation failure due to an exception similar to:
 
-----
+....
 2019-11-14 12:57:40.446+0000 ERROR Failed to start Neo4j: 
 Starting Neo4j failed: Component 'org.neo4j.server.AbstractNeoServer$ServerComponentsLifecycleAdapter@7f7eeaaf' was successfully
 initialized, but failed to start. Please see the attached cause exception "The ResourceConfig instance does not contain any root
 resource classes.". Starting Neo4j failed: Component 'org.neo4j.server.AbstractNeoServer$ServerComponentsLifecycleAdapter@7f7eeaaf' 
 was successfully initialized, but failed to start. Please see the attached cause exception "The ResourceConfig instance does not
 contain any root resource classes.".
-----
+....
 
 This exception is usually thrown in following situations:
 
@@ -22,7 +22,6 @@ When the plugins directory (by default set to $NEO4J_HOME/plugins), contains an 
 When the JAR no longer corresponds to the newly upgraded Neo4j version.
 When the path defined by `dbms.unmanaged_extension_classes` is invalid or unreachable.
 When the unmanaged extension hosted at the path does not contain the required resource classes as highlighted by the exception.
-
 
 If using plugins (Neo4j or custom), e.g. using apoc, ensure that there is only one plugin version compatible with the currently
 installed Neo4j version. 

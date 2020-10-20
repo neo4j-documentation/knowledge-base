@@ -9,7 +9,7 @@ Match intersection is a common use case where you're searching for nodes which h
 
 For the rest of the article we'll use the built-in movies graph for demonstration. The example use case will be:
 
-`Given a list of actor names, find movies featuring all the given actors.`
+> Given a list of actor names, find movies featuring all the given actors.
 
 A common first (and wrong) approach is something like this:
 
@@ -49,7 +49,6 @@ This is typically the most efficient approach for finding match intersections, b
 == Use WHERE ALL() to ensure all nodes in a list have a relationship to another node
 
 An alternate (but typically less efficient) approach is to collect input nodes, and use the `WHERE ALL()` predicate to ensure all the collected nodes have a relationship to the common node.
-
 
 [source,cypher]
 ----

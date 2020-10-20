@@ -8,8 +8,7 @@
 
 When operating a https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/setup-new-cluster/#unbind-instance-from-cluster[causal cluster^], if "the store" (`data/databases/graph.db`) is removed from a server that was previously a member of the cluster we will get the following exception when that server is started:
 
-[source,shell]
-----
+....
 java.lang.RuntimeException: Error starting org.neo4j.kernel.impl.factory.GraphDatabaseFacadeFactory, /path/to/neo4j/data/databases/graph.db
 
 	at org.neo4j.kernel.impl.factory.GraphDatabaseFacadeFactory.initFacade(GraphDatabaseFacadeFactory.java:209)
@@ -46,7 +45,7 @@ Caused by: org.neo4j.kernel.impl.transaction.log.NoSuchTransactionException: Una
 	at org.neo4j.kernel.impl.transaction.log.PhysicalLogicalTransactionStore.getTransactions(PhysicalLogicalTransactionStore.java:83)
 	at org.neo4j.causalclustering.core.state.machines.tx.LastCommittedIndexFinder.getLastCommittedIndex(LastCommittedIndexFinder.java:57)
 	... 22 more
-----
+....
 
 This exception is thrown because the store is now out of sync with the cluster state.
 
@@ -55,7 +54,7 @@ We can do this by executing the following command:
 
 [source,shell]
 ----
-neo4j-admin unbind --database=graph.db
+$ neo4j-admin unbind --database=graph.db
 ----
 
 We can now start the server and it will be able to rejoin the cluster.

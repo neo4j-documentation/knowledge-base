@@ -12,7 +12,7 @@ To update then run the following command:
 
 [source,shell]
 ----
-wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
+$ wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
 ----
 
 See also the information on: https://debian.neo4j.com

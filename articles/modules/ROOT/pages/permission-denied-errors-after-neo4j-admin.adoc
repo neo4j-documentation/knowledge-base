@@ -9,9 +9,9 @@
 If you have leveraged Debian or RPM Packages to install Neo4j on Linux (or used one of the Public Cloud Marketplace offerings), you need to be careful of file and folder permissions.
 The installs create a user: "neo4j" that owns all the files for the Neo4j Installation:
 
-[source,shell]
+[source,shell,role=noheader]
 ----
-sudo ls -l /var/lib/neo4j/data/databases/
+$ sudo ls -l /var/lib/neo4j/data/databases/
 total 4
 drwxr-xr-x 4 neo4j neo4j 4096 Sep 18 17:59 graph.db
 -rw-r--r-- 1 neo4j neo4j    0 Sep 18 17:59 store_lock
@@ -22,9 +22,9 @@ care must be taken to ensur its run with the correct permissions.
 
 As an example, consider a backup taken as follows:
 
-[source,shell]
+[source,shell,role=noheader]
 ----
-sudo neo4j-admin backup --from=localhost --name=graph.db_backup --backup-dir=/tmp
+$ sudo neo4j-admin backup --from=localhost --name=graph.db_backup --backup-dir=/tmp
 ....................  10%
 ....................  20%
 ....................  30%
@@ -40,9 +40,9 @@ Backup complete.
 
 Note that `sudo` was leveraged, meaning that this will be run as root.  We can see this in the backup location:
 
-[source,shell]
+[source,shell,role=noheader]
 ----
-ls -l /tmp/graph.db_backup/
+$ ls -l /tmp/graph.db_backup/
 total 372
 -rw-r--r-- 1 root root 58959 Sep 18 18:09 debug.log
 -rw-r--r-- 1 root root 57805 Sep 18 18:07 debug.log.1568830062412
@@ -87,16 +87,16 @@ drwxr-xr-x 2 root root  4096 Sep 18 18:07 profiles
 
 If an administrator were to at some point restore with this backup:
 
-[source,shell]
+[source,shell,role=noheader]
 ----
-sudo neo4j-admin restore --from=/tmp/graph.db_backup --database=graph.db --force=true
+$ sudo neo4j-admin restore --from=/tmp/graph.db_backup --database=graph.db --force=true
 ----
 
 The restored database folder and files would now be owned by root:
 
-[source,shell]
+[source,shell,role=noheader]
 ----
-sudo ls -l /var/lib/neo4j/data/databases/
+$ sudo ls -l /var/lib/neo4j/data/databases/
 total 4
 drwxr-xr-x 5 root  root  4096 Sep 18 18:12 graph.db
 -rw-r--r-- 1 neo4j neo4j    0 Sep 18 17:59 store_lock
@@ -104,7 +104,7 @@ drwxr-xr-x 5 root  root  4096 Sep 18 18:12 graph.db
 
 Attempting to start the Neo4j Service would now fail, with an error similar to:
 
-----
+....
 Starting Neo4j.
 Sep 18 18:13:55 proddb1-ubuntu neo4j[6805]: 2019-09-18 18:13:55.143+0000 INFO  ======== Neo4j 3.5.9 ========
 Sep 18 18:13:55 proddb1-ubuntu neo4j[6805]: 2019-09-18 18:13:55.163+0000 INFO  Starting...
@@ -136,14 +136,13 @@ Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.kernel.lifecycl
 Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.kernel.lifecycle.LifeSupport.start(LifeSupport.java:111)
 Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         at org.neo4j.graphdb.facade.GraphDatabaseFacadeFactory.initFacade(GraphDatabaseFacadeFactory.java:227)
 Sep 18 18:13:57 proddb1-ubuntu neo4j[6805]:         ... 9 more
-----
+....
 
 The recommended approach to all `neo4j-admin` commands, such as `backup`, `restore`, `store-info`, `import` is to leverage `sudo -u neo4j`:
 
-[source,shell]
+[source,shell,role=noheader]
 ----
-sudo -u neo4j neo4j-admin backup --from=localhost --name=graph.db_backup_with_user --backup-dir=/tmp
+$ sudo -u neo4j neo4j-admin backup --from=localhost --name=graph.db_backup_with_user --backup-dir=/tmp
 
-
-sudo -u neo4j neo4j-admin restore --from=/tmp/graph.db_backup --database=graph.db --force=true
+$ sudo -u neo4j neo4j-admin restore --from=/tmp/graph.db_backup --database=graph.db --force=true
 ----

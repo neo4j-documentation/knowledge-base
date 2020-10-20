@@ -11,7 +11,7 @@ The following article details a basic Prometheus implementation to demonstrate t
 
 After installing Prometheus, Neo4j needs to be configured via its `neo4j.conf` file with the following parameters:
 
-[source,conf]
+[source,properties]
 ----
 # Enable the Prometheus endpoint. Default is 'false'.
 metrics.prometheus.enabled=true

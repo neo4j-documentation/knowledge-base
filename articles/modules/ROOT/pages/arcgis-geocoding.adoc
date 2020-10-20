@@ -5,17 +5,17 @@
 :tags: cypher, configuration
 :category: geospatial
 
-
 == Prerequisites
 
 * Create/obtain an Arcgis account. 
 * Create application within your account. The application will be assigned a 'client_id' and 'secret'.
 
-=== APOC 
+=== APOC
+
 The APOC library provides a `apoc.spatial.geocode('address')` procedure (as well as `reverseGeocode`), that supports geocoding against OpenStreetMap and Google Maps. 
 It also supports other providers (ex: opencage) with a more explicit configuration of the API call (in neo4j.conf) :
 
-[source,conf]
+[source,properties]
 ----
 apoc.spatial.geocode.provider=opencage
 apoc.spatial.geocode.opencage.key=<api_key>
@@ -27,7 +27,6 @@ with *KEY* gets replaced by the API key, and *PLACE* by the address to geocode a
 
 For Arcgis, the key would be the application token, and the url would look like that (that's the public Arcgis API endpoint) :
 apoc.spatial.geocode.arcgis.url=https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&outFields=Match_addr,Addr_typ&singleLine=PLACE&token=KEY
-
 
 Unfortunately, the apoc procedures expect the json response from the provider to contain a list of "results". 
 That is not the case for the Arcgis API endpoints :
@@ -44,7 +43,7 @@ The apoc.load.json procedure lets you call any HTTP/REST API and process the res
 You can use the apoc.static procedures to read the API key and URL from neo4j.conf, similarly to what apoc.spatial.geocode does.
 The two following properties would be required for geocoding (this is using the public arcgis server ; replace with your own Arcgis server hostname if necessary) :
 
-[source,conf]
+[source,properties]
 ----
 apoc.static.arcgis.key=<arcgis_token>
 apoc.static.arcgis.geocode_url=https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&outFields=Match_addr,Addr_typ&singleLine=
@@ -55,11 +54,11 @@ Then run the following cypher query :
 [source,cypher]
 ----
 WITH 'Statue of Liberty, Liberty Island New York, NY 10004' as address
-//get the configuration properties
+// get the configuration properties
 CALL apoc.static.getAll("arcgis") yield value AS arcgis
-//build the URL
+// build the URL
 WITH arcgis.geocode_url+apoc.text.urlencode(address)+'&token='+ arcgis.key as url
-//extract the top result
+// extract the top result
 CALL apoc.load.json(url, '$.candidates[0].location') YIELD value as location
 return location.x, location.y
 ----
@@ -72,7 +71,7 @@ You can use `apoc.load.json` again to do that in cypher.
 
 In neo4j.conf, add the building bricks of the token API call:
 
-[source,conf]
+[source,properties]
 ----
 apoc.static.arcgis.client_id=<application_client_id>
 apoc.static.arcgis.client_secret=<secret>
@@ -87,5 +86,5 @@ CALL apoc.static.getAll("arcgis") yield value AS arcgis
 WITH arcgis.token_url+'&client_id='+arcgis.client_id+'&client_secret='+arcgis.client_secret as tokenUrl
 CALL apoc.load.json(tokenUrl) YIELD value as tokenResponse
 WITH tokenResponse.access_token as token
-//proceed with geocoding using 'token'
+// proceed with geocoding using 'token'
 ----

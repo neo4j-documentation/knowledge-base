@@ -25,7 +25,6 @@ We then need to consider the following neo4j specific requirements:
 
 Once above are estimated/profiled, we can account for expected growth and if the host is capable enough to account for additional instances (for which the above is also estimated), then we can proceed with adding further instances.
 
-
 Lets have a sample machine with below specs:
 
 * Total memory (RAM) = 200GB 

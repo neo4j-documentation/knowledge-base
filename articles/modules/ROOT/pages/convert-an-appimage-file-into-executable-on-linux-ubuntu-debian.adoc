@@ -6,25 +6,22 @@
 :environment: linux
 :category: desktop
 
-Note: Neo4j installation on Linux using apt-get, as per the process here:
-
-----
-https://neo4j.com/docs/operations-manual/current/installation/linux/debian/
-----
-
-distributes installation files across multiple system directories e.g. var/etc, var/log, /home/neo4j etc.. 
+NOTE: Neo4j installation on Linux using apt-get,
+as https://neo4j.com/docs/operations-manual/current/installation/linux/debian/[per the process here],
+distributes installation files across multiple system directories e.g. `/etc`, `/var/log`, `/home/neo4j`, etc...
 
 A quicker way to install is using the `.appimage` file directly from https://neo4j.com/download/
 
 The download for linux distributions is in the form of a .appimage file. AppImage files can then run without installation or the need for root priviledges.
 
-Example: If the file is downloaded to `/home/neo4j/Downloads/neo4j-desktop-1.0.3-x86_64.AppImage`, then from terminal run the following commands at this location:
+Example: If the file is downloaded to `/home/neo4j/Downloads/neo4j-desktop-1.0.3-x86_64.AppImage`,
+then from terminal run the following commands at this location:
 
 [source,shell]
 ----
-chmod a+x neo4j-desktop-1.0.3-x86_64.AppImage
+$ chmod a+x neo4j-desktop-1.0.3-x86_64.AppImage
 
-./neo4j-desktop-1.0.3-x86_64.AppImage
+$ ./neo4j-desktop-1.0.3-x86_64.AppImage
 ----
 
 This creates an executable at `/home/neo4j/Downloads/` in this example, which can just be double-clicked to launch the Neo4j Desktop application.

@@ -13,9 +13,8 @@ If encountering this message, it is probably due to a corrupted JVM download.
  
 To resolve the issue, simply remove the currently downloaded JVM copy which can be found at:
 
-[source,java]
-----
+....
 %APPDATA%/Neo4j Desktop/Application/distributions/java/
-----
+....
 
 image:https://i.imgur.com/fReVtRl.jpg[image]

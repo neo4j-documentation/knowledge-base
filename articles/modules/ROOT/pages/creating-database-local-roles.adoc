@@ -14,7 +14,6 @@ but it is not completely clear on the means to grant these kinds of privileges t
 
 This article seeks to explain the global nature of these roles and provide some examples of how to make the equivalent of these built-in roles at the local database level.
 
-
 == Built-in roles are global and apply to all databases
 
 A common but wrong assumption is that a role can be assigned to a user on a database, such as assigning the reader role to user_a on database db1.
@@ -30,7 +29,6 @@ The same is true for the other built-in roles. They aren't meant to be used at a
 
 When it comes to per-database access and roles, it is best to think in terms of privileges, and not the built-in roles.
 So don't think in terms of granting the reader role to user_a on database db1, but instead think about creating some new role that has read privileges on db1, and access on db1, and grant that new role to user_a.
-
 
 === We can copy built-in roles and adjust their database access privileges
 
@@ -79,7 +77,7 @@ Let's check user_a's privileges to verify:
 SHOW USER user_a PRIVILEGES;
 ----
 
-----
+....
 ╒═════════╤══════════╤════════════════╤═══════╤═════════════════╤══════════════╤════════╕
 │"access" │"action"  │"resource"      │"graph"│"segment"        │"role"        │"user"  │
 ╞═════════╪══════════╪════════════════╪═══════╪═════════════════╪══════════════╪════════╡
@@ -95,7 +93,7 @@ SHOW USER user_a PRIVILEGES;
 ├─────────┼──────────┼────────────────┼───────┼─────────────────┼──────────────┼────────┤
 │"GRANTED"│"access"  │"database"      │"db2"  │"database"       │"db2_accessor"│"user_a"│
 └─────────┴──────────┴────────────────┴───────┴─────────────────┴──────────────┴────────┘
-----
+....
 
 === We can mask privileges with DENY
 

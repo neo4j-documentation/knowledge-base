@@ -15,21 +15,19 @@ Ensure that you are running Neo4j server 3.5.x or 4.x, and have installed at lea
 
 The first step is to ensure the JAR file has been installed on Tableau Desktop as the data source must be published from Desktop to Server. Install the plugin by dropping the JDBC JAR file in to the appropriate driver directory depending on the platform:
 
-[source,shell]
-----
-Windows: `C:\Program Files\Tableau\Drivers`
-Mac: `~/Library/Tableau/Drivers`
-Linux: `/opt/tableau/tableau_driver/jdbc`
-----
+....
+Windows: C:\Program Files\Tableau\Drivers
+Mac: ~/Library/Tableau/Drivers
+Linux: /opt/tableau/tableau_driver/jdbc
+....
 
 == Create datasource to connect to a Neo4j instance
 
 Using Tableau's "Other JDBC Connection" option, you need to create a datasource connected to a Neo4j instance using the appropriate JDBC connection string. For example:
 
-[source,shell]
-----
+....
 jdbc:neo4j://10.0.0.50:7687
-----
+....
 
 == Connect to Tableau Server
 

@@ -11,7 +11,7 @@ Premise: You are working with a private/disconnected environment and would like 
 +
 [source,shell]
 ----
-yum install --downloadonly --downloaddir=/tmp/neo4j_rpm_install_packages neo4j-enterprise-3.5.7
+$ yum install --downloadonly --downloaddir=/tmp/neo4j_rpm_install_packages neo4j-enterprise-3.5.7
 ----
 +
 https://neo4j.com/docs/operations-manual/current/installation/linux/rpm
@@ -23,14 +23,14 @@ https://neo4j.com/docs/operations-manual/current/installation/linux/rpm
 --
 [source,shell]
 ----
-wget https://debian.neo4j.org/neotechnology.gpg.key
+$ wget https://debian.neo4j.org/neotechnology.gpg.key
 ----
 
 In this case, you would then use the local file to import the GPG Key in the disconnected environment:
 
 [source,shell]
 ----
-rpm --import neotechnology.gpg.key
+$ rpm --import neotechnology.gpg.key
 ----
 --
 
@@ -39,7 +39,7 @@ rpm --import neotechnology.gpg.key
 --
 [source,shell]
 ----
-rpm -i neo4j-enterprise-3.5.7-1.noarch.rpm
+$ rpm -i neo4j-enterprise-3.5.7-1.noarch.rpm
 ----
 
 Note 1: To install another JDK you would need to perform similar steps and download the RPM package from another source.
@@ -48,8 +48,8 @@ Note 2: For non-interactive installation you can accept the license agreement by
 
 [source,shell]
 ----
-export NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
-rpm -i neo4j-enterprise-3.5.7-1.noarch.rpm
+$ export NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+$ rpm -i neo4j-enterprise-3.5.7-1.noarch.rpm
 ----
 
 https://neo4j.com/docs/operations-manual/current/installation/linux/rpm/#linux-noninteractive
@@ -60,7 +60,7 @@ https://neo4j.com/docs/operations-manual/current/installation/linux/rpm/#linux-n
 --
 https://neo4j.com/docs/operations-manual/current/configuration/file-locations/
 
-Note: In Cloud environments you will need to edit the neo4j.template file to make changes to the neo4j.conf file. See the link for details: https://neo4j.com/developer/neo4j-cloud-vms/#vm-config
+NOTE: In Cloud environments you will need to edit the neo4j.template file to make changes to the neo4j.conf file. See the link for details: https://neo4j.com/developer/neo4j-cloud-vms/#vm-config
 --
 
 6. You can enable the service for startup upon reboot with (use root or sudo):
@@ -68,7 +68,7 @@ Note: In Cloud environments you will need to edit the neo4j.template file to mak
 --
 [source,shell]
 ----
-systemctl enable neo4j
+$ systemctl enable neo4j
 ----
 
 https://neo4j.com/docs/operations-manual/current/installation/linux/systemd/
@@ -79,13 +79,13 @@ https://neo4j.com/docs/operations-manual/current/installation/linux/systemd/
 --
 [source,shell]
 ----
-journalctl --unit=neo4j
+$ journalctl --unit=neo4j
 ----
 
 Or
 
 [source,shell]
 ----
-journalctl -e -u neo4j
+$ journalctl -e -u neo4j
 ----
 --

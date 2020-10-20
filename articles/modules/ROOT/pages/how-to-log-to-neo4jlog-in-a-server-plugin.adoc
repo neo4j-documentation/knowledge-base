@@ -20,7 +20,7 @@ import org.neo4j.kernel.internal.GraphDatabaseAPI;
 
 [source,java]
 ----
-@PluginTarget(GraphDatabaseService.class)
+    @PluginTarget(GraphDatabaseService.class)
     public Iterable<String> getAllLabels(@Source GraphDatabaseService graphDb) {
         LogService logService = ((GraphDatabaseAPI)graphDb).getDependencyResolver().resolveDependency( LogService.class );
         Log log = logService.getUserLog( getClass() );
@@ -36,7 +36,7 @@ log.debug( "Hello debuggers!" );
 
 We get a log that contains lines like this:
 
-----
+....
 2016-12-05 17:33:21.223+0000 INFO  Hello world!
 2016-12-05 17:33:21.345+0000 DEBUG  Hello debuggers!
-----
+....

@@ -70,8 +70,6 @@ Commencing with Neo4j 3.5.0 logging of metrics as CSV files is enabled by defaul
 described by conf/neo4j.conf parameter of `dbms.directories.metrics` which defaults to $NEO4J_HOM]E/metrics.   Additionally,
 conf/neo4j.conf parameters of https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_metrics.csv.rotation.keep_number[metrics.csv.rotation.keep_number] and https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_metrics.csv.rotation.size[metrics.csv.rotation.size] describe the number of CSV to keep for a given metric as well as the rotation size for said metric.
 
-
-
 8. Prepare for growth +
 Even after freeing up sufficient space you will still need to prepare for the future in terms of making sure you have sufficient 
 disk space for continued database growth. This is more an OS-related responsibility but should not be overlooked.

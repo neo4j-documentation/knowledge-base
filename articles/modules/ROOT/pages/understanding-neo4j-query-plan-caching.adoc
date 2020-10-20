@@ -39,10 +39,9 @@ http://neo4j.com/docs/stable/cypher-parameters.html[here].
 
 Additionally, if you should see in the `graph.db/messages.log` a message similar to:
 
-[source,shell]
-----
+....
 2016-03-08 09:43:16.854+0000 INFO [o.n.c.i.ServerExecutionEngine] Discarded stale query from the query cache: CYPHER 2.3 match n return n ... ... ...
-----
+....
 
 this indicates a plan which was previously in the query plan cache and has since been replanned.
 This message would not be encountered if the query plan had never been generated previously.
@@ -52,11 +51,11 @@ For this message to occur, the following conditions must be met:
 a) At least one transaction has to happen in between seeing the query
 again +
 b) At least `dbms.cypher.min_replan_interval` seconds must have passed +
-c) ​More than​ `dbms.cypher.statistics_divergence_threshold` percent of the statistics used by the query must have changed (edited)
+c) More than  `dbms.cypher.statistics_divergence_threshold` percent of the statistics used by the query must have changed (edited)
 
 For example, to generate the above message one could define:
 
-[source,conf]
+[source,properties]
 ----
 dbms.cypher.min_replan_interval=0s
 dbms.cypher.statistics_divergence_threshold=0

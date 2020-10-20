@@ -26,4 +26,4 @@ image::https://imgur.com/acGdh8R.png[image]
 
 
 In this case the 133 nodes and 253 relationships is not a significantly large number.  
-However if the query wass to return tens of thousands of nodes and relationships to be effected one should reconsider the approach and follow the document entitled `Large Delete Transaction Best Practices in Neo4j`
+However, if the query was to return tens of thousands of nodes and relationships to be effected one should reconsider the approach and follow the document entitled `Large Delete Transaction Best Practices in Neo4j`

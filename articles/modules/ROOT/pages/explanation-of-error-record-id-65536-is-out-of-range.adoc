@@ -12,10 +12,9 @@ When running a Cypher statement that creates a new relationship type, for exampl
 MERGE (n1:Person {id:1})-[r:knows]->(n2:Person {id:2})
 ----
 
-one may encounter an error which is logged in the $NEO4J_HOME/logs/debug.log as 
+one may encounter an error which is logged in the $NEO4J_HOME/logs/debug.log as
 
-[source,shell]
-----
+....
 2017-10-30 17:08:29.741+0000 ERROR [o.n.b.v.r.ErrorReporter] Client triggered an unexpected error [UnknownError]: Could not create token, reference 63c2e7ef-6f5b-4834-b2a8-fe74cac3a50a. Could not create token
 org.neo4j.graphdb.TransactionFailureException: Could not create token
         at org.neo4j.kernel.impl.core.DelegatingTokenHolder.getOrCreateId(DelegatingTokenHolder.java:85)
@@ -25,9 +24,7 @@ org.neo4j.graphdb.TransactionFailureException: Could not create token
         at org.neo4j.kernel.impl.api.OperationsFacade.relationshipTypeGetOrCreateForName(OperationsFacade.java:774)
         at org.neo4j.cypher.internal.spi.v3_3.TransactionBoundQueryContext.getOrCreateRelTypeId(TransactionBoundQueryContext.scala:114)
         at org.neo4j.cypher.internal.compatibility.v3_3.ExceptionTranslatingQueryContext$$anonfun$getOrCreateRelTypeId$1.apply$mcI$sp(ExceptionTranslatingQueryContext.scala:203)
-...
-.....
-........
+        ...
         at org.neo4j.bolt.v1.runtime.concurrent.RunnableBoltWorker.run(RunnableBoltWorker.java:96)
         at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
         at java.util.concurrent.FutureTask.run(FutureTask.java:266)
@@ -44,7 +41,7 @@ Caused by: org.neo4j.kernel.impl.store.id.validation.IdCapacityExceededException
         at org.neo4j.kernel.impl.core.DelegatingTokenHolder.createToken(DelegatingTokenHolder.java:103)
         at org.neo4j.kernel.impl.core.DelegatingTokenHolder.getOrCreateId(DelegatingTokenHolder.java:76)
         ... 49 more
-----
+....
 
 and they key part from above is the reference to *Record id 65536 is out of range [0, 65535]*
 
@@ -61,13 +58,13 @@ call db.relationshipTypes() yield relationshipType return count(relationshipType
 
 will return 
 
-----
+....
 +-------------+
 | numRelTypes |
 +-------------+
 | 65536       |
 +-------------+
-----
+....
 
 To resolve this error would require removal of relationship types which are no longer associated with any nodes.   As there is currently 
 no Cypher command to do this, one would need to run https://github.com/jexp/store-utils[copy-store.sh].  This command will read a 

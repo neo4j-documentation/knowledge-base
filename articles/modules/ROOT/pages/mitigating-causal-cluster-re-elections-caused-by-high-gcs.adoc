@@ -9,7 +9,6 @@ This article describes the effects of JVM stop-the-world GC pauses, on a causal 
 heap sizing and memory leak troubleshooting, is followed by a discussion on best practices and configurations to help mitigate 
 the resulting heartbeat timeouts and cluster re-elections.
 
-
 == GC at a glance:
 
 A JVM (java virtual machine, e.g. the Neo4J server) allocates required memory to newly created java objects. This memory is part 
@@ -19,13 +18,15 @@ which are subsequently discarded to reclaim heap memory via a process called `Ga
 Assuming heap sizing has been optimally done using Neo4j memory configurations (see https://neo4j.com/developer/kb/understanding-memory-consumption/),
 spikes in usage/data volume may still lead to increased heap utilisation and consequently longer and/or more frequent garbage 
 collection. Memory leaks are another cause of increased heap utilisation, in many cases leading to a heap out of memory situation.
-A memory leak in Java is a situation where some objects are no longer used by the application but Garbage Collection fails to 
+A memory leak in Java is a situation where some objects are no longer used by the application but Garbage Collection fails to
 recognise this. 
 
-In such cases, adding more heap may simply postpone the JVM running out of heap space (throwing the `java.lang.OutOfMemoryError:
-Java heap space` error). Additionally, increasing the amount of Java heap space also tends to increase the length of GC pauses.
-One can execute heap dumps and use e.g. Eclipse MAT (ensure that your machine has sufficient memory for the analysis) to diagnose 
-memory leaks. Other tools like JDK, jconsole, visualvm, jstat and indeed the neo4j gc.log may help identify any outlier transactions.
+In such cases, adding more heap may simply postpone the JVM running out of heap space
+(throwing the `java.lang.OutOfMemoryError: Java heap space error`).
+Additionally, increasing the amount of Java heap space also tends to increase the length of GC pauses.
+One can execute heap dumps and use e.g. Eclipse MAT (ensure that your machine has sufficient memory for the analysis)
+to diagnose memory leaks.
+Other tools like JDK, `jconsole`, `visualvm`, `jstat` and indeed the neo4j gc.log may help identify any outlier transactions.
 
 == How does a GC pause effect a Causal Cluster?
 
@@ -51,24 +52,24 @@ These are some of the key factors which may result in cyclic continuous leader s
 
 == Election and Heartbeat timeouts. What are they?
 
-Election timeout refers to the time after which a `FOLLOWER` will attempt to start an election, becoming a `CANDIDATE`. These 
-timeouts continue during elections, and a `CANDIDATE` will either become a `FOLLOWER` or start another election if it fails to 
-get elected, or hear from a newly elected `LEADER`, after another `causal_clustering.leader_election_timeout` period. Long 
+Election timeout refers to the time after which a `FOLLOWER` will attempt to start an election, becoming a `CANDIDATE`. These
+timeouts continue during elections, and a `CANDIDATE` will either become a `FOLLOWER` or start another election if it fails to
+get elected, or hear from a newly elected `LEADER`, after another `causal_clustering.leader_election_timeout` period. Long
 election timeouts are undesirable in general. They represent a greater period of downtime during leader fail over. The aim should 
 not be to increase it, but rather manage the workload to cause less GC. Having a slightly longer period for the second timeout, 
 may reduce the overall downtime caused by elections. The documented definition of `causal_clustering.leader_election_timeout` 
 does not mention heartbeat timeouts since heartbeats are an implementation detail. Most intra-cluster messages are also treated
 as heartbeats. If a cluster member receives a message from the leader, it is considered to have heard from that leader and so 
-the election timeout resets the timeout after which a new leader_election will be triggered.
+the election timeout resets the timeout after which a new leader_election will be triggered.
 
 == How best to mitigate heartbeat/election timeouts, following long GCs?
 
-Causal Cluster heartbeat timeouts are controlled via the configuration `causal_clustering.leader_election_timeout` which defaults
+Causal Cluster heartbeat timeouts are controlled via the configuration `causal_clustering.leader_election_timeout` which defaults
 to 7s and the recommended value is less than 10s. For graphs with large heaps, GC pauses may sometimes be of the order of 
 minutes, in which case, such timeout values wouldn’t prevent re-elections. Note that it is not large heaps per se that cause GC,
 but allocating far more than the GC is able to collect, eventually causing `stop-the-world` pauses. If there were numerous smaller
-pauses which were very occasionally causing leadership elections (so just occasionally missing the 7s timeout), then increasing 
-the `causal_clustering.leader_election_timeout` by a small value could be a solution, but the only real solution is to generate
+pauses which were very occasionally causing leadership elections (so just occasionally missing the 7s timeout), then increasing
+the `causal_clustering.leader_election_timeout` by a small value could be a solution, but the only real solution is to generate
 less garbage, which usually involves rewriting cypher queries and avoiding large data ingest queries etc. 
 Query optimisation is beyond the scope of this article, but is part of the Neo4J cypher manual, available at: 
 https://neo4j.com/docs/cypher-manual/current/query-tuning/.
@@ -81,7 +82,7 @@ an election, would you vote for me?”. It is an optimistic approach to stop pot
 stop writes while they’re happening). “Fruitless” in such case typically means the previous leader remains leader and all we 
 get is election number of seconds of unavailability while the  “Fruitless” election happens. Following an election, the cluster 
 member with the highest "term" wins and becomes the new leader. Note that members do not increase their term unless 
-another member votes for them, and that leaders must step down if a follower has a higher term, it means the leader is behind. 
+another member votes for them, and that leaders must step down if a follower has a higher term, it means the leader is behind.
 
 Pre-voting therefore helps reduce the number of unnecessary elections in two ways:
 

@@ -11,59 +11,59 @@ When it comes checking the inconsistencies in your graph, there are four methods
 
 [source,shell]
 ----
-    $neo4j-home> bin/neo4j-admin backup --backup-dir=/home/backups --name=graph.db --check-consistency=true
+$neo4j-home> bin/neo4j-admin backup --backup-dir=/home/backups --name=graph.db --check-consistency=true
 ----
 
 *2. If you are not checking the consistency through the `backup` command, then you will need to stop Neo4j to check its consistency.*
 
 [source,shell]
 ----
-    $neo4j-home> bin/neo4j stop
-    $neo4j-home> bin/neo4j-admin check-consistency --database=graph.db
+$neo4j-home> bin/neo4j stop
+$neo4j-home> bin/neo4j-admin check-consistency --database=graph.db
 ----
 
 *3. There will be situations when you would want to test the consistency of a backup. Here is how that is done:*
 
 [source,shell]
 ----
-    $neo4j-home> bin/neo4j-admin check-consistency --backup=/<path-to-backup-dir>/<graph_backup.db>
+$neo4j-home> bin/neo4j-admin check-consistency --backup=/<path-to-backup-dir>/<graph_backup.db>
 ----
 
 *4. Using the `dump` and `load` commands is the recommended, and safe, way of transferring databases between environments. It is possible to check the consistency of an offline dump.*
 
 Assume you have the dump file sitting in: `/mnt/dump_of_dbs`
-  
-   * The dump file is a `gzip` file. To confirm the format, perform these commands:
 
+* The dump file is a `gzip` file. To confirm the format, perform these commands:
++
 [source,shell]
 ----
-   $cd /mnt/dump_of_db
-   $file graph.db.dump
-   graph.db.dump: gzip compressed data
+$ cd /mnt/dump_of_db
+$ file graph.db.dump
+graph.db.dump: gzip compressed data
 ----
 
 You will see that the `.dump` file is a `gzip` file.
 
-   * Create a directory under `mnt/dump_of_dbs`
-  
+* Create a directory under `mnt/dump_of_dbs`
++
 [source,shell]
 ----
-  $mkdir graph.db
+$ mkdir graph.db
 ----
 
-   * Uncompress the `gzip` file under the `graph.db` directory:
-
+* Uncompress the `gzip` file under the `graph.db` directory:
++
 [source,shell]
 ----
-   $cd graph.db
-   ~/dump_of_dbs/graph.db$tar xvzf ../graph.db.dump
+$ cd graph.db
+~/dump_of_dbs/graph.db$ tar xvzf ../graph.db.dump
 ----
 
-   * Finally, run the consistency check as:
-
+* Finally, run the consistency check as:
++
 [source,shell]
 ----
-    $neo4j-home> bin/neo4j-admin check-consistency --backup=/mnt/dump_of_dbs/graph.db
+$neo4j-home> bin/neo4j-admin check-consistency --backup=/mnt/dump_of_dbs/graph.db
 ----
 
 *End Notes:*

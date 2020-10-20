@@ -17,10 +17,10 @@ What happens if `data` is not writable by the `neo4j` user?
 
 Neo4j won't be able to write anything either to the store or its log files.
 As a result any logs would be appended to the `console.log`.
-The following error message would indicate a possible permissions issue:
+The following error message would indicate a possible permission issue:
 
-----
+....
 2015-05-19 19:32:16.220+0000 INFO [Cluster] Write transactions to database disabled
-----
+....
 
 

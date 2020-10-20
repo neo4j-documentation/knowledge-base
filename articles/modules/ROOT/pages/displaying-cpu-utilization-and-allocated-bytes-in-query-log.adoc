@@ -7,7 +7,7 @@
 
 In Neo4j 3.3 and prior versions, when query logging is enabled with the following configuration parameters:
 
-[source,conf]
+[source,properties]
 ----
 # Log executed queries that takes longer than the configured threshold. Enable by uncommenting this line.
 dbms.logs.query.enabled=true
@@ -38,10 +38,9 @@ dbms.logs.query.page_logging_enabled=true
 
 The log is written with output as shown below:
 
-[source,shell]
-----
+....
 2018-10-29 21:07:37.219+0000 INFO  31 ms: (planning: 0, cpu: 29, waiting: 0) - 1969624 B - 0 page hits, 6 page faults - bolt-session	bolt	neo4j	neo4j-javascript/1.5.3		client/127.0.0.1:65274	server/127.0.0.1:7687>	neo4j - match (n:Person {name:"Keanu Reeves"})-[:ACTED_IN]->(m) return m - {} - {}
-----
+....
 
 Note that it displays CPU - `cpu: 29` and Allocated Bytes - `1969624 B`.
 
@@ -49,14 +48,13 @@ However, starting in Neo4j 3.4, using the above settings will not capture CPU an
 The default behavior was changed for Neo4j 3.4 due to noticeable overhead when capturing CPU and Allocated Bytes to avoid resource contention. 
 Thus, even when query logging is enabled with `dbms.logs.query.time_logging_enabled=true` and `dbms.logs.query.allocation_logging_enabled=true`, the output in the query log will be missing `CPU` and `allocated bytes` as shown below:
 
-[source,shell]
-----
+....
 2018-10-29 21:17:29.222+0000 INFO  30 ms: (planning: 0, waiting: 0) - 9 page hits, 0 page faults - bolt-session	bolt	neo4j	neo4j-javascript/1.5.3		client/127.0.0.1:65383	server/127.0.0.1:7687>	neo4j - match (n:Person {name:"Keanu Reeves"})-[:ACTED_IN]->(m) return m - {} - {}
-----
+....
 
 In order to capture Query CPU utilization and allocated bytes, the following configuration parameters must be set to `true` to override the default (`false`). 
 
-[source,conf]
+[source,properties]
 ----
 dbms.track_query_allocation=true
 dbms.track_query_cpu_time=true
@@ -64,7 +62,6 @@ dbms.track_query_cpu_time=true
 
 With those settings, the query.log will display as shown below:
 
-[source,shell]
-----
+....
 2018-10-29 21:21:04.446+0000 INFO  141 ms: (planning: 124, cpu: 139, waiting: 0) - 19388616 B - 10 page hits, 0 page faults - bolt-session	bolt	neo4j	neo4j-javascript/1.6.1		client/127.0.0.1:65482	server/127.0.0.1:7687>	neo4j - EXPLAIN match (n:Person {name:"Keanu Reeves"})-[:ACTED_IN]->(m) return m - {} - {}
-----
+....

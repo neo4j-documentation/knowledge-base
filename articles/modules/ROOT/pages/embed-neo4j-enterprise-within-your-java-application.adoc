@@ -53,17 +53,17 @@ Create a new text file at the root of your project using intelliJ and name it po
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<!-- maven specific -->
+    <!-- maven specific -->
     <modelVersion>4.0.0</modelVersion>
     <artifactId>embedded</artifactId>
-	
-	<!-- your own project settings-->
+
+    <!-- your own project settings-->
     <groupId>com.example</groupId>
     <version>1.0-snapshot</version>
     <name>embedded</name>
     <description>Embedded demo project</description>
 
-	<!-- Where to download the artifact-->
+    <!-- Where to download the artifact-->
     <repositories>
         <repository>
             <snapshots>
@@ -76,19 +76,19 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
     </repositories>
 
     <!-- Which artifact is required-->
-	<dependencies>
-		
+    <dependencies>
+
         <dependency>
             <groupId>com.neo4j</groupId>	
-			<!-- com.neo4j for enterprise, doc needs to be fixed: https://neo4j.com/docs/java-reference/3.5/tutorials-java-embedded/#editions -->
+            <!-- com.neo4j for enterprise, doc needs to be fixed: https://neo4j.com/docs/java-reference/3.5/tutorials-java-embedded/#editions -->
             <artifactId>neo4j-enterprise</artifactId>
             <version>3.5.3</version>
         </dependency>
     </dependencies>
 
-	<!-- to specify which version of java to compile the source code, here: java 11-->
+    <!-- to specify which version of java to compile the source code, here: java 11-->
     <build>
-		<defaultGoal>install</defaultGoal>
+        <defaultGoal>install</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

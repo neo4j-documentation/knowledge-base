@@ -10,7 +10,6 @@ When importing data using `neo4j-admin import`, make sure to review the required
 
 https://neo4j.com/docs/operations-manual/current/tools/import/
 
-
 == ACTUAL vs. String (default) or Integer:
 
 Each node in the CSV must have an `:ID`, which can be in the format `Integer`, `String`, or `ACTUAL`. 

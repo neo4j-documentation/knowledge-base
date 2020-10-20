@@ -12,9 +12,9 @@ The backup itself does not take overly long, but the consistency check can take 
 In some cases, you want to skip the check on backup, with the option to run it manually at some other (more convenient) time. 
 To do this, run the `neo4j-backup` tool with the `-verify false` option:
 
-[source,shell]
+[source,shell,role=noheader]
 ----
-./bin/neo4j-backup -from single://127.0.0.1 -to /tmp/foo -verify false
+$ ./bin/neo4j-backup -from single://127.0.0.1 -to /tmp/foo -verify false
 ----
 
 Now, if you skip the consistency check during backup and run it manually later, you have the option to try to tune it to run faster.

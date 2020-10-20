@@ -15,33 +15,34 @@ all cores available. It may sometimes be desired to restrict or specify these fo
 runtime. Below steps were followed on a Linux Redhat 6.1 and 7.6 versions. Similar steps may be valid for other Linux flavours.
 
 . Execute the *lscpu* command, which yields an output similar to below
-
++
 image::https://imgur.com/ErjxMTx.png[List of available CPU cores]
-
++
 Amongst other info, we see the comma separated list of CPUs currently online, in this case 0,1. Note that this may be a binary,
 decimal, or hexadecimal number. In this case, it is decimal.
 
-[start=2]
 . Get the Neo4j process ID. The cpu core affinity of this process can now be viewed by executing:
-
-*taskset -p pid*
-
++
+[source,shell,role=nocopy]
+$ taskset -p pid*
++
 image::https://imgur.com/W2XLnnf.png[CPU cores affinity list for the process]
++
+that this outputs a decimal, which can be translated into binary.
+Alternatively, the binary output can be directly obtained by executing `taskset -cp pid`.
+The above shows an affinity mask of *3*, which in binary is *1,1*, i.e. CPU cores 0 and 1.
+This also shows us that by default, the Neo4j process executes on all available CPU cores by default.
 
-that this outputs a decimal, which can be translated into binary. Alternatively, the binary output can be directly obtained by 
-executing *taskset -cp pid*. The above shows an affinity mask of *3*, which in binary is *1,1*, i.e. CPU cores 0 and 1. This also
-shows us that by default, the Neo4j process executes on all available CPU cores by default.
-
-[start=3]
 . We can now assign certain cpu cores to a running Neo4j process by executing:
-
-*taskset -cp <desired cpu(s) comma separated list> pid*:
-
++
+[source,shell,role=nocopy]
+$ taskset -cp <desired cpu(s) comma separated list> pid*
++
 image::https://imgur.com/vRqWtag.png[Updated CPU cores which the process is affiliated with]
-
++
 The above example restricts the Neo4j process to the CPU core with logical ID *0*.
 
 References:
 
-http://manpages.ubuntu.com/manpages/trusty/en/man1/taskset.1.html
-http://xmodulo.com/run-program-process-specific-cpu-cores-linux.html
+- http://manpages.ubuntu.com/manpages/trusty/en/man1/taskset.1.html
+- http://xmodulo.com/run-program-process-specific-cpu-cores-linux.html

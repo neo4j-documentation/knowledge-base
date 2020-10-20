@@ -20,7 +20,7 @@ RETURN row.name;
 will read a file named actors.csv and expect each field is delimited by the semi-colon character ';'
 
 One can also define the FIELDTERMINATOR as a hexidecimal representation of its http://www.asciitable.com/[ASCII] character.  This can be 
-helpful if you have choosen a field delimiter as a non-printable character, for example
+helpful if you have chosen a field delimiter as a non-printable character, for example:
 
 [source,cypher]
 ----

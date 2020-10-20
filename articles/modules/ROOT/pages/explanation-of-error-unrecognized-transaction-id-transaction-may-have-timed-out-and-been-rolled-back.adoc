@@ -8,16 +8,16 @@
 
 When submitting a request via the http://neo4j.com/docs/stable/rest-api-transactional.html[Neo4j Transactional Cypher HTTP endpoint], one may encounter the following error
 
-----
+....
 Unrecognized transaction id.
 Transaction may have timed out and been rolled back
-----
+....
 
 This error may occur as a result of the transactions expiration date/time being met.
 By default, http://neo4j.com/docs/stable/server-configuration.html#_important_server_configuration_parameters[org.neo4j.server.transaction.timeout] describes the number of seconds whereby inactivity in a transaction will result in the transaction automatically rolling back.
 The default is 60 seconds but can be overridden by adding
 
-[source,conf]
+[source,properties]
 ----
 org.neo4j.server.transaction.timeout=XXX
 ----

@@ -9,13 +9,12 @@ When running backup for example
 
 [source,shell]
 ----
-bin/neo4j-admin backup --backup-dir=/home/neo4j/backups/01172020/ --name=graph.db
+$ bin/neo4j-admin backup --backup-dir=/home/neo4j/backups/01172020/ --name=graph.db
 ----
 
 you may observe in the output of said command detail similar to 
 
-[source,shell]
-----
+....
 2020-01-17 12:54:06.767+0000 INFO [o.n.b.i.BackupOutputMonitor] Finish receiving store file /home/neo4j/backups/backups/01172020/graph.db/temp-copy/schema/index/lucene_native-2.0/5/native-1.0/profiles/index-5.708254.cacheprof
 2020-01-17 12:54:06.767+0000 INFO [o.n.b.i.BackupOutputMonitor] Start receiving store file /home/neo4j/backups/backups/01172020/graph.db/temp-copy/schema/index/lucene_native-2.0/5/string-1.0/profiles/index-5.708254.cacheprof
 2020-01-17 12:54:06.767+0000 INFO [o.n.b.i.BackupOutputMonitor] Finish receiving store file /home/neo4j/backups/backups/01172020/graph.db/temp-copy/schema/index/lucene_native-2.0/5/string-1.0/profiles/index-5.708254.cacheprof
@@ -25,15 +24,14 @@ you may observe in the output of said command detail similar to
 2020-01-17 12:54:06.869+0000 INFO [o.n.b.i.BackupOutputMonitor] Start recovering store
 2020-01-17 12:59:34.411+0000 INFO [o.n.b.i.BackupOutputMonitor] Finish recovering store, took 5m 27s 542ms
 2020-01-17 12:59:37.370+0000 INFO [o.n.b.i.BackupOutputMonitor] Finished, took 5m 40s 157m
-----
+....
 
 and see that there is a long pause (i.e. 5+ minutes) from `Start Recovering store` and `Finished recovering store`.
 
 It should be noted that at the same time the screen output was being produced we were also logging to the path of the backup 
 destination a debug.log.<epochtime>, in this case /home/neo4j/backups/01172020/, one will see a message similar to
 
-[source,shell]
-----
+....
 2020-01-17 12:54:06.869+0000 INFO [o.n.k.NeoStoreDataSource] Commits found after last check point (which is at LogPosition{logVersion=26059, byteOffset=219081898}). First txId after last checkpoint: 643034051 
 2020-01-17 12:54:06.929+0000 INFO [o.n.k.NeoStoreDataSource] Recovery required from position LogPosition{logVersion=26059, byteOffset=219081898}
 2020-01-17 12:54:34.411+0000 INFO [o.n.k.r.Recovery]   10% completed
@@ -47,9 +45,9 @@ destination a debug.log.<epochtime>, in this case /home/neo4j/backups/01172020/,
 2020-01-17 12:58:48.040+0000 INFO [o.n.k.r.Recovery]   90% completed
 2020-01-17 12:59:34.411+0000 INFO [o.n.k.r.Recovery]   100% completed
 2020-01-17 12:59:34.411+0000 INFO [o.n.k.NeoStoreDataSource] Recovery completed. 215589 transactions, first:643034051, last:643249639 recovered 
-----
+....
 
-the reason for these meassages and delay is as a result of the way in which backup is run and performs checkpoints.
+the reason for these messages and delay is as a result of the way in which backup is run and performs checkpoints.
 When backup is run the first thing it does is performs a database checkpoint which flushes all pagecache data to the 
 store files (i.e. graph.db/neostore.*.db) files.   Backup will then copy the files from the runnning data/databases/graph.db to 
 the backup destination.  Once all files are copied it then will look back to see if any transactions had been added since the initial

@@ -9,18 +9,17 @@ In Neo4j 4.0, if you are logged into the `READ_REPLICA` of a Causal Cluster, and
 
 [source,shell]
 ----
-$NEO4J_HOME/bin/cypher-shell -u neo4j -p mypwd
+$ $NEO4J_HOME/bin/cypher-shell -u neo4j -p mypwd
 ----
 
 You will encounter this error:
 
-
-----
+....
 Failed to obtain connection towards WRITE server. 
 Known routing table is: Ttl 1589334991968, currentTime 1589334691977, 
 routers AddressSet=[localhost:7637], writers AddressSet=[], 
 readers AddressSet=[localhost:7637], database '<default database>'
-----
+....
 
 NOTE: Before the 4.0 version, the above was a completely valid/correct command to log into the `cypher-shell`.
 
@@ -30,7 +29,7 @@ The syntax is documented in the cypher-shell command-line help as:
 
 [source,shell]
 ----
-$NEO4J_HOME/bin/cypher-shell -help
+$ $NEO4J_HOME/bin/cypher-shell -help
  -a ADDRESS, --address ADDRESS
                          address and port to connect to (default: neo4j://localhost:7687)
 ----
@@ -39,7 +38,7 @@ The implication of the default value `neo4j://localhost:7687` is that the `cyphe
 
 [source,shell]
 ----
-$NEO4J_HOME/bin/cypher-shell -u neo4j -p mypwd -a neo4j://localhost:7687
+$ $NEO4J_HOME/bin/cypher-shell -u neo4j -p mypwd -a neo4j://localhost:7687
 ----
 
 WARNING: The above command is invalid/wrong. The `neo4j` URI scheme is the 4.0 equivalent of `bolt+routing`, and should only be used for connecting to one of the `CORE` servers in a Causal Cluster, not to any `READ REPLICA`.
@@ -48,14 +47,14 @@ To get around this error and logging into the `cypher-shell` of a `READ_REPLICA`
 
 [source,shell]
 ----
-$NEO4J_HOME/bin/cypher-shell -u neo4j -p mypwd -a bolt://localhost:7687
+$ $NEO4J_HOME/bin/cypher-shell -u neo4j -p mypwd -a bolt://localhost:7687
 ----
 
 While connecting to a `READ REPLICA` from a different `Causal Cluster` member, use the command as:
 
 [source,shell]
 ----
-$NEO4J_HOME/bin/cypher-shell -u neo4j -p mypwd -a bolt://<read-replica-server-ip>:7687
+$ $NEO4J_HOME/bin/cypher-shell -u neo4j -p mypwd -a bolt://<read-replica-server-ip>:7687
 ----
 
 IMPORTANT: A key takeaway from this article is that if you’re using `neo4j` or `bolt+routing` URI scheme, you should be connecting to the `CORE` nodes in the `Causal Cluster`, not a `READ_REPLICA`.

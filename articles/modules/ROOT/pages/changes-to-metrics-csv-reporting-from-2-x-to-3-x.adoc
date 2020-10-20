@@ -23,8 +23,7 @@ timestamp,datetime,neo4j.check_point.events,neo4j.check_point.total_time,neo4j.c
 
 * In 3.x each metric is written to its own file, rather than a single metrics.csv. For example the following files are created
 
-[source,shell]
-----
+....
 neo4j.bolt.accumulated_processing_time.csv     neo4j.page_cache.page_faults.csv            neo4j.transaction.terminated_write.csv
 neo4j.bolt.accumulated_queue_time.csv          neo4j.page_cache.pins.csv                   vm.gc.count.g1_old_generation.csv
 neo4j.bolt.messages_done.csv                   neo4j.page_cache.unpins.csv                 vm.gc.count.g1_young_generation.csv
@@ -45,7 +44,7 @@ neo4j.network.slave_network_tx_writes.csv      neo4j.transaction.rollbacks_write
 neo4j.page_cache.eviction_exceptions.csv       neo4j.transaction.started.csv               vm.thread.count.csv
 neo4j.page_cache.evictions.csv                 neo4j.transaction.terminated.csv            vm.thread.total.csv
 neo4j.page_cache.flushes.csv                   neo4j.transaction.terminated_read.csv
-----
+....
 
 == Location
 

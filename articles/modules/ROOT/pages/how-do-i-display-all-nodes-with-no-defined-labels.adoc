@@ -5,7 +5,7 @@
 :tags: cypher
 :category: cypher
 
-Although assigning a node one or more labels provides many benefits (i.e. performance gains from index usage, ability to group nodes into sets, etc), it is possible to create a node without any labels.
+Although assigning a node one or more labels provides many benefits (i.e. performance gains from index usage, ability to group nodes into sets, etc), it is possible to create a node without any labels.
 
 The following Cypher can be used to identify all nodes in the graph which have no label defined:
 

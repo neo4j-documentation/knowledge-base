@@ -24,10 +24,9 @@ Some Neo4j plugins like https://neo4j.com/developer/neo4j-apoc/[APOC^] and https
 
 If you execute one of these procedures that is blocked, you could see an error message similar to the one below.
 
-[source,cypher]
-----
+....
 Neo.ClientError.Procedure.ProcedureCallFailed: Failed to invoke procedure apoc.load.json: Caused by: java.lang.RuntimeException: Import from files not enabled, please set apoc.import.file.enabled=true in your neo4j.conf
-----
+....
 
 To alter these settings and allow any blocked procedures to run and access files, you can review the https://neo4j-contrib.github.io/neo4j-apoc-procedures/[APOC documentation^] for configuration settings and whitelisting options.
 
@@ -37,11 +36,11 @@ The neo4j-admin import tool is helpful for loading massive amounts of data into 
 
 If done accurately, this process is very simple and efficient. One small difference running the neo4j-admin import tool on a cloud instance of Neo4j compared with other deployments is how to stop and start the database. The cloud providers use `systemd` with Neo4j installed as a service, so you will need to stop the systemd service before using the neo4j-admin import. Your command steps to stop and start will look like the ones below.
 
-[source,bash]
+[source,shell]
 ----
-systemctl stop neo4j
-#run neo4j-admin import command
-systemctl start neo4j
+$ systemctl stop neo4j
+# run neo4j-admin import command
+$ systemctl start neo4j
 ----
 
 Further information on how the system service works with Neo4j in Cloud VMs can be found in one of our https://neo4j.com/developer/neo4j-cloud-vms/[developer guides^].

@@ -38,21 +38,23 @@ On top of TCP's own throttling, the Neo4j Bolt server throttles the rate at whic
 
 That is controlled by the following configuration parameters :
 
-[source,conf]
+[source,properties]
 ----
-unsupported.dbms.bolt.outbound_buffer_throttle [default : true]
-unsupported.dbms.bolt.outbound_buffer_throttle.high_watermark [default : 512k]
-unsupported.dbms.bolt.outbound_buffer_throttle.low_watermark [default : 128k]
-unsupported.dbms.bolt.outbound_buffer_throttle.max_duration [default : 15min]
+unsupported.dbms.bolt.outbound_buffer_throttle=true
+unsupported.dbms.bolt.outbound_buffer_throttle.high_watermark=512k
+unsupported.dbms.bolt.outbound_buffer_throttle.low_watermark=128k
+unsupported.dbms.bolt.outbound_buffer_throttle.max_duration=15min
 ----
 
 When the write buffer fills up to the high watermark, writing will pause. While the Bolt server waits, it receives ACKs from the client, which allow him to remove the corresponding data from the write buffer.
 The server polls the buffer every second to check whether the low watermark has been reached. When that happens, it resumes writing.
 
 === Note on Timeouts
-The config parameter unsupported.dbms.bolt.outbound_buffer_throttle.max_duration controls the maximum amount of time a connection can be throttled. An exception is returned to the client when that time is reached : "Bolt connection [%s] will be closed because the client did not consume outgoing buffers for %s which is not expected." 
+
+The config parameter unsupported.dbms.bolt.outbound_buffer_throttle.max_duration controls the maximum amount of time a connection can be throttled. An exception is returned to the client when that time is reached : "Bolt connection [%s] will be closed because the client did not consume outgoing buffers for %s which is not expected."
 
 That timeout may interfere with transaction timeouts (dbms.transaction.timeout). When the transaction timeout is lower than the throttling timeout, a throttling pause may delay the moment when the timed out transaction is terminated, which may make it appear as if the transaction timeout was exceeded. 
 
 === How can you know Bolt throttling is happening?
+
 Thread dumps are your best chance as there are no entry in the logs when throttling triggers. Generally assumes it does happen for queries with large resultsets relative to the high watermark (1MB+), as it's very likely that consumption of results is slower than production, and that the outbound buffer fills up rapidly.

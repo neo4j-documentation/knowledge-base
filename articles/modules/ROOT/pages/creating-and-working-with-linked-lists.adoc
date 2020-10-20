@@ -11,7 +11,6 @@ If each of the nodes to be linked has its own variable, this is easy, you just d
 
 [source,cypher]
 ----
-...
 // assume a, b, and c were previously matched and in scope
 CREATE (a)-[:REL]->(b)-[:REL]->(c)
 ----

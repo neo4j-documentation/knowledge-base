@@ -239,7 +239,7 @@ RETURN labels
 
 This may return a map like:
 
-[source,cypher]
+[source,json]
 ----
 {
   "Movie": 38,

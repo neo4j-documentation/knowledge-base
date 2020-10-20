@@ -19,10 +19,10 @@ Here we are defining the TransactionConfig and using it for explicit transaction
 
 [source,java]
 ----
-    TransactionConfig config = TransactionConfig.builder()
-        .withTimeout(Duration.ofSeconds(4))
-        .withMetadata(metadata)
-        .build();
+TransactionConfig config = TransactionConfig.builder()
+    .withTimeout(Duration.ofSeconds(4))
+    .withMetadata(metadata)
+    .build();
 ----
 
 Defining the TransactionConfig and setting the timeout to 4 seconds.
@@ -30,9 +30,13 @@ Using the configuration in explicit transactions.
 
 [source,java]
 ----
-    try ( Transaction tx = session.beginTransaction(config))
+try (Transaction tx = session.beginTransaction(config)) {
+  // ...
+} finally {
+  // ...
+}
 ----
 
 So if this transaction exceeds 4 seconds it will be terminated. 
 
-Similarly one can implement TransactionConfig to work with autocommit transactions and transaction functions. 
+Similarly, one can implement TransactionConfig to work with autocommit transactions and transaction functions.

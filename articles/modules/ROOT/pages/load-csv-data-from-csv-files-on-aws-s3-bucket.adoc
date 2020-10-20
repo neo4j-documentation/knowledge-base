@@ -27,14 +27,10 @@ Run the below command to create the presign URL for `actors.csv` file.
 
 [source,shell]
 ----
-aws s3 presign s3://rohank/actors.csv
+$ aws s3 presign s3://rohank/actors.csv
 ----
 
-The command will create and output the following presign URL
-
-----
-https://rohank.s3.amazonaws.com/actors.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAICM6A3RO53KOKSRQ%2F20190404%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20190404T215301Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=61cb485af12daa60bb8cb7a91fb503797311c8e178d9bfa3c7ff49770e4535b5
-----
+The command will create and output the following presign URL: `https://rohank.s3.amazonaws.com/actors.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAICM6A3RO53KOKSRQ%2F20190404%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20190404T215301Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=61cb485af12daa60bb8cb7a91fb503797311c8e178d9bfa3c7ff49770e4535b5`
 
 Then use the URL to access the file from S3 bucket using LOAD CSV as
 

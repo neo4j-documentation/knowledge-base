@@ -17,14 +17,14 @@ On a Windows implementation the syntax would be similar to
 
 [source,shell]
 ----
-java -cp "lib/*;system/lib/*" org.neo4j.consistency.ConsistencyCheckTool c:\tmp\graph.db
+$ java -cp "lib/*;system/lib/*" org.neo4j.consistency.ConsistencyCheckTool c:\tmp\graph.db
 ----
 
 In each of the instance above, replace `/tmp/graph.db` or `c:\tmp\graph.db` with the actual path of the Neo database.
 
 To tune the check to skip Indexes (the most impactful modification), simply add the following line to conf/neo4j.properties (2.x) or conf/neo4j.conf(3.x), and pass it into the tool on the command line:
 
-[source,conf]
+[source,properties]
 ----
 consistency_check_indexes=false
 ----
@@ -45,7 +45,7 @@ However, the check is very expensive in time and memory, so it is skipped by def
 `consistency_check_label_scan_store / tools.consistency_checker.check_label_scan_store`:: Perform checks on the label scan store.
 Checking this store is more expensive than checking the native stores, so it may be useful to turn off this check for very large databases.
 
-`consistency_check_indexes /  tools.consistency_checker.check_indexes`:: Perform checks on indexes.       
+`consistency_check_indexes / tools.consistency_checker.check_indexes`:: Perform checks on indexes.
 Checking indexes is more expensive than checking the native stores, so it may be useful to turn off this check for very large databases.
 
 `consistency_check_execution_order`:: Execution order of store cross-checks to be used when running consistency check

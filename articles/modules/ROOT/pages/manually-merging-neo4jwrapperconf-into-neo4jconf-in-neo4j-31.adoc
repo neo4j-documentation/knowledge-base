@@ -35,7 +35,7 @@ main() {
   CONF_CONTAINS_WRAPPER=$(ls "${NEO4J_CONF}" | grep -x "neo4j-wrapper.conf" | wc -l | tr -d '[:space:]')
   # Check if there is a neo4j-wrapper.conf in conf directory
   if [ "$CONF_CONTAINS_WRAPPER" = "1" ]; then 
-  	# Make a copy of current neo4j.conf file
+    # Make a copy of current neo4j.conf file
     echo "Making backup of ${NEO4J_CONF}/neo4j.conf"
     cp "${NEO4J_CONF}/neo4j.conf" "${NEO4J_CONF}/neo4j.conf.bak.${NOW}"
     # Append neo4j-wrapper.conf to end of current neo4j.conf file
@@ -46,8 +46,8 @@ main() {
     # Success!
     echo "Successfully merged. Restart neo4j for changes to take effect." 	
   else
-  	echo "No neo4j-wrapper.conf found, exiting"
-fi
+    echo "No neo4j-wrapper.conf found, exiting"
+  fi
 }
 
 main "$@"

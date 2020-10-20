@@ -32,14 +32,14 @@ ON MATCH SET n.TotalRevenue = csvLine[2]
 
 Running the above Cypher the first time will result in:
 
-----
+....
 Added 1 label, created 1 node, set 7 properties
-----
+....
 
 Subsequent re-runs of the same `LOAD CSV` will result in:
 
-----
+....
 Set 4 properties
-----
+....
 
 

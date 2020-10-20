@@ -13,7 +13,7 @@ significant performance advantages whilst being sufficient for the overwhelming 
 ====
 In addition, the Neo4j Java API enables explicit locking of nodes and relationships. Using locks gives the opportunity to simulate the
 effects of higher levels of isolation by obtaining and releasing locks explicitly. For example, if a write lock is taken on a common 
-node or relationship, then all transactions will serialize on that lock — giving the effect of a serialization isolation level.
+node or relationship, then all transactions will serialize on that lock -- giving the effect of a serialization isolation level.
 ====
 
 During transaction commit, all the transactional operations applied to a store in certain order. At the moment order of operations is:
@@ -22,20 +22,20 @@ During transaction commit, all the transactional operations applied to a store i
 2. Relationship type tokens operations
 3. Property key token operations
 4. Create Operations for:
-	a. Properties
-	b. Relationships
-	c. Relationship groups
-	d. Nodes
+  a. Properties
+  b. Relationships
+  c. Relationship groups
+  d. Nodes
 5. Update Operations for:
-	a. Properties
-	b. Relationships
-	c. Relationship groups
-	d. Nodes
+   a. Properties
+   b. Relationships
+   c. Relationship groups
+   d. Nodes
 6. Delete Operations for:
-	a. Properties
-	b. Relationships
-	c. Relationship groups
-	d. Nodes
+   a. Properties
+   b. Relationships
+   c. Relationship groups
+   d. Nodes
 7. Neo Store commands
 8. Schema commands
 9. Count store operations

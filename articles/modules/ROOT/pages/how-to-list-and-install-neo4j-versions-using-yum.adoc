@@ -26,14 +26,14 @@ After following the instructions found in the link above, run the following comm
 
 [source,shell]
 ----
-yum list --show-duplicates neo4j
+$ yum list --show-duplicates neo4j
 ----
 
 To get the Enterprise package of Neo4j:
 
 [source,shell]
 ----
-yum list --show-duplicates neo4j-enterprise
+$ yum list --show-duplicates neo4j-enterprise
 ----
 
 Example output:

@@ -17,7 +17,7 @@ One is to set the `$NEO4J_SHUTDOWN_TIMEOUT` environment variable to something la
 
 The other is to use the exit code of the `bin/neo4j status` command to execute a control loop after the `bin/neo4j stop` command returns with a non `0` status (indicating a still running process). In this case, it may make sense to set the `$NEO4J_SHUTDOWN_TIMEOUT` to something small, to jump to the control loop as soon as possible. For example
 
-[source,shell]
+[source,bash]
 ----
 export NEO4J_SHUTDOWN_TIMEOUT=2 # in seconds
 

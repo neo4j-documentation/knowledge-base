@@ -7,26 +7,28 @@
 
 It is possible that after seeding a cluster or restoring from a backup, you may encounter the following error while starting your cluster:
 
-`ERROR [o.n.c.c.s.s.CoreStateDownloader] Store copy failed due to store ID mismatch`
+....
+ERROR [o.n.c.c.s.s.CoreStateDownloader] Store copy failed due to store ID mismatch
+....
 
 In most of the cases, this issue can be resolved by taking the following steps:
 
 [source,shell]
 ----
-- $neo4j-home> bin/neo4j stop
-- $neo4j-home> bin/neo4j-admin unbind
-- $neo4j-home> bin/neo4j start
+$neo4j-home> bin/neo4j stop
+$neo4j-home> bin/neo4j-admin unbind
+$neo4j-home> bin/neo4j start
 ----
 
 In the situation where the member of the cluster is unresponsive, then you will have to add two more steps:
 
 [source,shell]
 ----
-- $neo4j-home> bin/neo4j stop
-- $neo4j-home> bin/neo4j-admin unbind
-- remove the graph.db 
-- restore graph.db from another core server
-- $neo4j-home> bin/neo4j start
+$neo4j-home> bin/neo4j stop
+$neo4j-home> bin/neo4j-admin unbind
+# remove the graph.db
+# restore graph.db from another core server
+$neo4j-home> bin/neo4j start
 ----
 
 If after taking the above steps, your cluster does not come up, then please open a ticket with Neo4j Customer Support.

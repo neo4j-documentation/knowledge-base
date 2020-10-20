@@ -7,7 +7,7 @@
 
 In Neo4j 3.0 and its implementation of the Bolt protocol, requests submitted via the browser (http://localhost:7474) are submitted using Bolt.
 From the results frame, on the bottom left, you can click on the `</> Code` icon to see the response submission.
-Below is a depiction when Bolt is enabled
+Below is a depiction when Bolt is enabled:
 
 image:http://i.imgur.com/9ueZrr0.png[width="600"]
 

@@ -23,19 +23,17 @@ RETURN COUNT(profile) as updatedCount
 
 However, this query may return an error such as:
 
-[source,shell]
-----
+....
 Neo.DatabaseError.General.UnknownError: org.neo4j.values.storable.NoValue cannot be cast to org.neo4j.values.virtual.VirtualNodeValue
-----
+....
 
 (pre 3.4.5)
 
 or
 
-[source,shell]
-----
+....
 Neo.DatabaseError.Statement.ExecutionFailed: Expected to find a node at ref slot 0 but found instead: null
-----
+....
 
 (post 3.4.5)
 
@@ -47,14 +45,14 @@ OPTIONAL MATCH (a)
 MERGE (a)-[:X]->()
 ----
 
-Messages thrown in these cases are the following: 
+Messages thrown in these cases are the following:
 
-> "Expected to find a node at *$name* but found instead: *null*"
->
-> "Expected to find a node at *$name* but found instead: *$x*"
->
-> "Expected to find a node at *$name* but found instead: *null*"
-
+[subs=+quotes]
+....
+Expected to find a node at *$name* but found instead: *null*
+Expected to find a node at *$name* but found instead: *$x*
+Expected to find a node at *$name* but found instead: *null*
+....
 
 When faced with one of these messages, the problem is related to the optional matches and can be solved by starting the query with a normal `MATCH` such as:
 
