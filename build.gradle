@@ -41,8 +41,6 @@ wordpress {
 zendesk {
     email = project.hasProperty('zendesk-email') ? project.property('zendesk-email') : 'user@neo4j.com'
     apiToken = project.hasProperty('zendesk-apitoken') ? project.property('zendesk-apitoken') : ''
-    host = project.hasProperty('zendesk-host') ? project.property('zendesk-host') : 'localhost'
-    scheme = 'https'
 }
 
 def stage = project.findProperty('stage')
@@ -52,8 +50,9 @@ asciidoctorj {
     attributes 'allow-uri-read': '',
             'linkattrs': '',
             'source-highlighter': 'codemirror',
+            'enterprise': '', // publish on support.neo4j.com
             'stage': stage != null ? stage : '',
-            'document-metadata-attrs-include': 'author,slug,zendesk-id,taxonomies*<>'
+            'document-metadata-attrs-include': 'author,slug,zendesk-id,taxonomies*<>,zendesk_publishing_targets*<>'
 }
 
 // Set author tags
@@ -250,9 +249,29 @@ if (stage == 'production' || stage == 'testing') {
     }
 }
 
-task zenDeskUpload(type: ZenDeskUploadTask) {
+ext.getZenDeskArticles = { publishingTargetEnvironment, publishingTargetSection, files ->
+    List<String> paths = new ArrayList<String>()
+    for (file in files.getAsFileTree()) {
+        if (file.name.endsWith('.html')) {
+            File yamlFile = new File(file.parent, "${file.name.take(file.name.lastIndexOf('.'))}.yml")
+            InputStream input = new FileInputStream(yamlFile)
+            Yaml yaml = new Yaml()
+            Map<String, Object> data = (Map<String, Object>) yaml.load(input)
+            List<Map<String, Object>> publishingTargets = data["zendesk_publishing_targets"]
+            Map<String, Object> publishingTarget = publishingTargets.find { t -> t["key"] == publishingTargetEnvironment}
+            if (publishingTarget != null && publishingTarget["values"] != null && ((List<String>) publishingTarget["values"]).contains(publishingTargetSection)) {
+                paths.push(file.getAbsolutePath())
+            }
+        }
+    }
+    return paths
+}
+
+task zenDeskEnterpriseUpload(type: ZenDeskUploadTask) {
     dependsOn convertZenDeskHtml
 
+    host = 'support.neo4j.com'
+    scheme = 'https'
     source = convertZenDeskHtml.outputs.files
     userSegmentId = 1716387
     permissionGroupId = 136448
@@ -260,4 +279,65 @@ task zenDeskUpload(type: ZenDeskUploadTask) {
     // notify subscribers when creating a new article (default: false)
     // can be configured using the project property "notify" (for instance, via the "-P" command line option): "-Pnotify=true"
     notifySubscribers = project.hasProperty('notify') ? project.property('notify') : false
+}
+
+task zenDeskAuraKnowledgeBaseUpload(type: ZenDeskUploadTask) {
+    dependsOn convertZenDeskHtml
+
+    doFirst {
+        def task = tasks.findByName('zenDeskAuraUpload')
+        if (task != null) {
+            task.configure {
+                source = project.getZenDeskArticles('aura', 'help-center/knowledge-base', convertZenDeskHtml.outputs.files)
+            }
+        }
+    }
+
+    host = 'aura.support.neo4j.com'
+    scheme = 'https'
+    userSegmentId = 1716387
+    permissionGroupId = 136408
+    sectionId = 360005376634
+    // notify subscribers when creating a new article (default: false)
+    // can be configured using the project property "notify" (for instance, via the "-P" command line option): "-Pnotify=true"
+    notifySubscribers = project.hasProperty('notify') ? project.property('notify') : false
+}
+
+// If you want to publish in other sections:
+// - Copy and paste this task
+// - Update the task title (for instance, `zenDeskAuraImportUpload`)
+// - Update the second argument in `project.getZenDeskArticles('aura', 'home-page/getting-started', convertZenDeskHtml.outputs.files)`
+// ** Set the same value in your article for the attribute `:aura:`. For instance, if the value is `home-page/import`,
+//    you should declare `:aura: home-page/import`.
+// - Update the sectionId value (for the section "Home Page > Import" the value would be `360005850833`)
+// - Add this new task in the `dependsOn` list on the `zenDeskAuraUpload` task
+//
+task zenDeskAuraGettingStartedUpload(type: ZenDeskUploadTask) {
+    dependsOn convertZenDeskHtml
+
+    doFirst {
+        def task = tasks.findByName('zenDeskAuraUpload')
+        if (task != null) {
+            task.configure {
+                source = project.getZenDeskArticles('aura', 'home-page/getting-started', convertZenDeskHtml.outputs.files)
+            }
+        }
+    }
+
+    host = 'aura.support.neo4j.com'
+    scheme = 'https'
+    userSegmentId = 1716387
+    permissionGroupId = 136408
+    sectionId = 360005850813
+    // notify subscribers when creating a new article (default: false)
+    // can be configured using the project property "notify" (for instance, via the "-P" command line option): "-Pnotify=true"
+    notifySubscribers = project.hasProperty('notify') ? project.property('notify') : false
+}
+
+task zenDeskAuraUpload {
+    dependsOn zenDeskAuraKnowledgeBaseUpload, zenDeskAuraGettingStartedUpload
+}
+
+task zenDeskUpload {
+    dependsOn zenDeskEnterpriseUpload, zenDeskAuraUpload
 }
