@@ -55,14 +55,29 @@ All articles need to have a `:slug:` attribute so that we can tie them to the ap
 All article file names must only contains lowercase alphanumeric characters and hyphens, e.g. `how-to-run-consistency-check.adoc`.
 If an article is added and it has spaces in its filename, the `noSpaces.sh` script in the `/articles` directory will make a space-less name for it using the slug in the article.
 
-If a slug is changed, the URL for the article will be changed and any former links to the article will be *broken*.
+[IMPORTANT]
+====
+If a slug is changed, a *new* article will be published and any former links to the article will be *broken*.
+If you need to update the slug of an article but you want to update the existing article, the you will need to set the attribute `:zendesk-id:` on the article.
 
-For WordPress this isn't a problem, but for Zendesk it means that the article will be deleted and the article ID won't be recoverable, leaving links permanently broken.
+For instance, in the article above, we will update the Zendesk article using the id `206226107`:
+
+[source,adoc]
+----
+= Cross Product Cypher queries will not perform well
+:slug: cross-product-cypher-queries-will-not-perform-well
+:zendesk-id: 206226107
+----
+
+We can now safely update the slug, it won't publish a new article on Zendesk and the URL will be preserved.
+====
+
+For WordPress this isn't a problem, but for Zendesk it means that the article will be deleted and the article id won't be recoverable, leaving links permanently broken.
 
 The `slug` must only contains lowercase alphanumeric characters and hyphens to make it a good URL.
 No spaces, no uppercase, no leading/trailing/double hyphens.
 
-IMPORTANT: When a slug is invalid, no document will be deployed until the slug is fixed.
+WARNING: When a slug is invalid, no document will be deployed until the slug is fixed.
 
 You can find out if a slug failed on the link:https://github.com/neo4j-documentation/knowledge-base/actions?query=workflow%3ABuild[GitHub Actions] build.
 It is suggested that you subscribe to notifications for the builds so that you can receive an email whenever a build fails and whenever it starts again.
@@ -192,12 +207,50 @@ When publishing in "testing", the slug will be automatically prefixed by `+_test
 ==== Examples
 
 .Publish in "testing"
- $ /gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=testing
+ $ ./gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=testing
 
 .Publish in "production"
- $ /gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=production
+ $ ./gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=production
 
 === Publish Zendesk
+
+Articles can be published on the Enterprise Customer Support (support.neo4j.com) and/or on the Aura Customer Support.
+By default, all articles are published on the Enterprise Customer Support.
+If you don't want to publish on the Enterprise Customer Support for a specific article, you can add the following attribute in the article header:
+
+[source,asciidoc]
+----
+:enterprise!:
+----
+
+If you want to publish on the Aura Customer Support, then you need to add the following attribute in the article header:
+
+[source,asciidoc]
+----
+:aura:
+----
+
+The `aura` attribute can take a comma-separated list of values.
+Currently, the following list of values is supported (with their corresponding section id):
+
+[cols="1m,1m",opts=header]
+|====
+|Value
+|Id
+
+|help-center/knowledge-base
+|360005376634
+
+|home-page/getting-started
+|360005850813
+|====
+
+Here's an example where the article will be published on both the "Help Center > Knowledge Base" section and on the "Home Page > Getting Started" section:
+
+[source,asciidoc]
+----
+:aura: help-center/knowledge-base,home-page/getting-started
+----
 
 ==== Properties
 
@@ -209,10 +262,7 @@ Email of an Agent account on Zendesk
 `zendesk-apitoken`::
 API token generated from the Admin page on Zendesk
 
-`zendesk-host`::
-Host of the Zendesk instance (for instance: `support.neo4j.com`)
-
 ==== Examples
 
 .Publish
- $ ./gradlew zenDeskUpload -Pzendesk-email="user@neo4j.com" -Pzendesk-host="support.neo4j.com" -Pzendesk-apitoken="apitoken"
+ $ ./gradlew zenDeskUpload -Pzendesk-email="user@neo4j.com" -Pzendesk-apitoken="apitoken"
