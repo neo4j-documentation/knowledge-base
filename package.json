@@ -21,6 +21,7 @@
   "devDependencies": {
     "@antora/cli": "^2.3.4",
     "@antora/site-generator-default": "^2.3.4",
+    "axios": "^0.20.0",
     "browser-sync": "^2.26.12",
     "cheerio": "^1.0.0-rc.3",
     "chokidar": "^3.4.2",
