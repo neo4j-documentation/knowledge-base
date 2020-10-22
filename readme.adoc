@@ -55,14 +55,29 @@ All articles need to have a `:slug:` attribute so that we can tie them to the ap
 All article file names must only contains lowercase alphanumeric characters and hyphens, e.g. `how-to-run-consistency-check.adoc`.
 If an article is added and it has spaces in its filename, the `noSpaces.sh` script in the `/articles` directory will make a space-less name for it using the slug in the article.
 
-If a slug is changed, the URL for the article will be changed and any former links to the article will be *broken*.
+[IMPORTANT]
+====
+If a slug is changed, a *new* article will be published and any former links to the article will be *broken*.
+If you need to update the slug of an article but you want to update the existing article, the you will need to set the attribute `:zendesk-id:` on the article.
 
-For WordPress this isn't a problem, but for Zendesk it means that the article will be deleted and the article ID won't be recoverable, leaving links permanently broken.
+For instance, in the article above, we will update the Zendesk article using the id `206226107`:
+
+[source,adoc]
+----
+= Cross Product Cypher queries will not perform well
+:slug: cross-product-cypher-queries-will-not-perform-well
+:zendesk-id: 206226107
+----
+
+We can now safely update the slug, it won't publish a new article on Zendesk and the URL will be preserved.
+====
+
+For WordPress this isn't a problem, but for Zendesk it means that the article will be deleted and the article id won't be recoverable, leaving links permanently broken.
 
 The `slug` must only contains lowercase alphanumeric characters and hyphens to make it a good URL.
 No spaces, no uppercase, no leading/trailing/double hyphens.
 
-IMPORTANT: When a slug is invalid, no document will be deployed until the slug is fixed.
+WARNING: When a slug is invalid, no document will be deployed until the slug is fixed.
 
 You can find out if a slug failed on the link:https://github.com/neo4j-documentation/knowledge-base/actions?query=workflow%3ABuild[GitHub Actions] build.
 It is suggested that you subscribe to notifications for the builds so that you can receive an email whenever a build fails and whenever it starts again.
