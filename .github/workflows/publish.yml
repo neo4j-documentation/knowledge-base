@@ -5,7 +5,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,7 +20,7 @@ jobs:
           WORDPRESS_PASSWORD: ${{ secrets.WORDPRESS_PASSWORD }}
       - name: Publish Zendesk
         run: |
-          ./gradlew zenDeskUpload -Pzendesk-email="${ZENDESK_EMAIL}" -Pzendesk-host="support.neo4j.com" -Pzendesk-apitoken="${ZENDESK_APITOKEN}" -Pstage=production
+          ./gradlew zenDeskUpload -Pzendesk-email="${ZENDESK_EMAIL}" -Pzendesk-apitoken="${ZENDESK_APITOKEN}" -Pstage=production
         env:
           ZENDESK_EMAIL: ${{ secrets.ZENDESK_EMAIL }}
           ZENDESK_APITOKEN: ${{ secrets.ZENDESK_APITOKEN }}

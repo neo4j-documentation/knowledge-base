@@ -34,7 +34,7 @@ dbms.security.ldap.authorization.group_to_role_mapping=\
 
 == Key points:
 
-. The main difference that allows this to work is specifying the `{0}@example.com` pattern in the `user_dn_template`. This allows the authentication to start at the root Domain, and check the whole tree, regardless of where the User is located within it.
+. The main difference that allows this to work is specifying the `+{0}@example.com+` pattern in the `user_dn_template`. This allows the authentication to start at the root Domain, and check the whole tree, regardless of where the User is located within it.
 . Notice you should NOT set `dbms.security.ldap.authentication.use_samaccountname`. It will not work properly.
 
 With the following AD setup we successfully authenicate both users Admin User and Support User. They would login with `adminuser` and `supportuser1` respectively:
