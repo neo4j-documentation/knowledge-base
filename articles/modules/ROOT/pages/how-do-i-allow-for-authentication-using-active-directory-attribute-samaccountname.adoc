@@ -34,11 +34,11 @@ dbms.security.ldap.authorization.group_to_role_mapping=\
 
 With the following AD setup we can demonstrate successful authenication
 
-image:https://imgur.com/pvwz7JY.png[image]
+image:{assets-cdn}/how-do-i-allow-for-authentication-using-active-directory-attribute-samaccountname-pvwz7JY.png[image]
 
-image:https://imgur.com/fCNzjvr.png[image,width=370]
+image:{assets-cdn}/how-do-i-allow-for-authentication-using-active-directory-attribute-samaccountname-fCNzjvr.png[image,width=370]
 
-image:https://imgur.com/bsF7qi6.png[image,width=370]
+image:{assets-cdn}/how-do-i-allow-for-authentication-using-active-directory-attribute-samaccountname-bsF7qi6.png[image,width=370]
 
 
 Upon doing so connection is possible, as evidence

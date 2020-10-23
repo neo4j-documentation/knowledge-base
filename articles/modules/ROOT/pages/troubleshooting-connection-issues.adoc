@@ -44,7 +44,7 @@ A similar message you might see is: `WebSocket connection failure. Due to securi
 Symptom:  you can connect to Neo4j Browser and enter credentials, but fail to connect with a message
 about WebSocket connection failures.
 
-image:https://imgur.com/3Y7NBDg.png[image,width=600]
+image:{assets-cdn}/troubleshooting-connection-issues-3Y7NBDg.png[image,width=600]
 
 Explanation:  this is commonly seen with Firefox and some versions of Internet Explorer, when Neo4j Browser
 is used with an untrusted SSL certificate.  When users click to accept the exception and permit traffic, those

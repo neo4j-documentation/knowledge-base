@@ -13,7 +13,7 @@ To setup Proxy in Neo4j Desktop:
 
 * Click on the Settings as identified by the blue arrow:
 
-image:https://i.imgur.com/QHF2Qqq.png[,width=700]
+image:{assets-cdn}/proxy-setting-for-neo4j-desktop-QHF2Qqq.png[,width=700]
 
 * Click on the `No Proxy` which will open a drop down menu.
 Choose from the following as shown in the image below:
@@ -24,9 +24,9 @@ Local PAC file
 Remote PAC file
 ....
 
-image:https://i.imgur.com/ga9wzQK.png[,width=700]
+image:{assets-cdn}/proxy-setting-for-neo4j-desktop-ga9wzQK.png[,width=700]
 
 * Enter the proxy information and click on `Save`. 
 Example shown with `HTTP` proxy setup in the image below. 
 
-image:https://i.imgur.com/HhV20Py.png[,width=700]
+image:{assets-cdn}/proxy-setting-for-neo4j-desktop-HhV20Py.png[,width=700]

@@ -39,6 +39,6 @@ dbms.security.ldap.authorization.group_to_role_mapping=\
 
 With the following AD setup we successfully authenicate both users Admin User and Support User. They would login with `adminuser` and `supportuser1` respectively:
 
-image:https://i.imgur.com/5Bf1aG3.png[image]
+image:{assets-cdn}/configure-neo4j-multiple-ous-using-active-directory-attribute-samaccountname-5Bf1aG3.png[image]
 
-image:https://i.imgur.com/HDwq9Vi.png[image]
+image:{assets-cdn}/configure-neo4j-multiple-ous-using-active-directory-attribute-samaccountname-HDwq9Vi.png[image]

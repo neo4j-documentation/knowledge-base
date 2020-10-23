@@ -41,9 +41,9 @@ In the above configuration snippets, Prometheus has been installed on the same s
 
 Launching the Prometheus browser at **http://<IP of Prometheus Server>:9090** and clicking the menu option `Status` -> `Targets` should display: 
 
-image:https://imgur.com/aeA6XY3.png[image]
+image:{assets-cdn}/how-to-monitor-neo4j-with-prometheus-aeA6XY3.png[image]
 
 Returning back to the 3rd menu choice of `Graphs` one can define a graph to monitor a Neo4j metric. For example, in the detail below the
 graph represents the number of transactions started (neo4j_transaction_started):
 
-image:https://imgur.com/3tZeFKz.png[image]
+image:{assets-cdn}/how-to-monitor-neo4j-with-prometheus-3tZeFKz.png[image]

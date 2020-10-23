@@ -18,7 +18,7 @@ Imagine the following scenario:
 
 .North & South DCs
 [caption="Figure 1: "]
-image::https://s3.amazonaws.com/support.neotechnology.com/KBs/dcs.png[North & South DCs,50%,50%]
+image::{assets-cdn}/dcs.png[North & South DCs,50%,50%]
 
 Let's say you want to prevent the Read Replica in the South DC to pull updates from the North DC. You could set 
 `causal_clustering.upstream_selection_strategy=user-defined` and have the following strategy configured 

@@ -51,7 +51,7 @@ INFO: Direct driver instance 1540374340 created for server address localhost:768
 
 Use the "!tables" command at the SQL prompt to get a list of tables. Perform a select query to verify the connection:
 
-image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/bi-connector/how-to-use-the-bi-connector-with-sqlline/fetching.png[Fetch Data]
+image::{assets-cdn}/bi-connector/how-to-use-the-bi-connector-with-sqlline/fetching.png[Fetch Data]
 
 == Things to watch out for
 

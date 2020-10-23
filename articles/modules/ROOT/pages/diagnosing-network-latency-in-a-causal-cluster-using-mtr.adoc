@@ -206,7 +206,7 @@ Examples below describe usage on OSX only, but usage on other operating systems 
 sudo mtr <destination domain name or ip>
 ----
 
-image::https://imgur.com/RcjPzMD.png[A simple MTR trace]
+image::{assets-cdn}/a-simple-mtr-trace.png[A simple MTR trace]
 
 If a summary, rather than real-time response updates, is desired, execute:
 
@@ -225,7 +225,7 @@ standard deviation, the greater the difference is between measurements of latenc
 When analyzing MTR output, you are looking for two things: loss and latency. An example test result of `mtr -P 80 -T -w <ip>` 
 is shown below:
 
-image::https://imgur.com/tPfHCEz.png[TCP MTR trace from source port]
+image::{assets-cdn}/tcp-mtr-trace-from-source-port.png[TCP MTR trace from source port]
 
 The question marks `???` appear when there is no additional route information. In the above example, there isn't much information 
 available from hops 9 to 16. When variable loss is reported between hops, it is advised to trust response times from later hops. 
@@ -246,7 +246,7 @@ For a sample 3 core causal cluster with `dbms.connector.bolt.listen_address=:768
 dbms.connector.bolt.listen_address=:7690`, we can test the intra-cluster latency between instances 1 (source) and 2 (destination) as:
 e.g. `sudo mtr -c 5 -T -P 7689 192.168.8.103`:
 
-image::https://imgur.com/3j3mUo0.png[Intra-cluster MTR trace]
+image::{assets-cdn}/intra-cluster-mtr-trace.png[Intra-cluster MTR trace]
 
 - https://www.linode.com/docs/networking/diagnostics/diagnosing-network-issues-with-mtr/
 - https://support.mulesoft.com/s/article/How-to-use-mtr-to-diagnose-packet-loss-problem-with-a-TCP-port

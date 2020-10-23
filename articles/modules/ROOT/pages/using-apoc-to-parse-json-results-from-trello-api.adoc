@@ -21,7 +21,7 @@ token=06128ee9bb10787d6fdee4942c12b5de5f39be11794fcb0604e072e1940475e2
 
 And the goal of the Cypher in this example is to create a Graph Model similar to:
 
-image:http://i.imgur.com/aMp0GUV.png[image]
+image:{assets-cdn}/using-apoc-to-parse-json-results-from-trello-api-aMp0GUV.png[image]
 
 To produce such a data model we are going to interact with the Trello API https://developers.trello.com/advanced-reference/member#get-1-members-idmember-or-username-actions[/1/member/me/actions?filter=createCard] which will return a
 JSON result representing the detail on when cards were created. Additionally, the inclusion of the 'me' value in the URL indicates

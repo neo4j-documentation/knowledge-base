@@ -33,36 +33,36 @@ jdbc:neo4j://10.0.0.50:7687
 
 Using the Tableau Desktop menu, select Server -> Sign In, and you will be presented with the following dialog:
 
-image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/bi-connector/how-to-use-the-bi-connector-with-tableau-server/signin1.png[Tableau Server sign-in URL]
+image::{assets-cdn}/bi-connector/how-to-use-the-bi-connector-with-tableau-server/signin1.png[Tableau Server sign-in URL]
 
 Once you choose a URL, you will be prompted to login to the Tableau server at that URL:
 
-image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/bi-connector/how-to-use-the-bi-connector-with-tableau-server/signin2.png[Tableau Server login page]
+image::{assets-cdn}/bi-connector/how-to-use-the-bi-connector-with-tableau-server/signin2.png[Tableau Server login page]
 
 At this point you can verify you are actually logged in to the Tableau server:
 
-image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/bi-connector/how-to-use-the-bi-connector-with-tableau-server/verify_signin.png[Tableau Server connection verification]
+image::{assets-cdn}/bi-connector/how-to-use-the-bi-connector-with-tableau-server/verify_signin.png[Tableau Server connection verification]
 
 == Publish the datasource
 
 Once connected, you must publish the datasource to the server. On the Tableau Desktop menu, select Server -> Publish Data Source and fill out the form. Notably some of these fields (like "Project") refer to remote resources on the server. The screen should look something like this:
 
-image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/bi-connector/how-to-use-the-bi-connector-with-tableau-server/publish_datasource.png[Publish datasource to Tableau]
+image::{assets-cdn}/bi-connector/how-to-use-the-bi-connector-with-tableau-server/publish_datasource.png[Publish datasource to Tableau]
 
 == Verify the datasource is on the server
 
 Connect to the Tableau Server URL in a web browser, explore the appropriate project, and ensure that that datasource is available. You should see something similar to this:
 
-image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/bi-connector/how-to-use-the-bi-connector-with-tableau-server/verify_project.png[Tableau Project]
+image::{assets-cdn}/bi-connector/how-to-use-the-bi-connector-with-tableau-server/verify_project.png[Tableau Project]
 
 Additionally you can check you can actually query for data at this point:
 
-image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/bi-connector/how-to-use-the-bi-connector-with-tableau-server/verify_query.png[Verify query]
+image::{assets-cdn}/bi-connector/how-to-use-the-bi-connector-with-tableau-server/verify_query.png[Verify query]
 
 == Things to watch out for
 
 * When exploring the project on the server, ensure that you enter the correct authentication details as prompted for (i.e. the Neo4j server as opposed to the Tableau Server credentials). If you see the following error it's a good indication of authentication/credential issues:
 
-image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/bi-connector/how-to-use-the-bi-connector-with-tableau-server/error_state.png[Error]
+image::{assets-cdn}/bi-connector/how-to-use-the-bi-connector-with-tableau-server/error_state.png[Error]
 
 * For performance reasons ensure that the Neo4j server has adequate resources. The driver may "overfetch" data depending on the query, so adequate resources (especially memory) would make a noticeable impact.

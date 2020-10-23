@@ -22,7 +22,7 @@ Command[
 ]
 ....
 
-image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/1574356393567.png[]
+image:{assets-cdn}/1574356393567.png[]
 
 *Image 1 - Storage Engine*
 
@@ -35,11 +35,11 @@ will go to the Record Store Engine which then persists that transaction to disk 
 _applyToStore()_ doesn't necessarily happen together with _appendToLog()_ but rather happens during a checkpoint operation or when a dirty page is flushed from the pagecache.
 ====
 
-image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/1574356466764.png[width=70%]
+image:{assets-cdn}/1574356466764.png[width=70%]
 
 *Image 2 - Transaction Commit Process*
 
-image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/1574356588784.png[width=70%]
+image:{assets-cdn}/1574356588784.png[width=70%]
 
 *Image 3 - Record Storage Engine*
 
@@ -50,7 +50,7 @@ This is the process for a single instance which is fairly simple. Naturally, it 
 For a Causal Cluster, the work will be done on the Leader. Everything in the process is the same, but the Transaction Commit Process
 is intercepted before flushing the transaction to the log:
 
-image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/1574356830851.png[width=70%]
+image:{assets-cdn}/1574356830851.png[width=70%]
 
 *Image 4 - Transaction Commit Process*
 
@@ -65,7 +65,7 @@ replication occurs is the following:
 3. The Leader then gets that message and sends a commit message saying all is ok in both sides and it's safe to commit
 
 
-image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/1574357483281.png[width=70%]
+image:{assets-cdn}/1574357483281.png[width=70%]
 
 *Image 5 - Replication*
 
@@ -86,7 +86,7 @@ After this happens, the Transaction Representation goes through to a queue of Tr
 Transaction State Machine (_applyCommand()_) and this keeps track of the transactions and what order they need to be applied to the 
 store. 
 
-image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/1574357973780.png[width=70%]
+image:{assets-cdn}/1574357973780.png[width=70%]
 
 *Image 6 - Replicated Transaction State Machine*
 

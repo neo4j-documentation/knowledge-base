@@ -36,7 +36,7 @@ During these 200 seconds and via the Neo4j Browser, running
 `call dbms.listTransactions() yield transactionId, startTime, currentQueryId, currentQuery, status`
 will return output similar to
 
-image:https://imgur.com/qbloQCO.png[,width=900]
+image:{assets-cdn}/diagnose-locking-issues-qbloQCO.png[,width=900]
 
 To which from this output we can see that transaction-1381/query-1378 reports its status of Blocked by: [transaction-1380] and to which
 transaction-1380 is also listed in the output and both transactions describe the currentQuery.
@@ -46,6 +46,6 @@ will return output similar to
 
 From the output above we see that query-1377 has a EXCLUSIVE NODE lock on a node with id(n)=8432.
 
-image:https://imgur.com/ElrX7jH.png[,width=900]
+image:{assets-cdn}/diagnose-locking-issues-ElrX7jH.png[,width=900]
 
 With these 2 procedures you have powerful tooling at hand to understand what nodes/relationships might be a source for lock contention.

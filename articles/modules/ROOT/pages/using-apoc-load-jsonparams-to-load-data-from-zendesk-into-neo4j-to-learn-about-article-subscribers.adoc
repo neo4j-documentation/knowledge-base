@@ -95,11 +95,11 @@ $ cat build_zd.cql | bin/cypher-shell
 
 And the resultant graph model is thus defined as:
 
-image:https://imgur.com/Kp38cGv.png[image,width=460]
+image:{assets-cdn}/using-apoc-load-jsonparams-to-load-data-from-zendesk-into-neo4j-to-learn-about-article-subscribers-Kp38cGv.png[image,width=460]
 
 The entire graph thus appears as
 
-image:https://imgur.com/VNJCeBO.png[image,width=460]
+image:{assets-cdn}/using-apoc-load-jsonparams-to-load-data-from-zendesk-into-neo4j-to-learn-about-article-subscribers-VNJCeBO.png[image,width=460]
 
 To which we will see there are 4 Sections (i.e. green nodes/circles) which have no subscribers (i.e the 4 green nodes 
 in the upper left corner).

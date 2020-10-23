@@ -16,13 +16,13 @@ match (n:Person) return count(n), sum ( size( (n)-[]->()));
 
 this will report back
 
-image::https://imgur.com/SMbR6Ll.png[image]
+image::{assets-cdn}/how-do-i-determine-number-of-nodes-and-relationships-effected-by-detach-delete-SMbR6Ll.png[image]
 
 which would indicate that if you are to then run  `match (n:Person) detach delete n;` this will effect 
 
 133 nodes and 253 relationships and as depicted
 
-image::https://imgur.com/acGdh8R.png[image]
+image::{assets-cdn}/how-do-i-determine-number-of-nodes-and-relationships-effected-by-detach-delete-acGdh8R.png[image]
 
 
 In this case the 133 nodes and 253 relationships is not a significantly large number.  

@@ -48,6 +48,7 @@ def stage = project.findProperty('stage')
 asciidoctorj {
     requires "${rootProject.projectDir}/resources/extensions.rb"
     attributes 'allow-uri-read': '',
+            'assets-cdn': 'https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content',
             'linkattrs': '',
             'source-highlighter': 'codemirror',
             'enterprise': '', // publish on support.neo4j.com

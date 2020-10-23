@@ -131,11 +131,11 @@ In the Overview tab, left-click on the largest object(s)
 
 Choose "list objects" > "with outgoing references".
 
-image::https://s3.amazonaws.com/support.neotechnology.com/KBs/heapdump_overview.png[image,role="popup-link"]
+image::{assets-cdn}/heapdump_overview.png[image,role="popup-link"]
 
 It will open a new tab with the list of all the elements.
 
-image::https://s3.amazonaws.com/support.neotechnology.com/KBs/heapdump_expand_outgoing_references.png[image,role="popup-link"]
+image::{assets-cdn}/heapdump_expand_outgoing_references.png[image,role="popup-link"]
 
 Expand the first level then expand everything at the second level.
 
@@ -147,7 +147,7 @@ You might want to filter for the class that contain PreParsed.
 Once found, list their outgoing references to cross check of the one that has the most instances.
 A new tab will open and you will be able to see the rawStatement of the Cypher queries.
 
-image::https://s3.amazonaws.com/support.neotechnology.com/KBs/heapdump_cypher_string.png[image,role="popup-link"]
+image::{assets-cdn}/heapdump_cypher_string.png[image,role="popup-link"]
 
 == Check the thread dumps
 

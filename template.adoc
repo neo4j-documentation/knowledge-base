@@ -90,3 +90,57 @@ IMPORTANT: Don't forget...
 WARNING: Watch out for...
 
 CAUTION: Ensure that...
+
+== Images
+
+A picture is worth a thousand words.
+
+image::{assets-cdn}/shared-lock.png[Shared Lock]
+
+[IMPORTANT]
+Images must be uploaded to https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content.
+The attribute `{assets-cdn}` is configured in both the Antora pipeline, and the Gradle convert tasks.
+
+== List
+
+You can use numbered lists to describe a list of steps:
+
+. Step 1
+. Step 2
+. Step 3
+
+As you can see, you don't need to include an ordinal in front of each list marker.
+
+If you need to add complex content on a step, you will need to use the list continuation symbol (`+`).
+For instance:
+
+. Configure `neo4j.conf`:
++
+First paragraph.
++
+Second paragraph.
++
+[source,shell]
+----
+$ echo "hello word"
+----
++
+Third paragraph:
++
+[source,properties]
+----
+dbms.connector.bolt.enabled=true
+----
+
+. Identify the location of the `java` installation:
++
+[source,shell]
+----
+$ readlink -f $(which java)
+----
+
+. A literal paragraph does not require a list continuation:
+
+ $ ps -ealf | grpe 8080
+
+. Step 4

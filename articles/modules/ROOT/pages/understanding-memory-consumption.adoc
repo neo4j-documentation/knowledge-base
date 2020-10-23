@@ -37,7 +37,7 @@ Below is a picture of how this all falls into place:
 
 .Memory consumption in Neo4j
 [caption="Figure 1: "]
-image::https://s3.amazonaws.com/support.neotechnology.com/KBs/memory_consumption_neo4j.png[Memory consumption in Neo4j,75%,75%]
+image::{assets-cdn}/memory_consumption_neo4j.png[Memory consumption in Neo4j,75%,75%]
 
 As you can see above we can divide the Neo4j's memory consumption into 2 main areas: On-heap and off-heap:
 
