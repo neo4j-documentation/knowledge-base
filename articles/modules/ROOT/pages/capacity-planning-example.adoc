@@ -63,11 +63,11 @@ Here is a back of the napkin example of capacity planning for a Neo4j workload f
 4) Lastly, we estimate we will need about 10 CPU cores(or 20 vCPU cores) to accommodate peak demand of 200 queries/second with a response time of 500ms, among a cluster with 3 cores and 2 RRs(see below):
 
 • Number of concurrent requests per second 200/sec
-• Workload processing time per second=0.50 sec
-• CPU load factor 0.5 ( Assuming CPU's will be 50% busy on average)
-• Number of instance failures to design for f=1
-• Core count = r x w x c = 200 x .5 x .5 = 50
+• Workload/Query processing time (w=0.50 sec)
+• CPU load factor 0.5 ( c=.5 ;  Tha is CPU's will be 50% busy on average)
+• Number of instance failures to design for F=1
+• Core count = r x w / c = 200 x .5 / .5 = 200
 • Cluster size = 3 cores + 2 RR
-• Core count per machine = 50/5= 10 (or 20 vCPU cores)
+• Core count per machine = 200/5 = 40 (or 80 vCPU cores)
 • Estimate:
-** Cluster configuration (5 Instances) x (20 vCPU cores per instance with 100GB of RAM)
+** Cluster configuration (5 Instances) x (80 vCPU cores per instance with 100GB of RAM)
