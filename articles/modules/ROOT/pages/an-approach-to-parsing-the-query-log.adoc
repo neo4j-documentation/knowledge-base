@@ -13,7 +13,7 @@ then the top 10 most expensive queries based upon planning, cpu and waiting time
 
 The bash shell script is as follows:
 
-[source,shell]
+[source,bash]
 ----
 #!/bin/bash
 # Copyright (c) 2002-2018 "Neo Technology,"
@@ -79,8 +79,7 @@ Upon running the script and passing the query.log file to be analyzed, for examp
 
 1. when `dbms.logs.query.time_logging_enabled=false`
 +
-[source,shell]
-----
+....
 First Query Reported at: 2018-04-10 11:48:36.425+0000
  Last Query Reported at: 2018-04-10 11:49:01.213+0000
 
@@ -99,14 +98,14 @@ line:3  2018-04-10 11:48:43.839+0000 INFO  33 ms: bolt-session  bolt            
 line:9  2018-04-10 11:49:01.213+0000 INFO  21 ms: bolt-session  bolt            neo4j-java/dev          client/127.0.0.1:35796  server/127.0.0.1:7687>   -
 line:4  2018-04-10 11:48:47.494+0000 INFO  12 ms: bolt-session  bolt            neo4j-java/dev          client/127.0.0.1:35796  server/127.0.0.1:7687>   -
 line:6  2018-04-10 11:48:51.613+0000 INFO  9 ms: bolt-session   bolt            neo4j-java/dev          client/127.0.0.1:35796  server/127.0.0.1:7687>   -
-----
+....
 
 2. when `dbms.logs.query.time_logging_enabled=true`
 +
-(*Note:* the listing of 10 queries per section has been reduced to 2 lines for brevity.  Additonally the Cypher of the query has been reduced)
+(*Note:* the listing of 10 queries per section has been reduced to 2 lines for brevity.
+Additonally the Cypher of the query has been reduced)
 +
-[source,shell]
-----
+....
 First Query Reported at: 2018-01-24 07:58:13.360+0000
  Last Query Reported at: 2018-01-24 15:19:40.897+0000
 
@@ -146,26 +145,26 @@ Number of Queries NOT Waiting: 13654      99.9927%
 
 line:81         2018-01-24 07:58:33.168+0000 INFO  67 ms: (planning: 0, cpu: 67, waiting: 27) - bolt-session    bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.27:49536        server/10.0.1.2:7687>        neo4j -  MATCH (n:Person) return n:Deleted
 line:9991       2018-01-24 08:40:16.476+0000 INFO  74 ms: (planning: 0, cpu: 74, waiting: 0) - bolt-session     bolt    neo4j   neo4j-java/1.4.2-45c2930bc28fac23dda088b300977b804fedf8bb              client/10.21.21.27:49536        server/10.0.1.2:7687>        neo4j -  MATCH (n:Person..............)
-----
+....
 
 From the output of the 2nd run we see that the log spans `First Query Reported at: 2018-01-24 07:58:13.360+0000` through
 `Last Query Reported at: 2018-01-24 15:19:40.897+0000`.  
 The script then reports that we found `Total # of Completed Queries: 13655` and then provide a listing of the Top 10 most expensive 
 queries based upon Total/Avg Exection time, Total/Avg Time Planning, Total/Avg Time CPU and Total/Avg Time Waiting.   
-Additionally from the output we can see that 'query planning' is not a significant issue as 
+Additionally, from the output we can see that 'query planning' is not a significant issue as
 `Number of Queries NOT Planned: 11448    83.8374%` indicating 83.8374% of queries were satisfied from the query plan cache.
 Finally, 'locking' is not a concern as `Number of Queries NOT Waiting: 13654      99.9927%` 
 indicating 99.9927% of all queries spent no time in a 'waiting' state.   
 
-*Note:* There are certain 'caveats' to the script.
+NOTE: There are certain 'caveats' to the script.
 
-* The above script will report the line number of the query in the log file for those queries that meet any of the 'Top 10'
-results.   However if a query is multi-line including carriage returns, only the first line of the query is displayed.   One would
-need to read the query.log at the spcific line number to fully understand the query in question.
+* The above script will report the line number of the query in the log file for those queries that meet any of the 'Top 10' results.
+However if a query is multi-line including carriage returns, only the first line of the query is displayed.
+One would need to read the query.log at the spcific line number to fully understand the query in question.
 
-* Times reported can be inflated if run against a query.log which is immediately after a cold start of Neo4j.   This is as a result of
-queries not being in the query plan cache or the pagecache.
+* Times reported can be inflated if run against a query.log which is immediately after a cold start of Neo4j.
+This is as a result of queries not being in the query plan cache or the pagecache.
 
-* One can configure query.log logging to only log queries longer than X duration through parameter `dbms.logs.query.threshold`.   If
-you set to 0 then everything is logged.   If you set to 2s then only queries longer than 2 seconds will be logged and this will 
-effect the results above.
+* One can configure query.log logging to only log queries longer than X duration through parameter `dbms.logs.query.threshold`.
+If you set to 0 then everything is logged.
+If you set to 2s then only queries longer than 2 seconds will be logged and this will effect the results above.

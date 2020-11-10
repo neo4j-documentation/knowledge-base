@@ -27,7 +27,7 @@ Keep in mind the following regarding GC logging:
 
 As indicated in the product documentation in https://neo4j.com/docs/operations-manual/3.5/reference/configuration-settings/#config_dbms.logs.gc.enabled[3.5] or https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.logs.gc.enabled[newer], you can uncomment the following line to enable it:
 
-[source,conf]
+[source,properties]
 ----
 #dbms.logs.gc.enabled=true
 ----

@@ -47,7 +47,7 @@ This will enable the usage of rsyslog with any file you define.
 
 [NOTE]
 ====
-Also make sure the following line is not commented: `$IncludeConfig /etc/rsyslog.d/*.conf`. We will need this for the next step.
+Also, make sure the following line is not commented: `$IncludeConfig /etc/rsyslog.d/*.conf`. We will need this for the next step.
 ====
 
 === 4. Create neo4j.conf file
@@ -55,7 +55,7 @@ We are now going to create the configuration file that enables the redirection f
 
 Create a new file on `/etc/rsyslog.d` (ie: neo4j_debug.conf), edit it and add the following to the file (I will use as example the debug.log of version 3.0.7):
 
-[source,conf]
+[source,plaintext]
 ----
 $InputFileName /neo/neo4j-enterprise-3.0.7/logs/debug.log
 $InputFileTag neo4j_debug
@@ -71,7 +71,7 @@ $InputFilePersistStateInterval 1000
 === 5. Restart rsyslog
 Everything is now configured and we just need to restart rsyslog service:
 
-`service rsyslog restart`
+ $ service rsyslog restart
 
 === 6. Check the results
 If everything was successful, we should have Neo4j's debug.log now being replayed in the sysout file. You can verify this by verifying the sysout file itself (`/var/log/syslog`).

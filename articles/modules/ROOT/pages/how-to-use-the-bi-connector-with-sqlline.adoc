@@ -17,9 +17,9 @@ Build the SQLLine package from source:
 
 [source,shell]
 ----
-git clone https://github.com/julianhyde/sqlline.git
-cd sqlline
-mvn package
+$ git clone https://github.com/julianhyde/sqlline.git
+$ cd sqlline
+$ mvn package
 ----
 
 SQLLine comes with a shell script that knows how to launch it correctly. But before we run it directly, make sure that we have our Neo4j BI Connector JAR file in the right place. In this example, we’ll assume it’s in the SQLLine target folder (where the source build placed its JAR files) because that way it will automatically be on the classpath.
@@ -28,7 +28,7 @@ SQLLine comes with a shell script that knows how to launch it correctly. But bef
 
 Set the environment variables for connection:
 
-[source,shell]
+[source,bash]
 ----
 export URL="jdbc:neo4j://localhost:7687"
 export DRIVER=com.simba.neo4j.jdbc.Driver
@@ -51,7 +51,7 @@ INFO: Direct driver instance 1540374340 created for server address localhost:768
 
 Use the "!tables" command at the SQL prompt to get a list of tables. Perform a select query to verify the connection:
 
-image::https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/bi-connector/how-to-use-the-bi-connector-with-sqlline/fetching.png[Fetch Data]
+image::{assets-cdn}/bi-connector/how-to-use-the-bi-connector-with-sqlline/fetching.png[Fetch Data]
 
 == Things to watch out for
 

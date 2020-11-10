@@ -6,10 +6,10 @@
 :category: import-export
 
 The following document describes how to utilize the https://developer.zendesk.com/rest_api/docs/core/introduction[Zendesk API]
-to load data from Zendesk into Neo4j, specifically data about users who have choosen to subscribe/follow Knowledge 
+to load data from Zendesk into Neo4j, specifically data about users who have chosen to subscribe/follow Knowledge
 Base section(s).  This document attempts to solve the issue described by the following questions from Zendesk
-https://support.zendesk.com/hc/en-us/community/posts/205399517-Followers-of-a-section-or-article-[ 
-Question & Answers].  Although the Zendesk UI allows users to subscribe/follow a Knowledge Section it does not provide an equivalent
+https://support.zendesk.com/hc/en-us/community/posts/205399517-Followers-of-a-section-or-article-[Question & Answers].
+Although the Zendesk UI allows users to subscribe/follow a Knowledge Section it does not provide an equivalent
 UI for a Zendesk Administrator to see what users are subscribed to each section.
 
 The Cypher below, will create supporting indexes and then iterate overr every section, request all the user_ids with said section, 
@@ -49,8 +49,7 @@ CALL apoc.load.jsonParams("https://your_domain.zendesk.com/api/v2/help_center/se
                      n.created_at=uid.created_at,
                      n.last_login=uid.last_login_at,
                      n.url=uid.url;
-					 
-					 
+
 match (n:User) where exists(n.organization_id)
       with n,n.organization_id as organization_id
       CALL apoc.load.jsonParams("https://your_domain.zendesk.com/api/v2/organizations/"+organization_id+".json",{Authorization:"Basic base64Encoded_username:password"},null)
@@ -76,33 +75,31 @@ admin interface at Admin > Channels > API.
 Finally, per the Zendesk https://developer.zendesk.com/rest_api/docs/core/introduction#pagination[API], if you expect to have more 
 than 100 results per API call you will need to consider Pagination.
 
-----
-Pagination
-By default, most list endpoints return a maximum of 100 records per page. You can change the number
-of records on a per-request basis by passing a per_page parameter in the request URL parameters. 
-Example: per_page=50. However, you can't exceed 100 records per page on most endpoints.
+> Pagination
+> By default, most list endpoints return a maximum of 100 records per page. You can change the number
+> of records on a per-request basis by passing a per_page parameter in the request URL parameters.
+> Example: per_page=50. However, you can't exceed 100 records per page on most endpoints.
 
-When the response exceeds the per-page maximum, you can paginate through the records by
-incrementing the page parameter. 
-Example: page=3. List results include next_page and previous_page URLs in the response
-body for easier navigation:
-----
+> When the response exceeds the per-page maximum, you can paginate through the records by
+> incrementing the page parameter.
+> Example: page=3. List results include next_page and previous_page URLs in the response
+> body for easier navigation:
 
 Copying the above Cypher into a shell script file, for example build_zd.cql, will then allow for it to be run through
 https://neo4j.com/docs/operations-manual/3.4/tools/cypher-shell/[cypher-shell] by running
 
 [source,shell]
 ----
-cat build_zd.cql | bin/cypher-shell
+$ cat build_zd.cql | bin/cypher-shell
 ----
 
-And the resultant graph model is thus defined as
+And the resultant graph model is thus defined as:
 
-image:https://imgur.com/Kp38cGv.png[image,width=460]
+image:{assets-cdn}/using-apoc-load-jsonparams-to-load-data-from-zendesk-into-neo4j-to-learn-about-article-subscribers-Kp38cGv.png[image,width=460]
 
 The entire graph thus appears as
 
-image:https://imgur.com/VNJCeBO.png[image,width=460]
+image:{assets-cdn}/using-apoc-load-jsonparams-to-load-data-from-zendesk-into-neo4j-to-learn-about-article-subscribers-VNJCeBO.png[image,width=460]
 
 To which we will see there are 4 Sections (i.e. green nodes/circles) which have no subscribers (i.e the 4 green nodes 
 in the upper left corner).
@@ -111,7 +108,8 @@ Additionally some subscribers/users have choosen to follow multiple sections.
 
 Each Node is defined with the following properties
 
-----
+[subs=+quotes]
+....
 *User:* 
         name
         email
@@ -122,16 +120,18 @@ Each Node is defined with the following properties
         orgainization_id
         id
         
-*Section:*  name
+*Section:*
+            name
             url
             created_at
             updated_at
             id
          
-*Organization:*  name
+*Organization:*
+                 name
                  created_at
                  id
-----
+....
 
  
 Useful Cypher statements to query the graph
@@ -156,7 +156,7 @@ return      s.name,
             u.email,
             o.name,
             u.suspended,
-	    r.subscribed_on as DateWhenSubscribed
+            r.subscribed_on as DateWhenSubscribed
 order by    s.name,
             o.name,
             u.name

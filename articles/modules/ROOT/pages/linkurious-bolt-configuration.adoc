@@ -9,34 +9,35 @@ Default Linkurious configuration contains the following snippet in the `producti
 
 [source,json]
 ----
-dataSources": [
-  {
-   "readOnly": false,
-   "graphdb": {
-    "vendor": "neo4j",
-    "url": "http://127.0.0.1:7474",
-    "user": null,
-    "password": null
-   },
-   "index": {
-    "vendor": "elasticSearch",
-    "host": "127.0.0.1",
-    "port": 9201,
-    "forceReindex": false,
-    "dynamicMapping": false,
-    "skipEdgeIndexation": false
-   }
-  }
- ],
+{
+  "dataSources": [{
+    "readOnly": false,
+    "graphdb": {
+      "vendor": "neo4j",
+      "url": "http://127.0.0.1:7474",
+      "user": null,
+      "password": null
+    },
+    "index": {
+      "vendor": "elasticSearch",
+      "host": "127.0.0.1",
+      "port": 9201,
+      "forceReindex": false,
+      "dynamicMapping": false,
+      "skipEdgeIndexation": false
+    }
+  }]
+}
 ----
 
 With the documentation stating the following:
 
-----
+....
 Linkurious can connect to Neo4j via the Bolt protocol. To do so, you need to enable the protocol in your Neo4j configuration file. If Linkurious is connected over HTTP/S, it will try to automatically upgrade the connection to Bolt. The HTTP/S protocol is still required to perform a small subset of operations.
-----
+....
 
-Where the URL can be set to http/https/bolt/bolt+routing.   However, using the above configuration can run into issues with respect to writes in a cluster environment.
+Where the URL can be set to http/https/bolt/bolt+routing.
+However, using the above configuration can run into issues with respect to writes in a cluster environment.
 
 In general, writes are generated when:
 
@@ -77,6 +78,5 @@ The configuration will then look like:
 
 Where:
 
-full-cluster : is whatever point to any active node in the cluster. If you put a single server, in case of failure of that server the system won’t be able to connect to the cluster. In this case it is recommended to put here an always active component that never return an offline server (e.g. load balancer, reverse proxy with backup server configuration, dns alias with a pull of active servers, etc…)
-
-core-server : should follow the same recommendations above with the only difference that this components should never return a Replica Server, should link only the subset of Core servers
+full-cluster:: is whatever point to any active node in the cluster. If you put a single server, in case of failure of that server the system won’t be able to connect to the cluster. In this case it is recommended to put here an always active component that never return an offline server (e.g. load balancer, reverse proxy with backup server configuration, dns alias with a pull of active servers, etc…)
+core-server:: should follow the same recommendations above with the only difference that this components should never return a Replica Server, should link only the subset of Core servers

@@ -9,11 +9,11 @@ This page describes common issues users may encounter when running Neo4j Desktop
 
 == Error: The SUID sandbox helper binary was found, but is not configured correctly.
 
-----
+....
 The SUID sandbox helper binary was found, but is not configured correctly.
 Rather than run without sandboxing I'm aborting now. 
 You need to make sure that /tmp/.mount_neo4j-0qHCJ1/chrome-sandbox is owned by root and has mode 4755.
-----
+....
 
 === Explanation
 
@@ -32,17 +32,17 @@ this command to enable the kernel feature Electron is using:
 
 [source,shell]
 ----
-sysctl kernel.unprivileged_userns_clone=1
+$ sysctl kernel.unprivileged_userns_clone=1
 ----
 
 == Error: The name org.freedesktop.secrets was not provided by any .service files
 
-----
+....
 App initialization error: Error: The name org.freedesktop.secrets was not provided by any .service files {
   constructor: 'Error',
   stack: 'Error: The name org.freedesktop.secrets was not provided by any .service files'
 }
-----
+....
 
 === Explanation:
 
@@ -57,9 +57,9 @@ Update to the latest Neo4j Desktop or install and enable `gnome-keyring`.
 
 == Error: spawn keyctl ENOENT
 
-----
+....
 Error: spawn keyctl ENOENT
-----
+....
 
 === Explanation
 
@@ -70,7 +70,6 @@ This utility is included in the core packages of most distributions, but if you 
 === Solution
 
 Install the `keyutils` or `gnome-keyring`.
-
 
 == Error: Neo4j Desktop is not showing in the applications menu.
 

@@ -37,7 +37,6 @@ $ apt-cache madison neo4j
      neo4j |    1:3.4.2 | https://debian.neo4j.org/repo stable/ Packages
      neo4j |    1:3.4.1 | https://debian.neo4j.org/repo stable/ Packages
      neo4j |    1:3.4.0 | https://debian.neo4j.org/repo stable/ Packages
-
 ----
 
 Choose from the available packages, and decide whether you want Enterprise or Community.

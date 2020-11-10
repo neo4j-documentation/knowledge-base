@@ -9,7 +9,6 @@ This document provides a list of ports which generate an error when browsing via
 as they're reserved for the services listed below and are therefore considered unsafe for other services to be hosted/accessible as these are the most commonly attempted ports for dos attacks etc. If used, neo4j would appear unreachable via chrome if customers set connector address ports (dbms.connector.http.listen_address=:7474 or dbms.connector.bolt.listen_address=:7687) to one of these. Note that the list is non-exhaustive and is subject to alteration over time.
 
 .Restricted Ports on Chrome and corresponding services
-
 |===
 |Port Number |Service Name 
 |1
@@ -207,9 +206,10 @@ as they're reserved for the services listed below and are therefore considered u
 
 
 References:
-https://src.chromium.org/viewvc/chrome/trunk/src/net/base/net_util.cc?view=markup#l68
-https://superuser.com/questions/188058/which-ports-are-considered-unsafe-on-chrome
-http://e1tips.com/2014/03/17/allow-firefox-chrome-to-access-restricted-ports/
+
+- https://src.chromium.org/viewvc/chrome/trunk/src/net/base/net_util.cc?view=markup#l68
+- https://superuser.com/questions/188058/which-ports-are-considered-unsafe-on-chrome
+- http://e1tips.com/2014/03/17/allow-firefox-chrome-to-access-restricted-ports/
 
 The following useful chrome extension (Open Port Check Tool) can be used to determine the current status of a port to check port status of an IP address and scan open ports on that connection. The tool can also be used to determine whether port forwarding is setup correctly or if the server applications are blocked or not by a firewall.
 

@@ -7,18 +7,18 @@
 
 If one encounters a 'Too many open files' error in their $NEO4J_HOME/logs/debug.log similar to
 
-----
+....
 Caused by: java.nio.file.FileSystemException: /data/neo4j/db/schema/index/lucene_native-2.0/1612/lucene-1.0: Too many open files
     at sun.nio.fs.UnixException.translateToIOException(UnixException.java:91)
     at sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:102)
     at sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:107)
     at sun.nio.fs.UnixFileSystemProvider.newDirectoryStream(UnixFileSystemProvider.java:427)
     at java.nio.file.Files.newDirectoryStream(Files.java:457)
-----
+....
 
 this can be addressed by setting in your $NEO4J_HOME/conf/neo4j.conf and parameter
 
-[source,conf]
+[source,properties]
 ----
 dbms.jvm.additional=-Dorg.neo4j.io.pagecache.implSingleFilePageSwapper.channelStripePower=0
 ----

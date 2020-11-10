@@ -5,14 +5,15 @@
 :category: operations
 :tags: http, authentication, rest, security
 :neo4j-versions: 3.4
+:experimental:
 
 This article will show examples of how to test the Neo4j REST API for
 authentication via:
 
 * http://chromerestclient.appspot.com/[Google Chrome Advanced REST Client]
-* Linux *curl* command
+* Linux `curl` command
 
-The http://neo4j.com/docs/stable/rest-api.html[Neo4j REST API] describes each of the commands you can submit to the Neo4j server.
+The http://neo4j.com/docs/stable/rest-api.html[Neo4j REST API] describes each of the commands you can submit to the Neo4j server.
 The example below describes how to authenticate with the Neo4j server when authentication is enabled.
 To enable authentication, use parameter `dbms.security.auth_enabled=true` defined in the `conf/neo4j-server.properties` configuration file.
 
@@ -20,38 +21,37 @@ To enable authentication, use parameter `dbms.security.auth_enabled=true` define
 
 After installing and launching the http://chromerestclient.appspot.com/[Google Chrome Advanced REST Client] application, your browser should appear as follows:
 
-image:http://imgur.com/qq4KTt1.png[image]
+image:{assets-cdn}/a-lightweight-approach-to-testing-the-neo4j-rest-api-with-authentication-qq4KTt1.png[image]
 
-For the field labeled `URL`, this should be replaced with the URL to the Neo4j server, for example, `http://localhost:7474/user/neo4j`.
+For the field labeled `URL`, this should be replaced with the URL to the Neo4j server, for example, `http://localhost:7474/user/neo4j`.
 
 [NOTE]
 ====
-For your instance, `localhost` may be an actual IP address, for example, `http://192.168.1.106:7474/user/neo4j`.
+For your instance, `localhost` may be an actual IP address, for example, `http://192.168.1.106:7474/user/neo4j`.
 ====
 
-Per the http://neo4j.com/docs/stable/rest-api-security.html[documentation], `/user/neo4j` is the URI to which authentication occurs.
+Per the http://neo4j.com/docs/stable/rest-api-security.html[documentation], `/user/neo4j` is the URI to which authentication occurs.
 Additionally, the HTTP method should be defined as `GET`.
 
-Upon clicking the Form tab, you can define the payload for the REST request.
+Upon clicking the Form tab, you can define the payload for the REST request.
 Define the `Name` field as `Authorization`.
 Click the `value` field and you should see a `CONSTRUCT` pop-up, for example:
 
-image:http://imgur.com/Zl1Bciq.png[image]
+image:{assets-cdn}/a-lightweight-approach-to-testing-the-neo4j-rest-api-with-authentication-Zl1Bciq.png[image]
 
-Clicking `CONSTRUCT` will then allow you to define the payload for this
-request. 
-Specifically, we need to define the username/password, for example, `neo4j`/`mypassword`. 
+Clicking `CONSTRUCT` will then allow you to define the payload for this request.
+Specifically, we need to define the username/password, for example, `neo4j`/`mypassword`.
 
-image:http://imgur.com/9wnIEUs.png[image]
+image:{assets-cdn}/a-lightweight-approach-to-testing-the-neo4j-rest-api-with-authentication-9wnIEUs.png[image]
 
-Clicking *[OK]* should then return you back to a display similar to
+Clicking btn:[OK] should then return you back to a display similar to:
 
-image:http://imgur.com/D5ut2II.png[image]
+image:{assets-cdn}/a-lightweight-approach-to-testing-the-neo4j-rest-api-with-authentication-D5ut2II.png[image]
 
-Finally, clicking **[SEND]** will submit the request.
+Finally, clicking btn:[SEND] will submit the request.
 You should see output similar to the following:
 
-image:http://imgur.com/cFIYTQW.png[image]
+image:{assets-cdn}/a-lightweight-approach-to-testing-the-neo4j-rest-api-with-authentication-cFIYTQW.png[image]
 
 The output above including Status: `200 OK` indicates the request was properly processed.
 A status of `4xx` would be indicative of a failure.
@@ -59,12 +59,11 @@ Further, the Response field details the JSON output provided by the REST API for
 
 == Linux curl command
 
-On a single line (command line) issue the following command at the linux
-prompt:
+On a single line (command line) issue the following command at the linux prompt:
 
 [source,shell]
 ----
-curl -H accept:application/json -H content-type:application/json -H Authorization:"Basic bmVvNGo6cGFzc3dvcmQ=" http://192.168.1.106:7474/user/neo4j
+$ curl -H accept:application/json -H content-type:application/json -H Authorization:"Basic bmVvNGo6cGFzc3dvcmQ=" http://192.168.1.106:7474/user/neo4j
 ----
 
 Expected output:
@@ -79,12 +78,12 @@ Expected output:
 ----
 
 In the above example you may need to change the value of the IP address referenced in the http specification (i.e. `http://192.168.1.106:7474/user/neo4j`).
-Additionally you will need to change the base64 encrypted value of the password (i.e. `Basic bmVvNGo6cGFzc3dvcmQ=`).
-To encrypt a string to base64 you can run:
+Additionally, you will need to change the base64 encrypted value of the password (i.e. `Basic bmVvNGo6cGFzc3dvcmQ=`).
+To encrypt a string to base64 you can run:
 
 [source,shell]
 ----
-echo -n 'neo4j:mypassword' | base64
+$ echo -n 'neo4j:mypassword' | base64
 ----
 
 Replace `mypassword` above with the actual password.

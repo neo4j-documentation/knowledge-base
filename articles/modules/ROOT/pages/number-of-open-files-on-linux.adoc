@@ -46,7 +46,7 @@ This will produce output similar to
 
 [source,shell]
 ----
-cat /proc/5219/limits
+$ cat /proc/5219/limits
 Limit                     Soft Limit           Hard Limit           Units
 Max cpu time              unlimited            unlimited            seconds
 Max file size             unlimited            unlimited            bytes
@@ -62,7 +62,9 @@ Max open files            40000                40000                files
 
 Neo4j will report the current setting for number of file descriptors in the `debug.log` as following:
 
-`2019-01-02 13:39:27.003+0000 INFO [o.n.i.d.DiagnosticsManager] Max number of file descriptors: 10000`
+....
+2019-01-02 13:39:27.003+0000 INFO [o.n.i.d.DiagnosticsManager] Max number of file descriptors: 10000
+....
 
 The usual default is 1024 and is often not enough. We recommend setting this to 40000 to ensure Neo4j works correctly.
 
@@ -107,7 +109,7 @@ run the following command
 
 and append the following 
 
-[source,plaintext]
+[source,ini]
 ----
 [Service]
 LimitNOFILE=60000
@@ -126,7 +128,7 @@ run the following command
 
 and uncomment and define DefaultLimitNOFILE
 
-[source,conf]
+[source,ini]
 ----
 [Manager]
 ...
@@ -142,10 +144,10 @@ run the following command
 
 and uncomment and define LimitNOFILE 
 
-[source,conf]
+[source,ini]
 ----
 [Manager]
-...
+#...
 DefaultLimitNOFILE=60000
 ----
 
@@ -155,7 +157,7 @@ The actual way to raise your file limits consists of editing three files:
 
 - */etc/security/limits.conf* needs to have these lines in it:
 
-[source,conf]
+[source,plaintext]
 ----
 neo4j  soft  nofile  40000
 neo4j  hard  nofile  40000
@@ -194,5 +196,4 @@ For example: if you encounter the issue with 40000, try to increase it to 80000 
 For more information, refer to:
 
 . http://0pointer.de/blog/projects/why.html[why systemd has replaced sysvinitd]
-
 . https://en.wikipedia.org/wiki/Systemd[Systemd wikipedia article]

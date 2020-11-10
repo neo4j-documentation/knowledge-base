@@ -13,11 +13,11 @@ specifications, but is likely in the thousands.
 If you find an exception of the type `java.lang.OutOfMemoryError: unable to create new native thread` in the debug.log or neo4j.log on the 
 Neo4j server, this is almost certainly a result of clients not properly closing sessions within your application code.
 
-----
+....
 2017-12-14 00:00:35.710+0000 ERROR [o.n.b.t.SocketTransportHandler] Fatal error occurred when handling a client connection: unable to 
 create new native thread unable to create new native thread
 java.lang.OutOfMemoryError: unable to create new native thread
-----
+....
 
 The remedy for this is to examine your application code for anywhere that you are creating Session objects, and verify that they follow the 
 guidance from the documentation. For example, if you are using the Neo4j Java Driver, use _try-with-resources_:

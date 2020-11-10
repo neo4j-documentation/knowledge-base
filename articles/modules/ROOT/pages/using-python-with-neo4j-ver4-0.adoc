@@ -14,7 +14,7 @@ The v4 Python driver will not be available until the end of the first quarter of
 
 The most important thing to remember is that you have to disable encrypted traffic, when using 1.7.x generation drivers against 4.0.x database.
 
-Here is how you do it -
+Here is how you do it:
 
 [source,python]
 ----
@@ -45,9 +45,9 @@ For more details on the **Driver** object, please refer to the following link -
 
 https://neo4j.com/docs/api/python-driver/current/driver.html#encrypted
 
-As expected the result of the above code would be -
+As expected the result of the above code would be:
 
-----
+....
 The Matrix Revolutions
 The Matrix Reloaded
 Something's Gotta Give
@@ -55,4 +55,4 @@ The Devil's Advocate
 The Replacements
 Johnny Mnemonic
 The Matrix
-----
+....

@@ -13,7 +13,6 @@ https://neo4j.com/docs/operations-manual/current/installation/requirements/#depl
 
 We will review some of the available GCs and their main features.
 
-
 == G1
 
 This is the default GC algorithm since Java 9. This is the one used for internal testing and used by default in neo4j.
@@ -27,13 +26,12 @@ It is currently not available in Oracle JDK.
 
 It allows you to have pauseless GCs (<10 ms) but at the expense of an higher CPU usage (20% additional CPU runtime usage).
 
-
 WARNING: Please note that we do NOT test those algorithms therefore we will NOT be able to emit a recommendation.
 Customers are free to test it on a lower environment and choose the one that suits them the best.
 
 You can enable it by commenting the default `dbms.jvm.additional=-XX:+UseG1GC` and adding `dbms.jvm.additional=-XX:+UseShenandoahGC` in neo4j.conf 
 
-[source,conf]
+[source,properties]
 ----
 #dbms.jvm.additional=-XX:+UseG1GC
 dbms.jvm.additional=-XX:+UseShenandoahGC

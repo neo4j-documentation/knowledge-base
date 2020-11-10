@@ -16,16 +16,16 @@ You can execute the following maven command in the folder where you have the pom
 [source,shell]
 ----
 # resolve dependency in the local repository (by default in ~/.m2/)
-mvn dependency:resolve
+$ mvn dependency:resolve
 
 # displays the dependencies as a tree
-mvn dependency:tree
+$ mvn dependency:tree
 
-#purge local repo and resolve dependencies
-mvn dependency:purge-local-repository
+# purge local repo and resolve dependencies
+$ mvn dependency:purge-local-repository
 
 # perform integration tests
-mvn verify
+$ mvn verify
 ----
 
 == In version 3.5, only 3 artifacts are required even if you are running unit tests: 
@@ -35,30 +35,33 @@ For Enterprise, your pom.xml should contains:
 .pom.xml
 [source,xml]
 ----
-<properties>
-	<neo4j.version>3.5.6</neo4j.version>
-</properties>
-
-<dependencies>
-		<dependency>
-			<groupId>com.neo4j</groupId>
-			<artifactId>neo4j-enterprise</artifactId>
-			<version>${neo4j.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.neo4j.driver</groupId>
-			<artifactId>neo4j-java-driver</artifactId>
-			<version>${neo4j-java-driver.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.neo4j.test</groupId>
-			<artifactId>neo4j-harness-enterprise</artifactId>
-			<version>${neo4j.version}</version>
-			<scope>test</scope>
-		</dependency>
- <dependencies>
+<project>
+  <!-- .... -->
+  <properties>
+    <neo4j.version>3.5.6</neo4j.version>
+  </properties>
+  <dependencies>
+    <dependency>
+       <groupId>com.neo4j</groupId>
+       <artifactId>neo4j-enterprise</artifactId>
+       <version>${neo4j.version}</version>
+       <scope>provided</scope>
+    </dependency>
+    <dependency>
+       <groupId>org.neo4j.driver</groupId>
+       <artifactId>neo4j-java-driver</artifactId>
+       <version>${neo4j-java-driver.version}</version>
+       <scope>test</scope>
+    </dependency>
+    <dependency>
+       <groupId>com.neo4j.test</groupId>
+       <artifactId>neo4j-harness-enterprise</artifactId>
+       <version>${neo4j.version}</version>
+       <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <!-- ... -->
+</project>
 ----
 
 For Community Edition, your pom.xml should contains:
@@ -66,31 +69,34 @@ For Community Edition, your pom.xml should contains:
 .pom.xml
 [source,xml]
 ----
- <properties>
-	<neo4j.version>3.5.6</neo4j.version>
-</properties>
- <dependencies>
-		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>neo4j</artifactId>
-			<version>${neo4j.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.neo4j.driver</groupId>
-			<artifactId>neo4j-java-driver</artifactId>
-			<version>${neo4j-java-driver.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.neo4j.test</groupId>
-			<artifactId>neo4j-harness-enterprise</artifactId>
-			<version>${neo4j.version}</version>
-			<scope>test</scope>
-		</dependency>
- <dependencies>
+<project>
+  <!-- ... -->
+  <properties>
+    <neo4j.version>3.5.6</neo4j.version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j</artifactId>
+      <version>${neo4j.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.neo4j.driver</groupId>
+      <artifactId>neo4j-java-driver</artifactId>
+      <version>${neo4j-java-driver.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.neo4j.test</groupId>
+      <artifactId>neo4j-harness-enterprise</artifactId>
+      <version>${neo4j.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <!-- ... -->
+</project>
 ----
-
 
 == Resolving dependencies using a private sonatype nexus configured as a mirror repository
 
@@ -98,11 +104,9 @@ This is the preferred approach.
 It allows you to stay up to date and automatically fetch the updates.
 To do that, you need to login into nexus as an admin or reach out to your nexus adminstrator and ensure that the repositories are available and healthy.
 
-
 - For community edition, you need to add one repository:
 
 `org.neo4j:neo4j`, the public maven repo url is https://repo.maven.apache.org/maven2/
-
 
 - For enterprise, you need to add the two below repositories:
 
@@ -110,9 +114,7 @@ To do that, you need to login into nexus as an admin or reach out to your nexus 
 
 `org.neo4j:neo4j` (available on public repo https://repo.maven.apache.org/maven2/)
 
-
-
-The naming convention is groupId:artifactId. For example: `org.neo4j:neo4j` is actually groupid=org.neo4j AND artifactId=neo4j 
+The naming convention is groupId:artifactId. For example: `org.neo4j:neo4j` is actually groupid=org.neo4j AND artifactId=neo4j
 
 == Resolving dependencies using a private sonatype nexus configured as a hosted repository
 
@@ -128,11 +130,10 @@ Please keep in mind that neo4j requires more than 70-200 artifacts depending on 
 
 [source,shell]
 ----
-mvn dependency:tree
+$ mvn dependency:tree
 ----
 
 If something you spot differences, browse your nexus repository with a web browser and check the signature of the .pom file.
-
 
 == Resolving dependencies using a local folder (Internet required)
 
@@ -156,18 +157,17 @@ mvn dependency:go-offline -Dmaven.repo.local=./remoterepo
 .pom.xml
 [source,xml]
 ----
-    <repositories>
-        <repository>
-            <id>neo4j</id>
-            <url>file://</url>
-            <!-- ie <url>file:///home/neo4j/maven/remoterepo</url> -->
-        </repository>
-        <repository>
-            <id>neo4j-enterprise</id>
-            <url>file://</url>
-            <!-- ie <url>file:///home/neo4j/maven/remoterepoenterprise</url> -->
-        </repository>
-    </repositories>
-    
+<repositories>
+  <repository>
+    <id>neo4j</id>
+    <url>file://</url>
+    <!-- ie <url>file:///home/neo4j/maven/remoterepo</url> -->
+  </repository>
+  <repository>
+    <id>neo4j-enterprise</id>
+    <url>file://</url>
+    <!-- ie <url>file:///home/neo4j/maven/remoterepoenterprise</url> -->
+  </repository>
+</repositories>
 ----
 

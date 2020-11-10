@@ -30,22 +30,26 @@ Verify the index was created by running the following command:
 [source,cypher]
 ----
 call db.index.explicit.list
+----
 
 Outputs:
+....
 ╒══════╤════════════╤════════════════════════════════════╕
 │"type"│"name"      │"config"                            │
 ╞══════╪════════════╪════════════════════════════════════╡
 │"NODE"│"MovieTitle"│{"type":"exact","provider":"lucene"}│
 └──────┴────────────┴────────────────────────────────────┘
-----
+....
 
 Run the query to find the names of the movies starting with `The`:
 
 [source,cypher]
 ----
 call db.index.explicit.searchNodes('MovieTitle','title:The*')
+----
 
 Outputs:
+....
 ╒════════════════════════════════════════════════════════════════════════════════════════════════════════════╤════════╕
 │"node"                                                                                                      │"weight"│
 ╞════════════════════════════════════════════════════════════════════════════════════════════════════════════╪════════╡
@@ -67,7 +71,7 @@ Outputs:
 ├────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────┤
 │{"title":"The Birdcage","tagline":"Come as you are","released":1996}                                        │1.0     │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────┴────────┘
-----
+....
 
 If more data is added associated to that index it does not automatically update the nodes to the index. Those additional nodes needs to be added to the index as follows:
 

@@ -13,7 +13,7 @@ If the given process is running on a 64-bit VM, you may need to specify the -J-d
 
 [source,shell]
 ----
-jmap -J-d64 -heap <pid>
+$ jmap -J-d64 -heap <pid>
 ----
 
 To get a list of Java processes running on a machine, use the `jps` or `jcmd` commands.
@@ -26,7 +26,7 @@ When no option is used jmap prints shared object mappings. An example of whats n
 
 [source,shell]
 ----
-jmap -dump:[live,]format=b,file=<filename>.bin <pid>
+$ jmap -dump:[live,]format=b,file=<filename>.bin <pid>
 ----
 
 The above will dump the Java heap in binary format to filename. If the optional `live` suboption is used, live objects 
@@ -46,9 +46,9 @@ We can use the jhat command to parse a java heap dump file and launch a webserve
 The default port is 7000, but we can change this by using the `-port` option 
 
 Syntax:
-[source,shell]
+[source,shell,role=nocopy]
 ----
-jhat [ options ] <heap-dump-file>
+$ jhat [ options ] <heap-dump-file>
 ----
 
 e.g.
@@ -61,7 +61,7 @@ We can also use the `jconsole` tool to view cpu, memory and heap utilisation in 
 
 [source,shell]
 ----
-jconsole [ options ] [ connection ... ]
+$ jconsole [ options ] [ connection ... ]
 ----
 
 e.g. 
@@ -72,6 +72,6 @@ where -interval=n determines the report refresh interval in seconds, <pid> is th
 
 References:
 
-https://docs.oracle.com/javase/7/docs/technotes/tools/share/jmap.html
-https://docs.oracle.com/javase/7/docs/technotes/tools/share/jhat.html
-https://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html
+- https://docs.oracle.com/javase/7/docs/technotes/tools/share/jmap.html
+- https://docs.oracle.com/javase/7/docs/technotes/tools/share/jhat.html
+- https://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html

@@ -27,9 +27,9 @@ CREATE (n:Person) set n.date_enrolled='2019-02-26T01:23:40Z'
 
 in this case the property date_enrolled is recorded as a string and represents 2019-02-26 at time 01:23:40 UTC
 
-and the above `MATCH` statement will return
+and the above `MATCH` statement will return:
 
-----
+....
 n.date_enrolled       | EST
 "2019-02-26T01:23:40Z"│"2019-02-25T20:23:40[America/New_York]"     
-----
+....

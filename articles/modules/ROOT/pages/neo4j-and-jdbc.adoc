@@ -30,7 +30,7 @@ The BI Connector supports Neo4j version 3.5 forward.
 
 == The Neo4j JDBC Driver
 
-The link:https://github.com/neo4j-contrib/neo4j-jdbc[Neo4j JDBC] project is an Apache 2.0 licensed open source project that is run as part of Neo4j Labs.  Community
+The https://github.com/neo4j-contrib/neo4j-jdbc[Neo4j JDBC] project is an Apache 2.0 licensed open source project that is run as part of Neo4j Labs.  Community
 support via Neo4j's usual channels is available.
 
 It provides a JDBC-compatible interface for executing Cypher queries against a Neo4j instance and fetching results.  

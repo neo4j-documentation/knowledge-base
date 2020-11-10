@@ -22,14 +22,12 @@ public Response getFofs(@PathParam("userId") String userId, @Context GraphDataba
 
 [source,java]
 ----
-       // Method variables
-
+        // Method variables
         try (Transaction tx = db.beginTx()) {
-           	// Get the user node
+            // Get the user node
             final Node user = db.findNode(Labels.Person, "userId");
             // Let's write that to neo4j.log!
             log.info("Found user node: " + user.toString());
-            
             // Code to find fofs, and build result set formatted
         }
 
@@ -42,7 +40,7 @@ public Response getFofs(@PathParam("userId") String userId, @Context GraphDataba
 
 We get a log that contains lines like this:
 
-----
+....
 2016-12-05 17:33:21.223+0000 INFO  Found user node: Node[63564]
 2016-12-05 17:33:21.345+0000 DEBUG  We are all done!
-----
+....

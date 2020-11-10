@@ -12,7 +12,7 @@ escaped to be imported otherwise one might encounter the error
 *neo4j-admin import error*
 [source,shell]
 ----
-./neo4j-admin import --database=hr.db --nodes:Staff hr.csv
+$ ./neo4j-admin import --database=hr.db --nodes:Staff hr.csv
 Neo4j version: 3.3.0
 Importing the contents of these files into /home/neo4j/neo4j-enterprise-3.3.0/data/databases/hr.db:
 Nodes:
@@ -42,8 +42,11 @@ Caused by:ERROR in input
 [source,cypher]
 ----
 LOAD CSV WITH HEADERS FROM "file:///hr.csv" AS row FIELDTERMINATOR ','  CREATE (n:Staff { staffid: toInt(row.id), staff_name: row.name});
-At /home/neo4j/neo4j-enterprise-3.3.0/import/hr.csv:2 -  there's a field starting with a quote and whereas it ends that quote there seems to be characters in that field after that ending quote. That isn't supported. This is what I read: 'Bill"'
 ----
+
+....
+At /home/neo4j/neo4j-enterprise-3.3.0/import/hr.csv:2 -  there's a field starting with a quote and whereas it ends that quote there seems to be characters in that field after that ending quote. That isn't supported. This is what I read: 'Bill"'
+....
 
 For the above case my hr.csv is defined as 
 
@@ -68,7 +71,7 @@ id:int,name:string,supervisor:int
 
 The data will then successfully import as evidence
 
-[source,shell]
+[source,cypher-shell]
 ----
 neo4j> match (n) return n;
 +-----------------------------------------------------------------+

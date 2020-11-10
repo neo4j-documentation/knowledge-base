@@ -24,7 +24,7 @@ Neo4j Desktop supports using activation keys for a few features:
 
 - registering Neo4j Desktop itself, as a manual alternative to the Social Sign-in registration
 - activating Graph-Apps: Neo4j Bloom, Neo4j ETL
-- activatinng some experimental features
+- activating some experimental features
 
 Business rules for keys in Neo4j Desktop:
 

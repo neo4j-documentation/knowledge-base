@@ -85,5 +85,4 @@ docker run --name=core23 --detach --network=cluster2 \
     --env=NEO4J_dbms_connector_bolt_advertised__address=localhost:19687 \
     --env=NEO4J_AUTH=none \
     neo4j:3.3-enterprise
-
 ----

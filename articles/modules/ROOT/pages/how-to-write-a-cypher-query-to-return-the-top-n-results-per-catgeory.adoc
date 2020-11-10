@@ -25,7 +25,7 @@ create (n:Score {student_id: 'AH042', score: 61, field_of_study: 'economics'});
 create (n:Score {student_id: 'RV448', score: 59, field_of_study: 'economics'});
 ----
 
-running
+running:
 
 [source,cypher]
 ----
@@ -36,13 +36,13 @@ return class,student[0..5]
 order by class
 ----
 
-will return output of
+will return output of:
 
-----
+....
 class               student[0..5]
-chemistry	    [MK812(97), DC001(89), SA743(84), JT909(77), EH331(68)]
-economics	    [DC001(91), AE034(89), BB317(82), TP810(77), JF623(74)]
-----
+chemistry       [MK812(97), DC001(89), SA743(84), JT909(77), EH331(68)]
+economics       [DC001(91), AE034(89), BB317(82), TP810(77), JF623(74)]
+....
 
 and in the above the students score has been appended to their student_id value by way of the reference `'('+ n.score +')'`.
 
@@ -59,7 +59,7 @@ order by class
 
 will produce the same output but the Top 5 students will be listed in a map of author and score: and thus
 
-----
+....
 ╒═══════════╤══════════════════════════════╕
 │"class"    │"student[0..5]"               │
 ╞═══════════╪══════════════════════════════╡
@@ -79,4 +79,4 @@ will produce the same output but the Top 5 students will be listed in a map of a
 │           │dent_id":"JF623","score":"74"}│
 │           │]                             │
 └───────────┴──────────────────────────────┘
-----
+....

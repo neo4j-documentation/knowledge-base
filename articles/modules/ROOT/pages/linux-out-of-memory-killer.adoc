@@ -35,9 +35,9 @@ You can check the `oom_score` of a process by looking at `/proc/$PID/oom_score`.
 While we can't truly prevent Neo4j from being killed if needed, we can adjust the `oom_score` to make its process less likely to be
 terminated by the OOM Killer. To do this, you can edit the following file:
 
-----
+....
 /proc/$PID/oom_score_adj
-----
+....
 
 [NOTE]
 ====
@@ -45,7 +45,7 @@ Files in /proc are not actual files, they're an interface to lower-levels of the
 
 [source,shell]
 ----
-echo -100 > /proc/$PID/oom_score_adj
+$echo -100 > /proc/$PID/oom_score_adj
 ----
 ====
 

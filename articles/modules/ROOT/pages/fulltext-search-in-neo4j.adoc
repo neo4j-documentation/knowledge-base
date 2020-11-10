@@ -8,8 +8,7 @@
 
 [NOTE]
 Please note that in Neo4j 3.5 fulltext search is available in Neo4j as part of Cypher stored procedures.
-More documentation is found here:
-https://neo4j.com/docs/cypher-manual/3.5/schema/index/#schema-index-fulltext-search.
+More documentation can be found here: https://neo4j.com/docs/cypher-manual/3.5/schema/index/#schema-index-fulltext-search.
 
 Fulltext search in Neo4j is supported by means of fulltext schema indexes.
 Fulltext schema indexes are created, dropped, and updated transactionally, and are automatically replicated throughout a cluster.
@@ -21,7 +20,7 @@ We can create a fulltext index on nodes with label `:Movie` or `:Book` that have
 We give it the name `titlesAndDescriptions`.
 
 .Query
-[source, cypher]
+[source,cypher]
 ----
 CALL db.index.fulltext.createNodeIndex("titlesAndDescriptions",["Movie", "Book"],["title", "description", "review"])
 ----
@@ -29,7 +28,7 @@ CALL db.index.fulltext.createNodeIndex("titlesAndDescriptions",["Movie", "Book"]
 Let's see what results we get from the following query:
 
 .Query
-[source, cypher]
+[source,cypher]
 ----
 CALL db.index.fulltext.queryNodes("titlesAndDescriptions", "Full Metal Jacket") YIELD node, score
 RETURN node.title, node.review, score
@@ -55,12 +54,11 @@ What if we wish to only get results that match the search string entered?
 When we put 'Full Metal Jacket' in quotes, we get only exact matches:
 
 .Query
-[source, cypher]
+[source,cypher]
 ----
 CALL db.index.fulltext.queryNodes("titlesAndDescriptions", "'Full Metal Jacket'") YIELD node, score
 RETURN node.title, score
 ----
-
 
 .Result
 [role="queryresult",options="header",cols="2*<m"]
@@ -72,7 +70,7 @@ RETURN node.title, score
 We can also use logical operators, such as `AND` and `OR`, to search for terms:
 
 .Query
-[source, cypher]
+[source,cypher]
 ----
 CALL db.index.fulltext.queryNodes("titlesAndDescriptions", 'full AND metal') YIELD node, score
 RETURN node.title, score
@@ -90,7 +88,7 @@ Only the "Full Metal Jacket" movie in our database has both the words "full" and
 It is also possible to search for only specific properties, by putting the property name and a colon in front of the text being searched for:
 
 .Query
-[source, cypher]
+[source,cypher]
 ----
 CALL db.index.fulltext.queryNodes("titlesAndDescriptions", 'description:"surreal adventure"') YIELD node, score
 RETURN node.title, node.description, score

@@ -8,8 +8,9 @@
 
 When using `neo4j-admin load` for loading a .dump file, following error is observerd:
 
+[source,shell]
 ----
-neo4j-admin load --from=/var/lib/neo4j/neo4j.dump --database=neo4j --force --verbose 
+$ neo4j-admin load --from=/var/lib/neo4j/neo4j.dump --database=neo4j --force --verbose
 org.neo4j.cli.CommandFailedException: Not a valid Neo4j archive: /
 Caused by: org.neo4j.dbms.archive.IncorrectFormat: /var/lib/neo4j/neo4j.dump
 at org.neo4j.dbms.archive.Loader.openArchiveIn(Loader.java:172)
@@ -19,8 +20,8 @@ at org.neo4j.commandline.dbms.LoadCommand.load(LoadCommand.java:131)
 Caused by: java.util.zip.ZipException: Not in GZIP format
 ----
 
-Sometimes this has nothing to do with the formatting of the .dump file as indicate by **Not in GZIP format**, 
-but an OS setting interferring with a Java System property.
+Sometimes this has nothing to do with the formatting of the .dump file as indicate by *Not in GZIP format*,
+but an OS setting interfering with a Java System property.
 
 Java uses the System property `java.io.tmpdir` and on most Linux flavor machines this usually defaults to `/tmp`.
 The location is a directory used by the JVM to create and store temporary files.

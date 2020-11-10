@@ -52,14 +52,14 @@ NOTE 1: Neo4j will automatically determine whether to run a full or incremental 
 
 If a full backup is desired, the script can be modified to comment out the following line in the script as shown:
 
-[source,shell]
+[source,bash]
 ----
 #bname=graph.db-backup #POSSIBLY CHANGE ME, USED FOR INCREMENTAL BACKUPS
 ----
 
 And uncomment the following line in the script as shown:
 
-[source,shell]
+[source,bash]
 ----
 bname=graph.db-backup-$timestamp #POSSIBLY CHANGE ME, USED FOR FULL BACKUPS
 ----

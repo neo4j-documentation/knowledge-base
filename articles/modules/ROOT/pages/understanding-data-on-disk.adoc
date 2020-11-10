@@ -14,7 +14,7 @@ Neo4j database files are persisted to storage for long term durability. Data rel
 
 Since Neo4j is a schema-less database, we use fixed record lengths to persist data and follow offsets in these files to know how to fetch data to answer queries. The following table illustrates the fixed sizes Neo4j uses for the type of Java objects being stored:
 
-----
+....
 Store File                        | Record size   | Contents
 ----------------------------------------------------------------------------------------------------------------------------
 neostore.nodestore.db             | 15 B          | Nodes
@@ -23,7 +23,7 @@ neostore.propertystore.db         | 41 B          | Properties for nodes and rel
 neostore.propertystore.db.strings | 128 B         | Values of string properties
 neostore.propertystore.db.arrays  | 128 B         | Values of array properties
 Indexed Property                  | 1/3 * AVG(X)  | Each index entry is approximately 1/3 of the average property value size
-----
+....
 
 .Some considerations about properties:
 * The property record has a payload of 32bytes, which is divided into four 8B blocks. Each field can hold either a key or a value, or both a key and a value.
@@ -46,7 +46,6 @@ A basic example disk space calculation could be something like:
 ====
 For the sake of simplicity, we assume a 1:1 property to property record ratio meaning one single property will always be 41B. Obviously, as per the considerations above, this may not be as trivial in real life scenarios.
 ====
-
 
 .Scenario #1 - Initial status
 * Node count: 4M nodes
@@ -79,7 +78,6 @@ For the sake of simplicity, we assume a 1:1 property to property record ratio me
 * Indexes: 4448MB * ~33% = 1468MB
 * TOTAL: **5916MB**
 
-{nbsp} +
 {nbsp} +
 
 You can take these values to have an idea of what to expect regarding disk size and growth.

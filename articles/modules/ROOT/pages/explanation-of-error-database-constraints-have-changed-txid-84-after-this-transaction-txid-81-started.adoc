@@ -7,21 +7,19 @@
 
 The following error, via `bin/neo4j-shell`:
 
-[source,shell]
-----
+....
 Database constraints have changed (txId=84) after this transaction (txId=81) started, which is not yet supported. Please retry your transaction to ensure all constraints are executed.
-----
+....
 
 or as logged in `log/debug.log` (3.x) or `graph.db/messages.log` (2.3.x):
 
-[source,shell]
-----
+....
 2016-10-18 16:40:43.595+0000 ERROR [o.n.s.r.t.TransactionFacade]: Failed to commit transaction. 
 java.lang.RuntimeException: org.neo4j.kernel.api.exceptions.TransactionFailureException: Database constraints have changed (txId=81) after this transaction 
 (txId=84) started, which is not yet supported. Please retry your transaction to ensure all constraints are executed. 
 at org.neo4j.server.rest.transactional.TransitionalTxManagementKernelTransaction.commit(TransitionalTxManagementKernelTransaction.java:87) ~[neo4j-server-2.2.8.jar:2.2.8] 
 at org.neo4j.server.rest.transactional.TransactionHandle.closeContextAndCollectErrors(TransactionHandle.java:278) [neo4j-server-2.2.8.jar:2.2.8] 
-----
+....
 
 can be explained by the following scenario:   
 

@@ -23,7 +23,6 @@ For the following examples, we'll use a very simplistic graph of :Student, :Clas
 (:Student)-[:ENROLLED_IN]->(:Class)
 (:Student)-[:EARNED]->(:ReportCard)
 (:Class)-[:FOR_TERM]->(:Term)
-
 ----
 
 == A MERGE without bound variables can create duplicate elements
@@ -115,7 +114,6 @@ MATCH (student:Student{id:123})
 MATCH (class:Class{name:'Cypher101'})-[:FOR_TERM]->(spring:Term{name:'Spring2017'})
 MERGE (student)-[:ENROLLED_IN]->(class)
 ----
-
 
 === Use ON MERGE and ON CREATE after MERGE to SET properties according to MERGE behavior
 

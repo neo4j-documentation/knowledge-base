@@ -9,35 +9,35 @@
 Cypher Favorites are common Cypher statements which one can save to the left panel of the Neo4j browser.
 A Favorite is created by entering the Cypher at the top prompt and then clicking the Favorite icon to the right as depicted:
 
-image:http://imgur.com/lXx25UL.png[image]
+image:{assets-cdn}/how-do-i-export-cypher-favorites-recorded-in-the-browser-lXx25UL.png[image]
 
-After clicking on the Favorite Icon, the title of the Cypher statement (in this case 'my favorite Cypher') will be added to the left panel of the browser.
+After clicking on the Favorite Icon, the title of the Cypher statement (in this case 'my favorite Cypher') will be added to the left panel of the browser.
 For example:
 
-image:http://imgur.com/isB2JKw.png[image]
+image:{assets-cdn}/how-do-i-export-cypher-favorites-recorded-in-the-browser-isB2JKw.png[image]
 
 These favorites are stored in local browser storage and as such are centric to the user/browser who has recorded those favorites.
 Additionally, if one clears their browser cache, recorded favorites will be removed.
- 
-To export favorites, use the Developer Console of Google Chrome and connect to the Neo4j browser URL.
+
+To export favorites, use the Developer Console of Google Chrome and connect to the Neo4j browser URL.
 
 1. Launch Google Chrome and connect to the Neo4j browser on http://localhost:7474
 
-2. Access the Developer Console, https://developer.chrome.com/devtools/docs/console within Google Chrome 
-* Use the keyboard shortcut kbd:[Command + Option + J] (Mac) or kbd:[Control+ Shift + J] (Windows/Linux).
+2. Access the Developer Console, https://developer.chrome.com/devtools/docs/console within Google Chrome
+* Use the keyboard shortcut kbd:[Command + Option + J] (Mac) or kbd:[Control+ Shift + J] (Windows/Linux).
 
-3. Enter the following in the Developer Console and hit return
+3. Enter the following in the Developer Console and hit return:
 +
 [source,javascript]
 ----
-var res = JSON.parse(localStorage.getItem('neo4j.documents')) 
+var res = JSON.parse(localStorage.getItem('neo4j.documents'))
 for (x in res) {
   console.log(res[x]['content'])
 }
 ----
- 
+
 4. Your output should be similar to the following, which lists the statements to recreate your Favorites
 +
-image:http://imgur.com/N7vlucN.png[image]
+image:{assets-cdn}/how-do-i-export-cypher-favorites-recorded-in-the-browser-N7vlucN.png[image]
 
 

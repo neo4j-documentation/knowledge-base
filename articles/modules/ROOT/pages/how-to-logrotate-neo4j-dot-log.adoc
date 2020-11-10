@@ -13,7 +13,7 @@ Neo4j will not be able to write to that file anymore after a rotation.
 You can use "copytruncate" in your logrotate configuration file.
 
 .Example Logrotate Configuration
-[source,bash]
+[source,logrotate]
 ----
 /usr/local/neo4j/logs/neo4j.log {
 	su neo4j neo4j
@@ -26,9 +26,7 @@ You can use "copytruncate" in your logrotate configuration file.
 }
 ----
 
-Note :
-
-There is a very small time slice between copying the file and truncating it, so
+NOTE: There is a very small time slice between copying the file and truncating it, so
 some logging data might be lost. When this option is used, the create option will
 have no effect, as the old log file stays in place.
 

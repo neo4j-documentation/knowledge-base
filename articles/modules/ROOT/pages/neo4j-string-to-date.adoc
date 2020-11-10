@@ -32,12 +32,11 @@ RETURN date("04/06/2019") AS date
 
 Executing this query will return the following result:
 
-[source,text]
-----
+....
 Text cannot be parsed to a Date
 "04/06/2019"
  ^
-----
+....
 
 One way we can solve this problem is by manually parsing our string into its different components using the https://neo4j.com/docs/cypher-manual/3.5/functions/string/#functions-split[`split`^] function.
 We can then create a date from those components:

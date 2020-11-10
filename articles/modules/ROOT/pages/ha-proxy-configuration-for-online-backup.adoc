@@ -23,15 +23,15 @@ work for you.
 The sample configuration below defines a front-end where the backup utility will connect to the running database, and a set of instances 
 to check whether they are a slave currently. We assume that online backup is enabled in the `conf/neo4j.conf` file as follows:
 
-[source,conf]
+[source,properties]
 ----
-online_backup_enabled=true 
+online_backup_enabled=true
 online_backup_server=0.0.0.0:6362
 ----
 
 The haproxy.cfg file for Causal Clustering backup from a Follower would look like this:
 
-[source,conf]
+[source,haproxy]
 ----
 defaults
   mode http
@@ -63,16 +63,15 @@ backend cores-backup
 
 To backup from a read-replica, replace the `option httpchk` line with:
 
-[source,shell]
-----
+....
 option httpchk GET /db/manage/server/read-replica/available HTTP/1.0
-----
+....
 
 == HA: Directing online backup to a slave
 
 The haproxy.cfg file for HA mode would look like this:
 
-[source,conf]
+[source,haproxy]
 ----
 defaults
   mode http

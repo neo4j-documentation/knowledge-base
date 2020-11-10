@@ -7,18 +7,18 @@
 
 If one has installed the https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html[AWS CLI] 
 
-To download a file from a S3 bucket anonymously run
+To download a file from a S3 bucket anonymously run:
 
 [source,shell]
 ----
-aws s3 cp s3://<AWS instance name>/<bucket_Name>/<file> <file> --no-sign-request
+$ aws s3 cp s3://<AWS instance name>/<bucket_Name>/<file> <file> --no-sign-request
 ----
 
-and/or to upload to a Neo4j S3 buck anonymously run
+and/or to upload to a Neo4j S3 buck anonymously run:
 
 [source,shell]
 ----
-aws s3 cp <file> s3://<AWS Instance name>/<file> --acl=bucket-owner-full-control --no-sign-request
+$ aws s3 cp <file> s3://<AWS Instance name>/<file> --acl=bucket-owner-full-control --no-sign-request
 ----
 
 replacing <AWS Instance name> with the name of the AWS S3 instance, <file> with the name of the file on your server, and <bucket_Name> 

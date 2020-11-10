@@ -12,10 +12,9 @@ One of which is a policy which prevents containers within a Pod to be executed/r
 If this config is set, but the Pod definition for your K8S cluster does override `securityContext>runAsUser` value 
 then upon trying to have neo4j container(s) started you will see an error along the lines of:
 
-[source,shell]
-----
+....
 Error: container has runAsNonRoot and image will run as root
-----
+....
 
 To resolve this issue, make sure that in your K8S' cluster Pod definition, you have something similar to the following:
 
@@ -28,7 +27,7 @@ metadata:
 spec:
   securityContext:
     runAsUser: 1000
-....
+# ....
 ----
 
 `runAsUser` is the UID used to run the entrypoint of the container process, in this case Neo4j's. The value is a high number

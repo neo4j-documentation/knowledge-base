@@ -53,7 +53,7 @@ call dbms.queryJmx("org.neo4j:instance=kernel#0,name=Causal Clustering") yield a
 
 To which this will generate output similar to
 
-----
+....
 +------------------------------------------------------------------------------------+
 | type             | row                                  | attributes[row]["value"] |
 +------------------------------------------------------------------------------------+
@@ -74,4 +74,4 @@ To which this will generate output similar to
 | "PageCache"      | "Pins"                               | 126                      |
 | "PageCache"      | "FileMappings"                       | 93                       |
 ...
-----
+....

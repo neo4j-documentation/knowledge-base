@@ -15,9 +15,9 @@ It is possible and supported to send temporal objects using one of our Neo4j dri
 The Neo4j drivers export nearly all of the supported Cypher data types, including temporal types. This means that you can send an object of parameters containing strings, numbers, dates/times, and mixed value types back and forth between the database and applications.
 
 [NOTE]
---
+====
 For a full list of the supported Cypher types in the Neo4j drivers, check out the documentation page on the https://neo4j.com/docs/driver-manual/current/cypher-values/#driver-neo4j-type-system[Cypher type system^].
---
+====
 
 Let us look at an example using the JavaScript driver.
 

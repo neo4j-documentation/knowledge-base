@@ -70,15 +70,15 @@ Be aware that this `WITH` import has some special restrictions that do not norma
 
 If you try any of these, you will be met with some kind of error, such as:
 
-----
+....
 Importing WITH should consist only of simple references to outside variables. Aliasing or expressions are not supported.
-----
+....
 
 or more cryptically, if you try to use a `WHERE` clause after the initial `WITH`
 
-----
+....
 Variable `x` not defined
-----
+....
 
 (where the variable is the first one present in the `WITH` clause)
 

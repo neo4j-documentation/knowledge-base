@@ -9,7 +9,7 @@ Via the browser one can enter `:sysinfo` to display data about the Neo4j system.
 https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/[causal cluster], the bottom-right corner of the 
 `:sysinfo' output will display the members in the cluster as depicted below:
 
-image:http://imgur.com/EiNevmO.png[image]
+image:{assets-cdn}/how-do-i-display-a-hostname-rather-than-ip-address-in-causal-clustering-members-section-of-sysinfo-EiNevmO.png[image]
 
 Each of the addresses are presented as hyperlinks.
 
@@ -17,7 +17,7 @@ If you want to replace the IP addresses with hostnames, this can be achieved by 
 
 For example if you define this setting as follows:
 
-[source,conf]
+[source,properties]
 ----
 # The address at which this server can be reached by its clients. This may be the server's IP address or DNS name, or
 # it may be the address of a reverse proxy which sits in front of the server. This setting may be overridden for
@@ -27,4 +27,4 @@ dbms.connectors.default_advertised_address=neo4j-CoreEdge
 
 then upon restart of Neo4j, re-running `:sysinfo` in the browser will now yield:
 
-image:http://imgur.com/WsaTCIG.png[image]
+image:{assets-cdn}/how-do-i-display-a-hostname-rather-than-ip-address-in-causal-clustering-members-section-of-sysinfo-WsaTCIG.png[image]

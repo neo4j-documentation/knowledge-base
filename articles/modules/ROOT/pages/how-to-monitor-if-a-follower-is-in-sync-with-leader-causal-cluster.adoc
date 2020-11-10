@@ -47,7 +47,7 @@ You can do this using curl if you prefer:
 
 [source,shell]
 ----
-curl -v http://localhost:7474/db/manage/server/jmx/domain/org.neo4j/instance%3Dkernel%230%2Cname%3DTransactions
+$ curl -v http://localhost:7474/db/manage/server/jmx/domain/org.neo4j/instance%3Dkernel%230%2Cname%3DTransactions
 ----
 
 [NOTE]

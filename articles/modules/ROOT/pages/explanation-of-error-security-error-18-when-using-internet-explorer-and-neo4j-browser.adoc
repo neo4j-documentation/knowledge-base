@@ -5,15 +5,17 @@
 :tags: internet-explorer,browser
 :category: browser
 
-When connecting to the Neo4j Browser `http://localhost:7474` and using Internet Explorer 11, submission of `cypher` statements may result
-in error message 
+When connecting to the Neo4j Browser `http://localhost:7474` and using Internet Explorer 11,
+submission of `cypher` statements may result in error message:
 
-`Security Error: 18`
+....
+Security Error: 18
+....
 
 As the Neo4j Browser is using websockets to connect , for example ws://localhost, you would need to add ws:\\localhost\ to 
 Internet Explorer configurations ( Internet Options / Security / Local Intranet / Sites / Advanced) and as depicted.
 
-image:https://imgur.com/31PGY3D.png[image]
+image:{assets-cdn}/explanation-of-error-security-error-18-when-using-internet-explorer-and-neo4j-browser-31PGY3D.png[image]
 
 To access the Internet Explorer configuration click the gears icon in the upper right corner of the browser.
 

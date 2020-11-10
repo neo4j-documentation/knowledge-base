@@ -16,9 +16,9 @@ When looking for Full GC messages, pay special attention to the details of the m
 
 If you see something like:
 
-----
+....
 2019-05-02 17:53:16.622+0100 WARN [o.n.k.i.c.VmPauseMonitorComponent] Detected VM stop-the-world pause: {pauseTime=566, gcTime=596, gcCount=1}
-----
+....
 
 In this case you are likely looking at a situation where the application code is invoking a full garbage collection cycle, whether or not it is needed.
 It is recommended to allow the JVM to make decisions on how and when to run garbage collection.

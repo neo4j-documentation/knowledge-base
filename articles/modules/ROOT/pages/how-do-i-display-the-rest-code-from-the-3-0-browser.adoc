@@ -7,17 +7,17 @@
 
 In Neo4j 3.0 and its implementation of the Bolt protocol, requests submitted via the browser (http://localhost:7474) are submitted using Bolt.
 From the results frame, on the bottom left, you can click on the `</> Code` icon to see the response submission.
-Below is a depiction when Bolt is enabled
+Below is a depiction when Bolt is enabled:
 
-image:http://i.imgur.com/9ueZrr0.png[width="600"]
+image:{assets-cdn}/how-do-i-display-the-rest-code-from-the-3-0-browser-9ueZrr0.png[width="600"]
 
 To revert to a REST API request you need to disable Bolt via the "gears" icon in the bottom left of the browser.
 Upon clicking the "gears" icon, you would then need to uncheck the checkbox for the field *Use Bolt protocol when available* (shown below):
 
-image:http://i.imgur.com/3RlQmCW.png[width="300"]
+image:{assets-cdn}/how-do-i-display-the-rest-code-from-the-3-0-browser-3RlQmCW.png[width="300"]
 
 With Bolt disabled, the Cypher results frame `</> Code` icon will now display as follows:
 
-image:http://i.imgur.com/cC3ooLb.png[width="600"]
+image:{assets-cdn}/how-do-i-display-the-rest-code-from-the-3-0-browser-cC3ooLb.png[width="600"]
 
 

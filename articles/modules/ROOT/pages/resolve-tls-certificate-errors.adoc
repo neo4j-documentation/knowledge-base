@@ -22,14 +22,14 @@ The command below should return the certificate without prompting for any passwo
 
 [source,shell]
 ----
-openssl rsa -in private.key -check 
+$ openssl rsa -in private.key -check
 ----
 
 You can remove the passphrase with:
 
 [source,shell]
 ----
-openssl rsa -in private.key -out private_key_without_passphrase.key
+$ openssl rsa -in private.key -out private_key_without_passphrase.key
 ----
 
 == The folder "certificates/<POLICY_NAME>/trusted" can only contains valid certificates in DER format
@@ -37,7 +37,7 @@ openssl rsa -in private.key -out private_key_without_passphrase.key
 If you come across `signed overrun` errors.
 You might want to review each file including hidden ones in the trusted/revoked folder.
 
-----
+....
 2019-10-24 15:17:36.595+0200 ERROR Failed to start Neo4j: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@6f36c2f0' was successfully initialized, but failed to start. Please see the attached cause exception "signed overrun, bytes = 918". Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@6f36c2f0' was successfully initialized, but failed to start. Please see the attached cause exception "signed overrun, bytes = 918".
 org.neo4j.server.ServerStartupException: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@6f36c2f0' was successfully initialized, but failed to start. Please see the attached cause exception "signed overrun, bytes = 918".
 at org.neo4j.server.exception.ServerStartupErrors.translateToServerStartupError(ServerStartupErrors.java:45)
@@ -74,7 +74,7 @@ at java.security.cert.CertificateFactory.generateCertificate(CertificateFactory.
 at org.neo4j.kernel.configuration.ssl.SslPolicyLoader.createTrustManagerFactory(SslPolicyLoader.java:358)
 ... 15 more
 2019-10-24 15:17:36.597+0200 INFO Neo4j Server shutdown initiated by request
-----
+....
 
 == Self-signed certificate
 
@@ -82,7 +82,7 @@ You can generate a key and a public certificate with the following command.
 
 [source,shell]
 ----
-openssl req -x509 -newkey rsa:2048 -keyout private_key.pem -out public_cert.pem -days 30
+$ openssl req -x509 -newkey rsa:2048 -keyout private_key.pem -out public_cert.pem -days 30
 ----
 
 You need to set the `dbms.ssl.policy.<policyname>.trust_all=true in neo4j.conf. 

@@ -16,16 +16,16 @@ For example, when your file, mycypher.cql, contains
 profile match (n:Movies) return count(n);
 ----
 
-if you run
+if you run:
 
 [source,shell]
 ----
-cat mycypher.cql | ./cypher-shell
+$ cat mycypher.cql | ./cypher-shell
 ----
 
 the output will be
 
-----
+....
 Plan: "PROFILE"
 Statement: "READ_ONLY"
 Version: "CYPHER 3.2"
@@ -36,18 +36,18 @@ DbHits: 0
 Rows: 1
 count(n)
 0
-----
+....
 
-however when running
+However, when running:
 
 [source,shell]
 ----
-cat mycypher.cql | ./cypher-shell --format verbose
+$ cat mycypher.cql | ./cypher-shell --format verbose
 ----
 
-the output will now be
+the output will now be:
 
-----
+....
 +--------------------------------------------------------------------------------------+
 | Plan      | Statement   | Version      | Planner | Runtime    | Time | DbHits | Rows |
 +--------------------------------------------------------------------------------------+
@@ -67,4 +67,4 @@ the output will now be
 +----------+
 | 0        |
 +----------+
-----
+....

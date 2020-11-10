@@ -34,16 +34,16 @@ In the above example the reference to `count(n.prop) + count(r.prop)` is used so
 ----
 @GET @Path("/warmup")
 public String warmUp(@Context GraphDatabaseService db) {
-    try ( Transaction tx = db.beginTx()) {
-        for ( Node n : GlobalGraphOperations.at(db).getAllNodes()) {
-            n.getPropertyKeys();
-            for ( Relationship relationship : n.getRelationships()) {
-                relationship.getPropertyKeys();
-                relationship.getStartNode();
-            }
-        }
+  try ( Transaction tx = db.beginTx()) {
+    for ( Node n : GlobalGraphOperations.at(db).getAllNodes()) {
+      n.getPropertyKeys();
+      for ( Relationship relationship : n.getRelationships()) {
+        relationship.getPropertyKeys();
+        relationship.getStartNode();
+      }
     }
-    return "Warmed up and ready to go!";
+  }
+  return "Warmed up and ready to go!";
 }
 ----
 

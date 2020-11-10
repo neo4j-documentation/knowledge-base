@@ -20,12 +20,11 @@ More information can be obtained from the Neo4j Operations Manual - https://neo4
 
 Configure the Causal Cluster(CC) with 3 Cores and 1 Read Replica as described in the Neo4j documentation. 
 Then make the corresponding changes in `neo4j.conf` file to configure which apps/users should access which instances of the cluster.  
-The below configuration creates a server group with `oltp_app` and also enables multi-dc license, which is required for server groups. 
+The below configuration creates a server group with `oltp_app` and also enables multi-dc license, which is required for server groups.
 
-[source,conf]
+.Core 1, Core 2 and Core 3
+[source,properties]
 ----
-Core 1, Core 2 and Core 3
-
 causal_clustering.server_groups=oltp_app
 causal_clustering.multi_dc_license=true
 causal_clustering.load_balancing.plugin=server_policies
@@ -35,10 +34,9 @@ More documentation on the above config properties can be read here: https://neo4
 
 Now, to service only the OLAP users on Read Replica configure the read replica as follows:
 
-[source,conf]
+.READ_REPLICA
+[source,properties]
 ----
-READ_REPLICA
-
 causal_clustering.server_groups=olap_app
 causal_clustering.multi_dc_license=true
 causal_clustering.load_balancing.plugin=server_policies
@@ -62,4 +60,4 @@ When using the above URI the READ ONLY queries will only be routed to the 2 Foll
 The documentation link for Routing Context in present in the drivers section:
 https://neo4j.com/docs/developer-manual/current/drivers/client-applications/#_routing_drivers_with_routing_context
 
-*Please Note:* Multi-DC feature is only available in Neo4j version 3.2 and above. 
+NOTE: Multi-DC feature is only available in Neo4j version 3.2 and above.

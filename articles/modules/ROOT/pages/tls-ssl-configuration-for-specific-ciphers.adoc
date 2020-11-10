@@ -10,14 +10,14 @@ Per documentation: `dbms.ssl.policy.<policyname>.ciphers` is by default set to t
 Also, alternatively and/or additionally, we can also disable ciphers by using the instructions referenced here: https://lightbend.github.io/ssl-config/CipherSuites.html   
 where as an example, you would add the following into neo4j.conf: 
 
-[source,conf]
+[source,properties]
 ----
 dbms.jvm.additional=-Djava.security.properties=<$NEO4J_HOME>/neo4j-enterprise-3.5.x/conf/disabledAlgorithms.properties
 ----
 
 with the content of the file including the following(as an example):
 
-[source,conf]
+[source,properties]
 ----
 # disabledAlgorithms.properties
 jdk.tls.disabledAlgorithms=EC keySize < 160, RSA keySize < 2048, DSA keySize < 2048
@@ -28,7 +28,7 @@ To debug further in case of any issues, you can use the following steps:
 
 1. You can assess the handshake between the client and neo4j by including the following setting in neo4j.conf (and restart):
 +
-[source,conf]
+[source,properties]
 ----
 dbms.jvm.additional=-Djavax.net.debug=ssl:handshake
 ----
@@ -67,5 +67,5 @@ Nmap done: 1 IP address (1 host up) scanned in 0.66 seconds
 +
 [source,shell]
 ----
-$openssl s_client -connect <server-name-ip>:7473
+$ openssl s_client -connect <server-name-ip>:7473
 ----

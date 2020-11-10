@@ -8,13 +8,13 @@
 Given high levels of read/write transaction requests, some ingress transactions may be rejected by the Neo4j server and the 
 below error may be reported in the Neo4j debug.log:
 
-----
+....
 ERROR [o.n.b.r.MetricsReportingBoltConnection] Unable to schedule bolt session <session_id> for execution since there are no 
 available threads to serve it at the moment. You can retry at a later time or consider increasing max thread pool size for 
 bolt connector(s). Task java.util.concurrent.CompletableFuture$AsyncSupply@9bde0657 rejected from 
 org.neo4j.bolt.runtime.CachedThreadPoolExecutorFactory$ThreadPool@95fe540f[Running, pool size = 400, active threads = 400, 
 queued tasks = 0, completed tasks = 197942]
-----
+....
 
 Whilst the above suggested bolt thread pool size, is configurable in neo4j.conf, one might expect the total number of bolt 
 connections to be equal to  active + idle bolt connections (as reported by metrics neo4j.bolt.connections_running and 
@@ -67,14 +67,11 @@ Config config = Config.builder()
             .withMaxConnectionPoolSize( 50 )
             .withConnectionAcquisitionTimeout( 2, TimeUnit.MINUTES )
             .build();
-    driver = GraphDatabase.driver( uri, AuthTokens.basic( user, password ), config );
-
+Driver driver = GraphDatabase.driver( uri, AuthTokens.basic( user, password ), config );
 ----
 
 References:
 
-https://neo4j.com/docs/operations-manual/4.0/performance/bolt-thread-pool-configuration/#_how_thread_pooling_works
-
-https://docs.oracle.com/cd/E19146-01/821-1834/gdpil/index.html
-
-https://stackoverflow.com/questions/15217524/what-is-the-difference-between-thread-per-connection-vs-thread-per-request
+- https://neo4j.com/docs/operations-manual/4.0/performance/bolt-thread-pool-configuration/#_how_thread_pooling_works
+- https://docs.oracle.com/cd/E19146-01/821-1834/gdpil/index.html
+- https://stackoverflow.com/questions/15217524/what-is-the-difference-between-thread-per-connection-vs-thread-per-request

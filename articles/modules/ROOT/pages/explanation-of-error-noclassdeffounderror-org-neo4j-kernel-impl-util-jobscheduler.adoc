@@ -10,8 +10,7 @@ did not download and install the version of APOC for 3.3 `bin\neo4j start` will 
 
 The contents of your $NEO4J_HOME/logs/neo4j.log will appear similar to.
 
-[source,shell]
-----
+....
 2017-11-07 20:38:38.245+0000 INFO  Bolt enabled on 0.0.0.0:7687.
 2017-11-07 20:38:38.265+0000 ERROR Failed to start Neo4j: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@c73c26' was successfully initialized, but failed to start. Please see the attached cause exception "org.neo4j.kernel.impl.util.JobScheduler". Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@c73c26' was successfully initialized, but failed to start. Please see the attached cause exception "org.neo4j.kernel.impl.util.JobScheduler".
 org.neo4j.server.ServerStartupException: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabase@c73c26' was successfully initialized, but failed to start. Please see the attached cause exception "org.neo4j.kernel.impl.util.JobScheduler".
@@ -63,6 +62,6 @@ Caused by: java.lang.ClassNotFoundException: org.neo4j.kernel.impl.util.JobSched
         at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
         ... 28 more
 2017-11-07 20:38:38.268+0000 INFO  Neo4j Server shutdown initiated by request
-----
+....
 
 To resolve this error download and install the version of APOC for 3.3 and as detailed https://github.com/neo4j-contrib/neo4j-apoc-procedures#version-compatibility-matrix[here]

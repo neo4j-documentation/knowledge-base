@@ -20,22 +20,22 @@ In the `/etc/neo4j/pre-neo4j.sh` file, configure this as follows:
 [source,shell]
 ----
 # HTTPS
-echo "dbms_connector_https_enabled" "${dbms_connector_https_enabled:=true}"
-echo "dbms_connector_https_listen_address" "${dbms_connector_https_listen_address:=0.0.0.0:80}"
+$ echo "dbms_connector_https_enabled" "${dbms_connector_https_enabled:=true}"
+$ echo "dbms_connector_https_listen_address" "${dbms_connector_https_listen_address:=0.0.0.0:80}"
 
 # HTTP
-echo "dbms_connector_http_enabled" "${dbms_connector_http_enabled:=false}"
-echo "dbms_connector_http_listen_address" "${dbms_connector_http_listen_address:=0.0.0.0:7474}"
+$ echo "dbms_connector_http_enabled" "${dbms_connector_http_enabled:=false}"
+$ echo "dbms_connector_http_listen_address" "${dbms_connector_http_listen_address:=0.0.0.0:7474}"
 
 # BOLT
-echo "dbms_connector_bolt_enabled" "${dbms_connector_bolt_enabled:=true}"
-echo "dbms_connector_bolt_listen_address" "${dbms_connector_bolt_listen_address:=0.0.0.0:8080}"
-echo "dbms_connector_bolt_tls_level" "${dbms_connector_bolt_tls_level:=REQUIRED}"
+$ echo "dbms_connector_bolt_enabled" "${dbms_connector_bolt_enabled:=true}"
+$ echo "dbms_connector_bolt_listen_address" "${dbms_connector_bolt_listen_address:=0.0.0.0:8080}"
+$ echo "dbms_connector_bolt_tls_level" "${dbms_connector_bolt_tls_level:=REQUIRED}"
 ----
 
 On a tar installation it would look like this:
 
-[source,shell]
+[source,properties]
 ----
 # Bolt connector
 dbms.connector.bolt.enabled=true
@@ -56,14 +56,14 @@ dbms.connector.https.listen_address=:80
 +
 [source,shell]
 ----
-readlink -f $(which java)
+$ readlink -f $(which java)
 ----
 
 3. Bind the java executable to the privileged ports (use the path found in step 2).
 +
 [source,shell]
 ----
-sudo setcap cap_net_bind_service=+eip /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+$ sudo setcap cap_net_bind_service=+eip /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 ----
 
 4. Neo4j should start and allow access via https on port 80.

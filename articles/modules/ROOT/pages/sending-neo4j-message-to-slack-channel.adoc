@@ -11,18 +11,18 @@ programmatically send messags to a specific channel.   This can be helpful, for 
 backup by checking the [https://neo4j.com/docs/operations-manual/3.5/backup/performing/#backup-performing-exit-codes[exit code of backup.
 
 Using the Slack https://api.slack.com/tutorials/slack-apps-hello-world[`Hello World`] example as a starting template, one will be 
-guided through the process of creating a Slack app and resultant WEBHOOK_URL to post messsages to.
+guided through the process of creating a Slack app and resultant WEBHOOK_URL to post messages to.
 
-For example on backup failure 
+For example on backup failure:
 
 [source,shell]
 ----
-curl -X POST -H 'Content-type: application/json' --data '{"text":"Backup Failure"}' YOUR_WEBHOOK_URL
+$ curl -X POST -H 'Content-type: application/json' --data '{"text":"Backup Failure"}' YOUR_WEBHOOK_URL
 ----
 
 replacing YOUR_WEBHOOK_URL with its actual value, for example the following code on a linux implementations
 
-[source,shell]
+[source,bash]
 ----
 host=`uname -n`
 time=`date`
@@ -32,4 +32,4 @@ curl -X POST -H 'Content-type: application/json' --data "$msg"  https://hooks.sl
 
 will result in a message to your Slack channel similar to
 
-image:https://i.imgur.com/3q6Qlhp.png[image]
+image:{assets-cdn}/sending-neo4j-message-to-slack-channel-3q6Qlhp.png[image]

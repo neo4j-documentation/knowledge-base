@@ -16,7 +16,7 @@ As tested and verified with Neo4j 2.3.0, the `data/graph.db/messages.log`, its s
 |Maximum number of history files for the internal log. |7
 
 |http://neo4j.com/docs/stable/configuration-settings.html#config_store.internal_log.rotation_threshold[store.internal_log.rotation_threshold]
-|Threshold for rotation of the internal log. |20MB 
+|Threshold for rotation of the internal log. |20MB
 |====
 
 // what's up with the ellipses?
@@ -24,13 +24,12 @@ With the above default parameters one should expect to see no `data/graph.db/mes
 
 If you wish to change the defaults the `conf/neo4j.properties` file would need to include the new values for
 
-[source,conf]
+[source,properties]
 ----
 store.internal_log.max_archives=<N number of archives>
 ----
 // what's up with this line below? Why is the line above in a block and this one not?
-store.internal_log.rotation_threshold=< # of bytes before the file is
-rotated>
+store.internal_log.rotation_threshold=<# of bytes before the file is rotated>
 
 and then issue a `bin/neo4j restart` for the new parameters to take effect.
 

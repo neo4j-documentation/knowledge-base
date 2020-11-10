@@ -17,7 +17,7 @@ The logical logs are named as follows:
 
 When one runs a database backup, via `bin/neo4j-backup`, if the `-to
 <target directory>` has a previous backup, then the backup will be an incremental backup rather than a full backup.
-If the logical logs have been rotated out since the last full backup, then the backup is forced to be a full backup.   
+If the logical logs have been rotated out since the last full backup, then the backup is forced to be a full backup.
 
 In a cluster environment the logical logs are utilized to ensure that a newly discovered slave is updated with the correct transactions.
 If the logical logs have been rotated out, then rather than simply updating the new slave from the logical logs, a complete store copy will occur.
@@ -31,14 +31,14 @@ keep_logical_logs
 ----
 
 Each of these parameters are documented in the Neo4j documentation.
-In summary the `logical_log_rotation_threshold` determines to what size the current logical log file can grow before it is rotated out.
+In summary the `logical_log_rotation_threshold` determines to what size the current logical log file can grow before it is rotated out.
 For example the default under 2.3.0 for `logical_log_rotation_threshold` is 250M.
 As such, one will expect no files under `data/graph.db/neostore.transaction.db` to exceed 250M.
 At the point that the `neostore.transaction.db.<N>` reaches 250M the `neostore.transaction.db.<N>` will be rotated to `neostore.transaction.db.<N+1>` and then the keep_logical_logs parameter will be consulted to determine if prior `neostore.transaction.db.<N>` files should be automatically removed. 
 
 For example if
 
-[source,conf]
+[source,properties]
 ----
 logical_log_rotation_threshold=250M
 keep_logical_logs=3 days
@@ -49,7 +49,7 @@ The important part to remember is that the removal of files per the parameter fo
 
 Additionally, if initially
 
-[source,conf]
+[source,properties]
 ----
 logical_log_rotation_threshold=250M
 keep_logical_logs=10 days
@@ -57,17 +57,17 @@ keep_logical_logs=10 days
 
 and then one edits conf/neo4j.properties and changes
 
-[source,conf]
+[source,properties]
 ----
 keep_logical_logs=10 days
 ----
 
 to
 
-[source,conf]
+[source,properties]
 ----
 keep_logical_logs=5 days
 ----
 
 and then restarts Neo4j, there will still be `neostore.transaction.db.<N>` for the last 10 days.
-When the current `neostore.transaction.db` reaches 250M then we will remove logical logs from all but the last five days.
+When the current `neostore.transaction.db` reaches 250M then we will remove logical logs from all but the last five days.

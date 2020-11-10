@@ -37,7 +37,6 @@ High Limit is only available in Enterprise and supports virtually unlimited numb
 |HIGH_LIMIT_V3_4_0 |vE.H.4 |3.4.0
 |=======================
 
-
 == Inspecting a store's format
 
 You can use the `neo4j-admin store-info` against an offline store to find out what format it is using. Example:

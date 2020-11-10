@@ -7,13 +7,13 @@
 
 In Neo4j we currently have the configuration property referred to as execution guard:
 
-[source,conf]
+[source,properties]
 ----
 dbms.transaction.timeout=30s
 ----
 
 that can be set automatically to kill transactions that take more than “x” seconds (x is equal to what is assigned to dbms.transaction.timeout, in this case 30s).
-However this is at global level and can’t be controlled for specific User or Query type.
+However, this is at global level and can’t be controlled for specific User or Query type.
 
 So in order to implement this, a small script can be written and scheduled to run and kill the queries that take more than 30 seconds. This script can be triggered via cypher-shell.
 The query to kill the transaction that are not part of LOAD CSV and taking more than 30 seconds can be written as:
@@ -73,7 +73,7 @@ So if we want to install that permanently, we can use apoc's initializer (https:
 
 Add the following line to your `conf/apoc.conf` file (see also https://neo4j.com/labs/apoc/4.1/config/):
 
-[source,conf]
+[source,properties]
 ----
 apoc.initializer.cypher.1=CALL apoc.periodic.repeat("kill long-running queries", "CALL dbms.listQueries() yield query, elapsedTimeMillis, queryId, username WHERE username contains toLower('neo4j') AND elapsedTimeMillis > 10000 WITH query, collect(queryId) as q CALL dbms.killQueries(q) yield queryId return query, queryId", 10)
 ----

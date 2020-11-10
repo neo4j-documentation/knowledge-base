@@ -49,8 +49,6 @@ Order of the output is not guaranteed to be the same across Neo4j instances, tho
 | "Movie" | "released" | "INTEGER" | false | false | false
 |===
 
-
-
 As an alternative, if using APOC 3.1.3.8 or newer (along the 3.1.x line) or 3.2.0.4 or newer (along the 3.2.x line) you can use
 `apoc.map.sortedProperties()`, using UNWIND on the result.
 
@@ -81,7 +79,6 @@ Output will be the same but alphabetically sorted by label, then property.
 | "Person" | "born" | "STRING" | false | false | false
 | "Person" | "name" | "STRING" | true | false | false
 |===
-
 
 Keep in mind that since Neo4j allows dynamic node properties instead of a fixed schema, a sampling of the database is needed to
 obtain this data.  It is possible this may miss some elements in the graph, such as node properties that are only present in a

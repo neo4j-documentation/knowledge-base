@@ -8,18 +8,17 @@
 The following steps are provided to describe how to use neo4j-import in a Causal Cluster environment and was run from an 
 environment of a single linux host with 3 copies for Neo4j 3.1.2 installed in the following paths
 
-[source,conf]
-----
+....
 ~/HA/ha1/neo4j-enterprise-3.1.2
 ~/HA/ha2/neo4j-enterprise-3.1.2
 ~/HA/ha3/neo4j-enterprise-3.1.2
-----
+....
 
 This is similar to the instructions for https://neo4j.com/docs/operations-manual/current/tutorial/local-causal-cluster/[Set up a local Causal Cluster]
 
-- validated a Causal Cluster would form (after configuring `$NEO4J_HOME/cond/neo4j.conf`) and ran 
+- validated a Causal Cluster would form (after configuring `$NEO4J_HOME/cond/neo4j.conf`) and ran
 
-[source,shell]
+[source,shell,role=nocopy]
 ----
 ~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j start; ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j start; 
 ~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j start
@@ -27,36 +26,35 @@ This is similar to the instructions for https://neo4j.com/docs/operations-manual
 
 this assumes the default database of graph.db
 
-Since starting a Causal Cluster takes a number of configurations I wanted to insure that it would at least start 
+Since starting a Causal Cluster takes a number of configurations I wanted to ensure that it would at least start
 and with an empty database.
 
 - stopped the causal cluster by by running
 
-[source,shell]
+[source,shell,role=nocopy]
 ----
- ~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j stop;  ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j stop;
- ~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j stop
+~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j stop; ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j stop;
+~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j stop
 ----
 
 which produced the following output
- 
-[source,shell]
-----
+
+....
 Stopping Neo4j..................................... stopped
 Stopping Neo4j.................................... stopped
 Stopping Neo4j..................................... stopped
-----
+....
 
 - unbound each of the 3 causal cluster databases. (this is not necessary if you skip #1 and #2 but if you have failure
 further on with getting the cluster to form then you need to sort out if it is a cluster configuration issue or something about
 the database import). Further unbind is detailed 
 https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/setup-new-cluster/#unbind-instance-from-cluster[here]
 
-[source,shell]
+[source,shell,role=nocopy]
 ----
-neo4j@neo4j-CoreEdge:~/HA/ha2/neo4j-enterprise-3.1.2/conf$ ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j-admin unbind --database=graph.db
-neo4j@neo4j-CoreEdge:~/HA/ha2/neo4j-enterprise-3.1.2/conf$ ~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j-admin unbind --database=graph.db
-neo4j@neo4j-CoreEdge:~/HA/ha2/neo4j-enterprise-3.1.2/conf$ ~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j-admin unbind --database=graph.db
+$ ~/HA/ha2/neo4j-enterprise-3.1.2/bin/neo4j-admin unbind --database=graph.db
+$ ~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j-admin unbind --database=graph.db
+$ ~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j-admin unbind --database=graph.db
 ----
 
 - created ~/HA/ha1/neo4j-enterprise-3.1.2/importer and added 3 files namely actors.csv, movies.csv, roles.csv and they are defined with
@@ -64,15 +62,14 @@ content detailed https://neo4j.com/docs/operations-manual/current/tutorial/impor
 
 - ran neo4j-import and loaded the data into ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer
 
-[source,shell]
+[source,shell,role=nocopy]
 ----
 ~/HA/ha1/neo4j-enterprise-3.1.2/bin/neo4j-import --into ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer --nodes ~/HA/ha1/neo4j-enterprise-3.1.2/importer/movies.csv --nodes ~/HA/ha1/neo4j-enterprise-3.1.2/importer/actors.csv --relationships ~/HA/ha1/neo4j-enterprise-3.1.2/importer/roles.csv
 ----
 
 and this produced the following output
 
-[source,shell]
-----
+....
 WARNING: neo4j-import is deprecated and support for it will be removed in a future
 version of Neo4j; please use neo4j-admin import instead.
 
@@ -133,11 +130,11 @@ Imported:
   0 relationships
   15 properties
 Peak memory usage: 7.63 MB
-----
+....
 
 - updated each of the 3 `$NEO4J_HOME/conf/neo4j.conf` and defined the
 
-[source,conf]
+[source,properties]
 ----
 # The name of the database to mount
 dbms.active_database=graph.db.importer
@@ -161,10 +158,9 @@ cp -R ~/HA/ha1/neo4j-enterprise-3.1.2/data/databases/graph.db.importer ~/HA/ha3/
 ~/HA/ha3/neo4j-enterprise-3.1.2/bin/neo4j start
 ----
 
-which produces the following output
+which produces the following output:
 
-[source,shell]
-----
+....
 Starting Neo4j.
 Started neo4j (pid 3976). It is available at http://0.0.0.0:7414/
 There may be a short delay until the server is ready.
@@ -177,20 +173,19 @@ Starting Neo4j.
 Started neo4j (pid 4104). It is available at http://0.0.0.0:7434/
 There may be a short delay until the server is ready.
 See /home/neo4j/HA/ha3/neo4j-enterprise-3.1.2/logs/neo4j.log for current status.
-----
+....
 
 ran `match (n) return n limit 10` on each of the 3 instances and all reported a total of 6 nodes, which corresponds to the
 output of neo4j-import which reports
 
-[source,shell]
-----
+....
 Imported:
   6 nodes
   0 relationships
   15 properties
-----
+....
 
-- From the leader I ran
+- From the leader I ran:
 
 [source,cypher]
 ----

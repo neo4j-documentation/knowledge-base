@@ -117,15 +117,14 @@ having the same hash value, the statistics on :Person had changed from 10 nodes 
 
 If an existing plan needs to be replanned as a result of the above 2 parameters the `logs/debug.log` will log 
 
-[source,shell]
-----
+....
 2017-03-31 19:14:27.820+0000 INFO [o.n.c.i.ExecutionEngine] Discarded stale query from the query cache: match (n:Person)
 return n.id order by n.id desc;
 2017-03-31 19:14:27.821+0000 INFO [o.n.c.i.EnterpriseCompatibilityFactory] Discarded stale query from the query cache: match 
 (n:Person) return n.id order by n.id desc;
-----
+....
 
-Additionally it should be noted that when a query plan is removed from the cache so as to make room for a new plan a least frequently 
+Additionally, it should be noted that when a query plan is removed from the cache so as to make room for a new plan a least frequently
 used (LFU) algorithm.   So if the first query added to the plan cache is run every 1 second, and the 2nd query added to the query plan
 cache is added every 2 minutes, then when we need to remove a query plan from the cache to make room for a new query, we will remove
 the 2nd query before the 1st since the first is more frequently called upon.

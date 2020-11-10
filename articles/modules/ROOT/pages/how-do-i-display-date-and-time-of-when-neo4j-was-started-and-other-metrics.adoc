@@ -19,9 +19,9 @@ CALL dbms.queryJmx("org.neo4j:instance=kernel#0,name=Kernel") yield attributes
              else attributes[row]["value"] end as value;
 ----
 
-which will produce output similar to
+which will produce output similar to:
 
-----
+....
 "KernelVersion", "neo4j-kernel, version: 3.1.0-M13-beta3,ce6b3ff5d345f11e981c1fe5be4b0fe3640c5aee"
 "DatabaseName", "graph.db"
 "MBeanQuery", "org.neo4j:instance=kernel#0,name=*"
@@ -30,6 +30,6 @@ which will produce output similar to
 "StoreCreationDate", "2016-11-04 20:34:32"
 "StoreLogVersion", 0
 "KernelStartTime", "2016-11-18 18:24:18"
-----
+....
 
 In the above output, the StoreCreationDate and KernelStartTime are expressed in the system timezone time. Note that this Cypher utilizes the user defined function `apoc.date.format` which is included as part of the link:https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC] package.

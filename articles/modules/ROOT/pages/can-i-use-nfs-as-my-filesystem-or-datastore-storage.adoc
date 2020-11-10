@@ -13,5 +13,4 @@ NFS and other filesystems that don't offer locking should not be used to install
 If we can't lock the store files, others can concurrently access them, resulting in corruption.
 
 Refer to the Neo4j documentation on recommended filesystem storage formats:
-
 https://neo4j.com/docs/operations-manual/current/installation/requirements/#deployment-requirements-software

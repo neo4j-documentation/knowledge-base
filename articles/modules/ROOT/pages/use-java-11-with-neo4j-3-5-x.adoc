@@ -52,14 +52,14 @@ Choose the second option and press enter to validate.
 
 * Comment or remove the following line:
 
-[source,conf]
+[source,properties]
 ----
 dbms.logs.gc.options=-XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+PrintPromotionFailure -XX:+PrintTenuringDistribution
 ----
 
 * Uncomment the following setting:
 
-[source,conf]
+[source,properties]
 ----
 dbms.logs.gc.options=-Xlog:gc,safepoint,age=trace
 ----
@@ -69,8 +69,8 @@ dbms.logs.gc.options=-Xlog:gc,safepoint,age=trace
 You will immediately see WARNING messages in your neo4j.log
 You can safely disregard them  as shown below:
 
-----
+....
 WARNING: Please consider reporting this to the maintainers of org.eclipse.collections.impl.utility.ArrayListIterate
 WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
 WARNING: All illegal access operations will be denied in a future release
-----
+....

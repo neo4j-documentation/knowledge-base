@@ -7,7 +7,7 @@
 
 In 3.5 an entity (node, relationship, path) could be acquired in one transaction and safely reused by another.
 
-However, in 4.0 these entities do hold a reference to their originating transaction. 
+However, in 4.0 these entities do hold a reference to their originating transaction.
 
 The problem might occur in any APOC calls that open new transactions, e.g. apoc.periodic.iterate (and couple more). 
 Anything you hand over from the driving statement must be rebound in the action statement.

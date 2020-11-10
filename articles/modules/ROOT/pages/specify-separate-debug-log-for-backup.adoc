@@ -15,23 +15,23 @@ Ideally you can copy the `neo4j.conf` file with the default settings and place i
 
 [source,shell]
 ----
-export NEO4J_CONF=/Users/Documents/backup/
-echo $NEO4J_CONF
+$ export NEO4J_CONF=/Users/Documents/backup/
+$ echo $NEO4J_CONF
 # /Users/Documents/backup/
 ----
 
 In the neo4j.conf file set the `dbms.directories.logs` to point to the backup logs folder. 
 
-[source,conf]
+[source,properties]
 ----
 dbms.directories.logs=/Users/Documents/backup/logs
 ----
 
-Then run the backup as 
+Then run the backup as:
 
 [source,shell]
 ----
-./neo4j-admin backup --backup-dir=/Users/Documents/backup --name=graph.db.backup
+$ ./neo4j-admin backup --backup-dir=/Users/Documents/backup --name=graph.db.backup
 ----
 
 Debug.log for the backup process should be present in the following folder specified `/Users/Documents/backup/logs`.

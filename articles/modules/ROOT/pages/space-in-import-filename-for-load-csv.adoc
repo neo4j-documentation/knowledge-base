@@ -16,9 +16,9 @@ load csv from "file:///test copy.csv" as row return row
 
 Error:
 
-----
+....
 java.net.URISyntaxException: Illegal character in path at index 10: file:/test copy.csv
-----
+....
 
 To allow for a space in the filename, simply replace the space in the LOAD CSV command with *%20* (url encoding)
 

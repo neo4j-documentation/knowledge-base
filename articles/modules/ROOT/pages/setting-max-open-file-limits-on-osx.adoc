@@ -9,9 +9,9 @@
 This document provides a process for setting soft and hard max open file limits on MAC OSX. Each thread created by a user
 process will require availability in max open file limits.
 
-----
+....
 Caused by: java.io.IOException: Too many open files
-----
+....
 
 It should be ensured the user running the the neo4j process has the open file limits correctly set. The below process was 
 tested on OSX 10.12.x (Sierra) and Mojave (10.14.x) to change file limits. The same is also reported to work for Yosemite 
@@ -50,21 +50,21 @@ limit by _ulimit -Sn_ and hard limit as _ulimit -Hn_ :
 
 [source,shell]
 ----
-sudo chown root:wheel /Library/LaunchDaemons/limit.maxfiles.plist
+$ sudo chown root:wheel /Library/LaunchDaemons/limit.maxfiles.plist
 ----
 
 3) Load these new settings:
 
 [source,shell]
 ----
-sudo launchctl load -w /Library/LaunchDaemons/limit.maxfiles.plist
+$ sudo launchctl load -w /Library/LaunchDaemons/limit.maxfiles.plist
 ----
 
 4) Finally, check that the limits are correct:
 
 [source,shell]
 ----
-launchctl limit maxfiles
+$ launchctl limit maxfiles
 ----
 
 5) In some cases a machine restart may be required for above to take effect.

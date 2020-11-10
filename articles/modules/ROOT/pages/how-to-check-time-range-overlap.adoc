@@ -31,9 +31,9 @@ While we won't cover the details, the point is that calculating overlap isn't us
 
 Thankfully there's https://stackoverflow.com/a/325964/92359[a logical reduction, proved here], that is relatively simple at the end:
 
-----
+....
 Max(StartA, StartB) <= Min(EndA, EndB)
-----
+....
 
 The latest of start times must occur before (or at the same time) as the earliest of the end times for the ranges to overlap.
 

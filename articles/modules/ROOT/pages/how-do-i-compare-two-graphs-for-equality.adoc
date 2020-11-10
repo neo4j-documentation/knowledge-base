@@ -32,10 +32,10 @@ RETURN md5_property
 
 and when run against the default Movie Graph which includes 38 nodes with a label of Movie, this returns:
 
-----
-md5_property                              
-3f8d4737d078783e12f7cf57a207dd67            
-----
+....
+md5_property
+3f8d4737d078783e12f7cf57a207dd67
+....
 
 The above Cypher requires the installation of the http://neo4j-contrib.github.io/neo4j-apoc-procedures/[apoc stored procedures] set.
 
@@ -56,12 +56,12 @@ CREATE (n1:Movie {title:'The Matrix', genre:'Action'})
 
 then simply running the Cypher to produce the md5 hash will produce a md5_property of:
 
-----
+....
 md5_property
 5bc18a680ef59ba09466da4217166d30
-----
+....
 
-However, if you reversed the order of the CREATE statements, like this:
+However, if you reversed the order of the `CREATE` statements, like this:
 
 [source,cypher]
 ----
@@ -71,13 +71,13 @@ CREATE (n:Movie {title:'The Matrix', genre:'Sci-Fi'})
 
 the result of the same md5 hashing Cypher will yield a different md5_property:
 
-----
+....
 md5_property
 c3c565b45457d2182731050e0cbab221
-----
+....
 
 In the above example, so as to get the correct md5 values, regardless of the order of the creates, we need to run Cypher which
-will return data in a guarenteed order, using an ORDER BY clause:
+will return data in a guaranteed order, using an ORDER BY clause:
 
 [source,cypher]
 ----
@@ -91,13 +91,13 @@ RETURN md5_property
 
 which will always return:
 
-----
+....
 md5_property                               
 c3c565b45457d2182731050e0cbab221            
-----
+....
 
 
-*NOTE: Additionally, we cannot simply collect(n) (i.e. the entire node) for internally it includes the internal
-node id (a unique internal identifier).*
+NOTE: Additionally, we cannot simply collect(n) (i.e. the entire node) for internally it includes the internal node id (a unique internal identifier).
 
-If you run the same Cypher on two separate environments and get the same md5 sums, the nodes can be proven to be the same in terms of defintion of labels and proerties.
+If you run the same Cypher on two separate environments and get the same md5 sums,
+the nodes can be proven to be the same in terms of definition of labels and properties.

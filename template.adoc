@@ -21,9 +21,45 @@ MATCH (:Person)-[:KNOWS]->(p)
 RETURN p
 ----
 
-[source,java]
+Raw output:
+
+....
+2020-10-20 15:14:13.120+0000 INFO [a.b.c.Something] Some log
+....
+
+Open a terminal and run:
+
+[source,shell]
+$ brew install openssl
+
+Once installed, run `openssl version -a`:
+
+[source,shell,role=noheader]
 ----
-include::sources/java/src/test/java/example/CreateData.java[tags=create_data]
+$ openssl version -a
+OpenSSL 1.0.2o  27 Mar 2018
+....
+----
+
+IMPORTANT: Do not forget to add `role=noheader` when the source block contains the command, and the expected output.
+
+The command format is:
+
+[source,shell,role=nocopy]
+----
+$ nc -v <hostname> 5000
+----
+
+NOTE: Use `role=nocopy` to disable the "Copy to Clipboard" button.
+This role is particularly useful when the command contains a placeholder because we don't want the user to blindly copy and paste the command.
+
+Add the following to [.file]_neo4j.conf_:
+
+[source,properties]
+----
+causal_clustering.ssl_policy=cluster
+dbms.ssl.policy.cluster.ciphers=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+dbms.ssl.policy.cluster.client_auth=REQUIRE
 ----
 
 == Another Section
@@ -54,3 +90,57 @@ IMPORTANT: Don't forget...
 WARNING: Watch out for...
 
 CAUTION: Ensure that...
+
+== Images
+
+A picture is worth a thousand words.
+
+image::{assets-cdn}/shared-lock.png[Shared Lock]
+
+[IMPORTANT]
+Images must be uploaded to https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content.
+The attribute `{assets-cdn}` is configured in both the Antora pipeline, and the Gradle convert tasks.
+
+== List
+
+You can use numbered lists to describe a list of steps:
+
+. Step 1
+. Step 2
+. Step 3
+
+As you can see, you don't need to include an ordinal in front of each list marker.
+
+If you need to add complex content on a step, you will need to use the list continuation symbol (`+`).
+For instance:
+
+. Configure `neo4j.conf`:
++
+First paragraph.
++
+Second paragraph.
++
+[source,shell]
+----
+$ echo "hello word"
+----
++
+Third paragraph:
++
+[source,properties]
+----
+dbms.connector.bolt.enabled=true
+----
+
+. Identify the location of the `java` installation:
++
+[source,shell]
+----
+$ readlink -f $(which java)
+----
+
+. A literal paragraph does not require a list continuation:
+
+ $ ps -ealf | grpe 8080
+
+. Step 4

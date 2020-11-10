@@ -41,7 +41,7 @@ where not 'is_suspended' in flags
 return 'call dbms.security.suspendUser(\'' + username + '\');'
 ----
 
-Finally at the time of the maintenance window one would first run the generated Cypher statements from above to suspend all users.  
+Finally, at the time of the maintenance window one would first run the generated Cypher statements from above to suspend all users.
 Note it is not possible to suspend the user you are currently logged in as and as such you may see a call dbms.security.suspendUser
 result in failure error message of 'Suspending yourself (user 'neo4j') is not allowed.'
 

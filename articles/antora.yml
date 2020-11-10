@@ -6,3 +6,4 @@ nav:
 asciidoc:
   attributes:
     page-layout: 'kb-article@'
+    assets-cdn: 'https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content'

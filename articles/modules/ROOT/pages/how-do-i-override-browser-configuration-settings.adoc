@@ -16,9 +16,9 @@ can be displayed by running from the browser
 :config 
 ----
 
-and sample output is as follows
+and sample output is as follows:
 
-[source,cypher]
+[source,json]
 ----
 {
   "cmdchar": ":",
@@ -48,7 +48,7 @@ The following describes how to change Max Frames from 50 to 10 and the Theme to 
 
 To make the changes globally modify the `$NEO4J_HOME/conf/neo4j.conf` and add the following
 
-[source,conf]
+[source,properties]
 ----
 browser.post_connect_cmd=config {maxFrames:10, theme: "outline"}
 ----

@@ -51,17 +51,17 @@ client_policy directory in the `$HOME/neo4j/ssl` folder.
 
 With the above settings, the following folder structure and files on the host will be required:
 
-----
+....
 $HOME/neo4j/ssl/client_policy/
 $HOME/neo4j/ssl/client_policy/private.key
 $HOME/neo4j/ssl/client_policy/public.crt
 $HOME/neo4j/ssl/client_policy/trusted/
 $HOME/neo4j/ssl/client_policy/revoked/
-----
+....
 
 If the key/crt files are named something other then the default, the following settings will be required:
 
-[source,conf]
+[source,properties]
 ----
 dbms.ssl.policy.client_policy.private_key=/ssl/client_policy/neo4j_prod.key
 dbms.ssl.policy.client_policy.public_certificate=/ssl/client_policy/neo4j_prod.crt
@@ -73,5 +73,5 @@ The following is a sample Command to start the Docker container with the above s
 
 [source,shell]
 ----
- docker run --publish=7473:7473 --publish=7687:7687 --volume=$HOME/neo4j/ssl:/ssl  --volume=$HOME/neo4j/conf:/conf --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.4-enterprise
+$ docker run --publish=7473:7473 --publish=7687:7687 --volume=$HOME/neo4j/ssl:/ssl  --volume=$HOME/neo4j/conf:/conf --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.4-enterprise
 ----

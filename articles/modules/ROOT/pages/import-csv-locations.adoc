@@ -15,28 +15,32 @@ Import methods we will cover: 1. Neo4j Desktop 2. Neo4j Sandbox
 Filepath for Neo4j Desktop will vary based on your operating system.
 
 *Mac OS or Linux*
-- <neo4j-home>/import
+
+`<neo4j-home>/import`
 
 For example, mine is located in the following path:
-----
+
+....
 /Users/<userid>/Library/Application Support/Neo4j Desktop/Application/neo4jDatabases/database-<id#>/installation-<neo4jVersion>/import
-----
+....
 
 If you used the default application path when Neo4j Desktop was installed, your path could be the same as the path above (after substituting your user account, database id, and version). If you changed the path of Neo4j Desktop when it was installed, the path should follow those changes.
 
 *Windows Desktop*
-- <neo4j-home>\import
+
+`<neo4j-home>\import`
 
 As an example, this is the path for my Windows installation (assuming the default application path when Neo4j Desktop was installed):
-----
+
+....
 C:\Users\<userid>\.Neo4jDesktop\neo4jDatabases\database-<id#>\installation-<neo4jVersion>\import
-----
+....
 
 *Custom Import Folder*
 
 If you require a file location different from the default, you can update the following setting in the neo4j.conf file. We recommend specifying a directory path, rather than commenting out the setting, to avoid the security issue mentioned in the configuration comment.
 
-[source,conf]
+[source,properties]
 ----
 # This setting constrains all `LOAD CSV` import files to be under the `import` directory. Remove or comment it out to
 # allow files to be loaded from anywhere in the filesystem; this introduces possible security problems. See the

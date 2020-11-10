@@ -19,9 +19,9 @@ include the database being unavailable, using the wrong connection URL or tempor
 ensure your browser is configured to trust the certificate Neo4j is configured to use. WebSocket `readyState` is: 3
 ----
 
-Additionally to allow for remote browser connections your $NEO4J_HOME/conf/neo4j.conf needs to be configured as
+Additionally, to allow for remote browser connections your `$NEO4J_HOME/conf/neo4j.conf` needs to be configured as:
 
-[source,conf]
+[source,properties]
 ----
 # To have Bolt accept non-local connections, uncomment this line:
 dbms.connector.bolt.address=0.0.0.0:7687

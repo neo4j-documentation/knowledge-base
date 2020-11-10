@@ -18,14 +18,14 @@ You need to configure the correct "stopsignal" in the supervisord configuration 
 
 In particular, set:
 
-[source,conf]
+[source,properties]
 ----
 stopsignal=SIGTERM
 ----
 
 Here is an example `supervisord` configuration that has worked in production:
 
-[source,conf]
+[source,ini]
 ----
 [program:neo4j] 
 command=/usr/local/neo4j-enterprise/bin/neo4j console 

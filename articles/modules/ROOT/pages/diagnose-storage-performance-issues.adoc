@@ -15,13 +15,12 @@ The command below will create a 1GB file in the current folder:
 
 [source,shell]
 ----
-$  fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
+$ fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
 ----
 
 It produces the following output on an AWS instance with a gp2 (General Purpose SSD). We can see 1500iops:
 
-[source,shell]
-----
+....
 test: (g=0): rw=randrw, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=64
 fio-2.1.5
 Starting 1 process
@@ -43,13 +42,13 @@ Run status group 0 (all jobs):
 
 Disk stats (read/write):
   nvme0n1: ios=131032/130833, merge=0/27, ticks=1289168/1306400, in_queue=2508680, util=99.78%
-----
+....
 
 On a modern laptop, you can expect 13000iops.
 
 [source,shell]
 ----
-fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
+$ fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
 test: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
 fio-3.7
 Starting 1 process
@@ -80,7 +79,7 @@ On an nvme locally attached drive: we get 100 000 iops.
 
 [source,shell]
 ----
-$  fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
+$ fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
 test: (g=0): rw=randrw, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=64
 fio-2.1.5
 Starting 1 process
@@ -108,7 +107,7 @@ A throughput optimised HDD will be able to handle significantly less iops: 66 io
 
 [source,shell]
 ----
-$  fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
+$ fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=50
 test: (g=0): rw=randrw, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=64
 fio-2.1.5
 Starting 1 process
@@ -184,8 +183,7 @@ $ dmesg | grep -v "eth0\|IPv6\|IPVS\|docker\|promiscuous"
 If you see similar errors `INFO: task neo4j.FileIOHel:78205 blocked for more than 120 seconds.`
 You might want to review the storage configuration with your system administrator.
 
-[source,shell]
-----
+....
 [Sun Oct 20 10:26:10 2019] INFO: task neo4j.FileIOHel:78205 blocked for more than 120 seconds.
 [Sun Oct 20 10:26:10 2019] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
 [Sun Oct 20 10:26:10 2019] neo4j.FileIOHel D ffff959abd738000     0 78205      1 0x00000080
@@ -215,20 +213,19 @@ You might want to review the storage configuration with your system administrato
 [Sun Oct 20 10:26:10 2019]  [<ffffffff90c4777e>] ? SYSC_newstat+0x3e/0x60
 [Sun Oct 20 10:26:10 2019]  [<ffffffff90c54b26>] SyS_unlink+0x16/0x20
 [Sun Oct 20 10:26:10 2019]  [<ffffffff91175ddb>] system_call_fastpath+0x22/0x27
-----
+....
 
 == Additional links
 
-For Cloud environments, IO throttling can also cause performannce issues
+For Cloud environments, IO throttling can also cause performance issues:
 
-Azure:
+Azure::
 
-https://blogs.msdn.microsoft.com/mast/2014/08/02/how-to-monitor-for-storage-account-throttling/
+- https://blogs.msdn.microsoft.com/mast/2014/08/02/how-to-monitor-for-storage-account-throttling/
+- https://blogs.msdn.microsoft.com/mast/2017/09/29/monitor-alert-disk-vm-io-throttling-linux-vms-arm/
 
-https://blogs.msdn.microsoft.com/mast/2017/09/29/monitor-alert-disk-vm-io-throttling-linux-vms-arm/
+AWS::
 
-AWS:
+- https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/benchmark_procedures.html
 
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/benchmark_procedures.html
-
-Note: The tests were done in November 2019.
+NOTE: The tests were done in November 2019.

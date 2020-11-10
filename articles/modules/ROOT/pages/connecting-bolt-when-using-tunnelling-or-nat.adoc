@@ -25,8 +25,8 @@ advertised address.
 To prevent the user-specified configuration from being overwritten, a _connectUrl_ parameter can be passed along with the link to Neo4j 
 Browser:
 
-e.g. http://localhost:7474/browser/?connectURL=127.0.0.1:7687 or, e.g. http://browser.neo4j.com/?connectURL=neo4jdb.xxyyzz.com:26000.
+e.g. http://localhost:7474/browser/?connectURL=127.0.0.1:7687 or, e.g. http://browser.neo4j.com/?connectURL=neo4jdb.xxyyzz.com:26000.
 
-If a hosted Neo4j Browser was available on http://browser.neo4j.com, it would set the bolt url to http://neo4jdb.xxyyzz.com:26000 and try
+If a hosted Neo4j Browser was available on http://browser.neo4j.com, it would set the bolt url to http://neo4jdb.xxyyzz.com:26000 and try
 to connect. The connectURL parameter may therefore be useful for use-cases as ones described above, where clients use tunnelling, network
 address translation, and other non-conventional access methods.

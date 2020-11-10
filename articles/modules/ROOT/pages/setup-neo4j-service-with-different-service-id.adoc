@@ -31,7 +31,7 @@ First step is to edit the `neo4j.service` and change the user and group as `test
 
 Edit as show below by changing the `User` and `Group`.
 
-[source,shell]
+[source,ini]
 ---- 
 [Unit]
 Description=Neo4j Graph Database
@@ -51,11 +51,10 @@ TimeoutSec=120
 WantedBy=multi-user.target
 ----
 
-Second step is to change the ownership of the below files to `testuser:testuser`. 
-
----- 
+Second step is to change the ownership of the below files to `testuser:testuser`.
 For RPM install:
 
+....
 /etc/neo4j
 /etc/neo4j/jmx.access
 /etc/neo4j/jmx.password
@@ -67,24 +66,24 @@ For RPM install:
 /var/lib/neo4j/plugins
 /var/log/neo4j
 /var/run/neo4j
-----
+....
 
 Steps documented as :
 
 [source,shell]
 ----
-sudo chown testuser:testuser -R /etc/neo4j
-sudo chown testuser:testuser -R /var/lib/neo4j
-sudo chown testuser:testuser -R /var/log/neo4j
-sudo chown testuser:testuser -R /var/run/neo4j
+$ sudo chown testuser:testuser -R /etc/neo4j
+$ sudo chown testuser:testuser -R /var/lib/neo4j
+$ sudo chown testuser:testuser -R /var/log/neo4j
+$ sudo chown testuser:testuser -R /var/run/neo4j
 ----
 
 Once the above steps are completed, the file ownership should be changed to `testuser`. 
-Then start the neo4j service as 
+Then start the neo4j service as:
 
 [source,shell]
 ----
-sudo systemctl start neo4j
+$ sudo systemctl start neo4j
 ----
 
 and this should start as the service user that was setup. 
@@ -93,7 +92,6 @@ To verify if the neo4j service is started as user `testuser` execute `ps -ef | g
 
 and the output should show `testuser` as given below
 
-[source,shell]
-----
+....
 testuser  3296     1 26 18:00 ?        00:00:19 /usr/bin/java -cp /var/lib/neo4j/plugins:/etc/neo4j:/usr/share/neo4j/lib/*:/var/lib/neo4j/plugins/* -server -XX:+UseG1GC -XX:-OmitStackTraceInFastThrow -XX:+AlwaysPreTouch -XX:+UnlockExperimentalVMOptions -XX:+TrustFinalNonStaticFields -XX:+DisableExplicitGC -Djdk.tls.ephemeralDHKeySize=2048 -Djdk.tls.rejectClientInitiatedRenegotiation=true -Dunsupported.dbms.udc.source=rpm -Dfile.encoding=UTF-8 com.neo4j.server.enterprise.CommercialEntryPoint --home-dir=/var/lib/neo4j --config-dir=/etc/neo4j
-----
+....

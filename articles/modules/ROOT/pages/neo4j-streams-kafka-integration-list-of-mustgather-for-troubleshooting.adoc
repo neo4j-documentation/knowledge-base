@@ -35,8 +35,6 @@ When troubleshooting issues on Neo4j Streams, use the below list of must gather 
 7. (OPTIONAL) Neo4j metrics
     - The CSV file
 
-
-
 Reference:
 
 Neo4j Streaming Data Integrations User Guide

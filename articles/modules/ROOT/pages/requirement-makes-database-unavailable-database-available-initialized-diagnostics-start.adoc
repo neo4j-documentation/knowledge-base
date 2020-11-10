@@ -7,10 +7,10 @@
 
 When running `neo4j-admin backup`, the debug.log shows a message that appears to indicate that the database restarted; however, this is not the case.
 
-----
+....
 2019-05-01 03:14:15.230+0000 INFO [o.n.k.AvailabilityGuard] Requirement makes database unavailable: Database available 
 2019-05-01 03:14:15.250+0000 INFO [o.n.k.i.DiagnosticsManager] --- INITIALIZED diagnostics START ---
-----
+....
 
 Let's explain why this message is showing up and what it means.
 
@@ -18,10 +18,10 @@ When an online backup starts, a separate new instance of the database engine is 
 
 In Release 3.5.3 the messaging noted above has been changed for full backups as follows:
 
-----
+....
 2019-01-04 16:11:59.715+0000 INFO [o.n.b.i.BackupImpl] BackupServer:6362-1: Full backup started...
 2019-01-04 16:11:59.717+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by full backup @ txId: 28 checkpoint started...
 2019-01-04 16:11:59.768+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by full backup @ txId: 28 checkpoint completed in 47ms
 2019-01-04 16:11:59.769+0000 INFO [o.n.k.i.t.l.p.LogPruningImpl] No log version pruned, last checkpoint was made in version 0
 2019-01-04 16:11:59.847+0000 INFO [o.n.b.i.BackupImpl] BackupServer:6362-1: Full backup finished.
-----
+....

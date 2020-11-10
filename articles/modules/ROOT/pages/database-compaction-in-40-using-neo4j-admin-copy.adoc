@@ -120,8 +120,8 @@ for future ID creates.
 
 References:
 
-https://neo4j.com/docs/operations-manual/4.0/tools/copy/
-https://github.com/jexp/store-utils
-https://neo4j.com/docs/operations-manual/current/backup/performing/
-https://neo4j.com/docs/operations-manual/current/backup/restoring/
-https://neo4j.com/docs/operations-manual/current/tools/consistency-checker/
+- https://neo4j.com/docs/operations-manual/4.0/tools/copy/
+- https://github.com/jexp/store-utils
+- https://neo4j.com/docs/operations-manual/current/backup/performing/
+- https://neo4j.com/docs/operations-manual/current/backup/restoring/
+- https://neo4j.com/docs/operations-manual/current/tools/consistency-checker/

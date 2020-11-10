@@ -7,7 +7,7 @@
 
 When connecting to a Neo4j instance with the Neo4j Browser, the following error may be logged in the `$NEO4J_HOME\logs\debug.log`
 
-----
+....
 2020-06-20 13:33:13.039-0400 ERROR [o.n.b.t.TransportSelectionHandler] Fatal error occurred when initialising pipeline: [id: 0x59d02719, L:/12.31.54.51:5502 ! R:/192.168.9.5:55140] javax.net.ssl.SSLException: Received fatal alert: certificate_unknown
 io.netty.handler.codec.DecoderException: javax.net.ssl.SSLException: Received fatal alert: certificate_unknown
 	at io.netty.handler.codec.ByteToMessageDecoder.callDecode(ByteToMessageDecoder.java:468)
@@ -15,19 +15,19 @@ io.netty.handler.codec.DecoderException: javax.net.ssl.SSLException: Received fa
 	at io.netty.handler.codec.ByteToMessageDecoder.channelInputClosed(ByteToMessageDecoder.java:368)
 	at io.netty.handler.codec.ByteToMessageDecoder.channelInactive(ByteToMessageDecoder.java:351)
 	at io.netty.handler.ssl.SslHandler.channelInactive(SslHandler.java:1084)----
-----
+....
 
 This is usually as a result of either a bad certificate recorded at the client or incorrect url for the browser.
 
 For example, as depicted from the screenshot and when using Google Chrome Browser and clicking on the padlock icon next to the url
 
-image:https://imgur.com/AeiF9bD.png[image]
+image:{assets-cdn}/explanation-of-error-javax-net-ssl-sslexception-received-fatal-alert-certificate-unknown-AeiF9bD.png[image]
 
 you should see that this reports `Certificate Valid`.
 
 Further if you click the text for `Certificate Valid` it should report similar to
 
-image:https://imgur.com/7CMuQOe.png[image]
+image:{assets-cdn}/explanation-of-error-javax-net-ssl-sslexception-received-fatal-alert-certificate-unknown-7CMuQOe.png[image]
 
 and describe to which domain the certificate is `Issued to:`
 

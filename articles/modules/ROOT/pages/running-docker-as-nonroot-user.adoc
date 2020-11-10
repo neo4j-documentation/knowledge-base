@@ -21,63 +21,62 @@ create a user neo4j without a home directory
 
 [source,shell]
 ----
-sudo useradd -M neo4j
+$ sudo useradd -M neo4j
 ----
 
 prevent neo4j from logging in
 
 [source,shell]
 ----
-sudo usermod -L neo4j
+$ sudo usermod -L neo4j
 ----
 
 Create data dir.
 
 [source,shell]
 ----
-data_dir="/neo4j/data"
-sudo mkdir -p /neo4j/data
-sudo chown -R neo4j /neo4j/data
-sudo chgrp -R neo4j /neo4j/data
+$ sudo mkdir -p /neo4j/data
+$ sudo chown -R neo4j /neo4j/data
+$ sudo chgrp -R neo4j /neo4j/data
 ----
 
 Note we only give group read permissions here
 
 [source,shell]
 ----
-sudo chmod -R u+rwX,g+rX,o-wrx /neo4j/data 
+$ sudo chmod -R u+rwX,g+rX,o-wrx /neo4j/data
 ----
 
 We do not recommend any application other than neo4j writing to the data dir. This can corrupt the data store.
 
 [source,shell]
 ----
-sudo mkdir -p /neo4j/conf
-sudo chown -R neo4j /neo4j/conf
-sudo chgrp -R neo4j /neo4j/conf
+$ sudo mkdir -p /neo4j/conf
+$ sudo chown -R neo4j /neo4j/conf
+$ sudo chgrp -R neo4j /neo4j/conf
 ----
 
 Group gets write permissions here
 
 [source,shell]
 ----
-sudo chmod -R u+rX,g+rwX,o-wrx /neo4j/conf 
+$ sudo chmod -R u+rX,g+rwX,o-wrx /neo4j/conf
 ----
 
-N.b. if you make external changes to the conf dir you must restart the docker image to pickup new configuration (conf is copied from the mounted volume on startup)
+NOTE: If you make external changes to the conf dir you must restart the docker image to pickup new configuration (conf is copied from the mounted volume on startup).
 
 [source,shell]
 ----
-sudo mkdir -p /neo4j/plugins
-sudo chown -R neo4j /neo4j/plugins
-sudo chgrp -R neo4j /neo4j/plugins
+$ sudo mkdir -p /neo4j/plugins
+$ sudo chown -R neo4j /neo4j/plugins
+$ sudo chgrp -R neo4j /neo4j/plugins
 ----
 
 Group gets write permissions here
 
 [source,shell]
 ----
-sudo chmod -R u+rwX,g+rwX,o-wrx /neo4j/plugins # N.b. if you make external changes to the plugins dir you must restart neo4j before it will pickup new plugins
+$ sudo chmod -R u+rwX,g+rwX,o-wrx /neo4j/plugins # N.b. if you make external changes to the plugins dir you must restart neo4j before it will pickup new plugins
 ----
 
 Let's assume that the logs dir is being used by multiple applications n.b. if something interferes with neo4j writing logs it can crash the neo4j process.
@@ -85,45 +84,45 @@ Create a logs group for all things log related
 
 [source,shell]
 ----
-sudo groupadd logs
+$ sudo groupadd logs
 ----
 
 Add neo4j to logs group
 
 [source,shell]
 ----
-sudo usermod -a -G logs neo4j
-sudo mkdir -p /logs/neo4j
-sudo chown -R root /logs/neo4j
-sudo chgrp -R logs /logs/neo4j
-sudo chmod -R u+rwX,g+rwX,o-wrx /logs/neo4j
+$ sudo usermod -a -G logs neo4j
+$ sudo mkdir -p /logs/neo4j
+$ sudo chown -R root /logs/neo4j
+$ sudo chgrp -R logs /logs/neo4j
+$ sudo chmod -R u+rwX,g+rwX,o-wrx /logs/neo4j
 ----
 
 If docker does not run as root
 
 [source,shell]
 ----
-docker_user=root
-sudo usermod -a -G logs "${docker_user}"
-sudo usermod -a -G neo4j "${docker_user}"
+$ docker_user=root
+$ sudo usermod -a -G logs "${docker_user}"
+$ sudo usermod -a -G neo4j "${docker_user}"
 ----
 
-Add ourselves to the neo4j group so `/neo4j/*` dirs created above can be read and editted. 
+Add ourselves to the neo4j group so `/neo4j/*` dirs created above can be read and edited.
 
 [source,shell]
 ----
-current_user=$(id -un)
-sudo usermod -a -G neo4j "${current_user}"
+$ current_user=$(id -un)
+$ sudo usermod -a -G neo4j "${current_user}"
 ----
 
-Start a new shell to pick up this group assignment
+Start a new shell to pick up this group assignment.
 
-Note docker doesnt pull in secondary groups automatically so one has to do this explicitly
+Note docker doesn't pull in secondary groups automatically so one has to do this explicitly:
 
 [source,shell]
 ----
-groups=( $( id --real --groups neo4j ) )
-docker run \
+$ groups=( $( id --real --groups neo4j ) )
+$ docker run \
     --publish=7474:7474 --publish=7687:7687 \
     --volume=/neo4j/data:/data \
     --volume=/neo4j/plugins:/plugins \

@@ -9,7 +9,6 @@ One of the major changes in Neo4j 3.0 was the reworking of configuration files a
 
 Note that the configuration files `conf/neo4j.properties` and `conf/neo4j-server.properties` were merged into a single `conf/neo4j.conf` in Neo4j 3.0. Configuration setting names in `conf/neo4j-wrapper.conf` were also changed, but most remain in that same configuration file (which is being merged into neo4j.conf in Neo4j 3.1).
 
-
 [options="header"]
 |=======================
 |Pre 3.0 Name|3.0 Name|Net Change

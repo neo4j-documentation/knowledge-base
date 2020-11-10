@@ -34,7 +34,7 @@ Those procedures have config options to generate formats for different outputs a
 
 NOTE: Please note that you have to enable the capability to write and read files first in `neo4j.conf`.
 
-[source,conf]
+[source,properties]
 ----
 apoc.export.file.enabled=true
 apoc.import.file.enabled=true
@@ -70,7 +70,8 @@ If you export the file with the `cypher-shell` format, it contains the right syn
 
 Then you can import them with https://neo4j.com/docs/operations-manual/current/tools/cypher-shell/[`cypher-shell`] too.
 
-`cat /tmp/export.cypher | ./bin/cypher-shell -u neo4j -p password`
+[source,shell]
+$ cat /tmp/export.cypher | ./bin/cypher-shell -u neo4j -p password
 
 == Example for export file
 
