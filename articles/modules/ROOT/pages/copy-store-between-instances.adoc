@@ -46,9 +46,10 @@ Due to the dangerous nature of this operation, we advise always logging a suppor
 
 We can make use of a HTTP endpoint to discover which instance is the master: `/db/manage/server/ha/master`. From the command line, a common way to ask those endpoints is to use curl. With no arguments, curl will do an HTTP GET on the URI provided and will output the body text, if any. If you also want to get the response code, just add the -v flag for verbose output:
 
-[source,shell,role=nocopy]
-----
+[source,shell]
 $ curl -v localhost:7474/db/manage/server/ha/master
+
+....
 *   Trying 127.0.0.1
 * Connected to localhost (127.0.0.1) port 7474 (#0)
 > GET /db/manage/server/ha/master HTTP/1.1
@@ -64,7 +65,7 @@ $ curl -v localhost:7474/db/manage/server/ha/master
 <
 * Connection #0 to host localhost left intact
 true
-----
+....
 
 Table 1. HA HTTP endpoint responses:
 |===
@@ -107,9 +108,10 @@ There are two ways of getting the instance role when using CC, procedures or HTT
 
 As in HA, we can make use of a HTTP endpoint to discover which instance is the master: `/db/manage/server/core/writable`. From the command line, a common way to ask those endpoints is to use curl. With no arguments, curl will do an HTTP GET on the URI provided and will output the body text, if any. If you also want to get the response code, just add the -v flag for verbose output:
 
-[source,shell,role=nocopy]
-----
+[source,shell]
 $ curl -v localhost:7474/db/manage/server/core/writable
+
+....
 *   Trying ::127.0.0.1
 * Connected to localhost (127.0.0.1) port 7474 (#0)
 > GET /db/manage/server/core/writable HTTP/1.1
@@ -125,7 +127,7 @@ $ curl -v localhost:7474/db/manage/server/core/writable
 <
 * Connection #0 to host localhost left intact
 true
-----
+....
 
 Table 2. CC HTTP endpoint responses:
 |===
