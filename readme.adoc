@@ -1,4 +1,4 @@
-== Neo4j Knowledge Base
+= Neo4j Knowledge Base
 ifdef::env-github[]
 :tip-caption: :bulb:
 :note-caption: :information_source:
@@ -14,20 +14,21 @@ It contains *public* articles that cover questions, problems, and issues with Ne
 All articles will be published for everyone to see under https://neo4j.com/developer/kb/.
 The articles will also be available on the Zendesk knowledge base: https://support.neo4j.com/hc/en-us/sections/200574983-Knowledge-Base.
 
-=== Intent / Workflow
+== Intent / Workflow
 
 If you answer questions on Neo4j in support, on Stack Overflow, Google Group, Slack or Twitter,
 please make sure to rather link to an up-to-date article originated in the Knowledge Base than writing an answer from scratch.
 
 This will also prevent *out of date content* accumulate in other places where it might get a high Google Rank without us having any means to update or clarify it.
 
-If there is no up to date article for a topic of general interest, please create one, if there is an article but it is outdated, please update the article and also update the `neo4j-versions` attribute.
+If there is no up-to-date article for a topic of general interest, please create one.
+If there is an article, but it is outdated, please update the article, and the `neo4j-versions` attribute.
 
 The goal is to start this as a GitHub repository but going forward to render it as part of the documentation / developer pages.
 
-Also all code that will be included should be tested by a build process / being pulled out of test cases.
+Also, all code that will be included should be tested by a build process / being pulled out of test cases.
 
-=== Structure
+== Structure
 
 Each article is written in AsciiDoc.
 
@@ -48,12 +49,14 @@ It contains some additional fields:
 * `:tags:`, e.g. `cypher,tuning`
 * `:environment:` e.g. `windows`
 
-==== File Names & Slugs
+=== Slugs & File Names
 
-All articles need to have a `:slug:` attribute so that we can tie them to the appropriate post/article on WordPress / Zendesk.
+All articles need to have a `slug` attribute so that we can tie them to the appropriate post / article on WordPress / Zendesk.
+The `slug` attribute must only contains lowercase alphanumeric characters and hyphens to make it a good URL.
+No spaces, no uppercase, no leading, trailing or double hyphens.
 
-All article file names must only contains lowercase alphanumeric characters and hyphens, e.g. `how-to-run-consistency-check.adoc`.
-If an article is added and it has spaces in its filename, the `noSpaces.sh` script in the `/articles` directory will make a space-less name for it using the slug in the article.
+The article file name must be the same as the `slug` attribute.
+It must only contains lowercase alphanumeric characters and hyphens, e.g. `how-to-run-consistency-check.adoc`.
 
 [IMPORTANT]
 ====
@@ -74,29 +77,26 @@ We can now safely update the slug, it won't publish a new article on Zendesk and
 
 For WordPress this isn't a problem, but for Zendesk it means that the article will be deleted and the article id won't be recoverable, leaving links permanently broken.
 
-The `slug` must only contains lowercase alphanumeric characters and hyphens to make it a good URL.
-No spaces, no uppercase, no leading/trailing/double hyphens.
-
 WARNING: When a slug is invalid, no document will be deployed until the slug is fixed.
 
-You can find out if a slug failed on the link:https://github.com/neo4j-documentation/knowledge-base/actions?query=workflow%3ABuild[GitHub Actions] build.
-It is suggested that you subscribe to notifications for the builds so that you can receive an email whenever a build fails and whenever it starts again.
+You can find out if a slug failed on the https://github.com/neo4j-documentation/knowledge-base/actions?query=workflow%3ABuild[GitHub Actions] build.
+We recommend that you subscribe to notifications for the builds so that you can receive an email whenever a build fails and whenever it starts again.
 
-==== Versions
+=== Versions
 
 * 3.4, 3.5, 4.0, 4.1
 
 Optionally add minor versions / milestones as additional versions separated with comma / in the prose if relevant.
 
-==== Tag Taxonomy
+=== Tag Taxonomy
 
 See link:./kb-categories.txt[]
 
-=== Code Snippets
+== Code Snippets
 
 If you use code-snippets, please make sure to mark them with the correct source, e.g. `[source,cypher]`, `[source,java]`.
 
-For Cypher you can also provide a setup section or file as part of the repository.
+For Cypher, you can also provide a setup section or file as part of the repository.
 
 Feel also free to use graph-gist syntax here, e.g. `//setup, //graph, //graph_result, //table`, so that we can chose to render the files as graphgists.
 
@@ -105,7 +105,7 @@ For code snippets you can include http://asciidoctor.org/docs/user-manual/#by-ta
 [NOTE]
 Make sure to update those code examples alongside with the article.
 
-==== Code Snippets Example
+=== Code Snippets Example
 
 [source,asciidoc]
 ....
@@ -153,6 +153,54 @@ try (Transaction tx = db.beginTx()) {
 }
 ----
 
+== Linter task
+
+To ensure that all articles are following the guidelines, we enforce a set of rules using a linter.
+
+The linter task will be executed as part of the https://github.com/neo4j-documentation/knowledge-base/actions?query=workflow%3ALint[GitHub Actions] build.
+
+You can also run the linter task locally using `npm`.
+As a prerequisite, you will need to download and install https://nodejs.org/en/[Node].
+Once Node is installed, open a terminal and execute the following command at the root of this project:
+
+[source,console]
+----
+$ npm run lint
+----
+
+If something is incorrect, you will get an error in the console, for instance:
+
+....
+> @neo4j/knowledge-base@1.0.0 lint /home/guillaume/workspace/neo4j/knowledge-base-public
+> node tasks/lint.js
+
+ERROR: The slug attribute 'this_slug_is_invalid' is invalid in 'invalid.adoc', it must only contains lowercase alphanumeric characters and hyphens.
+npm ERR! code ELIFECYCLE
+npm ERR! errno 1
+npm ERR! @neo4j/knowledge-base@1.0.0 lint: `node tasks/lint.js`
+npm ERR! Exit status 1
+npm ERR!
+npm ERR! Failed at the @neo4j/knowledge-base@1.0.0 lint script.
+npm ERR! This is probably not a problem with npm. There is likely additional logging output above.
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /home/guillaume/.npm/_logs/2020-10-23T07_03_13_504Z-debug.log
+....
+
+=== Annotations
+
+On GitHub Actions build, the code will be annotated if there are any issues.
+Here's an example:
+
+image::resources/annotations-result.png[]
+
+Annotations are created by the https://github.com/yuzutech/annotations-action[annotations-action] from the `annotations.json` file.
+The `annotations.json` file is generated by the `npm run lint` task and contains a JSON array.
+
+Annotations are contextual, and they will be visible on your pull request in the "Files changed":
+
+image::resources/contextual-annotation.png[]
+
 == Gradle Tasks
 
 === Show taxonomies
@@ -185,7 +233,7 @@ Before publishing you can convert the articles to HTML:
 
 The HTML pages will be generated respectively in [.path]_build/zendesk/html_ and [.path]_build/wordpress/html_.
 
-=== Publish WordPress
+=== Publish to WordPress
 
 ==== Properties
 
@@ -212,7 +260,7 @@ When publishing in "testing", the slug will be automatically prefixed by `+_test
 .Publish in "production"
  $ ./gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=production
 
-=== Publish Zendesk
+=== Publish to Zendesk
 
 Articles can be published on the Enterprise Customer Support (support.neo4j.com) and/or on the Aura Customer Support.
 By default, all articles are published on the Enterprise Customer Support.

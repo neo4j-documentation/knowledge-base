@@ -20,8 +20,6 @@ urls:
   html_extension_style: indexify
 
 asciidoc:
-  extensions:
-    - ./resources/extensions/slug-checker.js
   attributes:
     experimental: ''
     page-component: kb
