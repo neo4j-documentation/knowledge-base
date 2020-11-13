@@ -14,8 +14,7 @@ output:
 
 ui:
   bundle:
-    url: https://github.com/neo4j-documentation/docs-refresh/raw/master/ui/build/ui-bundle.zip
-    snapshot: true
+    url: https://s3-eu-west-1.amazonaws.com/static-content.neo4j.com/build/ui-bundle-v0.4.0.zip
 
 urls:
   html_extension_style: indexify
