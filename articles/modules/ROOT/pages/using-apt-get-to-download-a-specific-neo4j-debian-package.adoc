@@ -42,14 +42,13 @@ $ apt-cache madison neo4j
 Choose from the available packages, and decide whether you want Enterprise or Community.
 To install neo4j 3.5.5:
 
+.Enterprise
 [source,shell]
-----
-# Enterprise:
-root@neo4j $ apt-get install neo4j-enterprise=1:3.5.5
+$ apt-get install neo4j-enterprise=1:3.5.5
 
-# Community:
-root@neo4j $ apt-get install neo4j=3.5.5
-----
+.Community
+[source,shell]
+$ apt-get install neo4j=3.5.5
 
 For more information, you can refer to the following section of the product documentation: https://neo4j.com/docs/operations-manual/current/installation/linux/debian/[Install Neo4j on Debian and Debian-based distributions].
 
