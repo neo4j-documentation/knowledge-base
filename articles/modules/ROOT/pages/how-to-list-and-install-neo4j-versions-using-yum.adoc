@@ -40,7 +40,7 @@ Example output:
 
 [source,shell]
 ----
-[root@localhost ~]# yum list --show-duplicates neo4j-enterprise
+$ yum list --show-duplicates neo4j-enterprise
 Loaded plugins: fastestmirror, langpacks
 Loading mirror speeds from cached hostfile
  * base: mirror.cc.columbia.edu
@@ -113,14 +113,15 @@ neo4j-enterprise.noarch                   3.0.0-M05_1                     neo4j
 Choose from the available packages, and decide whether you want Enterprise or Community.
 To install neo4j 2.3.7:
 
+.Entreprise
 [source,shell]
 ----
-# Enterprise:
+$ yum install neo4j-enterprise-2.3.7
+----
 
-[root@localhost ~]# yum install neo4j-enterprise-2.3.7
-
-# Community:
-
-[root@localhost ~]# yum install neo4j-2.3.7
+.Community
+[source,shell]
+----
+$ yum install neo4j-2.3.7
 ----
 
