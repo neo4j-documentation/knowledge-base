@@ -167,8 +167,8 @@ $ neo4j-admin backup --backup-dir=<backup-path> --name=<graph.db-backup> [--from
 
 [source,shell]
 ----
-$ neo4j-home> mkdir /mnt/backup
-$ neo4j-home> bin/neo4j-admin backup --from=192.168.1.34 --backup-dir=/mnt/backup --name=graph.db-backup
+neo4j-home> mkdir /mnt/backup
+neo4j-home> bin/neo4j-admin backup --from=192.168.1.34 --backup-dir=/mnt/backup --name=graph.db-backup
 Doing full backup...
 2017-02-01 14:09:09.510+0000 INFO  [o.n.c.s.StoreCopyClient] Copying neostore.nodestore.db.labels
 2017-02-01 14:09:09.537+0000 INFO  [o.n.c.s.StoreCopyClient] Copied neostore.nodestore.db.labels 8.00 kB
