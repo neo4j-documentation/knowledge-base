@@ -1,5 +1,5 @@
 = Startup failure due to misconfigured unmanaged extensions or plugins
-:slug: hosting-multiple-neo4j-instances-on-one-machine
+:slug: startup-failure-misconfigured-unmanaged-extensions-or-plugins
 :author: Umar Muzammil
 :neo4j-versions: 3.2, 3.3, 3.4, 3.5
 :tags: unmanaged, extension, plugin, startup

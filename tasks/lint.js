@@ -10,13 +10,16 @@ const articlesDir = path.resolve(path.join(rootDir, 'articles', 'modules', 'ROOT
 const articleFiles = fs.readdirSync(articlesDir)
 const annotations = []
 
+const slugs = {}
 for (const articleFile of articleFiles) {
   if (articleFile.endsWith('.adoc') && !IGNORE_FILES.includes(articleFile)) {
     const filePath = path.join(articlesDir, articleFile)
     const doc = asciidoctor.loadFile(filePath)
-    annotations.push(...slugChecker.check(doc, articleFile))
+    annotations.push(...slugChecker.check(doc, articleFile, slugs))
   }
 }
+
+annotations.push(...slugChecker.unique(slugs))
 
 if (annotations.length > 0) {
   fs.writeFileSync('annotations.json', JSON.stringify(annotations), 'utf8')
