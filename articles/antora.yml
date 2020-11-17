@@ -5,5 +5,7 @@ nav:
   - modules/ROOT/nav.adoc
 asciidoc:
   attributes:
+    # used by the search engine to classify pages
+    page-type: 'Knowledge Base'
     page-layout: 'kb-article@'
     assets-cdn: 'https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content'
