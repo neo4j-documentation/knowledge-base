@@ -41,12 +41,12 @@ When a database with the name `mydb` is created, a node with the label `Database
 Here is an example of a single Database node:
 
 ```
-( n:Database { name : myDb, uuid: 7242f697-7f4f-4bbf-b989-aad3e8980bfb, status: online } )
+( n:Database { name : mydb, uuid: 7242f697-7f4f-4bbf-b989-aad3e8980bfb, status: online } )
 ```
 and if it gets deleted just change the Database label to DeletedDatabase:
 
 ```
-( n:DeletedDatabase { name : myDb, uuid: 7242f697-7f4f-4bbf-b989-aad3e8980bfb, status: offline } )
+( n:DeletedDatabase { name : mydb, uuid: 7242f697-7f4f-4bbf-b989-aad3e8980bfb, status: offline } )
 ```
 
 The property that uniquely identifies a database internally, is the `uuid`, which is of type UUID. So, you may DROP a database `neo4j` and then CREATE it again. Internally, the first one will exist with the `DeletedDatabase` label, and the new one will have the `Database` label with a different `uuid`.
