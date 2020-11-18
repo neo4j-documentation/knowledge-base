@@ -34,9 +34,22 @@ The **reconciler** talks to another component called the **database manager**, w
 
 The reconciler’s job is to reconcile between the desired state (STOPPED, STARTED, DROPPED) and the current state.
 
-When a database with the name `mydb` is created, a node with the label `mydb` gets created in the `system` database. The node has a few other properties such as `createdAt`, `status`, `databaseId`, as shown in the picture above. The interesting thing to note is that when `mydb` database is dropped, the label of the node will change to `Deletedmydb`.
+One important aspect of the reconciler is that it operates completely asynchronously and always from the replicated "source of truth" desired state as written into the system database. If a server for example is partitioned for a while from the rest of the cluster, or is falling behind for some reason, then it will not get the updates to the "desired state" and hence the reconciler on that server will not yet perform the operational changes that the other servers already have done. As soon as the cluster is back to normal though, with connectivity and all, then the reconciler will continue of course.
 
-The property that uniquely identifies a database internally, is the `databaseId`, which is of type UUID. So, you may DROP a database `neo4j` and then CREATE it again. Internally, the first one will exist with the `Deletednoe4j` label, and the new one will have the `neo4j` label with a different `databaseId`.
+When a database with the name `mydb` is created, a node with the label `Database` gets created in the `system` database. The node has a few other properties such as `name`, `status`, `uuid`, as shown in the picture above. The interesting thing to note is that when `mydb` database is dropped, the label of the node will change to `DeletedDatabase`.
+
+Here is an example of a single Database node:
+
+```
+( n:Database { name : myDb, uuid: 7242f697-7f4f-4bbf-b989-aad3e8980bfb, status: online } )
+```
+and if it gets deleted just change the Database label to DeletedDatabase:
+
+```
+( n:DeletedDatabase { name : myDb, uuid: 7242f697-7f4f-4bbf-b989-aad3e8980bfb, status: offline } )
+```
+
+The property that uniquely identifies a database internally, is the `uuid`, which is of type UUID. So, you may DROP a database `neo4j` and then CREATE it again. Internally, the first one will exist with the `DeletedDatabase` label, and the new one will have the `Database` label with a different `uuid`.
 
 When you backup the `system` database, remember that it has the operational configuration in it. Let's say, when the online backup of the `system` database was taken, `mydb` database was stopped at that time. So, when you restore the `system` database backup, `mydb` will have the stopped state. So, the operational state is always defined by what is in the `system` database.
 
@@ -55,5 +68,5 @@ Finally, here are a few more points to note from a multi database operations sta
 2.	If you look at the `debug.log`, the `MemberId` of the raft membership will not be different for each database. All databases within one instance will have the same `MemberId`.
 3.	All multi-database administrative commands must be run against the `system` database. These administrative commands are automatically routed to the `system` database when connected to the DBMS over Bolt.
 4.	The native users are stored in the `system` database, that is where the security model lives.
-5.	The `neo4j-admin unbind` runs on all the database in the DBMS.
+5.	The `neo4j-admin unbind` runs on all the databases on the particular server.
 6.	The `dbms.memory.pagecache.size` ,`dbms.memory.heap.initial_size`, and `dbms.memory.heap.max_size` settings are all at the instance level. All the databases operate under one JVM, they share the same page cache and heap.
