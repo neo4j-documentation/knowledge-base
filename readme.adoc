@@ -161,12 +161,15 @@ The linter task will be executed as part of the https://github.com/neo4j-documen
 
 You can also run the linter task locally using `npm`.
 As a prerequisite, you will need to download and install https://nodejs.org/en/[Node].
-Once Node is installed, open a terminal and execute the following command at the root of this project:
+Once Node is installed, open a terminal and execute the following command at the root of this project to install the dependencies:
 
 [source,console]
-----
+$ npm i
+
+Then, execute the `lint` task:
+
+[source,console]
 $ npm run lint
-----
 
 If something is incorrect, you will get an error in the console, for instance:
 
@@ -202,6 +205,14 @@ Annotations are contextual, and they will be visible on your pull request in the
 image::resources/contextual-annotation.png[]
 
 == Gradle Tasks
+
+=== Show taxonomies
+
+Show all the taxonomies defined on all the articles:
+
+ $ ./gradlew showTaxonomies
+
+NOTE: This task can be useful to review all the taxonomies.
 
 === Convert articles to HTML
 
@@ -265,3 +276,27 @@ API token generated from the Admin page on Zendesk
 
 .Publish
  $ ./gradlew zenDeskUpload -Pzendesk-email="user@neo4j.com" -Pzendesk-apitoken="apitoken"
+
+== Antora
+
+=== Live Preview
+
+You can preview the Knowledge Base site locally using `npm`.
+As a prerequisite, you will need to download and install https://nodejs.org/en/[Node].
+Once Node is installed, open a terminal and execute the following command at the root of this project to install the dependencies:
+
+[source,console]
+$ npm i
+
+Then, execute the `watch` task:
+
+[source,console]
+$ npm run watch
+
+This will build a set of HTML files in _public_ and then serve them through a local HTTP server at http://localhost:3000.
+The `watch` script will also listen for changes and automatically rebuild the files and refresh the page.
+
+=== Publishing
+
+Pushing to the `master` branch of this repo will trigger a rebuild of the HTML and CSS files in the `neo4j-documentation/docs-refresh` repo using a Github Action.
+The HTML and CSS files will then be synchronized to S3 and live at: https://neo4j.com/developer/kb.
