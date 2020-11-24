@@ -1,5 +1,3 @@
-import com.neo4j.gradle.wordpress.WordPressTaxonomySyncTask
-import com.neo4j.gradle.wordpress.WordPressUploadTask
 import com.neo4j.gradle.zendesk.ZenDeskUploadTask
 import org.asciidoctor.gradle.jvm.AsciidoctorTask
 import org.yaml.snakeyaml.Yaml
@@ -13,7 +11,6 @@ buildscript {
 plugins {
     id 'org.asciidoctor.jvm.gems' version '3.2.0' apply false
     id 'org.asciidoctor.jvm.convert' version '3.2.0' apply false
-    id "com.neo4j.gradle.wordpress.WordPressPlugin" version "0.6.0"
     id "com.neo4j.gradle.zendesk.ZenDeskPlugin" version "0.3.0"
 }
 
@@ -29,13 +26,6 @@ repositories {
 
 dependencies {
     asciidoctorGems 'rubygems:neo4j-asciidoctor-extensions:0.1.0'
-}
-
-wordpress {
-    username = project.hasProperty('wordpress-username') ? project.property('wordpress-username') : 'neo'
-    password = project.hasProperty('wordpress-password') ? project.property('wordpress-password') : ''
-    host = project.hasProperty('wordpress-host') ? project.property('wordpress-host') : 'localhost'
-    scheme = 'https'
 }
 
 zendesk {
@@ -129,91 +119,26 @@ ext.getTaxonomies = { taxonomyName, files ->
     return values.toList()
 }
 
-task convertWordPressHtml(type: AsciidoctorTask) {
+task convertHtml(type: AsciidoctorTask) {
     dependsOn asciidoctorGemsPrepare
 
-    inputs.dir "${rootProject.projectDir}/_templates/wordpress"
-
     asciidoctorj {
-        requires "${rootProject.projectDir}/resources/extensions/footer.rb"
-        options standalone: true,
-                template_dirs: ["${rootProject.projectDir}/_templates/wordpress"]
+        options standalone: true
     }
     baseDir file("${projectDir}/articles/modules/ROOT/pages")
     sourceDir file("${projectDir}/articles/modules/ROOT/pages")
     sources {
         excludes.addAll(['tags.adoc', 'categories.adoc', 'index.adoc'])
     }
-    outputDir file("${projectDir}/build/wordpress/html")
+    outputDir file("${projectDir}/build/html")
 }
 
 task showTaxonomies {
-    dependsOn convertWordPressHtml
+    dependsOn convertHtml
 
     doLast {
-        project.showTaxonomies(convertWordPressHtml.outputs.files)
+        project.showTaxonomies(convertHtml.outputs.files)
     }
-}
-
-task syncNeo4jVersionTaxonomy(type: WordPressTaxonomySyncTask) {
-    dependsOn convertWordPressHtml
-
-    doFirst {
-        def task = tasks.findByName('syncNeo4jVersionTaxonomy')
-        if (task != null) {
-            task.configure {
-                values = project.getTaxonomies("neo4j_version", convertWordPressHtml.outputs.files)
-            }
-        }
-    }
-    restBase = "neo4j_version"
-}
-
-
-task syncDeveloperTagTaxonomy(type: WordPressTaxonomySyncTask) {
-    dependsOn convertWordPressHtml
-
-    doFirst {
-        def task = tasks.findByName('syncDeveloperTagTaxonomy')
-        if (task != null) {
-            task.configure {
-                values = project.getTaxonomies("developer_tag", convertWordPressHtml.outputs.files)
-            }
-        }
-    }
-    restBase = "developer_tag"
-}
-
-task syncDeveloperCategoryTaxonomy(type: WordPressTaxonomySyncTask) {
-    dependsOn convertWordPressHtml
-
-    doFirst {
-        def task = tasks.findByName('syncDeveloperCategoryTaxonomy')
-        if (task != null) {
-            task.configure {
-                values = project.getTaxonomies("developer_category", convertWordPressHtml.outputs.files)
-            }
-        }
-    }
-    restBase = "developer_category"
-}
-
-task syncEnvironmentTaxonomy(type: WordPressTaxonomySyncTask) {
-    dependsOn convertWordPressHtml
-
-    doFirst {
-        def task = tasks.findByName('syncEnvironmentTaxonomy')
-        if (task != null) {
-            task.configure {
-                values = project.getTaxonomies("environment", convertWordPressHtml.outputs.files)
-            }
-        }
-    }
-    restBase = "environment"
-}
-
-task syncTaxonomy {
-    dependsOn syncEnvironmentTaxonomy, syncDeveloperCategoryTaxonomy, syncDeveloperTagTaxonomy, syncNeo4jVersionTaxonomy
 }
 
 task convertZenDeskHtml(type: AsciidoctorTask) {
@@ -237,17 +162,7 @@ task convertZenDeskHtml(type: AsciidoctorTask) {
 }
 
 task convert {
-    dependsOn convertWordPressHtml, convertZenDeskHtml
-}
-
-if (stage == 'production' || stage == 'testing') {
-    task wordPressUpload(type: WordPressUploadTask) {
-        dependsOn convertWordPressHtml
-
-        source = convertWordPressHtml.outputs.files
-        type = "faq"
-        status = stage == 'production' ? "publish" : "private"
-    }
+    dependsOn convertZenDeskHtml
 }
 
 ext.getZenDeskArticles = { publishingTargetEnvironment, publishingTargetSection, files ->

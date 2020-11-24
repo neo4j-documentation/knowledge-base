@@ -51,7 +51,7 @@ It contains some additional fields:
 
 === Slugs & File Names
 
-All articles need to have a `slug` attribute so that we can tie them to the appropriate post / article on WordPress / Zendesk.
+All articles need to have a `slug` attribute so that we can tie them to the appropriate article on Zendesk.
 The `slug` attribute must only contains lowercase alphanumeric characters and hyphens to make it a good URL.
 No spaces, no uppercase, no leading, trailing or double hyphens.
 
@@ -75,7 +75,7 @@ For instance, in the article above, we will update the Zendesk article using the
 We can now safely update the slug, it won't publish a new article on Zendesk and the URL will be preserved.
 ====
 
-For WordPress this isn't a problem, but for Zendesk it means that the article will be deleted and the article id won't be recoverable, leaving links permanently broken.
+For Zendesk it means that the article will be deleted and the article id won't be recoverable, leaving links permanently broken.
 
 WARNING: When a slug is invalid, no document will be deployed until the slug is fixed.
 
@@ -203,62 +203,13 @@ image::resources/contextual-annotation.png[]
 
 == Gradle Tasks
 
-=== Show taxonomies
-
-Show all the taxonomies defined on all the articles:
-
- $ ./gradlew showTaxonomies
-
-NOTE: This task can be useful to review all the taxonomies.
-
-=== Synchronize taxonomies
-
-Taxonomies are _not_ automatically created but you can synchronize them (ie. create all missing values):
-
- $ ./gradlew syncTaxonomy
-
-Alternatively, it's possible to synchronize taxonomies individually:
-
- $ ./gradlew syncEnvironmentTaxonomy
- $ ./gradlew syncDeveloperCategoryTaxonomy
- $ ./gradlew syncDeveloperTagTaxonomy
- $ ./gradlew syncNeo4jVersionTaxonomy
-
 === Convert articles to HTML
 
 Before publishing you can convert the articles to HTML:
 
  $ ./gradlew convertZenDeskHtml
- $ ./gradlew convertWordPressHtml
 
-The HTML pages will be generated respectively in [.path]_build/zendesk/html_ and [.path]_build/wordpress/html_.
-
-=== Publish to WordPress
-
-==== Properties
-
-You can define the properties using `-P` in the Gradle command line.
-
-`wordpress-username`::
-Username to authenticate on the WordPress REST API
-
-`wordpress-password`::
-Password to authenticate on the WordPress REST API
-
-`wordpress-host`::
-Host of the WordPress instance (for instance: `neo4j.com`)
-
-`stage`::
-Either `testing` or `production`.
-When publishing in "testing", the slug will be automatically prefixed by `+_testing_+` and the pages will be private.
-
-==== Examples
-
-.Publish in "testing"
- $ ./gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=testing
-
-.Publish in "production"
- $ ./gradlew wordPressUpload -Pwordpress-username="user" -Pwordpress-host="neo4j.com" -Pwordpress-password="password" -Pstage=production
+The HTML pages will be generated in [.path]_build/zendesk/html_.
 
 === Publish to Zendesk
 

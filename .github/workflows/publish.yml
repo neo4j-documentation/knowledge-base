@@ -28,12 +28,6 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Publish WordPress
-        run: |
-          ./gradlew wordPressUpload -Pwordpress-host="neo4j.com" -Pwordpress-username="${WORDPRESS_USER}" -Pwordpress-password="${WORDPRESS_PASSWORD}" -Pstage=production
-        env:
-          WORDPRESS_USER: ${{ secrets.WORDPRESS_USER }}
-          WORDPRESS_PASSWORD: ${{ secrets.WORDPRESS_PASSWORD }}
       - name: Publish Zendesk
         run: |
           ./gradlew zenDeskUpload -Pzendesk-email="${ZENDESK_EMAIL}" -Pzendesk-apitoken="${ZENDESK_APITOKEN}" -Pstage=production
