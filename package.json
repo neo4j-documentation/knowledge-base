@@ -1,5 +1,5 @@
 {
-  "name": "@neo4j/knowledge-base",
+  "name": "@neo4j-documentation/knowledge-base",
   "version": "1.0.0",
   "description": "Neo4j Knowledge Base",
   "main": "index.js",
@@ -21,13 +21,13 @@
   "homepage": "https://github.com/neo4j-documentation/knowledge-base#readme",
   "devDependencies": {
     "@antora/cli": "^2.3.4",
-    "@neo4j/developer-site-generator": "git+https://github.com/neo4j-documentation/developer-site-generator.git#v0.1.0",
+    "@neo4j/developer-site-generator": "git+https://github.com/neo4j-documentation/developer-site-generator.git#v0.4.2",
     "@asciidoctor/core": "^2.2.0",
     "browser-sync": "^2.26.12",
     "chalk": "^4.1.0",
-    "cheerio": "^1.0.0-rc.3",
     "chokidar": "^3.4.2",
     "express": "^4.17.1"
   },
-  "private": true
+  "private": true,
+  "dependencies": {}
 }
