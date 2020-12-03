@@ -1,12 +1,80 @@
 = How to generate sysinfo output from Cypher
 :slug: how-to-generate-sysinfo-output-from-cypher
 :author: Dana Canzano
-:neo4j-versions: 3.2, 3.3
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2
 :tags: cypher, sysinfo
 :category: operations
 
 If you need to generate the equivalent output from command `:sysinfo` as run from the Neo4j Browser at http://localhost:7474
 this can be achieved by running the following Cypher
+
+For Neo4j 4.x
+be sure to enable conf/neo4j.conf parameter of `metrics.jmx.enabled=true`
+
+[source,cypher]
+----
+// Store size. Per db
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.store.size.total") YIELD name, attributes
+RETURN "Store Size" AS group, name, attributes
+UNION ALL
+
+// Page cache. Per DBMS.
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.page_cache.flushes") YIELD name, attributes
+RETURN "Page Cache" AS group, name, attributes
+UNION ALL
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.page_cache.evictions") YIELD name, attributes
+RETURN "Page Cache" AS group, name, attributes
+UNION ALL
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.page_cache.eviction_exceptions") YIELD name, attributes
+RETURN "Page Cache" AS group, name, attributes
+UNION ALL
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.page_cache.hit_ratio") YIELD name, attributes
+RETURN "Page Cache" AS group, name, attributes
+UNION ALL
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.page_cache.usage_ratio") YIELD name, attributes
+RETURN "Page Cache" AS group, name, attributes
+UNION ALL
+
+// Primitive counts. Per db.
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.ids_in_use.node") YIELD name, attributes
+RETURN "Primitive Count" AS group, name, attributes
+UNION ALL
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.ids_in_use.property") YIELD name, attributes
+RETURN "Primitive Count" AS group, name, attributes
+UNION ALL
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.ids_in_use.relationship") YIELD name, attributes
+RETURN "Primitive Count" AS group, name, attributes
+UNION ALL
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.ids_in_use.relationship_type") YIELD name, attributes
+RETURN "Primitive Count" AS group, name, attributes
+UNION ALL
+
+// Transactions. Per db.
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.transaction.last_committed_tx_id") YIELD name, attributes
+RETURN "Transactions" AS group, name, attributes
+UNION ALL
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.transaction.active") YIELD name, attributes
+RETURN "Transactions" AS group, name, attributes
+UNION ALL
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.transaction.peak_concurrent") YIELD name, attributes
+RETURN "Transactions" AS group, name, attributes
+UNION ALL
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.transaction.started") YIELD name, attributes
+RETURN "Transactions" AS group, name, attributes
+UNION ALL
+CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.transaction.committed") YIELD name, attributes
+RETURN "Transactions" AS group, name, attributes
+----
+
+*Note:* As 4.x allows for the creation of multiple databases the value passed into `dbms.queryJmx` includes the database name.   For example in the expression 
+`CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.store.size.total") ....`  and if you wanted to query a database named `proddb1` then the value to pass would be 
+`neo4j.metrics:name=neo4j.proddb1.store.size.total
+
+
+
+
+For Neo4j 3.x
+
 
 [source,cypher]
 ----
