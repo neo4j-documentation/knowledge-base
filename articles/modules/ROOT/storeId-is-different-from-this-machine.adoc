@@ -1,0 +1,36 @@
+= Explantion of "storeId is different from this machine" error
+:slug: storeId-is-different-from-this-machine
+:author: Vivek Saran
+:neo4j-versions: 3.5, 4.0, 4.1
+:category: operations
+:tags: causal-cluster
+
+
+If you encounter a "Failed to serve TxPullRequest for ... storeId xxxxxx because that storeId is different from this machine with Store..." in your `$NEO4J_HOME/logs/debug.log` similar to:
+
+----
+INFO [o.n.c.c.t.TxPullRequestHandler] Failed to serve TxPullRequest for tx 29193 and 
+storeId Store{creationTime:1591347647541, randomId:6812995525063259919, upgradeTime:1591347647541, upgradeId:1} 
+because that storeId is different from this machine with Store
+{creationTime:1595941375808, randomId:-4448032294085490672, upgradeTime:1595941375808, upgradeId:1}
+----
+
+This means that the storId is different. When a Neo4j instance starts, you will notice a line similar to the following entry in the `debug.log`:
+
+----
+INFO [o.n.c.c.s.LocalDatabase] Starting with storeId: Store
+{creationTime:1582039045717, randomId:4716225943436743213, upgradeTime:1582039045717, upgradeId:1}
+----
+
+All instances in a Neo4j Causal Cluster will show a storeId (listed as `randomId`) entry similar to above in the `debug.log. If the storeId is different for any member of the cluster, the "storeId is different from this machine" error will show up.
+
+== How do you recover from this mismatch?
+
+1. Identify the Neo4j node that has the highest `randomId`, this is the storeId as show in the example above
+1. Take an online backup of the above node
+1. Stop the instance(s) that has a lower `randomId`
+1. Execute `$bin/neo4j-admin unbind`
+1. Restore the backup on that instance(s)
+1. Start Neo4j 
+
+Please feel free to open a ticket with Neo4j Support, if you have questions about this subject or if you enolunter this error.
