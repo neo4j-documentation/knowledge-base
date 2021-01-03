@@ -187,7 +187,7 @@ These work:
 ----
 OPTIONAL MATCH (ele:PinkElephant)
 WITH ele
-MATCH (node1:Person{name:ele.name)-[:ACTED_IN]->(m:Movie)
+MATCH (node1:Person{name:ele.name})-[:ACTED_IN]->(m:Movie)
 RETURN node1
 ----
 
@@ -197,16 +197,16 @@ and
 ----
 OPTIONAL MATCH (ele:PinkElephant)
 WITH ele
-CREATE (node1:Person{name:ele.name)-[:ACTED_IN]->(m:Movie)
+CREATE (node1:Person{name:ele.name})-[:ACTED_IN]->(m:Movie)
 RETURN node1
 ----
 
-but this throws an error:
+but this throws a "Cannot merge" error:
 
 [source,cypher]
 ----
 OPTIONAL MATCH (ele:PinkElephant)
 WITH ele
-MERGE (node1:Person{name:ele.name)-[:ACTED_IN]->(m:Movie)
+MERGE (node1:Person{name:ele.name})-[:ACTED_IN]->(m:Movie)
 RETURN node1
 ----
