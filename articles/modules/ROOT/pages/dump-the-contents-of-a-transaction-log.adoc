@@ -2,7 +2,7 @@
 :slug: dump-the-contents-of-a-transaction-log
 :zendesk-id: 205527958
 :author: Dave Gordon
-:neo4j-versions: 3.0,3.1,3.2,3.3,3.4,3.5
+:neo4j-versions: 3.0,3.1,3.2,3.3,3.4,3.5,4.0,4.1,4.2
 :tags: transaction log
 :category: operations
 
@@ -16,10 +16,14 @@ The username and password can be found https://support.neo4j.com/hc/en-us/articl
 Place the jar in `$NEO4J_HOME\lib` and given a log file of neostore.transaction.db.1, run:
 
 [source,shell]
+For 3.5 and lower
 ----
 $ java -cp 'lib/*:system/lib/*:/usr/share/neo4j/lib/*' org.neo4j.tools.dump.DumpLogicalLog ./data/graph.db/neostore.transaction.db.1 > /tmp/dumptxlog_1.log
 ----
-
+For 4.0 and higher
+----
+$ java -cp 'lib/*:system/lib/*:/usr/share/neo4j/lib/*' com.neo4j.tools.dump.DumpLogicalLog ./data/transactions/<Your Database Here>/neostore.transaction.db.0 /tmp/dumptxlog_1.log
+----
 Once dumped, you can search for a node ID, etc.
 
 ....
