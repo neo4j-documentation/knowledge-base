@@ -6,8 +6,10 @@
 :neo4j-versions: 2.1, 2.2, 2.3, 3.1,3.2,3.3,3.4
 :category: operations
 
-[NOTE]
-For Neo4j 2.3+ there is no object cache anymore, so this warms up the page-cache which maps the Neo4j store files into memory.
+*Note:* For 3.5.x forward the details below are no longer applicable as Neo4j will keep record of what is in the pagecache at all times and upon restart of Neo4j the
+pagecache will be auto-warmed with the data which was previously in the pagecache.
+
+*Note:* For Neo4j 2.3+ there is no object cache anymore, so this warms up the page-cache which maps the Neo4j store files into memory.
 
 You may find that some queries run much faster the second time they run. 
 This is because on cold boot, a server node has nothing cached yet, and needs to go to disk for all records. 
