@@ -41,7 +41,9 @@ Neo4j Database Enterprise Edition
 
 (*) Note: One-time extension for 3.4 only.
 
+
 (****) Note: Last minor version of the major version. 
+
 
 The driver major.minor version number describes the feature set available within that driver. Across languages, drivers are generally 
 released at similar times, although patches are driver-dependent. The 1.x series drivers have been built for Neo4j 3.x. It is
