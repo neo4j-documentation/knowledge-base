@@ -61,5 +61,5 @@ such as creating a new uniqueness constraint on the Actor label.
 Further notes:
 
 - Exclusive lock cannot be acquired if that node or relationship has an existing shared lock.
-- Transactions trying to read or modify a node with exclusive lock will wait for any existing exclusive lock to be released before they can be acquired. Hence the lock acquisition time comes into play, governing timeouts upon failure to acquire lock with a given time, configurable in neo4j.conf by `dbms.lock.acquisition.timeout`.
+- Transactions trying to modify a node with exclusive lock will wait for any existing exclusive lock to be released before they can be acquired. Hence the lock acquisition time comes into play, governing timeouts upon failure to acquire lock with a given time, configurable in neo4j.conf by `dbms.lock.acquisition.timeout`.
 - A limit on the maximum transaction runtime, is configurable in neo4j.conf via the `dbms.transaction.timeout` which can be used as a means to release any acquired exclusive and shared locks by transactions, within a specified time frame.
