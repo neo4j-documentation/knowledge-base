@@ -59,7 +59,7 @@ image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/states.gif[]
 
 The existence of a folder (for example, `$neo4j_home/data/database/mydb`) in the file system does not define the database's presence. It is determined by what is in the `system` database. If the database is not in the `system` database, then it is not registered even if the folder is there. To have the system pick up the database, you will need to execute `CREATE DATABASE mydb`.
 
-On the flip side, if the `system` database has a database `Xdb` and before it is restored, there is no such database in the `$neo4j_home/data/database/` location, then the reconciler will create the folder, and now you will have a blank `Xdb`.
+Furthermore, if the `system` database has a database `Xdb` and before it is restored, there is no such database in the `$neo4j_home/data/database/` location, then the reconciler will create the folder, and now you will have a blank `Xdb`.
 However, if there are other instances in the cluster that actively have an `Xdb` database up and running, the cluster binding process will do a **store copy** of that database and not create an empty database.
 
 Finally, here are a few more points to note from a multi database operations standpoint:
