@@ -73,13 +73,13 @@ Once the file is imported into a tab of a Google Sheet, you can follow the scree
 The red boxes and numbering show where to click and what order to do the steps.
 
 .Step 1 - Publish to Web
-image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_gdownload1.jpg[image,role="popup-link"]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/gdownload1.jpg[image,role="popup-link"]
 
 .Step 2 - Select Tab Name and Format CSV
-image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_gdownload2.jpg[image,role="popup-link"]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/gdownload2.jpg[image,role="popup-link"]
 
 .Step 3 - Confirm Publication and Copy the Link
-image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/sandbox_gdownload3.jpg[image,role="popup-link"]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/gdownload3.jpg[image,role="popup-link"]
 
 .Step 4 - Run Cypher LOAD CSV command
 [source,cypher]
