@@ -1,0 +1,72 @@
+= An overview of the system database
+:slug: an-overview-of-the-system-database
+:author: Vivek Saran
+:neo4j-versions: 4.0, 4.1
+:tags: system
+:category: operations
+
+Neo4j 4.0 and higher versions support the management of multiple databases within the same DBMS. All these databases are controlled through a special database called the `system` database.
+
+This article provides a brief architectural overview of the `system` database.
+
+The role of the `system` database is to **define the configuration** for the other databases. There could be various types of configuration for the databases. For example:
+
+* operational configuration
+** existence (exists or not)
+** status (online/offline)
+* security configuration (RBAC)
+* `neo4j.conf` (this is not yet maintained by the `system` database, but there are plans in the future versions)
+
+
+
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/configuration.gif[]
+
+
+A lot of interesting operational work happens (behind the scenes) both in standalone and clustered environments, which is handled by a component called the *reconciler*. 
+Refer to Fig 2 below.
+
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/reconciler.gif[]
+
+The `system` database is replicated across the cluster, and there is a leader for it just like any other database. Every database in 4.0 and going forward is in an independent raft group. That means core-1 could be the leader for the `system` database, whereas core-2 could be the leader for `mydb` database.
+Everything inside the `system` database is also stored in a graph data model. However, only DDL commands (CREATE, DROP, SHOW, etc.) could be executed in this database, not the regular Cypher commands (MATCH, for example). There are nodes representing other databases (`neo4j` and `mydb` in this example from Fig 2).
+
+The **reconciler** talks to another component called the **database manager**, which manages the actual databases. Every instance reconciles the local copies of all the databases. If the reconciler on core-2 (in the above example) knows that `mydb` became online in the leader (core-1), it ensures that `mydb` becomes online in this instance as well. The `system` database in every instance has a reconciler and a database manager.
+
+The reconciler’s job is to reconcile between the desired state (STOPPED, STARTED, DROPPED) and the current state.
+
+One important aspect of the reconciler is that it operates completely asynchronously and always from the replicated "source of truth" desired state as written into the system database. If a server for example is partitioned for a while from the rest of the cluster, or is falling behind for some reason, then it will not get the updates to the "desired state" and hence the reconciler on that server will not yet perform the operational changes that the other servers already have done. As soon as the cluster is back to normal though, with connectivity and all, then the reconciler will continue of course.
+
+When a database with the name `mydb` is created, a node with the label `Database` gets created in the `system` database. The node has a few other properties such as `name`, `status`, `uuid`, as shown in the picture above. The interesting thing to note is that when `mydb` database is dropped, the label of the node will change to `DeletedDatabase`.
+
+Here is an example of a single Database node:
+
+```
+( n:Database { name : mydb, uuid: 7242f697-7f4f-4bbf-b989-aad3e8980bfb, status: online } )
+```
+and if it gets deleted just change the Database label to DeletedDatabase:
+
+```
+( n:DeletedDatabase { name : mydb, uuid: 7242f697-7f4f-4bbf-b989-aad3e8980bfb, status: offline } )
+```
+
+The property that uniquely identifies a database internally, is the `uuid`, which is of type UUID. So, you may DROP a database `neo4j` and then CREATE it again. Internally, the first one will exist with the `DeletedDatabase` label, and the new one will have the `Database` label with a different `uuid`.
+
+When you backup the `system` database, remember that it has the operational configuration in it. Let's say, when the online backup of the `system` database was taken, `mydb` database was stopped at that time. So, when you restore the `system` database backup, `mydb` will have the stopped state. So, the operational state is always defined by what is in the `system` database.
+
+Following is a state diagram (Fig 3) of the all the states reconciler will publish when the `SHOW DATABASES` command is executed.
+
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/states.gif[]
+
+The existence of a folder (for example, `$neo4j_home/data/database/mydb`) in the file system does not define the database's presence. It is determined by what is in the `system` database. If the database is not in the `system` database, then it is not registered even if the folder is there. To have the system pick up the database, you will need to execute `CREATE DATABASE mydb`.
+
+On the flip side, if the `system` database has a database `Xdb` and before it is restored, there is no such database in the `$neo4j_home/data/database/` location, then the reconciler will create the folder, and now you will have a blank `Xdb`.
+However, if there are other instances in the cluster that actively have an `Xdb` database up and running, the cluster binding process will do a **store copy** of that database and not create an empty database.
+
+Finally, here are a few more points to note from a multi database operations standpoint:
+
+1.	The `system` database needs to be backed up with the same frequency that other databases are backed up.
+2.	If you look at the `debug.log`, the `MemberId` of the raft membership will not be different for each database. All databases within one instance will have the same `MemberId`.
+3.	All multi-database administrative commands must be run against the `system` database. These administrative commands are automatically routed to the `system` database when connected to the DBMS over Bolt.
+4.	The native users are stored in the `system` database, that is where the security model lives.
+5.	The `neo4j-admin unbind` runs on all the databases on the particular server.
+6.	The `dbms.memory.pagecache.size` ,`dbms.memory.heap.initial_size`, and `dbms.memory.heap.max_size` settings are all at the instance level. All the databases operate under one JVM, they share the same page cache and heap.
