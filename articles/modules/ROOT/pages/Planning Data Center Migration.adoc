@@ -34,18 +34,18 @@ Now, if you must use RRs, then follow these instructions:
 ```
 1) Start the 3 RRs some time before migration cut over date
 2) Wait until they’re caught up with the Cores (let’s call the Cores dc1.1, dc1.2, dc1.3)
-3) then stop the RRs
-4) unbind them all
+3) Then stop the RRs
+4) Run "$bin/neo4j-admin unbind" against all RR instances 
 5) Reconfigure them all to be Cores (call them dc2.4, dc2.5 and dc2.6)
-6) start dc2.4 and dc2.5
-7) then use the status endpoint to make sure they’re keeping up with dc1.1, dc1.1 and dc1.1
-8) then shutdown dc1.1
-9) then start dc2.6
-10) then finally, shut down dc1.1 and dc1.2
+6) Start dc2.4 and dc2.5
+7) Use the status endpoint to make sure they’re keeping up with dc1.1, dc1.1 and dc1.1
+8) Then shutdown dc1.1
+9) Followed by starting dc2.6
+10) Lastly, shut down dc1.1 and dc1.2
 
 ```
 
-Again, use the status endpoint to make sure that 6.prem gets up to date and keeps up with dc1.1, dc.2, dc2.4 and dc2.5
+Again, use the status endpoint to make sure that dc2.6 gets up to date and keeps up with dc1.1, dc.2, dc2.4 and dc2.5
 
 If it all goes well, then you have rolled to the new data center(DC2) with no downtime.
 
@@ -59,8 +59,5 @@ But you don’t need to restart the database to do that - you can just modify th
 ```
 1) Set up a single RR in the On-prem database
 2) Try turning it into a Core
-3) and making sure it catches up, using the status endpoint
-4) that should give you good data on how long things are likely to take on the day of the migration
- 
-
-
+3) And making sure it catches up, using the status endpoint
+4) That should give you good data on how long things are likely to take on the day of the migration
