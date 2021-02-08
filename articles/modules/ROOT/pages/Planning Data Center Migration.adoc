@@ -22,7 +22,7 @@ Please note that between each of the above steps, you should monitor the cluster
 
 The endpoint, an example response, and how to interpret it are documented here: https://neo4j.com/docs/operations-manual/current/monitoring/causal-cluster/http-endpoints/#causal-clustering-http-endpoints-status
  
-The Key points to consider for this approach are the following:
+The key points to consider for this approach are the following:
 
 * Can you afford some period of reduced write throughput, due to some Cores being outside of DC1 (i.e. inter-DC network hops are required for commits)
 * How do you get a sufficiently up to date backup on each new Core such that a store copy won’t be required as soon as they join the cluster.
