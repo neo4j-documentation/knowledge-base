@@ -1,11 +1,11 @@
-= Planning Data Center migration
+= Planning Data Center Migration
 :slug: Planning-Data-Center-Migration
 :author: Ali Maddahian
 :category: cluster
 :tags: disk, operation, storage, cluster, capacity
 :neo4j-versions: 3.5,4.0,4.1,4.2
 
-The following KB describes the process that you can use utilizing backup (or Read-Replicas) in order to migrate from one datacenter(DC1) to another(DC2) in a rolling fashion with no zero downtime.
+The following KB describes the process that you can use utilizing backup (or Read-Replicas) in order to migrate (and/or upgrade) from one datacenter(DC1) to another(DC2) in a rolling fashion with no zero downtime.
   
 This approach involves utilizing a recent backup from the DC1 cores then slowly adding DC2 cores based on the backup, whilst deleting old DC1 cores.
 
