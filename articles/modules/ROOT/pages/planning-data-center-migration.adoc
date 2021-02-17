@@ -1,0 +1,63 @@
+= Planning Data Center Migration
+:slug: planning-data-center-migration
+:author: Ali Maddahian
+:category: cluster
+:tags: disk, operation, storage, cluster, capacity
+:neo4j-versions: 3.5,4.0,4.1,4.2
+
+The following KB describes the process that you can use utilizing backup (or Read-Replicas) in order to migrate (and/or upgrade) from one datacenter(DC1) to another(DC2) in a rolling fashion with no zero downtime.
+  
+This approach involves utilizing a recent backup from the DC1 cores then slowly adding DC2 cores based on the backup, whilst deleting old DC1 cores.
+
+Specifically, you would want to follow a  rolling pattern:  
+
+```
+1) Add 2 cores to DC2  
+2) Remove 1 core from DC1 
+3) Add one core to DC2 
+4) Remove 2 remaining cores from DC1 
+```
+
+Please note that between each of the above steps, you should monitor the cluster status endpoint on each machine, to make sure that new joiners are adequately caught up and participating in raft before shutting down an old member. 
+
+The endpoint, an example response, and how to interpret it are documented here: https://neo4j.com/docs/operations-manual/current/monitoring/causal-cluster/http-endpoints/#causal-clustering-http-endpoints-status
+ 
+The key points to consider for this approach are the following:
+
+* Can you afford some period of reduced write throughput, due to some Cores being outside of DC1 (i.e. inter-DC network hops are required for commits)
+* How do you get a sufficiently up to date backup on each new Core such that a store copy won’t be required as soon as they join the cluster.
+ 
+The second point above really depends on your workload.  That is if the workload is perhaps very high then perhaps you need to use an alternative approach utilizing Read-Replicas(RR), where you would set up 3 RRs in the DC2 which you eventually switch off and unbind (just before you start your rolling migration).
+
+Now, if you must use RRs, then follow these instructions:
+
+```
+1) Start the 3 RRs some time before migration cut over date
+2) Wait until they’re caught up with the Cores (let’s call the Cores dc1.1, dc1.2, dc1.3)
+3) Then stop the RRs
+4) Run "$bin/neo4j-admin unbind" against all RR instances 
+5) Reconfigure them all to be Cores (call them dc2.4, dc2.5 and dc2.6)
+6) Start dc2.4 and dc2.5
+7) Use the status endpoint to make sure they’re keeping up with dc1.1, dc1.1 and dc1.1
+8) Then shutdown dc1.1
+9) Followed by starting dc2.6
+10) Lastly, shut down dc1.1 and dc1.2
+
+```
+
+Again, use the status endpoint to make sure that dc2.6 gets up to date and keeps up with dc1.1, dc.2, dc2.4 and dc2.5
+
+If it all goes well, then you have rolled to the new data center(DC2) with no downtime.
+
+Lastly, you’ll want to update the configs of DC2.4, DC2.5 and DC2.6 later on to remove the DC1 instances from initial_discovery_members etc.
+
+But you don’t need to restart the database to do that - you can just modify the config file and allow that setting to be picked up on the next restart of each instance.
+ 
+ 
+* RR Dryrun:
+ 
+```
+1) Set up a single RR in the On-prem database
+2) Try turning it into a Core
+3) And making sure it catches up, using the status endpoint
+4) That should give you good data on how long things are likely to take on the day of the migration
