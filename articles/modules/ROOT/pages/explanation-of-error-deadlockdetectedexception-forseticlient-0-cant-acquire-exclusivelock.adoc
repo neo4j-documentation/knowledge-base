@@ -5,8 +5,8 @@
 :tags: deadlock, lock
 :category: operations
 
-Under specific scenarios a DeadlockDetectedException may be encountered and the behavior is described at http://neo4j.com/docs/stable/transactions-deadlocks.html.
-When a DeadlockDetected is encountered one option is to simply retry the statement.
+Under specific scenarios a DeadlockDetectedException may be encountered and the behavior is described at 
+https://neo4j.com/docs/java-reference/current/transaction-management/#transactions-deadlocks. When a DeadlockDetected is encountered one option is to simply retry the statement.
 As a deadlock detection error is a safe-to-retry error and the user is expected to handle these in all application code, since there may be legitimate deadlocks at any time, this behavior is actually by design to gain scalability.
 The following describes a scenario where a deadlock can be demonstrated/reproduced.
 
