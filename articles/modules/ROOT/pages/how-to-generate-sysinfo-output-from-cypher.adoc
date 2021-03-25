@@ -13,57 +13,17 @@ be sure to enable conf/neo4j.conf parameter of `metrics.jmx.enabled=true`
 
 [source,cypher]
 ----
-// Store size. Per db
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.store.size.total") YIELD name, attributes
-RETURN "Store Size" AS group, name, attributes
-UNION ALL
-
-// Page cache. Per DBMS.
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.page_cache.flushes") YIELD name, attributes
-RETURN "Page Cache" AS group, name, attributes
-UNION ALL
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.page_cache.evictions") YIELD name, attributes
-RETURN "Page Cache" AS group, name, attributes
-UNION ALL
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.page_cache.eviction_exceptions") YIELD name, attributes
-RETURN "Page Cache" AS group, name, attributes
-UNION ALL
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.page_cache.hit_ratio") YIELD name, attributes
-RETURN "Page Cache" AS group, name, attributes
-UNION ALL
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.page_cache.usage_ratio") YIELD name, attributes
-RETURN "Page Cache" AS group, name, attributes
-UNION ALL
-
-// Primitive counts. Per db.
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.ids_in_use.node") YIELD name, attributes
-RETURN "Primitive Count" AS group, name, attributes
-UNION ALL
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.ids_in_use.property") YIELD name, attributes
-RETURN "Primitive Count" AS group, name, attributes
-UNION ALL
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.ids_in_use.relationship") YIELD name, attributes
-RETURN "Primitive Count" AS group, name, attributes
-UNION ALL
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.ids_in_use.relationship_type") YIELD name, attributes
-RETURN "Primitive Count" AS group, name, attributes
-UNION ALL
-
-// Transactions. Per db.
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.transaction.last_committed_tx_id") YIELD name, attributes
-RETURN "Transactions" AS group, name, attributes
-UNION ALL
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.transaction.active") YIELD name, attributes
-RETURN "Transactions" AS group, name, attributes
-UNION ALL
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.transaction.peak_concurrent") YIELD name, attributes
-RETURN "Transactions" AS group, name, attributes
-UNION ALL
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.transaction.started") YIELD name, attributes
-RETURN "Transactions" AS group, name, attributes
-UNION ALL
-CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.transaction.committed") YIELD name, attributes
-RETURN "Transactions" AS group, name, attributes
+UNWIND 
+[["Store Size", ["neo4j.neo4j.store.size.total"]],
+["Page Cache", ["neo4j.page_cache.flushes", "neo4j.page_cache.evictions", "neo4j.page_cache.eviction_exceptions", "neo4j.page_cache.hit_ratio", "neo4j.page_cache.usage_ratio"]],
+["Primitive Count", ["neo4j.neo4j.ids_in_use.node", "neo4j.neo4j.ids_in_use.property", "neo4j.neo4j.ids_in_use.relationship", "neo4j.neo4j.ids_in_use.relationship_type"]],
+["Transactions", ["neo4j.neo4j.transaction.last_committed_tx_id", "neo4j.neo4j.transaction.active", "neo4j.neo4j.transaction.peak_concurrent", "neo4j.neo4j.transaction.started", "neo4j.neo4j.transaction.committed"]]
+] as grouping
+UNWIND grouping[1] as metric
+WITH grouping[0] as group, "neo4j.metrics:name=" + metric as metricName
+CALL dbms.queryJmx(metricName) YIELD name, attributes
+RETURN group, name, attributes 
+ORDER BY group, name;
 ----
 
 *Note:* As 4.x allows for the creation of multiple databases the value passed into `dbms.queryJmx` includes the database name.   For example in the expression 
