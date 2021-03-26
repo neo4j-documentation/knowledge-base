@@ -1,0 +1,93 @@
+= Example of using the Command Expansion on Windows
+:slug: command-expansion-example-on-windows
+:author: Vivek Saran
+:neo4j-versions: 4.2
+:tags: system, command, expansion
+:category: operations
+
+The **Command Expansion** feature, introduced in **Neo4j 4.2**, is a security feature to avoid having configuration parameters being written in the `neo4j.conf` file in plain text.
+
+The commands are executed within the child process by the user _who owns and executes the Neo4j server_. So, by definition, only the user running the Neo4j process/service would be able to use this feature.
+
+The Command Expansion is very sensitive about the permissions assigned on the `neo4j.conf` file. That's why the need for this article!
+
+Moreover, the Neo4j documentation has provided examples for the Linux based installs, so here is fun example of how to do the same in Windows:
+
+- Change the `neo4j.conf` file to have the following setting:
+
+[source,properties]
+----
+dbms.max_databases=$(my_setting.bat)
+----
+
+- Create an environment variable:
+
+[source,properties]
+----
+MAX_DATABASES=16
+----
+
+- Create a simple batch file `my_setting.bat`:
+
+[source,properties]
+----
+@ECHO OFF
+ECHO %MAX_DATABASES%
+----
+
+- Change the permission on the `neo4j.conf` file to `Read`. Remove all user groups and user names except the user _who owns and executes the Neo4j server_. Refer to the picture below:
+
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/CorrectFilePermissions.gif[]
+
+_In the Linux world, this would be equivalent to `r-- --- ---`, which is done by:_
+
+[source,properties]
+----
+$chmod 400 neo4j.conf
+----
+
+- Start Neo4j using the following command -
+
+[source,properties]
+----
+C:\neo4j-enterprise-4.2.3-windows\neo4j-enterprise-4.2.3\bin>neo4j console --expand-commands
+----
+
+During the start, the console would show the following INFO messages:
+
+[source,properties]
+----
+2021-03-04 03:17:40.575+0000 INFO  Command expansion is explicitly enabled for configuration
+2021-03-04 03:17:40.577+0000 INFO  Executing external script to retrieve value of setting dbms.max_databases
+2021-03-04 03:17:40.579+0000 INFO  Starting...
+2021-03-04 03:17:43.311+0000 INFO  ======== Neo4j 4.2.3 ========
+2021-03-04 03:17:45.825+0000 INFO  Sending metrics to CSV file at C:\neo4j-enterprise-4.2.3-windows\neo4j-enterprise-4.2.3\metrics
+2021-03-04 03:17:45.860+0000 INFO  Bolt enabled on 0.0.0.0:7617.
+2021-03-04 03:17:46.818+0000 INFO  Remote interface available at http://localhost:7414/
+2021-03-04 03:17:46.819+0000 INFO  Started.
+----
+
+
+- To confirm that the `dbms.max_databases` property has been set to `16`, execute the following command in the Neo4j Browser:
+
+[source,cypher]
+----
+CALL dbms.listConfig() YIELD name, value WHERE name = 'dbms.max_databases' RETURN value
+----
+
+The result would be `16`.
+
+**Note** that by default, the file permissions on the `neo4j.conf` would look as shown below. 
+
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/IncorrectFilePermissions.gif[]
+
+All users such as `Authenticated Users`, `SYSTEM`, `Administrators`, `Users`, etc. will need to be removed.
+
+
+
+
+
+
+
+
+
