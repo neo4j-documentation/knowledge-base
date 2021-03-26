@@ -9,9 +9,25 @@ The **Command Expansion** feature, introduced in **Neo4j 4.2**, is a security fe
 
 The commands are executed within the child process by the user _who owns and executes the Neo4j server_. So, by definition, only the user running the Neo4j process/service would be able to use this feature.
 
-The Command Expansion is very sensitive about the permissions assigned on the `neo4j.conf` file. That's why the need for this article!
+The Command Expansion is very sensitive about the permissions assigned on the `neo4j.conf` file. If the permissions are not set appropriately, then Neo4j fails to start showing messages similar to:
 
-Moreover, the Neo4j documentation has provided examples for the Linux based installs, so here is fun example of how to do the same in Windows:
+[source,properties]
+----
+Exception in thread "main" java.lang.IllegalArgumentException: 
+<NEO4J_HOME>/conf/neo4j.conf does not have the correct file permissions to evaluate commands.
+Has [OWNER_READ, OWNER_WRITE, OTHERS_READ, GROUP_READ], requires at most [OWNER_READ, OWNER_WRITE].
+        at org.neo4j.configuration.Config$Builder.validateFilePermissionForCommandExpansion(Config.java:314)
+        at org.neo4j.configuration.Config$Builder.build(Config.java:287)
+        at org.neo4j.server.NeoBootstrapper.start(NeoBootstrapper.java:110)
+        at org.neo4j.server.NeoBootstrapper.start(NeoBootstrapper.java:90)
+        at com.neo4j.server.enterprise.EnterpriseEntryPoint.main(EnterpriseEntryPoint.java:25)
+2021-03-03 16:56:23.880+0000 INFO  [c.n.s.e.EnterpriseBootstrapper] Neo4j Server shutdown initiated by request
+2021-03-03 16:56:23.891+0000 INFO  [c.n.s.e.EnterpriseBootstrapper] Stopped.
+----
+
+That's why the need for this article!
+
+Moreover, the Neo4j documentation has provided examples for the Linux based installs, so here is a fun example (step-by-step) of using the Command Expansion on Windows:
 
 - Change the `neo4j.conf` file to have the following setting:
 
