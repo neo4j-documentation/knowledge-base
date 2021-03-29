@@ -1,7 +1,7 @@
 = Fulltext search in Neo4j
 :slug: fulltext-search-in-neo4j
 :author: Dave Gordon
-:neo4j-versions: 3.5
+:neo4j-versions: 3.5,4.0,4.1,4.2
 :outdated: false
 :tags: fulltext, search, indexing
 :category: cypher
@@ -51,12 +51,12 @@ The `score` that is returned alongside each result entry, represents how well th
 The results are always returned in _descending score order_, where the best matching result entry is put first.
 
 What if we wish to only get results that match the search string entered?
-When we put 'Full Metal Jacket' in quotes, we get only exact matches:
+When we put `"Full Metal Jacket"` in double quotes, we get only exact matches (phrase search):
 
 .Query
 [source,cypher]
 ----
-CALL db.index.fulltext.queryNodes("titlesAndDescriptions", "'Full Metal Jacket'") YIELD node, score
+CALL db.index.fulltext.queryNodes("titlesAndDescriptions", '"Full Metal Jacket"') YIELD node, score
 RETURN node.title, score
 ----
 
@@ -101,11 +101,20 @@ RETURN node.title, node.description, score
 | "Metallica Through The Never" | "The movie follows the young roadie Trip through his surreal adventure with the band." | 1.311632513999939
 |===
 
+Since Neo4j 4.1 pagination configuration can be passed to the procedure with an additional `limit` and `skip` parameter.
+
+.Pagination
+[source,cypher]
+----
+CALL db.index.fulltext.queryNodes("titlesAndDescriptions", "adventure", {limit:100, skip: 100}) YIELD node, score
+RETURN node.title, node.description, score
+----
+
 
 Similar to nodes, fulltext indexes can be created on relationships.
 
 For the full description of fulltext search in Neo4j, see:
-https://neo4j.com/docs/cypher-manual/3.5/schema/index/#schema-index-fulltext-search.
+https://neo4j.com/docs/cypher-manual/current/schema/index/#schema-index-fulltext-search.
 
 Fulltext schema indexes are powered by the http://lucene.apache.org/[Apache Lucene] indexing and search library.
 A complete description of the Lucene query syntax can be found in the http://lucene.apache.org/core/5_5_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description[Lucene documentation].
