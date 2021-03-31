@@ -21,9 +21,9 @@ In the screenshot below, the Cypher statement produces a shared-lock:
 
 [source,cypher]
 ----
-MATCH (a:Actor)
-WHERE a.name = 'Doris Day'
-set a.died= 2019
+MATCH (p:Person)
+WHERE p.name = 'Tom Hanks'
+set p.award= 'Oscar'
 ----
 
 Below code can be used to watch another transaction that is running:
@@ -32,12 +32,12 @@ In one window:
 
 [source,cypher]
 ----
-MATCH (a:Actor)
-WHERE a.name = 'Doris Day'
-SET a.died = 2000
-with a
+MATCH (p:Person)
+WHERE p.name = 'Tom Hanks'
+SET p.award = 'Oscar'
+with p
 call apoc.util.sleep(200000)
-RETURN a.died
+RETURN p.award
 ----
 
 And in another window:
@@ -46,13 +46,13 @@ And in another window:
 ----
 call dbms.listTransactions() yield currentQueryId , currentQuery
 with currentQueryId, currentQuery
-WHERE currentQuery STARTS WITH "MATCH (a:Actor)"
+WHERE currentQuery STARTS WITH "MATCH (p:Person)"
 WITH currentQueryId
 call dbms.listActiveLocks(`currentQueryId`) YIELD mode, resourceType
 RETURN mode, resourceType
 ----
  
-image::{assets-cdn}/shared-lock.png[Shared Lock]
+image:https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content/shared-lock.png[Shared Lock]
 
 The above cypher MATCH statement modifies the node, so an exclusive lock is taken on the node. The SHARED LABEL locks are for the
 _schema_ of the database. They will prevent other transactions from modifying the schema in a way that involves those labels, 
