@@ -1,0 +1,31 @@
+= Explanation of error "java.lang.NoClassDefFoundError: org/apache/spark/sql/sources/v2/ReadSupport"
+:slug: explanation-of-error-java.lang.NoClassDefFoundError-ReadSupport
+:author: Stephen Levett
+:neo4j-versions: 4.x
+:tags: Spark, pyspark, Databricks, neo4j-spark-connector
+:category: neo4j-spark-connector
+
+In Neo4j 4.x, if you are using the Databricks Run-time of Spark and the neo4j-spark-connector.  You may encounter either of these errors when trying to read or write to neo4j via the spark-connector:
+....
+
+java.lang.NoClassDefFoundError: org/apache/spark/sql/sources/v2/ReadSupport
+....
+
+Or:
+....
+
+java.lang.ClassNotFoundException: Failed to find data source: org.neo4j.spark.DataSource
+....
+
+One possible explanation is you are using an incompatible connector, or you built it yourself, and something went wrong.
+
+
+To resolve this, do the following:
+
+1) Remove all existing neo4j_connector jars from the Databricks UI.
+
+2) Add the relevant jar that matches both the Spark & Scala runtimes. You don't need to compile it yourself. Instead, you can download the artefact from here:
+https://github.com/neo4j-contrib/neo4j-spark-connector/releases
+
+FYI - To help you decide on the correct jar, we have a compatibility matrix here:
+https://neo4j.com/developer/spark/overview/#_compatibility
