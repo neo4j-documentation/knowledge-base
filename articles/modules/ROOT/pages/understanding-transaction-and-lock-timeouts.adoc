@@ -1,7 +1,7 @@
 = Understanding transaction and lock timeouts
 :slug: understanding-transaction-and-lock-timeouts
 :author: Andrew Bowman
-:neo4j-versions: 3.0, 3.1, 3.2, 3.3
+:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 4.0, 4.1, 4.2
 :tags: cypher, performance, apoc
 :category: operations
 
