@@ -3,14 +3,17 @@
 :author: Dana Canzano
 :category: operations
 :tags: ports, causal-cluster
-:neo4j-versions: 2.3, 3.0, 3.1, 3.2
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3
 
 If it becomes necessary to validate, particularly in a clustered environment whether
 https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/[Causal Cluster] or 
 https://neo4j.com/docs/operations-manual/current/clustering/high-availability/[High Availability], whether or
-not 1 instance can talk to another instance on a given port one can use linux command https://en.wikipedia.org/wiki/Netcat[`netcat`].
+not 1 instance can talk to another instance on a given port, and thus prove whether a firewall or iptables may be prohibiting traffic,
+one can use either of the 2 methods
 
-To validate connectivity and that the hostname/port is not being filtered out as a result of a firewall or other establish 2 terminal
+=== if you have linux command https://en.wikipedia.org/wiki/Netcat[`netcat`] installed
+
+Eestablish 2 terminal
 sessions.
 
 * From the first terminal session run from the linux command line/prompt
@@ -53,3 +56,20 @@ If the connection is not successful you may receive error messages similar to:
 nc: getaddrinfo: Temporary failure in name resolution
 nc: connection refused
 ....
+
+
+== If https://en.wikipedia.org/wiki/Netcat[`netcat`] is not installed one can run
+
+````
+echo > "/dev/tcp/<hostname/<port>") >/dev/null 2>&1 && echo "CAN CONNECT" || echo "CANNOT CONNECT"
+````
+
+replacing <hostname> with the hostname of the machine and <port> with the port you are trying to connect to.  For example
+
+````
+echo > "/dev/tcp/production.neo4j.com/5001") >/dev/null 2>&1 && echo "CAN CONNECT" || echo "CANNOT CONNECT"
+````
+
+and if connection is possible you should then see `CAN CONNECT` and if not possible you would see `CANNOT CONNECT`
+
+For the above to work this would require that <hostname> and <port> are open and in LISTEN status.   This would normally be the case when Neo4j has been started
