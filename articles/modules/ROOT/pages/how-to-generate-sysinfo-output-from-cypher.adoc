@@ -1,12 +1,41 @@
 = How to generate sysinfo output from Cypher
 :slug: how-to-generate-sysinfo-output-from-cypher
 :author: Dana Canzano
-:neo4j-versions: 3.2, 3.3
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2
 :tags: cypher, sysinfo
 :category: operations
 
 If you need to generate the equivalent output from command `:sysinfo` as run from the Neo4j Browser at http://localhost:7474
 this can be achieved by running the following Cypher
+
+For Neo4j 4.x
+be sure to enable conf/neo4j.conf parameter of `metrics.jmx.enabled=true`
+
+[source,cypher]
+----
+UNWIND 
+[["Store Size", ["neo4j.neo4j.store.size.total"]],
+["Page Cache", ["neo4j.page_cache.flushes", "neo4j.page_cache.evictions", "neo4j.page_cache.eviction_exceptions", "neo4j.page_cache.hit_ratio", "neo4j.page_cache.usage_ratio"]],
+["Primitive Count", ["neo4j.neo4j.ids_in_use.node", "neo4j.neo4j.ids_in_use.property", "neo4j.neo4j.ids_in_use.relationship", "neo4j.neo4j.ids_in_use.relationship_type"]],
+["Transactions", ["neo4j.neo4j.transaction.last_committed_tx_id", "neo4j.neo4j.transaction.active", "neo4j.neo4j.transaction.peak_concurrent", "neo4j.neo4j.transaction.started", "neo4j.neo4j.transaction.committed"]]
+] as grouping
+UNWIND grouping[1] as metric
+WITH grouping[0] as group, "neo4j.metrics:name=" + metric as metricName
+CALL dbms.queryJmx(metricName) YIELD name, attributes
+RETURN group, name, attributes 
+ORDER BY group, name
+
+----
+
+*Note:* As 4.x allows for the creation of multiple databases the value passed into `dbms.queryJmx` includes the database name.   For example in the expression 
+`CALL dbms.queryJmx("neo4j.metrics:name=neo4j.neo4j.store.size.total") ....`  and if you wanted to query a database named `proddb1` then the value to pass would be 
+`neo4j.metrics:name=neo4j.proddb1.store.size.total
+
+
+
+
+For Neo4j 3.x
+
 
 [source,cypher]
 ----
