@@ -1,5 +1,5 @@
 = Neo4j 3.5 to 4.x Migration Best Practices and Tips & Tricks
-:slug: neo4j3.5-to-4x-migrations-best-practices
+:slug: neo4j-3dot5-to-4-dot-x-migrations-best-practices
 :author: Jose Rocha
 :neo4j-versions: 3.5, 4.0, 4.1, 4.2
 :tags: upgarde, migration
