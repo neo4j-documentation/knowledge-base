@@ -1,0 +1,22 @@
+= Neo4j 3.5 to 4.x Migration Best Practices and Tips & Tricks
+:slug: neo4j3.5-to-4x-migrations-best-practices
+:author: Jose Rocha
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2
+:tags: upgarde, migration
+:category: server
+
+This document aims to serve as a best practice guide for a migration from Neo4j 3.5.x to Neo4j 4.x. It is not intended to be a replacement for the current documentation, in fact, this document will often point to (or reference) said documentation. You can think of it as a one-stop-shop or starting point for everything related to going from a 3.5.x to a 4.x deployment. From this document, you should be able to read and/or find everything you need to successfully migrate your Neo4j deployment to take advantage of the most up-to-date features, and the extended support which comes from running the most recent versions of Neo4j.
+Both this document and associated references were written for:
+
+• the engineer performing the Neo4j production migration.
+• the operations engineer supporting and maintaining the Neo4j production database.
+• the enterprise architect researching database migration.
+• the infrastructure architect planning the Neo4j production migration.
+• the enterprise data security manager responsible for the company’s strategy for role-based access control.
+
+Carefully reading them is essential to make sure your upgrade runs smoothly and frictionless.
+As usual, the Neo4j support team are ready to help you with these operations so feel free to reach out to our support team if you run into any problem or have any questions about the upgrade process (https://support.neo4j.com/hc/en-us).
+
+You can download the guide here:
+
+https://neo4j.com/neoassets/support/Neo4j+3.5.x+to+4.x+migration+-+Tips+and+best+practices.pdf
