@@ -13,20 +13,20 @@ With this document, you should be able to read and/or find everything you need t
 
 On June 10th, the Neo4j Customer Success team will be holding a focused office hours session specifically on the migration process.  Bring your questions to this special event:
 
-Register here:  https://neo4j.zoom.us/webinar/register/WN_V8br3kbTRra3WGC1Qv6Abg
+Register here:  https://neo4j.zoom.us/webinar/register/WN_V8br3kbTRra3WGC1Qv6Abg[Neo4j Office Hours]
 
 
 == Neo4j 3.5 to 4.x Migration Best Practices Guide
 
 The following document was written by the Customer Success team and is a deep dive in the migration process, and is specifically targetted for:
 
-• the engineer performing the Neo4j production migration.
-• the operations engineer supporting and maintaining the Neo4j production database.
-• the enterprise architect researching database migration.
-• the infrastructure architect planning the Neo4j production migration.
-• the enterprise data security manager responsible for the company’s strategy for role-based access control.
+- the engineer performing the Neo4j production migration.
+- the operations engineer supporting and maintaining the Neo4j production database.
+- the enterprise architect researching database migration.
+- the infrastructure architect planning the Neo4j production migration.
+- the enterprise data security manager responsible for the company’s strategy for role-based access control.
 
-Find the Guide Here (support login required):  https://support.neo4j.com/hc/en-us/articles/1500011589382-Neo4j-3-5-to-4-x-Migration-Best-Practices-and-Tips-Tricks
+Find the Guide Here (support login required):  https://support.neo4j.com/hc/en-us/articles/1500011589382-Neo4j-3-5-to-4-x-Migration-Best-Practices-and-Tips-Tricks[Neo4j 3.5 to 4.x Migration Best Practices Guide]
 
 == Neo4j Migration Documentation
 
@@ -34,16 +34,16 @@ The product documentation continues to be updated and refreshed and is a key res
 
 The online documentation can be found here:
 
-https://neo4j.com/docs/migration-guide/current/
-https://neo4j.com/docs/operations-manual/current/upgrade/
+https://neo4j.com/docs/migration-guide/current/[Migration Guide]
+https://neo4j.com/docs/operations-manual/current/upgrade/[Upgrade Documentation]
 
 
 == Neo4j Community
 
-Feel free to ask your questions within the Neo4j Community:  https://community.neo4j.com/
+Feel free to ask your questions within the Neo4j Community:  https://community.neo4j.com/[Neo4j Community]
 
 == Neo4j Professional Services
 
-The Neo4j Professional Services team can offer packaged migration services to assist with your migration:  https://neo4j.com/professional-services/
+The Neo4j Professional Services team can offer packaged migration services to assist with your migration:  https://neo4j.com/professional-services/[Neo4j Professional Services]
 
 
