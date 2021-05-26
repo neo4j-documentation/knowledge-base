@@ -1,0 +1,85 @@
+= Realtime querying of the query.log files
+// CHANGE THIS, REMOVE COMMENTS BEFORE MERGE
+// ANY SLUG CHANGES WILL CAUSE POSTS TO BE RE-CREATED, BREAKING EXISTING LINKS
+:slug: realtime-querying-of-the-query-log-files
+:author: Dana Canzano
+:twitter: @your-twitter
+// relevant versions
+:neo4j-versions: 4.3
+// see taxonomy in readme, remove this comment
+:tags: query logs
+// category see https://github.com/neo4j-documentation/knowledge-base/blob/master/kb-categories.txt
+:category: cypher
+
+Commencing wth Neo4j 4.3 and with Enterprise Edition, one can choose to have the `logs\query.log` log in traditional text format, i.e. PLAIN, or you can have each record 
+represented as a https://www.json.org/[JSON] string.   This is controlled via `conf/neo4j.conf` parameter `dbms.logs.query.format` and to which valid values are either 
+`PLAIN` or `JSON`.
+
+If you log in JSON, a line may be logged similar to
+
+----
+{"time":"2021-05-26 17:56:14.452+0000","level":"INFO","event":"success","type":"query","id":"23","elapsedTimeMs":6,"allocatedBytes":136,"source":"bolt-session\tbolt\tneo4j-browser/v4.2.6\t\tclient/192.168.86.21:52685\tserver/192.168.86.22:7687>","database":"neo4j","username":"neo4j","query":"match (n:Person) return count(n)","queryParameters":"{}","runtime":"pipelined","annotationData":"{type: 'user-direct', app: 'neo4j-browser_v4.2.6'}"}
+----
+
+note the above is simply an example and you may actually have more fields given what query logging is enabled.
+
+One benefit of logging as JSON is that the data becomes easily parseable for example using `apoc.load.json`.  For example one could run
+
+----
+ call apoc.load.json('file:///queryLogs/query.log') yield value as Queries unwind Queries as oneQ with oneQ where oneQ.level='INFO' and oneQ.event='success' return oneQ.database, count(*);
++--------------------------+
+| oneQ.database | count(*) |
++--------------------------+
+| "system"      | 106      |
+| "neo4j"       | 79       |
++--------------------------+
+----
+
+and to which this gives us a quick look at number of successful queries run per each database
+
+Further for example, if we wanted to find the 10 slowest queries for a given database, for example `neo4j` then this becomes
+
+----
+call apoc.load.json('file:///queryLogs/query.log') yield value as Queries 
+unwind Queries as oneQ with oneQ 
+where        oneQ.level='INFO' and
+             oneQ.event='success' and       
+             oneQ.database='neo4j' 
+ return      oneQ.elapsedTimeMs,
+             oneQ.query 
+ order by    oneQ.elapsedTimeMs desc 
+ limit       10;
+----
+
+
+For all of this to work, one needs to have installed https://neo4j.com/labs/apoc/4.3/installation/[APOC] and enable `apoc.import.file.enabled=true`.   Further as APOC by 
+default can only read from `$NEO4J_HOME/import/` and as the `query.log` is located in `$NEO4J_HOME/logs` one needs to create a symbollic link from `import` to `logs`.  
+In the examples above this was achieved by
+
+----
+cd $NEO4J_HOME/import
+ln -s  ../logs/ queryLogs
+----
+
+after running the above you should then see
+
+----
+cd $NEO4J_HOME/import
+ls -al
+total 8
+drwxr-xr-x  2 neo4j neo4j 4096 May 26 18:02 .
+drwxr-xr-x 14 neo4j neo4j 4096 May 26 17:33 ..
+lrwxrwxrwx  1 neo4j neo4j    8 May 26 18:02 queryLogs -> ../logs/
+
+cd queryLogs
+ls -al
+total 748
+drwxr-xr-x  2 neo4j neo4j   4096 May 26 20:04 .
+drwxr-xr-x 14 neo4j neo4j   4096 May 26 17:33 ..
+-rw-rw-r--  1 neo4j neo4j 510530 May 26 19:35 debug.log
+-rw-rw-r--  1 neo4j neo4j   2814 May 26 19:35 neo4j.log
+-rw-rw-r--  1 neo4j neo4j 230763 May 26 20:08 query.log
+-rw-rw-r--  1 neo4j neo4j   2709 May 26 20:04 security.log
+----
+
+
