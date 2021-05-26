@@ -1,0 +1,44 @@
+= Neo4j 3.5 to 4.x Migration Help & Resources
+:slug: neo4j-3dot5-to-4-dot-x-migrations-best-practices
+:author: Dave Shiposh
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2
+:tags: upgrade, migration
+:category: server
+
+This guide is designed to provide key details and links on various 3.5 to 4.x migration resources.
+
+With this document, you should be able to read and/or find everything you need to successfully migrate your Neo4j deployment to take advantage of the most up-to-date features, and the extended support which comes from running the most recent versions of Neo4j.
+
+== Special Migration focused Customer Success Office Hours
+
+On June 10th, the Neo4j Customer Success team will be holding a focused office hours session specifically on the migration process.  Bring your questions to this special event:
+
+Register here:  https://neo4j.zoom.us/webinar/register/WN_V8br3kbTRra3WGC1Qv6Abg[Neo4j Office Hours]
+
+
+== Neo4j 3.5 to 4.x Migration Best Practices Guide
+
+The following document was written by the Customer Success team and is a deep dive in the migration process.  This guide aims to serve as a best practice guide for a migration from Neo4j 3.5.x to Neo4j 4.x. It is not intended to be a replacement for the current documentation, in fact, this document will often point to (or reference) said documentation. You can think of it as a one-stop-shop or starting point for everything related to going from a 3.5.x to a 4.x deployment.
+
+Find the Guide Here (support login required):  https://support.neo4j.com/hc/en-us/articles/1500011589382-Neo4j-3-5-to-4-x-Migration-Best-Practices-and-Tips-Tricks[Neo4j 3.5 to 4.x Migration Best Practices Guide]
+
+== Neo4j Migration Documentation
+
+The product documentation continues to be updated and refreshed and is a key resource on the upgrade and migration process. 
+
+The online documentation can be found here:
+
+https://neo4j.com/docs/migration-guide/current/[Migration Guide]
+
+https://neo4j.com/docs/operations-manual/current/upgrade/[Upgrade Documentation]
+
+
+== Neo4j Community
+
+Feel free to ask your questions within the Neo4j Community:  https://community.neo4j.com/[Neo4j Community]
+
+== Neo4j Professional Services
+
+The Neo4j Professional Services team can offer packaged migration services to assist with your migration:  https://neo4j.com/professional-services/[Neo4j Professional Services]
+
+
