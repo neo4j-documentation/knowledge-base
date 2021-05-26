@@ -2,7 +2,7 @@
 :slug: neo4j-3dot5-to-4-dot-x-migrations-best-practices
 :author: Dave Shiposh
 :neo4j-versions: 3.5, 4.0, 4.1, 4.2
-:tags: upgarde, migration
+:tags: upgrade, migration
 :category: server
 
 This guide is designed to provide key details and links on various 3.5 to 4.x migration resources.
