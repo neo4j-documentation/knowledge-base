@@ -13,19 +13,19 @@
 The Neo4j Browser has always had the ability to record `favorites`, i.e. a bookmark to saved cypher that you may want to run sometime in the future.
 `bin\cypher-shell` has somewhat similar functionality in that once connected one can run
 
-````
+----
 Connected to Neo4j using Bolt protocol version 4.2 at neo4j://localhost:7687 as user neo4j.
 Type :help for a list of available commands or :exit to exit the shell.
 Note that Cypher queries must end with a semicolon.
 
 neo4j> :source favorite1.cyp
-````
+----
 
 and to which this will cause cypher-shell to run all the cypher statements that are defined in `favorite1.cyp`.   Note you can fully qualify the filename, and thus
 
-````
+----
 neo4j> :source /home/neo4j/favorites/fav1.cyp
-````
+----
 
 and to which this will then cause cypher-shell to execute all the cypher statements in the file namd `fav1.cyp` as found at `/home/neo4j/favorites`
 
