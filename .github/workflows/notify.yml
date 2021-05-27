@@ -3,7 +3,7 @@ name: Notify Antora
 on:
   push:
     branches:
-      - publish
+      - master
 
 jobs:
   notify:
