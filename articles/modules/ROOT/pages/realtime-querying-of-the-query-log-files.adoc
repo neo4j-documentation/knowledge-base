@@ -3,7 +3,6 @@
 // ANY SLUG CHANGES WILL CAUSE POSTS TO BE RE-CREATED, BREAKING EXISTING LINKS
 :slug: realtime-querying-of-the-query-log-files
 :author: Dana Canzano
-:twitter: @your-twitter
 // relevant versions
 :neo4j-versions: 4.3
 // see taxonomy in readme, remove this comment
@@ -11,7 +10,7 @@
 // category see https://github.com/neo4j-documentation/knowledge-base/blob/master/kb-categories.txt
 :category: cypher
 
-Commencing wth Neo4j 4.3 and with Enterprise Edition, one can choose to have the `logs\query.log` log in traditional text format, i.e. PLAIN, or you can have each record 
+Commencing wth Neo4j 4.3 and with Enterprise Edition, one can choose to have the `logs/query.log` log in traditional text format, i.e. PLAIN, or you can have each record 
 represented as a https://www.json.org/[JSON] string.   This is controlled via `conf/neo4j.conf` parameter `dbms.logs.query.format` and to which valid values are either 
 `PLAIN` or `JSON`.
 
@@ -23,7 +22,7 @@ If you log in JSON, a line may be logged similar to
 
 note the above is simply an example and you may actually have more fields given what query logging is enabled.
 
-One benefit of logging as JSON is that the data becomes easily parseable for example using `apoc.load.json`.  For example one could run
+One benefit of logging as JSON is that the data becomes easily parseable for example using `apoc.load.json()`.  For example one could run
 
 ----
  call apoc.load.json('file:///queryLogs/query.log') yield value as Queries unwind Queries as oneQ with oneQ where oneQ.level='INFO' and oneQ.event='success' return oneQ.database, count(*);
@@ -83,3 +82,5 @@ drwxr-xr-x 14 neo4j neo4j   4096 May 26 17:33 ..
 ----
 
 
+**Note:  By following the instuctions above any/all user who has cypher access can now analyze data in the query.log.  You will need to determine Whether this presents
+a security risk or not
