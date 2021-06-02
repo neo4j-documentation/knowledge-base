@@ -1,5 +1,4 @@
 = A method to calculate the size of an index in Neo4j.
-
 :slug: a-method-to-calculate-index-size
 :author: Stephen Levett
 :neo4j-versions: 3.5 & 4.x
