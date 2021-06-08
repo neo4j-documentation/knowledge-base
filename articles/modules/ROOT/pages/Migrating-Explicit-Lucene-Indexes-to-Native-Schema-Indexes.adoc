@@ -23,13 +23,21 @@ Overall at a high level, here is the recommended approach:
 
 *  Example:   in 3.x you can use **"call db.index.explicit.list();"** which will show the index name as well as its type, which can be either “exact” or “full-text”, as well as if it is a node or relationship index, which will help you to determine what type of schema index to construct. 
  
-2) Next look at your cypher and/or Java API code and Convert them accordingly to 4.x+ format, 
+2) Next look at your cypher and/or Java API code and convert them accordingly to 4.x+ format.   
 
-3) sort of guess what equivalent schema index you would need to support and optimize the execution of the associated/converted queries from step 2. 
+* For example, convert "start" statements to equivalent Match statement.  Example: 
+**  **START n=node:myExplicitIndexAge("myid:1234567") RETURN n;**
+** The above query would be changed to the following:
+**  **MATCH (n:Person{myid:1234567}) RETURN n;**
+
  
-* inspect all cypher queries for what they actually write to that index and derive either a create index (for integer, strings, dates, geospatial, etc) and/or call db.index.fulltext.createIndexForNodes (FTS) statements.
- 
-* Inspect all reads to that index and adopt the statements to use the new index (this would mean to enable query logging to capture generated cypher queries and its performance attributes such as execution time vs io vs memory, vs cpu to flag longest running queries to troubleshoot individually one at a time - and more than likely your query patterns are similar to each other, hence, once one query is fixed, it will similarly help other similar queries.).
+
+3) Implement equivalent schema index you would need to support and optimize the execution of the associated/converted queries from step 2. 
+
+* Example:   **CREATE INDEX index_name FOR (n:Person) ON (n.myid);**
+* More specifically:
+* * inspect all cypher queries for what they actually write to that index and derive either a create index (for integer, strings, dates, geospatial, etc) and/or call db.index.fulltext.createIndexForNodes (FTS) statements.
+** Inspect all reads to that index and adopt the statements to use the new index (this would mean to enable query logging to capture generated cypher queries and its performance attributes such as execution time vs io vs memory, vs cpu to flag longest running queries to troubleshoot individually one at a time - and more than likely your query patterns are similar to each other, hence, once one query is fixed, it will similarly help other similar queries.).
  
 4) Once finished with all explicit indexes shut down the db and get rid of index subfolder
 
