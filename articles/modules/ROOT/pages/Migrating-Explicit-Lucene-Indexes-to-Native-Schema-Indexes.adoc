@@ -1,0 +1,39 @@
+= Migrating Explicit Lucene Indexes to Native Schema Indexes
+:slug: Migrating-Explicit-Lucene-Indexes-to-Native-Schema-Indexes
+:author: Ali Maddahian
+:category: operations
+:tags: lucene, index, legacy, explicit, capacity, schema, full-text
+:neo4j-versions: 1.x,2.x,3.x,4.x
+
+Given that there are still a number of customers on older releases which are still utilizing these indexes, we will point out a few pointers on how to implement these indexes to native schema indexes in 4.x.
+ 
+As background, Legacy/Lucene indexes were the only type of indexes available prior to 3.2(release date 2017), However, with 3.2 Neo4j started offering schema indexes which were automatically kept up to date (so no longer the need to have api code explicitly keeping them up date).
+ 
+Additionally, legacy/explicit indexes were deprecated as of 3.5.x, and totally removed from the 4.x functionality, as they have been replaced with the highly performant Neo4j’s own native schema indexes.
+
+Before we start our discussion, please note the explicit indexes utilize Lucene indexes for their implementation, and must be explicitly/manually kept-up-to date by way of the Java API (and/or stored procedures starting with 3.3.x) when adding/removing/updating nodes/relationships/properties hence the name explicit index.    In contrast, native indexes are maintained automatically, thus eliminating the need for inclusion of such manual steps.
+
+From an implementation perspective, these legacy indexes do not carry much schema information and are merely storing key value pairs as the author sees fit for their application, so besides the chosen naming convention at the time of the index construction, there is not a whole lot of clue as to develop an automated process for migrating these indexes to Neo4j’s native schema indexes in a scripted manner, and thus has to be done on an index by index basis and might involve some guessing.
+
+As to converting the indexes, again you can take a look at your API code and assess which properties are being indexes, and accordingly implement a schema index on those properties and/or look at the cypher query and come up with supporting indexes to optimize its execution.
+
+
+Overall at a high level, here is the recommended approach:
+
+1) Get a listing of all your indexes on you existing version
+Example:   in 3.x you can use “call db.index.explicit.list();” which will show the index name as well as its type, which can be either “exact” or “full-text”, as well as if it is a node or relationship index, which will help you to determine what type of schema index to construct. 
+ 
+2) Next look at your cypher and/or Java API code and Convert them accordingly to 4.x+ format, 
+3) sort of guess what equivalent schema index you would need to support and optimize the execution of the associated/converted queries from step 2. 
+ 
+* inspect all cypher queries for what they actually write to that index and derive either a create index (for integer, strings, dates, geospatial, etc) and/or call db.index.fulltext.createIndexForNodes (FTS) statements.
+ 
+* Inspect all reads to that index and adopt the statements to use the new index (this would mean to enable query logging to capture generated cypher queries and its performance attributes such as execution time vs io vs memory, vs cpu to flag longest running queries to troubleshoot individually one at a time - and more than likely your query patterns are similar to each other, hence, once one query is fixed, it will similarly help other similar queries.).
+ 
+4) Once finished with all explicit indexes shut down the db and get rid of index subfolder
+
+
+As a side note, 3.3, also offered explicit index implementations via stored-procedures, to make them easier to implement outside of API, however, these had to be maintained manually up-to-date.  These set of procedures were also deprecated as of 3.5.x, and 4.x replaced with new set of procedures (again to be used for FTS usecases) as documented here:  https://neo4j.com/docs/cypher-manual/current/administration/indexes-for-full-text-search/
+ 
+For a full list of deprecated features per each version please visit the following link:  https://neo4j.com/docs/cypher-manual/current/deprecations-additions-removals-compatibility/
+
