@@ -36,7 +36,7 @@ Overall at a high level, here is the recommended approach:
 
 * Example:   **CREATE INDEX index_name FOR (n:Person) ON (n.myid);**
 * More specifically:
-** inspect all cypher queries for what they actually write to that index and derive either a create index (for integer, strings, dates, geospatial, etc) and/or call db.index.fulltext.createIndexForNodes (FTS) statements.
+** Inspect all cypher queries for what they actually write to that index and derive either a create index (for integer, strings, dates, geospatial, etc) and/or call db.index.fulltext.createIndexForNodes (FTS) statements.
 ** Inspect all reads to that index and adopt the statements to use the new index (this would mean to enable query logging to capture generated cypher queries and its performance attributes such as execution time vs io vs memory, vs cpu to flag longest running queries to troubleshoot individually one at a time - and more than likely your query patterns are similar to each other, hence, once one query is fixed, it will similarly help other similar queries.).
  
 4) Once finished with all explicit indexes shut down the db and get rid of index subfolder
