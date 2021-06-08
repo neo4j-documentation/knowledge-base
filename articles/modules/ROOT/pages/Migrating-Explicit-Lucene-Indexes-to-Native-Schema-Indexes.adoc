@@ -41,8 +41,10 @@ Overall at a high level, here is the recommended approach:
  
 4) Once finished with all the explicit indexes, then shut down the database and get rid of associated index subfolder.
 
+please note, if it happens to that you convert a legacy index to an equivalent schema index and your search query using the legacy indexes are returning an unexpected number of rows (compared to schema indexes), then this either means that the schema index is either incorrectly defined (on wrong label:properties) or the legacy index itself is not up to date (remember legacy indexes must be manually kept up to date, hence as an example, without the appropriate error handling in your Java API code, it is entirely possible that a transaction would not have correctly retried and applied a transaction when encountering a rollback due to any reason, such as server restarts, etc).   Here is a 3.3.x example to demonstrating the case in point:
 
-As a side note, 3.3, also offered explicit index implementations via stored-procedures, to make them easier to implement outside of API, however, these had to be maintained manually up-to-date.  These set of procedures were also deprecated as of 3.5.x, and 4.x replaced with new set of procedures (again to be used for FTS usecases) as documented here:  https://neo4j.com/docs/cypher-manual/current/administration/indexes-for-full-text-search/
+
+As a side note, 3.3, also offered explicit index implementations using stored-procedures in order to make them easier to implement without resorting to using Java API, however, these also would have had to be maintained manually to be up-to-date.  These set of procedures were also deprecated as of 3.5.x, and were replaced in 4.x with new set of procedures (for Full-Text-Search usecases) as documented here:  https://neo4j.com/docs/cypher-manual/current/administration/indexes-for-full-text-search/
  
 For a full list of deprecated features per each version please visit the following link:  https://neo4j.com/docs/cypher-manual/current/deprecations-additions-removals-compatibility/
 
