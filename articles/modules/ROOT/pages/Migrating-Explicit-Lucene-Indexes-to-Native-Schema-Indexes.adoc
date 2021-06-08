@@ -89,7 +89,6 @@ match (n:Person{year:1990}) return n;
 ```
 
 
-
 As a side note, 3.3, also offered explicit index implementations using stored-procedures in order to make them easier to implement without resorting to using Java API, however, these also would have had to be maintained manually to be up-to-date.  These set of procedures were also deprecated as of 3.5.x, and were replaced in 4.x with new set of procedures (for Full-Text-Search usecases) as documented here:  https://neo4j.com/docs/cypher-manual/current/administration/indexes-for-full-text-search/
  
 For a full list of deprecated features per each version please visit the following link:  https://neo4j.com/docs/cypher-manual/current/deprecations-additions-removals-compatibility/
