@@ -26,7 +26,7 @@ Overall at a high level, here is the recommended approach:
 2) Next look at your cypher and/or Java API code and convert them accordingly to 4.x+ format.   
 
 * For example, convert "start" statements to equivalent Match statement.  Example: 
-**  **START n=node:myExplicitIndexAge("myid:1234567") RETURN n;**
+**  **START n=node:myExplicitIndexYear("myid:1234567") RETURN n;**
 ** The above query would be changed to the following:
 **  **MATCH (n:Person{myid:1234567}) RETURN n;**
 
@@ -41,7 +41,53 @@ Overall at a high level, here is the recommended approach:
  
 4) Once finished with all the explicit indexes, then shut down the database and get rid of associated index subfolder.
 
-please note, if it happens to that you convert a legacy index to an equivalent schema index and your search query using the legacy indexes are returning an unexpected number of rows (compared to schema indexes), then this either means that the schema index is either incorrectly defined (on wrong label:properties) or the legacy index itself is not up to date (remember legacy indexes must be manually kept up to date, hence as an example, without the appropriate error handling in your Java API code, it is entirely possible that a transaction would not have correctly retried and applied a transaction when encountering a rollback due to any reason, such as server restarts, etc).   Here is a 3.3.x example to demonstrating the case in point:
+please note, if it happens to that you convert a legacy index to an equivalent schema index and your search query using the legacy indexes are returning an unexpected number of rows (compared to schema indexes), then this either means that the schema index is either incorrectly defined (on wrong label:properties) or the legacy index itself is not up to date (remember legacy indexes must be manually kept up to date, hence as an example, without the appropriate error handling in your Java API code, it is entirely possible that a transaction would not have correctly retried and applied a transaction when encountering a rollback due to any reason, such as server restarts, etc).   Here is a 3.x example demonstrating the case in point:
+
+```
+// Create New Nodes
+//
+CREATE (p:Person {name:'Steve_1',year:1990});
+CREATE (p:Person {name:'Steve_2',year:1990});
+CREATE (p:Person {name:'Steve_3',year:1990});
+
+
+// Create Two Explicit Indexes(also called Legacy/Manual/Lucene Indexes)
+//
+CALL db.index.explicit.forNodes('myExplicitIndexFTS', {type: 'fulltext', provider: 'lucene'});
+CALL db.index.explicit.forNodes('myExplicitIndexYear', {type: 'exact', provider: 'lucene'});
+
+// List Explicit Indexes
+//
+call db.index.explicit.list;
+
+// Index nodes with name property
+//
+MATCH (p:Person{name:'Steve_1'}) call db.index.explicit.addNode('myExplicitIndexFTS', p, 'name', 'Steve_1') yield success return count(*);
+MATCH (p:Person{name:'Steve_2'}) call db.index.explicit.addNode('myExplicitIndexFTS', p, 'name', 'Steve_2') yield success return count(*);
+
+// Index nodes with "birth year" property
+//
+match (p:Person{name:'Steve_1'})
+with p
+call db.index.explicit.addNode("myExplicitIndexYear",p,"year",p.year) yield success return count(*);
+
+// Search for persons with matching name VE, which will only return Steve_1, and Steve_2
+//
+CALL db.index.explicit.searchNodes('myExplicitIndexFTS','name:*VE*');
+
+// Search for persons with year=1990 which will only return Steve_1
+//
+CALL db.index.explicit.searchNodes('myExplicitIndexYear','year:1990');
+
+// Search for persons with year=1990 using explicit index which will only return Steve_1
+//
+start n=node:myExplicitIndexYear("year:1990") return n;
+
+// Convert "start" to equivalent Match statement, and this statement returns all 3 rows corresponding to year=1990 (and of course ideally, you would want to create an index on :Person(
+year) or :Person(name) for best performance when creating equivalent native schema indexes on these two properties.
+match (n:Person{year:1990}) return n;
+```
+
 
 
 As a side note, 3.3, also offered explicit index implementations using stored-procedures in order to make them easier to implement without resorting to using Java API, however, these also would have had to be maintained manually to be up-to-date.  These set of procedures were also deprecated as of 3.5.x, and were replaced in 4.x with new set of procedures (for Full-Text-Search usecases) as documented here:  https://neo4j.com/docs/cypher-manual/current/administration/indexes-for-full-text-search/
