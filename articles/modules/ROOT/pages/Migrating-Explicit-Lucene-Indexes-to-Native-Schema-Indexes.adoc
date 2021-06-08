@@ -32,14 +32,14 @@ Overall at a high level, here is the recommended approach:
 
  
 
-3) Implement equivalent schema index you would need to support and optimize the execution of the associated/converted queries from step 2. 
+3) Implement the equivalent schema index that you would need to support and optimize the execution of the associated/converted queries from step 2. 
 
 * Example:   **CREATE INDEX index_name FOR (n:Person) ON (n.myid);**
 * More specifically:
 ** Inspect all cypher queries for what they actually write to that index and derive either a create index (for integer, strings, dates, geospatial, etc) and/or call db.index.fulltext.createIndexForNodes (FTS) statements.
 ** Inspect all reads to that index and adopt the statements to use the new index (this would mean to enable query logging to capture generated cypher queries and its performance attributes such as execution time vs io vs memory, vs cpu to flag longest running queries to troubleshoot individually one at a time - and more than likely your query patterns are similar to each other, hence, once one query is fixed, it will similarly help other similar queries.).
  
-4) Once finished with all explicit indexes shut down the db and get rid of index subfolder
+4) Once finished with all the explicit indexes, then shut down the database and get rid of associated index subfolder.
 
 
 As a side note, 3.3, also offered explicit index implementations via stored-procedures, to make them easier to implement outside of API, however, these had to be maintained manually up-to-date.  These set of procedures were also deprecated as of 3.5.x, and 4.x replaced with new set of procedures (again to be used for FTS usecases) as documented here:  https://neo4j.com/docs/cypher-manual/current/administration/indexes-for-full-text-search/
