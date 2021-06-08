@@ -5,13 +5,9 @@
 :tags: lucene, index, legacy, explicit, capacity, schema, full-text
 :neo4j-versions: 1.x,2.x,3.x,4.x
 
-Given that there are still a number of customers on older releases which are still utilizing these indexes, we will point out a few pointers on how to implement these indexes to native schema indexes in 4.x.
+Given that there are still some customers on older releases still utilizing legacy/explicit indexes, we will point out a few pointers here on how to convert these indexes to native schema indexes when upgrading Neo4j version 4.x, as legacy/explicit indexes have been deprecated as of 3.5.x, and totally removed from the 4.x version.
  
-As background, Legacy/Lucene indexes were the only type of indexes available prior to 3.2(release date 2017), However, with 3.2 Neo4j started offering schema indexes which were automatically kept up to date (so no longer the need to have api code explicitly keeping them up date).
- 
-Additionally, legacy/explicit indexes were deprecated as of 3.5.x, and totally removed from the 4.x functionality, as they have been replaced with the highly performant Neo4j’s own native schema indexes.
-
-Before we start our discussion, please note the explicit indexes utilize Lucene indexes for their implementation, and must be explicitly/manually kept-up-to date by way of the Java API (and/or stored procedures starting with 3.3.x) when adding/removing/updating nodes/relationships/properties hence the name explicit index.    In contrast, native indexes are maintained automatically, thus eliminating the need for inclusion of such manual steps.
+As to the background, Legacy/Lucene indexes were the only type of indexes available prior to Neo4j 3.2(release date 2017).   These early version indexes which were implemented via Lucene under the cover resulted in significant write performance, and thus the need to replace them with the native schema index available in 3.3+ versions.   Equally important, explicit indexes also had to be explicitly/manually kept-up-to date when adding/removing/updating nodes/relationships/properties by way of the Java API (and/or stored procedures starting with 3.3.x), hence why they are called an explicit index.    In contrast, native indexes are maintained automatically, thus eliminating the need for any such manual steps and/or extra code to keep them current.
 
 From an implementation perspective, these legacy indexes do not carry much schema information and are merely storing key value pairs as the author sees fit for their application, so besides the chosen naming convention at the time of the index construction, there is not a whole lot of clue as to develop an automated process for migrating these indexes to Neo4j’s native schema indexes in a scripted manner, and thus has to be done on an index by index basis and might involve some guessing.
 
@@ -21,9 +17,11 @@ As to converting the indexes, again you can take a look at your API code and ass
 Overall at a high level, here is the recommended approach:
 
 1) Get a listing of all your indexes on you existing version
-Example:   in 3.x you can use “call db.index.explicit.list();” which will show the index name as well as its type, which can be either “exact” or “full-text”, as well as if it is a node or relationship index, which will help you to determine what type of schema index to construct. 
+
+*  Example:   in 3.x you can use **"call db.index.explicit.list();"** which will show the index name as well as its type, which can be either “exact” or “full-text”, as well as if it is a node or relationship index, which will help you to determine what type of schema index to construct. 
  
 2) Next look at your cypher and/or Java API code and Convert them accordingly to 4.x+ format, 
+
 3) sort of guess what equivalent schema index you would need to support and optimize the execution of the associated/converted queries from step 2. 
  
 * inspect all cypher queries for what they actually write to that index and derive either a create index (for integer, strings, dates, geospatial, etc) and/or call db.index.fulltext.createIndexForNodes (FTS) statements.
