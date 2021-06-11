@@ -12,9 +12,9 @@ With this document, you should be able to read and/or find everything you need t
 
 == Special Migration focused Customer Success Office Hours
 
-On June 10th, the Neo4j Customer Success team will be holding a focused office hours session specifically on the migration process.  Bring your questions to this special event:
+On June 10th, the Neo4j Customer Success team held a focused office hours session specifically answering questions on the migration process.  
 
-Register here:  https://neo4j.zoom.us/webinar/register/WN_V8br3kbTRra3WGC1Qv6Abg[Neo4j Office Hours]
+The Replay of this event can be found here: https://neo4j.com/neoassets/support/6_10_2021_Customer_Office_Hours.mp4[June 10, 2021 Office Hours Recording]
 
 
 == Neo4j 3.5 to 4.x Migration Best Practices Guide
