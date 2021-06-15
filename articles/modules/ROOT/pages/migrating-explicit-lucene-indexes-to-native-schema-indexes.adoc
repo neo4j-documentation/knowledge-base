@@ -1,5 +1,5 @@
 = Migrating Explicit Lucene Indexes to Native Schema Indexes
-:slug: Migrating-Explicit-Lucene-Indexes-to-Native-Schema-Indexes
+:slug: migrating-explicit-lucene-indexes-to-native-schema-indexes
 :author: Ali Maddahian
 :category: operations
 :tags: lucene, index, legacy, explicit, capacity, schema, full-text
