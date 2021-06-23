@@ -1,0 +1,85 @@
+= An explanation of the E_COUNT_EXCEEDED WARNing message in Neo4j's debug.log.
+:slug: an-explanation-of-E-COUNT-EXCEEDED
+:author: Stephen Levett
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2 & 4.3.
+:tags: logging, performance, raft, causal cluster
+:category: operations
+:enterprise:
+
+The document aims to explain the `E_COUNT_EXCEEDED` WARNing messages that Neo4j can write to its debug.log.
+It also provides some monitoring and troubleshooting options.
+
+When running a Neo4j Causal Cluster, you may see the following errors on a FOLLOWER:
+
+```
+021-05-05 20:42:43.349+0530 WARN [o.n.c.c.BatchingMessageHandler] Raft in-queue dropping messages after: E_COUNT_EXCEEDED
+2021-05-05 20:42:45.465+0530 INFO [o.n.c.c.BatchingMessageHandler] Raft in-queue not dropping messages anymore. Dropped 771 messages.
+2021-05-05 20:42:46.250+0530 WARN [o.n.c.c.BatchingMessageHandler] Raft in-queue dropping messages after: E_COUNT_EXCEEDED
+2021-05-05 20:42:48.461+0530 INFO [o.n.c.c.BatchingMessageHandler] Raft in-queue not dropping messages anymore. Dropped 958 messages.
+2021-05-05 20:42:49.587+0530 WARN [o.n.c.c.BatchingMessageHandler] Raft in-queue dropping messages after: E_COUNT_EXCEEDED
+2021-05-05 20:42:50.829+0530 INFO [o.n.c.c.BatchingMessageHandler] Raft in-queue not dropping messages anymore. Dropped 541 messages.
+2021-05-05 20:42:59.392+0530 WARN [o.n.c.c.BatchingMessageHandler] Raft in-queue dropping messages after: E_COUNT_EXCEEDED
+2021-05-05 20:42:59.744+0530 INFO [o.n.c.c.BatchingMessageHandler] Raft in-queue not dropping messages anymore. Dropped 163 messages.
+```
+
+You may often see these messages, too:
+
+```
+2021-05-05 20:42:59.392+0530 INFO [o.n.c.c.s.CommandApplicationProcess] BatchSize{min=1.0, max=7.0, avg=1.1328449328449361, count=4096}
+2021-05-05 20:42:59.398+0530 INFO [o.n.c.c.s.CommandApplicationProcess] BatchSize{min=15.0, max=15.0, avg=15.0, count=1}
+```
+
+The `BatchSize` INFOmational messages report that several batches were applied that contain >4000 operations, and the default size of the queue is 4096 (`causal_clustering.state_machine_flush_window_size` parameter). Whenever we exceed the size of the queue, we will see `E_COUNT_EXCEEDED`.
+
+Practically, this means that the raft messages are coming into the queue for processing, but the queue is filling up faster than Neo4j can process the raft messages.  
+
+The size of this queue is set by `causal_clustering.raft_in_queue_size`. In the above example, we see that queue filling up. As a result, the messages are dropped, then draining enough to accept messages again, then filling up again. Neo4j is repeating this process constantly.
+
+The problem is equivalent to a temporary network partition. It should be able to recover, but it is a sign that there is a performance problem.
+
+The `E_COUNT_EXCEEDED` WARN usually means the workload is too high for the cluster.
+
+Furthermore, on the leader, we might expect to observe this situation:
+
+```
+2021-05-05 20:42:59.658+0530 INFO [o.n.c.c.r.RaftReplicator] Replication attempt 2 to leader MemberId{46531432}: DistributedOperation{content=TransactionRepresentationReplicatedTransaction{tx=PhysicalTransactionRepresentation[masterId:-1,authorId:-1,timeStarted:1620227030656,latestCommittedTxWhenStarted:3999325909,timeCommitted:1620227030657,lockSession:2,additionalHeader:[]commands.length:2}, globalSession=GlobalSession{sessionId=2d76658e-cb25-4d33-b46d-4f163c2e04c4, owner=MemberId{46531432}}, operationId=LocalOperationId{localSessionId=821, sequenceNumber=525762}}
+2021-05-05 20:42:59.789 INFO [o.n.c.c.r.RaftReplicator] Replication attempt 2 to leader MemberId{46531432}: DistributedOperation{content=TransactionRepresentationReplicatedTransaction{tx=PhysicalTransactionRepresentation[masterId:-1,authorId:-1,timeStarted:1620227030659,latestCommittedTxWhenStarted:3999325909,timeCommitted:1620227030662,lockSession:2,additionalHeader:[]commands.length:2}, globalSession=GlobalSession{sessionId=2d76658e-cb25-4d33-b46d-4f163c2e04c4, owner=MemberId{46531432}}, operationId=LocalOperationId{localSessionId=218, sequenceNumber=569728}}
+```
+
+That set of messages indicates that the LEADER cannot replicate the raft messages to the FOLLOWER(s.)
+
+Again, this is indicative of the workload being too high for the cluster.  Transactions are hitting the LEADER, and it, in turn, is replicating those transactions to all the FOLLOWERS.  The replication adheres to the raft protocol described here:
+https://raft.github.io/raft.pdf
+
+However, the workload is too much, which leads to the FOLLOWERs queue filling up, which ultimately causes the replication on the LEADER to drop outbound messages.
+
+*Troubleshooting and monitoring:*
+
+Firstly, diagnosing this is potentially complex, so I would recommend opening a ticket with Neo4j support.
+
+In advance of working with support, you could probe the following areas looking for signs of a bottleneck: 
+
+1) Disks.
+We are draining the raft queue to disk, so you need to ensure enough I/O capacity to satisfy the writes to the cluster.
+I would recommend monitoring the disks using iostat.  The following command will give the best overview:
+
+`iostat -x -c -d -t 1 600 >> $(hostname -i)-iostat.out`
+
+The most important metric here is queue depth.  Queue depth is the number of pending access operations. I tend to consider anything > 1 over an extended period as indicative of a bottleneck. It means the members are going to be slow writing the transactions and reading data as well.
+
+It is also necessary to determine what the relevant Neo4j directories map, too, though.  For example, `dbms.directories.data` and `dbms.directories.transaction.logs.root`will be stored on some device, but unless we know which devices, we cant determine if the saturated devices are the ones of interest.  They _may_ relate to another application or process altogether! 
+
+Technical support can advise on this, and it does depend on the type of devices.
+
+2) There are metrics for raft message processing that might provide insight into what is slow or blocked.  `neo4j.causal_clustering.core.message_processing_delay` and `neo4j.causal_clustering.core.message_processing_timer` are going to be helpful in this scenario.
+
+3) Historic monitoring of transactions.   I would recommend using your preferred monitoring tool to graph the numbers of transactions over time.
+The purpose here is to spot any trends which might coincide with the onset of the problem.  Perhaps there is a spike in the number of transactions, which corresponds to the beginning of the `E_COUNT_EXCEEDED`?
+
+*Resolution:*
+
+What one does to resolve this is dependent on what the problem is.
+
+If the problem is caused by an I/O bottleneck, then you can isolate the Neo4j directories to use their own devices.  For example, you can split out `~data` and ~transactions` to separate disks.  Neo4j 4.2 and later allows the operator to place the raft logs on separate devices.
+
+Ultimately, though, it may be caused by a workload profile that is too high for the physical resources of the cluster.
