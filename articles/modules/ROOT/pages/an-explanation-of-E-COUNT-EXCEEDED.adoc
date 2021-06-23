@@ -1,5 +1,5 @@
-= An explanation of the E_COUNT_EXCEEDED WARNing message in Neo4j's debug.log.
-:slug: an-explanation-of-E-COUNT-EXCEEDED
+= An explanation of the E-COUNT-EXCEEDED WARNing message in Neo4j's debug.log.
+:slug: an-explanation-of-e-count-exceeded
 :author: Stephen Levett
 :neo4j-versions: 3.5, 4.0, 4.1, 4.2 & 4.3.
 :tags: logging, performance, raft, causal cluster
