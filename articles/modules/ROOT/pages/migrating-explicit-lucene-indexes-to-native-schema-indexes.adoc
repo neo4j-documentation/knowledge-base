@@ -5,21 +5,21 @@
 :tags: lucene, index, legacy, explicit, capacity, schema, full-text
 :neo4j-versions: 1.x,2.x,3.x,4.x
 
-Given that there are still some customers on older releases still utilizing legacy/explicit indexes, we will point out a few pointers here on how to convert these indexes to native schema indexes when upgrading to Neo4j version 4.x, as legacy/explicit indexes have been deprecated as of 3.5.x, and totally removed from the 4.x version.
+Given that there are still some customers on the older Neo4j releases that utilize legacy/explicit indexes, we will discuss a few pointers here on how to convert these indexes to native schema indexes when upgrading to Neo4j version 4.x, as legacy/explicit indexes have been deprecated as of 3.5.x, and totally removed from the 4.x version.
  
-As to the background, Legacy/explicit indexes were the only type of indexes available prior to Neo4j 3.2(release date 2017).   These early version indexes which were implemented via Lucene under the cover resulted in significant write performance, and thus the need to replace them with the native schema indexex available in 3.3+ releases.   
+As to the background, Legacy/explicit indexes were the only type of indexes available prior to Neo4j 3.2(release date 2017).   These early version indexes which were implemented via Lucene under the cover, typically resulted in significant write performance degradation, and thus the need to replace them with the native schema indexes available in 3.3+ releases.   
 
-Aside from the performance perspective and equally important, explicit indexes also have to be explicitly/manually kept-up-to date when adding/removing/updating nodes/relationships/properties by way of the Java API (and/or stored procedures starting with 3.3.x), hence why they are called an explicit index.    
+Aside from the performance perspective and equally important, explicit indexes also have to be explicitly/manually kept-up-to date when adding/removing/updating nodes/relationships/properties by way of the Java API (and/or stored procedures starting with 3.3.x), hence why they are called explicit indexes.    
 
 In contrast, native indexes are maintained automatically, thus eliminating the need for any such manual steps and/or extra code to keep them current.
 
 From an implementation perspective, these legacy indexes do not list much of schema details and besides the original author's chosen naming convention at the time of the index creation, there is not a whole lot of usable clue to help with implementing an automated process for migrating these indexes to Neo4j’s native schema indexes in a scripted manner.
 
-Thus any index migration would have to be done on an index by index basis and might involve some level of guessing.   This means you having to look at the API code and assess which node or relationship properties are being indexes, and accordingly implement a complementing schema index on those properties and/or look at the cypher query and come up with supporting indexes to optimize its execution.
+Thus any index migration would have to be done on an index by index basis and might involve some level of guessing.   This means you having to look at the API code and assess which node or relationship properties are being indexed, and accordingly implement a complementing schema index on those properties and/or look at the cypher query and come up with supporting indexes to optimize its execution.
 
 Overall at a high level, here is the recommended approach:
 
-1) Get a listing of all your indexes on you existing version
+1) Get a listing of all your indexes on your existing version
 
 *  Example:   in 3.x you can use **"call db.index.explicit.list();"** which will show the index name as well as its type, which can be either “exact” or “full-text”, as well as if it is a node or relationship index, which will help you to determine what type of schema index to construct. 
  
@@ -39,9 +39,9 @@ Overall at a high level, here is the recommended approach:
 ** Inspect all cypher queries for what they actually write to that index and derive either a create index (for integer, strings, dates, geospatial, etc) and/or call db.index.fulltext.createIndexForNodes (FTS) statements.
 ** Inspect all reads to that index and adopt the statements to use the new index (this would mean to enable query logging to capture generated cypher queries and its performance attributes such as execution time vs io vs memory, vs cpu to flag longest running queries to troubleshoot individually one at a time - and more than likely your query patterns are similar to each other, hence, once one query is fixed, it will similarly help other similar queries.).
  
-4) Once finished with all the explicit indexes, then shut down the database and get rid of associated index subfolder.
+4) Once finished with all the explicit indexes, then shut down the database and move/delete the associated index subfolder(e.g. /data/databases/graph.db/index).
 
-please note, if it happens to that you convert a legacy index to an equivalent schema index and your search query using the legacy indexes are returning an unexpected number of rows (compared to schema indexes), then this either means that the schema index is either incorrectly defined (on wrong label:properties) or the legacy index itself is not up to date (remember legacy indexes must be manually kept up to date, hence as an example, without the appropriate error handling in your Java API code, it is entirely possible that a transaction would not have correctly retried and applied a transaction when encountering a rollback due to any reason, such as server restarts, etc).   Here is a 3.x example demonstrating the case in point:
+Please note, if it happens that having converted a legacy index to an equivalent schema index, the search query using the legacy indexes are returning an unexpected number of rows (compared to schema indexes), then this likely indicates that the schema index may have been incorrectly defined (on wrong label:properties), or, the legacy index is not up to date (remember legacy indexes must be manually kept up to date, hence as an example, without the appropriate error handling in your Java API code, it is entirely possible that a transaction would not have been correctly retried and applied commits when encountering a rollback due to any reason, such as server restarts, etc). Here is a 3.x example demonstrating such case:
 
 ```
 // Create New Nodes
@@ -92,7 +92,10 @@ Appendix:
 
 * For a full list of deprecated features per each version please visit the following link:  https://neo4j.com/docs/cypher-manual/current/deprecations-additions-removals-compatibility/
 
-* As noted above, 3.3.x, also offered explicit index implementations using stored-procedures in order to make them easier to implement without resorting to using Java API, however, these also would have had to be maintained manually.  Additionally, these set of procedures were also deprecated as of 3.5.x, and were replaced in 4.x with new set of procedures (to be used solely for Full-Text-Search usecases) as documented here:  https://neo4j.com/docs/cypher-manual/current/administration/indexes-for-full-text-search/
+* As noted above, 3.3.x, also offered explicit index implementations using stored-procedures in order to make them easier to implement without resorting to using Java API, however, these also would have had to be maintained manually.  Additionally, these sets of procedures were also deprecated as of 3.5.x, and were replaced in 4.0,4.1,4.2 with new set of procedures (to be used solely for Full-Text-Search usecases) as documented here:  https://neo4j.com/docs/cypher-manual/current/administration/indexes-for-full-text-search/
+
+* Additionally, per 4.3.0 changelog, all FTI procedures are deprecated.   
+** "Introduce CREATE FULLTEXT INDEX... Cypher command. Deprecate db.index.fulltext.createNodeIndex, db.index.fulltext.createRelationshipIndex and db.index.fulltext.drop.". 
 
 * Documentation to pre-3.x Java API code that would have to modified/removed:
 
