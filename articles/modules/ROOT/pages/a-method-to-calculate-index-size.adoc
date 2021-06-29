@@ -1,0 +1,73 @@
+= A method to calculate the size of an index in Neo4j.
+:slug: a-method-to-calculate-index-size
+:author: Stephen Levett
+:neo4j-versions: 3.5 & 4.x
+:category: neo4j-indexes
+:tags: cypher, indexes, schema, capacity planning
+
+
+If the need arises to calculate the size of an index in Neo4j, for capacity planning purposes, there are two methods available:
+
+1) Execute the `db.indexes()` procedure:
+
+`CALL db.indexes() YIELD id, name, labelsOrTypes, properties;`
+
+From that output, you can obtain the `id`:
+
+```
+neo4j@customers> CALL db.indexes() YIELD id, name, labelsOrTypes, properties;
++--------------------------------------------+
+| id | name     | labelsOrTypes | properties |
++--------------------------------------------+
+| 1  | "kb_idx" | ["Movie"]     | ["idd"]    |
++--------------------------------------------+
+
+1 row available after 49 ms, consumed after another 5 ms
+```
+
+The `id` here is 1.  By executing the procedure with no parameters, a fuller listing is returned, including the `state`:
+
+```
+call db.indexes();
++-------------------------------------------------------------------------------------------------------------------------------------+
+| id | name     | state    | populationPercent | uniqueness  | type    | entityType | labelsOrTypes | properties | provider           |
++-------------------------------------------------------------------------------------------------------------------------------------+
+| 1  | "kb_idx" | "ONLINE" | 100.0             | "NONUNIQUE" | "BTREE" | "NODE"     | ["Movie"]     | ["idd"]    | "native-btree-1.0" |
++-------------------------------------------------------------------------------------------------------------------------------------+
+
+1 row available after 49 ms, consumed after another 2 ms
+```
+
+Now you have the `id` ,you can execute `du -h` in the `$NEO4J_HOME/data/databases/customers/schema/index` directory for the index directory.
+
+```
+pwd
+/Users/stephenlevett/Documents/scripts/cluster-build-scripts-master/instance1/neo4j-enterprise-4.2.5/data/databases/customers/schema/index/native-btree-1.0
+
+ll
+total 0
+0 drwxr-xr-x  3 stephenlevett  staff    96B  2 Jun 10:45 1
+```
+
+Note `1` matches the `id` above.
+
+Then:
+
+```
+du -h 1/*
+ 96K	1/index-1
+```
+
+2) Or using the `id`, you can look in debug.log for the following section under the database name:
+
+```
+[customers/eb86f508]   schema:
+[customers/eb86f508]     index:
+[customers/eb86f508]       native-btree-1.0:
+[customers/eb86f508]         1:
+[customers/eb86f508]           index-1: 2021-06-02T11:09:20+01:00 - 96.00KiB
+[customers/eb86f508]         - Total: 2021-06-02T10:45:09+01:00 - 96.00KiB
+[customers/eb86f508]       - Total: 2021-06-02T10:45:08+01:00 - 96.00KiB
+[customers/eb86f508]     - Total: 2021-06-02T10:45:08+01:00 - 96.00KiB
+[customers/eb86f508]   - Total: 2021-06-02T10:45:08+01:00 - 96.00KiB
+```
