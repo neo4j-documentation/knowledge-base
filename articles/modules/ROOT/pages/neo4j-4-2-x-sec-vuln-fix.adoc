@@ -1,0 +1,20 @@
+= Neo4j 4.2.x Security Vulnerability Fixed in Release 4.2.8
+:slug: neo4j-4-2-x-sec-vuln-fix
+:author: Daniel Terlizzi
+:neo4j-versions: 4.2
+:tags: support
+:promoted: true
+:category: support
+
+
+Affected products
+Neo4j 4.2.x Enterprise and Aura Cloud before 2021-06-18
+Unaffected versions: Neo4j Community Edition, all Enterprise versions prior to 4.2 and Aura Cloud from 2021-06-18.  Additionally Neo4j 4.3.x includes this fix.
+
+Description of the problem
+Neo4j engineering and security teams have identified an issue categorized as “unauthorized access” within the Neo4j 4.2 release. Users with any level of access to the database may be able to bypass security and gain full administrator-level access.
+
+A user executing an administrative command in a transaction could retain elevated Cypher permissions used by the command for the duration of the transaction. For read-only administrative commands e.g. SHOW CURRENT USER this would be full read access, and for write system commands e.g. CREATE DATABASE this would be full access to the system.
+
+Resolution
+Neo4j has released Neo4j Enterprise 4.2.8 to resolve the issue and advises customers to apply this patch immediately. This patch requires downtime on a single server and can be performed with a rolling upgrade on clusters to ensure there is no downtime. Aura customers do not need to take any further action, as Neo4j has already released the patch to Aura Cloud on 2021-06-18.
