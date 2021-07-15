@@ -1,0 +1,167 @@
+= Protecting against Cypher injection
+:slug: protecting-against-cypher-injection
+:author: Andrew Bowman
+:neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5, 4.0, 4.1, 4.2, 4.3
+:tags: cypher, security
+:category: security
+
+= What is Cypher injection?
+
+Cypher injection is a way for maliciously formatted input to jump out of its context, and by altering the query itself, hijack the query and perform unexpected operations on the database.
+
+This is a cousin to SQL injection, but affecting our Cypher query language.
+
+One of the best illustrations of injection attacks is from an XKCD comic featuring Little Bobby Tables:
+
+[link=https://xkcd.com/327/]
+image::https://imgs.xkcd.com/comics/exploits_of_a_mom.png[Little Bobby Tables]
+
+The boy's mother named him `Robert'; DROP TABLE STUDENTS;--`, ensuring that if his name was appended into a SQL statement that
+didn't clean their inputs or protect against an injection attack, the quote would end the context of a quoted name, the semicolon would end that statement,
+the STUDENTS table would be dropped, and the `--` would turn the remaining part of the query into a comment, so the remaining query could be ignored and avoid any syntax errors.
+
+This syntax is of course specific to SQL. Given that Bobby's mother would likely have continued her crusade, she might have had another child specifically for targeting Cypher, used by the leading graph database Neo4j.
+Lets call him Little Robby Labels, to differentiate him from his older brother:
+
+`"Robby' WITH DISTINCT true as haxxored MATCH (s:Student) DETACH DELETE s //"`
+
+This is an attempt at Cypher injection, the equivalent of the SQL injection attack, except the deletion of all :Student nodes happens within the same statement instead of splitting it into a separate statement.
+(The WITH clause in the middle is just to ensure we reduce down to a single row of input before matching to deleting all students, it's for efficiency)
+
+And if names from outside input are string-appended into a Cypher query like so, this attack may succeed:
+
+```
+...
+String queryString = "CREATE (s:Student) SET s.name = '" + studentName + "'";
+
+Result result = session.run(queryString);
+...
+```
+
+= Parameter usage prevents Cypher injection
+
+We can easily prevent Cypher injection by always submitting input as parameters to our query.
+
+https://neo4j.com/docs/cypher-manual/current/syntax/parameters/
+
+The parameter might get set like this:
+
+[source,cypher]
+----
+:param name => "Robby' WITH DISTINCT true as haxxored MATCH (s:Student) DETACH DELETE s //"
+----
+
+And the parameterized query would look like this:
+
+[source,cypher]
+----
+CREATE (s:Student)
+SET s.name = $studentName
+----
+
+When using parameters like this, it is impossible for the parameter, in part or in whole, to be interpreted as part of the query.
+It cannot hijack it.
+
+One reason for this is that parameters are separate from the query. The query alone is compiled into an executable plan, and once compiled, can use any parameter map for execution.
+The parameters cannot alter the compiled plan, and have no opportunity to be included in the plan compilation.
+
+In other words, once a query plan has been compiled, it is set, and nothing in the data submitted to it can change it, alter it, or hijack it.
+
+= Other common injection attempts also fail
+
+Not all inputs can be submitted as parameters.
+Maybe some malicious input made it into a CSV file for processing.
+A CSV of the names of new students for the year, for example.
+
+[source,cypher]
+----
+LOAD CSV WITH HEADERS FROM "file:///students_2021.csv" AS row
+CREATE (s:Student)
+SET s.year = 2021, s.name = row.student_name
+----
+
+Is this vulnerable to Little Robby Labels?
+
+No, it is not. Cypher injection is still impossible here, even if parameters aren't being used.
+
+The LOAD query is independent of the CSV that is to be processed.
+As such, the query is compiled separately from the CSV.
+By the time the query is executing and the CSV data starts to be accessed, the query has already been completely compiled, and the CSV data has no opportunity to affect or hijack the query itself.
+
+Likewise, any other injection attacks will fail that attempt to pull in malicious input via reading it from somewhere, or even a malicious property value that somehow was saved into the database already.
+This is because unless the malicious value is string-appended into the query itself, rather than read at the time the query executes, it will not have the opportunity to get compiled into and affect the query plan.
+
+= Be careful when string appending into dynamically-executed Cypher strings
+
+Some procedures in our APOC Procedures library allow for execution of Cypher strings within a query,
+and this does present a vulnerability for Cypher injection.
+
+Some of the more notable examples include:
+
+```
+apoc.cypher.run()
+apoc.cypher.doIt()
+apoc.periodic.iterate() (and other periodic procs)
+apoc.when()
+apoc.do.when()
+apoc.case()
+apoc.do.case()
+```
+
+String appending into the query string is possible here, and so Cypher injection becomes possible.
+
+Consider this query:
+
+[source,cypher]
+----
+CALL apoc.cypher.doIt("CREATE (s:Student) SET s.name = '" + $studentName + "' RETURN true", {}) YIELD value
+RETURN value;
+----
+
+Even though we passed `$studentName` as a parameter to the query, the parameter is being appended into the query string for execution by `apoc.cypher.doIt()`.
+The same vulnerability would exist if we were processing a LOAD CSV query like before, and appending into a query string for execution by APOC.
+
+Little Robby Labels would end up wiping out all our student data.
+
+== Pass parameters to APOC procs instead of appending into the query string
+
+Parameter usage here is still the answer to this vulnerability.
+
+Instead of appending into the string, pass the value as a parameter to the procedure call:
+
+[source,cypher]
+----
+CALL apoc.cypher.doIt("CREATE (s:Student) SET s.name = $name  RETURN true", {name:$name}) YIELD value
+RETURN value;
+----
+
+Little Robby Labels becomes powerless here.
+
+All of the APOC procedures that execute dynamic Cypher strings should have a way to pass a parameter map to the call, providing protection from injection attacks once again.
+
+== When you MUST append into a query string, sanitize your inputs
+
+There are some cases where we can't pass a parameter into the procedure call, or a query, and string appending is the only option.
+
+For example, there are some things in Cypher that cannot be parameterized, such as node labels and relation types.
+There are some APOC Procs that can help (and should be used if so), but aside from these, the only option may be to append into a query string.
+
+In these cases, it is extremely important to sanitize your inputs, removing quote or delimitter characters (depending on their context of use) that would allow input to break out of the context within which you're trying to use it.
+
+In these cases it is better to sanitize input in your own code at the client level, as there are many utilities across various languages for input sanitization, and it makes sense to address it at that level rather than lower down at the database itself.
+
+== Beware of participation in stored scripting and web site injection attacks
+
+This doesn't really fall into the category of Cypher injection, since it's not an attack on Cypher or the database itself, but it's important to be aware of it.
+
+Stored cross site scripting attacks use values in a database as a vector for attacks on a web site.
+Malicious values (usually malicious javascript or HTML) are saved to the database (and these values do not affect or impact Cypher or the database in any way),
+but when retrieved and displayed on a vulnerable page, these values result in a cross-site scripting attack, or an injection attack, resulting in the malicious code affecting the javascript or HTML on the page.
+
+So the vulnerability is actually in the HTML or Javascript on the page itself, and has nothing to do with Neo4j.
+To mitigate, the HTML and javascript used on the page itself ought to be secured such that results from a database call are sanitized before display, inclusion in the DOM, or execution as script.
+That said, it may be a good idea to sanitize outside input for HTML/Javascript control characters before saving to the database, so your stored data can't be used as a vector in these kinds of attacks.
+
+It's often most reliable to do this in your code client-side, so you pass in parameters that have already been sanitized.
+
+https://en.wikipedia.org/wiki/Cross-site_scripting#Persistent_(or_stored)
