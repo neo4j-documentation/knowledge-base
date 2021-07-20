@@ -41,7 +41,7 @@ asciidoctorj {
             'assets-cdn': 'https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content',
             'linkattrs': '',
             'source-highlighter': 'codemirror',
-            'enterprise': '', // publish on support.neo4j.com
+            'enterprise@': '', // publish on support.neo4j.com
             'stage': stage != null ? stage : '',
             'document-metadata-attrs-include': 'author,slug,zendesk-id,taxonomies*<>,zendesk_publishing_targets*<>'
 }
