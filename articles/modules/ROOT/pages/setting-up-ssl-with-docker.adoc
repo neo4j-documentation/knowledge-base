@@ -12,10 +12,9 @@ framework can be found at:  https://neo4j.com/docs/operations-manual/current/sec
 Setting up secure Bolt and HTTPS communications when running Neo4j within a Docker Container requires some specific steps and 
 configuration settings.
 
-The below steps assume you've followed the process outlined in the above documentation link and have created your public cert and
-private key. 
+The below steps assume the processes outlined in the above documentation link have been followed. In addition, public certificates and private keys have already been created.
 
-CAUTION: The steps listed below are for example purposes only. You should make sure these are suitable for your requirements before deploying into any environment. 
+CAUTION: The steps listed below are for example purposes only. It must be made sure these are suitable for the environment before deployment. 
 
 The configuration steps for Neo4j 3.5 and Neo4j 4.x are different. Both are listed below.
 
@@ -23,7 +22,7 @@ The configuration steps for Neo4j 3.5 and Neo4j 4.x are different. Both are list
 
 === 1. Create Neo4j Scope Directory Structure
 
-Neo4j 4.x requires directories are created with a specific structure. The following in an example for `https` and `bolt` scopes
+Neo4j 4.x requires directories are created with a specific structure. The following is an example for `https` and `bolt` scopes
 
 ----
 ssl/
@@ -35,13 +34,13 @@ ssl/
     └── trusted
 ----
 
-Create the above folder structure in `$HOME/neo4j`. It is possible to use any directory of your choice, making sure to adjust the below paths accordingly.
+Create the above directory structure in `$HOME/neo4j`. It is possible to use any directory of your choice, making sure to adjust the below paths accordingly.
 
 === 2. Copy SSL Certificates and Correct Permissions
 
-A copy of your public certificate and private key will need to be placed in each scopes directory. The public key will also need to be copied into the respective scopes `trusted` folder.
+A copy of the public certificate and private key files will need to be placed in each scopes directory. The public key will also need to be copied into the respective scopes `trusted` directory.
 
-Once copied, your folder and file layout in `$HOME/neo4j/ssl` should look like the following:
+Once copied, the directory and file layout in `$HOME/neo4j/ssl` should look like the following:
 
 ----
 $HOME/neo4j/ssl/
@@ -59,7 +58,7 @@ $HOME/neo4j/ssl/
         └── public.crt
 ----
 
-The container will run Neo4j as user `neo4j`. The uid and gid is 7474. Use the following command to adjust the permissions on the `ssl` folder:
+The container will run Neo4j as user `neo4j`. The uid and gid is 7474. Use the following command to adjust the permissions on the `ssl` directory:
 
 [source,shell]
 ----
@@ -69,11 +68,11 @@ sudo chmod -R g+rx $HOME/neo4j/ssl
 
 === 3. Configure Neo4j
 
-There are two methods for configuring Neo4j running as a Docker container: *externalize neo4j.conf using Docker host volumes*, OR *configure Docker environment variables*. You should only choose one of the methods (not both)
+There are two approaches for configuring Neo4j running as a Docker container: *externalize neo4j.conf using Docker host volumes*, OR *configure Docker environment variables*. You should only choose one of the approaches (not both)
 
 ==== Externalize neo4j.conf
 
-It is possible to use a Docker host volume to mount a neo4j.conf file. This is achieved by mounting into the containers `/conf` directory.
+It is possible to use a Docker host volume to mount a neo4j.conf file. This is achieved by mounting into the container's `/conf` directory.
 
 Create a `conf` directory and neo4.conf file in `$HOME/neo4j`
 
@@ -83,7 +82,7 @@ mkdir $HOME/neo4j/conf && \
 touch $HOME/neo4j/conf/neo4j.conf
 ----
 
-Insert the following configuration into `neo4j.conf` making sure to substitute `host.domain.com` with your DNS name.
+Insert the following configuration into `neo4j.conf` making sure to substitute `host.domain.com` with the required DNS name for the server/ application. 
 
 [source,properties]
 ----
@@ -110,7 +109,7 @@ The above will be mounted at deployment using `--volume=$HOME/neo4j/conf:/conf`
 
 ==== Docker Environment Variables
 
-The following collection of Docker environment variables can be used instead of the above Docker host volume configuration. These should be specified at deployment making sure to substitute `host.domain.com` with your DNS name.
+The following collection of Docker environment variables can be used instead of the above Docker host volume configuration. These should be specified at deployment making sure to substitute `host.domain.com` with the required DNS name for the server/ application. 
 
 [source,bash]
 ----
