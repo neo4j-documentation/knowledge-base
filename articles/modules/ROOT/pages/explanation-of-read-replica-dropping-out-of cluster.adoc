@@ -1,5 +1,5 @@
 = An explanation of a read replica dropping in and out of a Neo4j cluster.
-:slug: explanation-of-read-replica-dropping-out-of cluster.adoc
+:slug: explanation-of-read-replica-dropping-out-of cluster
 :author: Stephen Levett
 :neo4j-versions: 3.5, 4.0, 4.1, 4.2 & 4.3
 :tags: causal clustering.
