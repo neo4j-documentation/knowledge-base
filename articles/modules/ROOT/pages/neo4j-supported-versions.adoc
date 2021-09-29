@@ -8,7 +8,7 @@
 
 Review our https://neo4j.com/terms/support-terms/[Support Terms] for reference.
 
-For reference and planning purposes, the following represents a list of the currently supported Neo4j releases, release date, and date at which that release will no longer be supported.
+For reference and planning purposes, the following represents a list of the currently supported Neo4j releases, release date, and date at which that release will no longer be supported. 
 
 Neo4j Database Enterprise Edition
 [options=header]
