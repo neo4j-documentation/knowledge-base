@@ -160,7 +160,7 @@ Remember that any other non-write clause, such as MATCH, WITH, and CALL, cannot 
 
 == APOC conditional procedures
 
-Alternately, the APOC Procedures library includes procedures designed for http://neo4j-contrib.github.io/neo4j-apoc-procedures/3.5/cypher-execution/conditionals/[conditional Cypher execution].
+Alternately, the APOC Procedures library includes procedures designed for https://neo4j.com/labs/apoc/4.2/cypher-execution/conditionals/[conditional Cypher execution].
 
 There are two types of procedures:
 
