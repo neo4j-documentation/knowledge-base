@@ -146,7 +146,7 @@ There are some cases where we can't pass a parameter into the procedure call, or
 For example, there are some things in Cypher that cannot be parameterized, such as node labels and relation types.
 There are some APOC Procs that can help (and should be used if so), but aside from these, the only option may be to append into a query string.
 
-In these cases, it is extremely important to sanitize your inputs, removing quote or delimitter characters (depending on their context of use) that would allow input to break out of the context within which you're trying to use it.
+In these cases, it is extremely important to sanitize your inputs, removing quote or delimiter characters (depending on their context of use) that would allow input to break out of the context within which you're trying to use it.
 
 In these cases it is better to sanitize input in your own code at the client level, as there are many utilities across various languages for input sanitization, and it makes sense to address it at that level rather than lower down at the database itself.
 
