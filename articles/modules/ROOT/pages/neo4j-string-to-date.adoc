@@ -55,7 +55,7 @@ Executing this query will return the following result:
 |"2018-07-20"
 |====
 
-Alternatively we can use the APOC library's https://neo4j.com/docs/labs/apoc/current/temporal/datetime-conversions/[`apoc.date.parse`^] function to massage our data into a supported format.
+Alternatively we can use the APOC library's https://neo4j.com/labs/apoc/4.1/overview/apoc.date/apoc.date.parse/[`apoc.date.parse`^] function to massage our data into a supported format.
 This function gives us a flexible way for handling different date and time patterns.
 
 The following query:
