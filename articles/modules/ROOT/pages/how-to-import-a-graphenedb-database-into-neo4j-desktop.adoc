@@ -1,0 +1,58 @@
+= How to import a GrapheneDB database into Neo4j Desktop
+:slug: how-to-import-a-graphenedb-database-into-neo4j-desktop
+:author: Andrew Bowman
+:category: desktop
+:tags: import
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2
+
+This assumes you already have the zip file of the GrapheneDB database.
+
+The goal here is to import this as an entire database, not to pull the data from it into an existing database.
+
+Note that there are already export instructions on GrapheneDB's site here:
+https://docs.graphenedb.com/docs/importing-and-exporting-databases#loading-an-exported-datastore-into-a-local-neo4j-instance
+
+Try using those first, and if those don't work proceed as follows depending on the Neo4j version of the GrapheneDB database.
+
+== In Neo4j 3.5.x
+
+We only have a single database per dbms in this version, so the steps are simpler.
+
+1. In Neo4j Desktop, create an instance of the right version of 3.5.x in desktop, but don't start it yet.
+2. Manage the instance (from the `...` in the upper right), and press the `Open Terminal` button to open a terminal window to the instance's home directory.
+3. Perform `cd data/database` from the terminal (if you then do an `ls`, the directory should be empty).
+4. Extract the GrapheneDB zip file to this directory, make sure that it results in a `graph.db` folder with `neostore*` files inside.
+If needed, rename the top-level directory to `graph.db` to align with the default graph name (or adjust the graph name in your config file accordingly).
+5. Check ownership permissions for the unzipped directory. They should match with the ownership permissions you see when you do a `ls -l` at the home directory for the db.
+If they do not match, you may need to change the ownership of the files recursively so Neo4j Desktop is able to read and write to them:
+https://linuxize.com/post/linux-chown-command/
+6. Start the database.
+
+== In Neo4j 4.x
+
+Neo4j 4.x allows multiple databases per dbms instance. As such we can add the GrapheneDB database without replacing any other databases.
+
+We can even add to an existing dbms instance that already have databases, and that may already be running.
+
+You should have a zipped database, and you may also have a `transactions` zip too.
+
+1. In Neo4j Desktop, either create a new dbms instance of the appropriate version, or identify an existing database (whose minor version matches that of the GrapheneDB instance) into which you will import the database.
+2. Manage the instance (from the `...` in the upper right), and press the `Open Terminal` button to open a terminal window to the instance's home directory.
+3. Perform `cd data/databases` from the terminal. This may have other directories here, corresponding with other databases on the instance.
+4. Extract the GrapheneDB zip file to this directory. The top level directory of the expanded zip should have a unique name that follows Neo4j's naming rules:
+https://neo4j.com/docs/cypher-manual/current/syntax/naming/
+5. Check ownership permissions for the unzipped directory. They should match with the ownership permissions you see when you do a `ls -l` at the home directory for the dbms.
+If they do not match, you may need to change the ownership of the files recursively so Neo4j Desktop is able to read and write to them:
+https://linuxize.com/post/linux-chown-command/
+6. (Only if you have a transactions zip included) From the terminal, return to the home directory of the Neo4j instance and perform `cd data/transactions`.
+This is where transactions for each database are stored. You should see a directory per database.
+7. Extract the transactions zip file to this directory. The top level directory of the expanded zip should have a name matching the database you extracted earlier in step 4.
+8. Check ownership permissions for the unzipped directory. They should match with the ownership permissions you see when you do a `ls -l` at the home directory for the dbms.
+If they do not match, you may need to change the ownership of the files recursively so Neo4j Desktop is able to read and write to them:
+https://linuxize.com/post/linux-chown-command/
+9. Start the Neo4j dbms if it is not started already.
+10. After it starts and you log in, execute `:use system` to switch to the system database, where we can execute database administration commands.
+11. Using the name of the database (used as the directory name in steps 4 and 7) issue a `CREATE DATABASE <dbname>` command, replacing `<dbname>` with the database name.
+This will create an entry in the system db for the new database, which will be using the database and transaction files extracted from steps 4 and 7.
+12. You can use `SHOW DATABASES` to check if the database was created.
+13. Execute `:use <dbname>` (replacing with the database name) to switch to the db.
