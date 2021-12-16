@@ -1,8 +1,8 @@
 = Dump the Contents of a Transaction Log
 :slug: dump-the-contents-of-a-transaction-log
 :zendesk-id: 205527958
-:author: Dave Gordon
-:neo4j-versions: 3.0,3.1,3.2,3.3,3.4,3.5,4.0,4.1,4.2
+:author: Dave Gordon, Sandeep Reehall
+:neo4j-versions: 3.0,3.1,3.2,3.3,3.4,3.5,4.0,4.1,4.2,4.3
 :tags: transaction log
 :category: operations
 
@@ -10,17 +10,38 @@ If there is a need to look through the transaction logs, particularly to see if/
 
 The tools are available separately at https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.neo4j%22%20AND%20a%3A%22neo4j-tools[the Maven Central Repository] prior to version 3.5.x.  Download (or build) the correct tools jar for your Neo4j Version from there.
 
-Starting with version 3.5.x, you can find the jar in the http://m2.neo4j.com/enterprise[Private Repository]
-The username and password can be found https://support.neo4j.com/hc/en-us/articles/360012742113-Dependency-location-for-Neo4j-Enterprise-Edition-artifacts[here].
+Starting with version 3.5.x, you can find the jar in the http://m2.neo4j.com/enterprise[Neo4j's Private Repository]
+
+NOTE: Neo4j's Private Repository cannot be access via a web browser. You will need to install Maven and use mvn.
+
+The steps to configure access to Neo4j's Private Repository can be found https://support.neo4j.com/hc/en-us/articles/360012742113-Dependency-location-for-Neo4j-Enterprise-Edition-artifacts[here].
+
+The following dependency will need to be added to you pom.xml
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.neo4j</groupId>
+        <artifactId>neo4j-tools</artifactId>
+        <version>${neo4j.version}</version>
+        </dependency>
+</dependencies>
+```
+
+This will download neo4j-tools-x.x.x.jar in to the local Mavan repository. 
 
 Place the jar in `$NEO4J_HOME\lib` and given a log file of neostore.transaction.db.1, run:
 
-[source,shell]
 For 3.5 and lower
+
+[source,shell]
 ----
 $ java -cp 'lib/*:system/lib/*:/usr/share/neo4j/lib/*' org.neo4j.tools.dump.DumpLogicalLog ./data/graph.db/neostore.transaction.db.1 > /tmp/dumptxlog_1.log
 ----
+
 For 4.0 and higher
+
+[source,shell]
 ----
 $ java -cp 'lib/*:system/lib/*:/usr/share/neo4j/lib/*' com.neo4j.tools.dump.DumpLogicalLog ./data/transactions/<Your Database Here>/neostore.transaction.db.0 /tmp/dumptxlog_1.log
 ----
