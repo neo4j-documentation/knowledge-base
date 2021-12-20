@@ -1,4 +1,4 @@
-= Importing CSV Files: Neo4j Desktop and Sandbox
+= Importing CSV Files: Neo4j Aura, Desktop and Sandbox
 :slug: import-csv-locations
 :author: Jennifer Reif
 :twitter: @jmhreif
