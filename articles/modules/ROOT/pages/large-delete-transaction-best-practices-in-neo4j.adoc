@@ -14,19 +14,42 @@ Start by identifying which situation you are in:
 * Deleting a large section of the graph, or a large number of nodes/relationships that are identified in a MATCH statement.
 * Depending on the situation, there may be a different recommendation. Going through them in order:
 
-When deleting the entire graph database, by far the best way is to simply stop the database, rename/delete the graph store 
-(`data/graph.db` (pre v3.x) or `data/databases/graph.db` (3.x forward) or similar) directory, and start the database.
+
+When deleting the entire graph database, 
+
+In Neo4j 4.x EE, you can just switch to the system database and issue an `DROP DATABASE xxx;` and `CREATE DATABASE xxx;` statements.
+
+For Community Edition and older editions: stop the database, rename/delete the graph store 
+
+* 4.x CE `data/databases/neo4j` and `data/transactions/neo4j`
+* pre 4.x `data/databases/graph.db`
+* pre 3.x `data/graph.db`
+
+directory, and start the database.
+
 This will build a fresh, empty database for you.
 
-If you need to delete some large number of objects from the graph, one needs to be mindful of the not building up such a large single 
-transaction such that a Java out of heap error will be encountered.  Use the following example to delete subsets of the matched records
-in batches until the full delete is complete:
+If you need to delete *some large number of objects* from the graph, one needs to be mindful of the not building up such a large single transaction such that a Java OUT OF HEAP Error will be encountered.  
+
+Use the following example to delete subsets of the matched records in batches until the full delete is complete:
+
+NOTE: If your nodes have more than 100 relationships per node (`+(100+1)*10k=>1010k+` deletes) reduce the batch size or see the recommendations at the bottom.
+
+With 4.4 and newer versions you can utilize the `CALL {} IN TRANSACTIONS` syntax.
+
+[source,cypher]
+----
+MATCH (n:Foo) where n.foo='bar'
+CALL { WITH n
+DETACH DELETE n
+} IN TRANSACTIONS OF 10000 ROWS;
+----
 
 With 3.x forward and using https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC]
 
 [source,cypher]
 ----
-call apoc.periodic.iterate("MATCH (n:Foo) where n.foo='bar' return n", "DETACH DELETE n", {batchSize:1000})
+call apoc.periodic.iterate("MATCH (n:Foo) where n.foo='bar' return id(n) as id", "MATCH (n) WHERE id(n) = id DETACH DELETE n", {batchSize:10000})
 yield batches, total return batches, total
 ----
 
@@ -58,9 +81,31 @@ DELETE n,r
 RETURN count(*);
 ----
 
-In all of the examples we are performing a delete in batch sizes of 10k.   This may still lead to out of heap errors if the nodes
-eligible for delete have a significant number of relationsips.   For example if a node to be deleted as 1 million `:FOLLOWS`
-relationships then the delete of this single node will include the removal of this 1 node and the 1 million `:FOLLOWS` relationships.
+In all of the examples we are performing a delete in batch sizes of 10k.
+This may still lead to out of heap errors if the nodes eligible for delete have a significant number of relationsips.   
+
+For example if a node to be deleted as 1 million `:FOLLOWS` relationships then the delete of this single node will include the removal of this 1 node and the 1 million `:FOLLOWS` relationships.
+
+For nodes with many relationships or widely varying degrees of nodes a single `DETACH DELETE` can still exceed the transaction heap boundaries.
+In these cases it's better to delete the relationships first and then the nodes in batches.
+Here is an example for Neo4j 4.4.x and later
+
+[source,cypher]
+----
+MATCH (n:Foo)-[r]-() where n.foo='bar'
+
+// delete relationships
+CALL { WITH r
+DELETE r
+} IN TRANSACTIONS OF 10000 ROWS
+
+// reduce cardinality
+WITH distinct n
+// delete nodes
+CALL { WITH n
+DELETE n
+} IN TRANSACTIONS OF 10000 ROWS;
+----
 
 Also, please consider reviewing KB document `How to avoid using excessive memory on deletes involving dense nodes` for other 
-considerations
+considerations.
