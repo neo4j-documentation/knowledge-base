@@ -19,7 +19,7 @@ When deleting the entire graph database,
 
 In Neo4j 4.x EE, you can just switch to the system database and issue an `DROP DATABASE xxx;` and `CREATE DATABASE xxx;` statements.
 
-For Community and older editions: stop the database, rename/delete the graph store 
+For Community Edition and older editions: stop the database, rename/delete the graph store 
 
 * 4.x CE `data/databases/neo4j` and `data/transactions/neo4j`
 * pre 4.x `data/databases/graph.db`
@@ -31,10 +31,9 @@ This will build a fresh, empty database for you.
 
 If you need to delete *some large number of objects* from the graph, one needs to be mindful of the not building up such a large single transaction such that a Java OUT OF HEAP Error will be encountered.  
 
-
 Use the following example to delete subsets of the matched records in batches until the full delete is complete:
 
-NOTE: If your nodes have more than 100 relationships per node ((100+1)*10k=>1010k deletes) reduce the batch size or see the recommendations at the bottom.
+NOTE: If your nodes have more than 100 relationships per node (`+(100+1)*10k=>1010k+` deletes) reduce the batch size or see the recommendations at the bottom.
 
 With 4.4 and newer versions you can utilize the `CALL {} IN TRANSACTIONS` syntax.
 
