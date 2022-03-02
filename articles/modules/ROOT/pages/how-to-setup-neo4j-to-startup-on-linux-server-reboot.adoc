@@ -1,7 +1,7 @@
 = How to Setup Neo4j to Startup on Linux Server Reboot
 :slug: how-to-setup-neo4j-to-startup-on-linux-server-reboot
 :author: Shawn Tozeski
-:neo4j-versions: 3.2, 3.3, 3.4
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: startup, linux
 :environment: linux
 :category: operations

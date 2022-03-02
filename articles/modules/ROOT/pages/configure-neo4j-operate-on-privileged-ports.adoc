@@ -1,7 +1,7 @@
 = Configuring Neo4j to operate on privileged ports
 :slug: configure-neo4j-operate-on-privileged-ports
 :author: David Fauth
-:neo4j-versions: 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: server, ports
 :category: operations
 

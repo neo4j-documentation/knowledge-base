@@ -1,7 +1,7 @@
 = Diagnosing network latency in a Causal Cluster using MTR
 :slug: diagnosing-network-latency-in-a-causal-cluster-using-mtr
 :author: Umar Muzammil
-:neo4j-versions: 3.1,3.2,3.3,3.4,3.5,4.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cluster, latency, monitoring
 :category: operations
 

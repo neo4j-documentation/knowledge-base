@@ -2,7 +2,7 @@
 :slug: export-sub-graph-to-cypher-and-import
 :author: Michael Hunger
 :tags: cypher, export, import
-:neo4j-versions: 3.0, 3.1, 2.3
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :category: import-export
 
 Oftentimes you want to export a full (or partial) database to a file and import it again without copying the actual database files.
@@ -28,7 +28,7 @@ Some notes on the format written from these tools:
 You can install the https://github.com/neo4j-contrib/neo4j-apoc-procedures[APOC] procedure library.
 
 And then use the `apoc.export.cypher.*` procedures to create the `export.cypher` file from your graph or data.
-There is more in the https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_export_to_cypher_script[documentation] but below are some examples.
+There is more in the https://neo4j.com/labs/apoc/4.1/export/cypher/[documentation] but below are some examples.
 
 Those procedures have config options to generate formats for different outputs and also to split nodes, relationships and schema scripts into different files.
 

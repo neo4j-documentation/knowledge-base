@@ -2,7 +2,7 @@
 :slug: large-delete-transaction-best-practices-in-neo4j
 :zendesk-id: 206103818
 :author: Dave Gordon
-:neo4j-versions: 2.3, 3.x, 4.0, 4.1, 4.2, 4.3, 4.4
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cypher,transaction,memory,garbage collection,heap,delete
 :category: operations
 

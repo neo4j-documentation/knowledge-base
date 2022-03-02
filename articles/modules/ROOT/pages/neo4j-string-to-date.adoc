@@ -1,7 +1,7 @@
 = Neo4j: Convert string to date
 :slug: neo4j-string-to-date
 :author: Mark Needham
-:neo4j-versions: 3.4,3.5
+:neo4j-versions: 3.5
 :tags: cypher
 :category: cypher
 

@@ -1,7 +1,7 @@
 = How to use the BI Connector on the Command Line
 :slug: how-to-use-the-bi-connector-with-sqlline
 :author: Shashi Dookhee
-:neo4j-versions: 3.5, 4.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: jdbc, sql, tableau, visualization, bi-connector
 :category: tools
 

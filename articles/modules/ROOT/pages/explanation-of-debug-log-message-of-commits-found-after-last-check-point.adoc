@@ -1,7 +1,7 @@
 = Explantion of debug.log message of Commits found after last checkpoint 
 :slug: explanation-of-debug-log-message-of-commits-found-after-last-check-point
 :author: Dana Canzano
-:neo4j-versions: 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: backup, transaction
 :category: cypher
 

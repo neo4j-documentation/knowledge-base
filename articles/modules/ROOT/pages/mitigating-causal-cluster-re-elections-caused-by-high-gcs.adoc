@@ -1,7 +1,7 @@
 = Mitigating Causal Cluster re-elections caused by high GCs
 :slug: mitigating-causal-cluster-re-elections-caused-by-high-gcs
 :author: Umar Muzammil
-:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: causal, cluster, election, garbage-collection,timeout
 :category: cluster
 

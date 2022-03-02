@@ -3,7 +3,7 @@
 :author: Umar Muzammil
 :category: cluster
 :tags: ssl, tls, certificate, causal-cluster, encryption
-:neo4j-versions: 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 This document provides a step-by-step demonstration of the process to deploy a Self-Signed SSL Certificate, to member
 instances of a Causal Cluster, aimed at achieving intra-cluster encryption. The steps can be outlined as:

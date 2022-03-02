@@ -1,7 +1,7 @@
 = How do I define, display, and use parameters with neo4j-shell
 :slug: how-do-i-define-display-use-parameters-with-neo4j-shell
 :author: Dana Canzano
-:neo4j-versions: 2.2, 2.3, 3.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: parameters, neo4j-shell, quotes
 :category: cypher
 

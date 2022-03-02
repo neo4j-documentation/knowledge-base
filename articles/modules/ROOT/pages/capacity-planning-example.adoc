@@ -1,9 +1,9 @@
-= Capacity Planning Example
+=Capacity Planning Example
 :slug: capacity-planning-example
 :author: Ali Maddahian
 :category: operations
 :tags: storage, disk, filesystem, unix, capacity
-:neo4j-versions: 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 Here is a back of the napkin example of capacity planning for a Neo4j workload for the following list of requirements:
 

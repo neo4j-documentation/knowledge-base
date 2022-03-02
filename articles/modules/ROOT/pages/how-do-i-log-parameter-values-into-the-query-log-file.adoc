@@ -1,11 +1,11 @@
 = How do I log parameter values into the query.log file
 :slug: how-do-i-log-parameter-values-into-the-query-log-file
 :author: Dana Canzano
-:neo4j-versions: 3.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: logging, parameters query-log
 :category: operations
 
-Neo4j 3.0 introduces the ability to log the value of query parameters in the `log/query.log` file.
+Neo4j 3.0 introduced the ability to log the value of query parameters in the `log/query.log` file.
 The settings to control this feature are located in the `conf/neo4j.conf` file.
 To enable query logging with parameters, one must first enable query logging via the `conf/neo4j.conf` parameter:
 

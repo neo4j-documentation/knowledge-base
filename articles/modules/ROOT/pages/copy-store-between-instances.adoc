@@ -1,11 +1,11 @@
 = How do I resolve inconsistency problems on an instance of a cluster
 :slug: copy-store-between-instances
 :author: Jose Rocha
-:neo4j-versions: 3.0, 3.1
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cluster, master, slave, backup, consistency
 :category: cluster
 
-(if using version >= 3.1, please read `Leader` and `Follower` instead of `Master` and `Slave` respectively)
+(if using HA (High Availability, please read `Leader` and `Follower` instead of `Master` and `Slave` respectively)
 
 Sometimes, when running a clustered Neo4j environment, a slave's store may become inconsistent. On a normal day-to-day operation, if a `slave` becomes inconsistent, it will automatically try to resolve the problem by fetching data from the `master` instance. At times though, this may not be possible. For example, if a `slave` is offline for an extended period of time, this may result in missing transaction log files on the `master` instance, making it impossible to replay all the transactions on the `slave` instance and therefore making it impossible to catch up. This will result in the `slave` not being able to join the cluster due to an inconsistent store.
 If this happens, the following steps can be used in order to fully restore a `slave` store with a full backup from the `master` instance.

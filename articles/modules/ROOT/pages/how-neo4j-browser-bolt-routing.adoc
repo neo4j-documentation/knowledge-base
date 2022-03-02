@@ -1,9 +1,7 @@
 = How Neo4j Browser uses bolt+routing
 :slug: how-neo4j-browser-bolt-routing
 :author: José Rocha
-:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
-:tags: connection,tls,routing
-:category: drivers
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 There are two kinds of Bolt drivers specified by URI scheme: the *bolt://* scheme is used to create a direct driver and the *bolt+routing://* scheme is used to create a routing driver.
 

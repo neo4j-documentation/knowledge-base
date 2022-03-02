@@ -1,7 +1,7 @@
 = Connecting via Bolt when using Tunnelling or NAT
 :slug: connecting-bolt-when-using-tunnelling-or-nat
 :author: Umar Muzammil
-:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: bolt, host, url, nat, tunnel
 :category: server
 

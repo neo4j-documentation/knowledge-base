@@ -1,13 +1,13 @@
 = How do I set a breakpoint in a Cypher statement for further analysis
 :slug: how-do-i-set-a-breakpoint-in-a-cypher-statement-for-further-analysis
 :author: Dana Canzano
-:neo4j-versions: 3.2, 3.3
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: debug
 :category: cypher
 
 If you wish to set a 'breakpoint' in a Cypher statement so as to perform further analysis
 (i.e. see how many locks are taken, memory utilization)
-one can add a call to https://neo4j-contrib.github.io/neo4j-apoc-procedures/index32.html#_utilities[apoc.utils.sleep(XXX)]
+one can add a call to https://neo4j.com/labs/apoc/4.4/overview/apoc.util/[apoc.utils.sleep(XXX)]
 which will result in the query sleeping for XXXX msec.
 
 For example:

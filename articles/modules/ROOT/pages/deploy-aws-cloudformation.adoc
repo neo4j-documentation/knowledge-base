@@ -1,7 +1,7 @@
 = Deploying Neo4j on AWS Using CloudFormation
 :slug: deploy-aws-cloudformation
 :author: David Allen
-:neo4j-versions: 3.4, 3.5
+:neo4j-versions: 3.5
 :tags: cloud, aws, deployment
 :category: cluster
 

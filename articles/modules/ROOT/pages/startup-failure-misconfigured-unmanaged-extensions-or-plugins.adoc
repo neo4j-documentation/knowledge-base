@@ -1,7 +1,7 @@
 = Startup failure due to misconfigured unmanaged extensions or plugins
 :slug: startup-failure-misconfigured-unmanaged-extensions-or-plugins
 :author: Umar Muzammil
-:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: unmanaged, extension, plugin, startup
 :category: operations
 

@@ -1,7 +1,7 @@
 = Neo4j & JDBC: the Neo4j JDBC Driver vs. BI Connector 
 :slug: neo4j-and-jdbc
 :author: David Allen
-:neo4j-versions: 3.5, 4.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: jdbc, sql, tableau, cypher
 :category: tools
 

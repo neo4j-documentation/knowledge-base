@@ -1,7 +1,7 @@
 = How to Use the Debug Log Parser Script
 :slug: how-to-use-the-debug-log-parser-script
 :author: Shawn Tozeski
-:neo4j-versions: 3.3, 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: debug
 :category: operations
 

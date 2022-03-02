@@ -1,7 +1,7 @@
 = Launching Neo4j Desktop in Linux (Ubuntu & Debian) with an .appimage file
 :slug: convert-an-appimage-file-into-executable-on-linux-ubuntu-debian
 :author: Umar Muzammil
-:neo4j-versions: 3.3, 3.4
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: install, desktop
 :environment: linux
 :category: desktop

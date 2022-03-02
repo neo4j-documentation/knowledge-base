@@ -1,8 +1,8 @@
 = Explanation of error "Security Error: 18" when using Internet Explorer and Neo4j Browser
 :slug: explanation-of-error-security-error-18-when-using-internet-explorer-and-neo4j-browser
 :author: Dana Canzano
-:neo4j-versions: 3.2, 3.3
-:tags: internet-explorer,browser
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
+:tags: internet-explorer, browser
 :category: browser
 
 When connecting to the Neo4j Browser `http://localhost:7474` and using Internet Explorer 11,

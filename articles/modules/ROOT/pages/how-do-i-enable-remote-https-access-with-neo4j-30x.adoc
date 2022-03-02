@@ -1,7 +1,7 @@
 = How do I enable remote HTTPS access with Neo4j 3.0.x
 :slug: how-do-i-enable-remote-https-access-with-neo4j-30x
 :author: Dana Canzano
-:neo4j-versions: 3.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: https,connection
 :category: operations
 

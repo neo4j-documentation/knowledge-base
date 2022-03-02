@@ -3,7 +3,7 @@
 :author: Daniel Terlizzi
 :category: cypher
 :tags: apoc, procedures
-:neo4j-versions: 3.4, 3.5, 4.0, 4.1, 4.2
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 How does apoc.periodic.iterate work?
 

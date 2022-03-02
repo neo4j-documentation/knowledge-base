@@ -1,7 +1,7 @@
 = Load CSV data in Neo4j from CSV files on Amazon S3 Bucket
 :slug: load-csv-data-from-csv-files-on-aws-s3-bucket
 :author: Rohan Kharwar
-:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: aws, s3, import, cli
 :category: import-export
 

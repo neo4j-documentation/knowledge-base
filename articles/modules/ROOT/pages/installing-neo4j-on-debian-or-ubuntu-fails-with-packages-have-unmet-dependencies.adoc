@@ -1,7 +1,7 @@
 = Installing Neo4j Database on Debian or Ubuntu fails with "The following packages have unmet dependencies"
 :slug: installing-neo4j-on-debian-or-ubuntu-fails-with-packages-have-unmet-dependencies
 :author: Daniel Terlizzi
-:neo4j-versions: 3.5, 3.4
+:neo4j-versions: 3.5
 :tags: installation
 :category: operations
 :environment: debian,ubuntu

@@ -1,14 +1,14 @@
 = Sending Neo4j messages to a Slack channel 
 :slug: sending-neo4j-message-to-slack-channel
 :author: Dana Canzano
-:neo4j-versions: 3.3,3.4,3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: logging, operations, backup
 :category: operations
 
 Although not specific to Neo4j and this knowledge base document is provided as a convenience, if your environment has a
 https://slack.com/[Slack] implementation, then Slack provides an https://api.slack.com/[API] to allow you to
 programmatically send messags to a specific channel.   This can be helpful, for example to send a message on success/failure of 
-backup by checking the [https://neo4j.com/docs/operations-manual/3.5/backup/performing/#backup-performing-exit-codes[exit code of backup.
+backup by checking the https://neo4j.com/docs/operations-manual/current/backup-restore/online-backup/#backup-command-exit-codes[exit code of backup].
 
 Using the Slack https://api.slack.com/tutorials/slack-apps-hello-world[`Hello World`] example as a starting template, one will be 
 guided through the process of creating a Slack app and resultant WEBHOOK_URL to post messages to.

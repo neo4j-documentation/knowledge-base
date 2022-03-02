@@ -1,7 +1,7 @@
 = Limiting Bolt Threads vs Connections
 :slug: limiting-bolt-threads-vs-connections
 :author: Umar Muzammil
-:neo4j-versions: 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cpu, core, pid, thread, bolt, connection
 :category: server
 
@@ -72,6 +72,6 @@ Driver driver = GraphDatabase.driver( uri, AuthTokens.basic( user, password ), c
 
 References:
 
-- https://neo4j.com/docs/operations-manual/4.0/performance/bolt-thread-pool-configuration/#_how_thread_pooling_works
+- https://neo4j.com/docs/operations-manual/current/performance/bolt-thread-pool-configuration/#_how_thread_pooling_works
 - https://docs.oracle.com/cd/E19146-01/821-1834/gdpil/index.html
 - https://stackoverflow.com/questions/15217524/what-is-the-difference-between-thread-per-connection-vs-thread-per-request

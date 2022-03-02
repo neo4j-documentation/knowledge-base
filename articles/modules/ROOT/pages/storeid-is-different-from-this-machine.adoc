@@ -1,7 +1,7 @@
 = Explantion of "storeId is different from this machine" error
 :slug: storeid-is-different-from-this-machine
 :author: Vivek Saran
-:neo4j-versions: 3.5, 4.0, 4.1
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :category: operations
 :tags: causal-cluster
 

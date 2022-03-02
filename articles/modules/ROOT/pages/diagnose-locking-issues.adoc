@@ -1,7 +1,7 @@
 = How to diagnose locking issues
 :slug: diagnose-locking-issues
 :author: Stefan Armbruster
-:neo4j-versions: 3.4
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2
 :tags: performance, tuning, write, read, lock
 :category: operations
 
@@ -12,7 +12,7 @@ The typical execution times of these are much higher than you expect - you basic
 for this kind of observation might be that your queries try to grab locks on a common node, therefore they need to wait until the
 lock holder releases the lock. The queries waiting for the common lock are effectively serialized.
 
-In a previous version of neo4j the https://neo4j.com/docs/operations-manual/current/monitoring/logging/query-logging/[query logging
+In a previous version of neo4j the https://neo4j.com/docs/operations-manual/current/monitoring/logging/#query-logging[query logging
 feature] allowed for the adding of information related to how long that query was in waiting state, whether waiting on locks or 
 waiting on IO. This can be switched on through neo4j.conf parameter of  
 https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.logs.query.enabled[`dbms.logs.query.time_logging_enabled=true`]. 

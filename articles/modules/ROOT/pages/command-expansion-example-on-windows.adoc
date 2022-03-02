@@ -1,7 +1,7 @@
 = Example of using the Command Expansion on Windows
 :slug: command-expansion-example-on-windows
 :author: Vivek Saran
-:neo4j-versions: 4.2
+:neo4j-versions: 4.2, 4.3, 4.4
 :tags: system, command, expansion
 :category: operations
 

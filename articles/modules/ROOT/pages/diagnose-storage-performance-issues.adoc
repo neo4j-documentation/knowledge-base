@@ -2,7 +2,7 @@
 :tags: storage, performance, installation, configuration
 :slug: diagnose-storage-performance-issues
 :category: installation
-:neo4j-versions: 3.4,3.5,4.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :author: Jeremie Phoulchand
 
 Slow storage can affect Neo4j performance, therefore we recommend using Solid State Drives in the https://neo4j.com/docs/operations-manual/current/performance/disks-ram-and-other-tips/#performance-storage[product documentation^].

@@ -1,7 +1,7 @@
 = How to import a file with LOAD CSV that has a space in file name?
 :slug: space-in-import-filename-for-load-csv
 :author: Rohan Kharwar
-:neo4j-versions: 3.1, 3.2
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: load-csv
 :category: import-export
 

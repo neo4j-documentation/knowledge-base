@@ -4,7 +4,7 @@
 :author: Dana Canzano
 :tags: cypher,browser
 :category: browser
-:neo4j-versions: 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 Cypher Favorites are common Cypher statements which one can save to the left panel of the Neo4j browser.
 A Favorite is created by entering the Cypher at the top prompt and then clicking the Favorite icon to the right as depicted:

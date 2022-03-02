@@ -1,7 +1,7 @@
 = TLS/SSL Configuration for Specific Ciphers
 :slug: tls-ssl-configuration-for-specific-ciphers
 :author: Ali Maddahian
-:neo4j-versions: 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: ssl, tls, cipher, security, unix, operations
 :category: security
 

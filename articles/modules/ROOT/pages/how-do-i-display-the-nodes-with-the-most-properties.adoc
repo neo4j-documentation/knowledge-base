@@ -1,7 +1,7 @@
 = How do I display the nodes with the most properties
 :slug: how-do-i-display-the-nodes-with-the-most-properties
 :zendesk-id: 214935268
-:neo4j-versions: 2.3, 3.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :author: Dana Canzano
 :tags: cypher
 :category: cypher

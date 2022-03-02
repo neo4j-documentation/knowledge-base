@@ -1,7 +1,7 @@
 = A method to calculate the size of an index in Neo4j.
 :slug: a-method-to-calculate-index-size
 :author: Stephen Levett
-:neo4j-versions: 3.5 & 4.x
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :category: neo4j-indexes
 :tags: cypher, indexes, schema, capacity planning
 

@@ -1,7 +1,7 @@
 = Using Subqueries to Control the Scope of Aggregations
 :slug: using-subqueries-to-control-the-scope-of-aggregations
 :author: Andrew Bowman
-:neo4j-versions: 4.1, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cypher, performance
 :category: cypher
 
