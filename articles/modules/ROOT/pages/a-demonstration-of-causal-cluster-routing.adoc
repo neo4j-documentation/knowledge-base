@@ -9,7 +9,7 @@ The following will demonstrate how to use https://neo4j.com/docs/operations-manu
 a better understanding of a Neo4j Causal Cluster instance and its implementation of 
 https://neo4j.com/docs/developer-manual/current/drivers/client-applications/#_routing_drivers_bolt_routing[routing].
 
-The initial scenario is described with https://neo4j.com/docs/operations-manual/current/tutorial/local-causal-cluster/[local cluster] setup with 3 core instances, 1 LEADER and 2 FOLLOWERS.   Using dbms.cluster.overview() the output reports
+The initial scenario is described with https://neo4j.com/docs/operations-manual/current/tutorial/local-causal-cluster/[local cluster] setup with 3 core instances, 1 LEADER and 2 FOLLOWERS.   Using dbms.cluster.overview() The output reports
 
 [source,shell,role=noheader]
 ----
