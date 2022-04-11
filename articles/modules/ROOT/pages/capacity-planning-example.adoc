@@ -1,4 +1,4 @@
-=Capacity Planning Example
+= Capacity Planning Example
 :slug: capacity-planning-example
 :author: Ali Maddahian
 :category: operations

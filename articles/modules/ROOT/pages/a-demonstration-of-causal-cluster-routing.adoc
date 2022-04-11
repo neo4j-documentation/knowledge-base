@@ -1,4 +1,4 @@
-  = A demonstration of causal cluster routing
+= A demonstration of causal cluster routing
 :slug: a-demonstration-of-causal-cluster-routing
 :author: Dana Canzano
 :category: cluster

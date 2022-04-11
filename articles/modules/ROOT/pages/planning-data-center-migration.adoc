@@ -61,3 +61,4 @@ But you don’t need to restart the database to do that - you can just modify th
 2) Try turning it into a Core
 3) And making sure it catches up, using the status endpoint
 4) That should give you good data on how long things are likely to take on the day of the migration
+```

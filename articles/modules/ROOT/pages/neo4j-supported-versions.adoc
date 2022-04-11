@@ -1,4 +1,4 @@
-xzm,,,,,,nn;////////////////////////.....0--= Neo4j Supported Versions
+= Neo4j Supported Versions
 :slug: neo4j-supported-versions
 :author: Daniel Terlizzi
 :neo4j-versions: all
