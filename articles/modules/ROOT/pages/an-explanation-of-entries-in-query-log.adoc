@@ -1,7 +1,7 @@
 = An explanation of entries in query.log
 :slug: an-explanation-of-entries-in-query-log
 :author: Umar Muzammil
-:neo4j-versions: 3.2, 3.3
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: logging, query.log, monitoring
 :category: operations
 :enterprise:
@@ -112,4 +112,4 @@ neo4j:: username of the query executioner
 match (n:Person {name:'Tom Hanks'})-[:ACTED_IN]->(n1:Movie)<-[:DIRECTED]-(n2:Person {name:"Tom Hanks"}) return n1.title:: the executed query.
 
 The last two parenthesis {} {} are for query `params` and `txMetaData`.
-See https://neo4j.com/docs/operations-manual/3.2/monitoring/logging/query-logging/.
+See https://neo4j.com/docs/operations-manual/current/monitoring/logging/#query-log-config.

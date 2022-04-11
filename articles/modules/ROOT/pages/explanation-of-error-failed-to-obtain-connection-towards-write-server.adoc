@@ -1,7 +1,7 @@
 = Explanation of error "Failed to obtain connection towards WRITE server. Known routing table is: Ttl..."
 :slug: explanation-of-error-failed-to-obtain-connection-towards-write-server
 :author: Vivek Saran
-:neo4j-versions: 4.0
+:neo4j-versions: 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cypher-shell, bolt
 :category: cluster
 

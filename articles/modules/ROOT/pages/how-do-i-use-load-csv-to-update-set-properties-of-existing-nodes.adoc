@@ -4,7 +4,7 @@
 :author: Dana Canzano
 :tags: cypher,import,merge
 :category: import-export
-:neo4j-versions: 3.4,3.5,4.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 One can use `LOAD CSV` to perform a bulk update to existing nodes, and create new nodes, as follows.
 

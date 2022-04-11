@@ -8,7 +8,7 @@
 
 [NOTE]
 Please note that in Neo4j 3.5 fulltext search is available in Neo4j as part of Cypher stored procedures.
-More documentation can be found here: https://neo4j.com/docs/cypher-manual/3.5/schema/index/#schema-index-fulltext-search.
+More documentation can be found here: https://neo4j.com/docs/cypher-manual/current/indexes-for-full-text-search/#administration-indexes-fulltext-search-create-and-configure.
 
 Fulltext search in Neo4j is supported by means of fulltext schema indexes.
 Fulltext schema indexes are created, dropped, and updated transactionally, and are automatically replicated throughout a cluster.
@@ -105,7 +105,7 @@ RETURN node.title, node.description, score
 Similar to nodes, fulltext indexes can be created on relationships.
 
 For the full description of fulltext search in Neo4j, see:
-https://neo4j.com/docs/cypher-manual/3.5/schema/index/#schema-index-fulltext-search.
+https://neo4j.com/docs/cypher-manual/current/indexes-for-full-text-search/.
 
 Fulltext schema indexes are powered by the http://lucene.apache.org/[Apache Lucene] indexing and search library.
 A complete description of the Lucene query syntax can be found in the http://lucene.apache.org/core/5_5_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description[Lucene documentation].

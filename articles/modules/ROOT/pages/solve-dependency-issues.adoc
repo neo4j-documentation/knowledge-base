@@ -1,7 +1,7 @@
 = Solve dependency issues
 :slug: solve-dependency-issues
 :author: Jérémie Phoulchand
-:neo4j-versions: 3.5,3.4
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: maven, java, embedded, user-defined-procedures, dependencies, upgrade
 :category: development
 

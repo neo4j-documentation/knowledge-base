@@ -1,11 +1,11 @@
 = How to perform a Soundex search 
 :slug: how-to-perform-a-soundex-search
 :author: Dana Canzano
-:neo4j-versions: 3.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: soundex,procedures
 :category: development
 
-Using https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_phonetic_comparisons[apoc.text.phonetic] one can perform a 
+Using https://neo4j.com/labs/apoc/4.4/overview/apoc.text/apoc.text.phonetic/[apoc.text.phonetic] one can perform a
 https://en.wikipedia.org/wiki/Soundex[Soundex] search.  For example if one defines the following nodes
 
 [source,cypher]

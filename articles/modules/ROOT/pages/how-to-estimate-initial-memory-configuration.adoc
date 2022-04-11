@@ -2,7 +2,7 @@
 :slug: how-to-estimate-initial-memory-configuration
 :zendesk-id: 205965148
 :author: Dave Gordon
-:neo4j-versions: 2.3,3.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: heap, memory, jvm, page-cache, cache
 :category: operations
 

@@ -1,12 +1,12 @@
 = How do I pass parameters when calling apoc.cypher.runFile
 :slug: how-do-i-pass-parameters-when-calling-apoc-cypher-runfile
 :author: Dana Canzano
-:neo4j-versions: 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: apoc, parameters,cypher,procedures
 :category: cypher
 
-https://neo4j.com/developer/neo4j-apoc/[APOC] allows one to have a stored procedure, 
-https://neo4j-contrib.github.io/neo4j-apoc-procedures/#run-cypher-scripts[apoc.cypher.runFile], to then run the contents of 
+https://neo4j.com/developer/neo4j-apoc/[APOC] allows one to have a stored procedure,
+https://neo4j.com/labs/apoc/4.4/overview/apoc.cypher/apoc.cypher.runFiles/[apoc.cypher.runFile], to then run the contents of
 the file to the Cypher engine.   To allow the reading of the file in the conf/neo4j.conf one needs to define
 
 [source,properties]

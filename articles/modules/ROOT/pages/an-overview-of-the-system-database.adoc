@@ -1,7 +1,7 @@
 = An overview of the system database
 :slug: an-overview-of-the-system-database
 :author: Vivek Saran
-:neo4j-versions: 4.0, 4.1
+:neo4j-versions: 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: system
 :category: operations
 

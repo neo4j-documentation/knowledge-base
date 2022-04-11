@@ -1,7 +1,7 @@
 = Bulk Import / Backups into running 4.0 instances
 :slug: neo4j-import-into-running-4-0-instance
 :author: David Fauth
-:neo4j-versions: 4.0
+:neo4j-versions: 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: import-export,operations
 :category: operations
 

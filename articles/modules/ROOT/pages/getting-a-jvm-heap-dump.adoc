@@ -1,7 +1,7 @@
 = Getting a JVM heap dump 
 :slug: getting-a-jvm-heap-dump
 :author: Umar Muzammil
-:neo4j-versions: 3.4,3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: jvm, memory, heap, dump
 :category: operations
 

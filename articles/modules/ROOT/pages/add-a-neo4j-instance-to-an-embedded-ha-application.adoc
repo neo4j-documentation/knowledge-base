@@ -1,7 +1,7 @@
 = Add a Neo4j instance to a running embedded HA application
 :slug: add-a-neo4j-instance-to-an-embedded-ha-application
 :author: Vivek Saran
-:neo4j-versions: 3.4,3.5
+:neo4j-versions: 3.5
 :tags: embedded, ha
 :category: cluster
 

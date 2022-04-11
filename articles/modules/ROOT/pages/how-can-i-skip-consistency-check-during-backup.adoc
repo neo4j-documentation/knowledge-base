@@ -3,7 +3,7 @@
 :zendesk-id: 206061227
 :author: Dave Gordon
 :tags: backup, consistency, performance
-:neo4j-versions: 2.1, 2.2, 2.3
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :category: operations
 
 Backups in Neo4j automatically run a consistency check against the backed-up store. 

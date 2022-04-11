@@ -1,7 +1,7 @@
 = How do I define a LOAD CSV FIELDTERMINATOR in hexidecimal notation
 :slug: how-do-i-define-a-load-csv-fieldterminator-in-hexidecimal-notation
 :author: Dana Canzano
-:neo4j-versions: 2.3, 3.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: load-csv
 :category: cypher
 

@@ -1,7 +1,7 @@
 = Resolve TLS certificate errors
 :author: Jeremie Phoulchand
 :slug: resolve-tls-certificate-errors
-:neo4j-versions: 3.4, 3.5, 4.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :category: security
 :tags: tls, ssl, configuration
 

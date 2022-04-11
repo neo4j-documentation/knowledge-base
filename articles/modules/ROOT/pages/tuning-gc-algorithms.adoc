@@ -1,7 +1,7 @@
 = Tuning GC algorithms
 :slug: tuning-gc-algorithms
 :author: Jeremie Phoulchand
-:neo4j-versions: 3.5, 4.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: configuration
 :category: performance
 
@@ -44,7 +44,7 @@ You can find more information https://wiki.openjdk.java.net/display/shenandoah/M
 This version had its own proprietary pauseless algorithm which is supported.
 This is a *paid* algorithm so you might need to get a licence first.
 
-You can find more information https://www.azul.com/resources/azul-technology/azul-c4-garbage-collector/[here]
+You can find more information https://www.azul.com/resources-hub/whitepapers/azul-white-paper-the-continuously-concurrent-compacting-collector-c4[here]
 
 WARNING: Please note that we do NOT test those algorithms therefore we will NOT be able to emit a recommendation.
 Customers are free to test it on a lower environment and choose the one that suits them the best.

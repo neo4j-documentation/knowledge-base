@@ -1,11 +1,11 @@
 = Protecting against Cypher injection
 :slug: protecting-against-cypher-injection
 :author: Andrew Bowman
-:neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5, 4.0, 4.1, 4.2, 4.3
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cypher, security
 :category: security
 
-= What is Cypher injection?
+== What is Cypher injection?
 
 Cypher injection is a way for maliciously formatted input to jump out of its context, and by altering the query itself, hijack the query and perform unexpected operations on the database.
 
@@ -30,15 +30,15 @@ This is an attempt at Cypher injection, the equivalent of the SQL injection atta
 
 And if names from outside input are string-appended into a Cypher query like so, this attack may succeed:
 
-```
-...
+----
+
 String queryString = "CREATE (s:Student) SET s.name = '" + studentName + "'";
 
 Result result = session.run(queryString);
-...
-```
 
-= Parameter usage prevents Cypher injection
+----
+
+== Parameter usage prevents Cypher injection
 
 We can easily prevent Cypher injection by always submitting input as parameters to our query.
 
@@ -67,7 +67,7 @@ The parameters cannot alter the compiled plan, and have no opportunity to be inc
 
 In other words, once a query plan has been compiled, it is set, and nothing in the data submitted to it can change it, alter it, or hijack it.
 
-= Other common injection attempts also fail
+== Other common injection attempts also fail
 
 Not all inputs can be submitted as parameters.
 Maybe some malicious input made it into a CSV file for processing.
@@ -91,14 +91,14 @@ By the time the query is executing and the CSV data starts to be accessed, the q
 Likewise, any other injection attacks will fail that attempt to pull in malicious input via reading it from somewhere, or even a malicious property value that somehow was saved into the database already.
 This is because unless the malicious value is string-appended into the query itself, rather than read at the time the query executes, it will not have the opportunity to get compiled into and affect the query plan.
 
-= Be careful when string appending into dynamically-executed Cypher strings
+== Be careful when string appending into dynamically-executed Cypher strings
 
 Some procedures in our APOC Procedures library allow for execution of Cypher strings within a query,
 and this does present a vulnerability for Cypher injection.
 
 Some of the more notable examples include:
 
-```
+----
 apoc.cypher.run()
 apoc.cypher.doIt()
 apoc.periodic.iterate() (and other periodic procs)
@@ -106,7 +106,7 @@ apoc.when()
 apoc.do.when()
 apoc.case()
 apoc.do.case()
-```
+----
 
 String appending into the query string is possible here, and so Cypher injection becomes possible.
 

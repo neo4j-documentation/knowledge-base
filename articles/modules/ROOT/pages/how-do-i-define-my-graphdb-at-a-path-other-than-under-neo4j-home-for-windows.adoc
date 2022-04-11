@@ -1,7 +1,7 @@
 = How do I define my graph.db at a path other than under NEO4J_HOME for Windows
 :slug: how-do-i-define-my-graphdb-at-a-path-other-than-under-neo4j-home-for-windows
 :author: Dana Canzano
-:neo4j-versions: 3.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: installation
 :environment: windows
 :category: installation

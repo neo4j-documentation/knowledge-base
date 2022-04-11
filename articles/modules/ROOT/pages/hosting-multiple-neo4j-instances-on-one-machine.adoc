@@ -1,7 +1,7 @@
 = Hosting Multiple Neo4j Instances On One Machine
 :slug: hosting-multiple-neo4j-instances-on-one-machine
 :author: Umar Muzammil
-:neo4j-versions: 3.2, 3.3, 3.4
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: hardware, planning, monitoring, CPU, RAM
 :category: installation
 
@@ -70,6 +70,6 @@ How transactions are submitted by the read/write queries and well as the thread 
 This is best estimated by actual profiling over time.
 
 Do also consider the store size and transaction log growth over time, per instance to avoid running out of disk space. 
-Peak expected growth total for each instances should never increase beyond available disk space (here is a good reference about transaction log growth and rotation: https://neo4j.com/docs/operations-manual/3.4/configuration/transaction-logs/).
+Peak expected growth total for each instances should never increase beyond available disk space (here is a good reference about transaction log growth and rotation: https://neo4j.com/docs/operations-manual/current/configuration/transaction-logs/).
 
 Finally, configuring multiple instances one needs to be mindful of port allocations, availability and conflicts, particularly with those used by other Neo4j instances. If the multiple instances being set up, are to be clustered, communications between cluster member via ports/IPs must be correctly configured in each member's configuration.

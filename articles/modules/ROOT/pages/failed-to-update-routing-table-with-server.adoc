@@ -1,7 +1,7 @@
 = Explanation of "Failed to update routing table with server" error
 :slug: failed-to-update-routing-table-with-server
 :author: Vivek Saran
-:neo4j-versions: 3.5, 4.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cluster, bolt
 :category: drivers
 

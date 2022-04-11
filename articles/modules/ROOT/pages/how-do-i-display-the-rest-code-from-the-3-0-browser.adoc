@@ -1,7 +1,7 @@
 = How do I display the REST code from the 3.0 Browser
 :slug: how-do-i-display-the-rest-code-from-the-3-0-browser
 :author: Dana Canzano
-:neo4j-versions: 3.0
+:neo4j-versions: 3.5
 :tags: browser, REST, Bolt
 :category: browser
 

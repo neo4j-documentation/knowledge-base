@@ -69,9 +69,9 @@ CALL apoc.periodic.cancel("kill long-running queries")
 ----
 
 Note, that those jobs added via `apoc.periodic.repeat` do not survive restarts of the database.
-So if we want to install that permanently, we can use apoc's initializer (https://neo4j.com/labs/apoc/4.1/operational/init-script/):
+So if we want to install that permanently, we can use apoc's initializer (https://neo4j.com/labs/apoc/4.4/operational/init-script/):
 
-Add the following line to your `conf/apoc.conf` file (see also https://neo4j.com/labs/apoc/4.1/config/):
+Add the following line to your `conf/apoc.conf` file (see also https://neo4j.com/labs/apoc/4.4/config/):
 
 [source,properties]
 ----
@@ -81,4 +81,4 @@ apoc.initializer.cypher.1=CALL apoc.periodic.repeat("kill long-running queries",
 Note that this is on instance level and applies to all databases.
 
 You might want to use a dedicated cypher file on disk to store the query, so that you don't have complex queries in the config file.
-Here is an example for doing so: https://neo4j.com/labs/apoc/4.1/operational/init-script/
+Here is an example for doing so: https://neo4j.com/labs/apoc/4.4/operational/init-script/

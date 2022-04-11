@@ -2,7 +2,7 @@
 :slug: configure-haproxy-to-send-write-requests-to-master-node-only
 :zendesk-id: 205270948
 :author: Stefan Armbruster
-:neo4j-versions: 3.0,3.1,3.2,3.3,3.4,3.5
+:neo4j-versions: 3.5
 :tags: cluster, master, writes, load balancer
 :category: cluster
 

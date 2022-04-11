@@ -1,7 +1,7 @@
 = How do I override browser configuration settings
 :slug: how-do-i-override-browser-configuration-settings
 :author: Dana Canzano
-:neo4j-versions: 3.2
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: browser, configuration
 :category: browser
 

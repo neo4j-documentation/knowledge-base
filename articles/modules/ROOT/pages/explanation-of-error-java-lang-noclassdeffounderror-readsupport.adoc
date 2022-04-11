@@ -1,7 +1,7 @@
 = Explanation of error "java.lang.NoClassDefFoundError: org/apache/spark/sql/sources/v2/ReadSupport"
 :slug: explanation-of-error-java-lang-noclassdeffounderror-readsupport
 :author: Stephen Levett
-:neo4j-versions: 4.x
+:neo4j-versions: 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: spark, pyspark, databricks, neo4j-spark-connector
 :category: neo4j-spark-connector
 

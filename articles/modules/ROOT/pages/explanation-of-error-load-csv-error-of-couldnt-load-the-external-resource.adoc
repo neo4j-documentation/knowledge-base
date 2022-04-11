@@ -1,7 +1,7 @@
 = Explanation of error LOAD CSV error of "Couldn't load the external resource ..."
 :slug: explanation-of-error-load-csv-error-of-couldnt-load-the-external-resource
 :author: Dana Canzano
-:neo4j-versions: 2.3, 3.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: LOAD CSV, user-agent
 :category: cypher
 

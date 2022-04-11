@@ -3,7 +3,7 @@
 :author: Chris Gioran
 :category: operations
 :tags: checkpoint, pruning, logging, metrics, configuration
-:neo4j-versions: 3.2, 3.3
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 == Overview
 Checkpointing is the process of flushing all pending page updates from the page cache to the store files. This is necessary for ensuring that the number of transactions that are in need of being replayed during recovery is kept to a reasonable number, mostly to reduce recovery time after an improper shutdown. Regardless of the existence of checkpoints, database operations remain safe, since all transactions not confirmed to have had their changes persisted to storage will be replayed on the next database startup. However, that is dependent on the existence of the set of changes these transactions consist of, information that is kept in the transaction logs. Keeping the list of non-applied transactions long (the interval between checkpoints large) will result in accumulation of transaction logs, since they are necessary for recovery. Checkpointing introduces a special “Checkpointing” entry in the transaction log which marks the last transaction at which checkpointing happened. This is used to determine which transaction logs are no longer necessary, since all the transactions they contain have been safely persisted to the store files.
@@ -66,7 +66,7 @@ Checkpoint as a result of a backup run
 2019-08-28 12:33:30.509+0000 INFO [o.n.k.i.t.l.c.CheckPointerImpl] Checkpoint triggered by "Full backup" @ txId: 47 checkpoint completed in 20ms
 ....
 
-https://neo4j.com/docs/operations-manual/3.5/monitoring/metrics/reference/#metrics-general-purpose[Checkpoint Metrics] are also available and are detailed in `metrics/` and the following files
+https://neo4j.com/docs/operations-manual/current/monitoring/metrics/reference/#metrics-general-purpose[Checkpoint Metrics] are also available and are detailed in `metrics/` and the following files
 
 ....
 neo4j.check_point.check_point_duration.csv 

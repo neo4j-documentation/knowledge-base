@@ -2,7 +2,7 @@
 :slug: import-csv-locations
 :author: Jennifer Reif
 :twitter: @jmhreif
-:neo4j-versions: 3.4, 3.5, 4.0, 4.1, 4.2
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: load csv, import, cypher
 :category: import-export
 

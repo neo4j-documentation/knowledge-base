@@ -1,7 +1,7 @@
 = How do I achieve the equivalent of a SQL Having clause with Cypher
 :slug: how-do-i-achieve-the-equivalent-of-a-sql-having-clause-with-cypher
 :author: Dana Canzano
-:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 4.0, 4.1, 4.2
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: sql
 :category: cypher
 

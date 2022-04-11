@@ -1,7 +1,7 @@
 = Configure Neo4j to authenticate users from different OUs using the Active Directory attribute samAccountName
 :slug: configure-neo4j-multiple-ous-using-active-directory-attribute-samaccountname
 :author: Dave Gordon
-:neo4j-versions: 3.2, 3.3
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: samaccountname, account, authentication, authorization
 :category: operations
 

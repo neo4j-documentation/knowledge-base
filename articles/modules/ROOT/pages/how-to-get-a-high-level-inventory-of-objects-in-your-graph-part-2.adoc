@@ -1,7 +1,7 @@
 = How to get a high level inventory of objects in your graph (part 2)
 :slug: how-to-get-a-high-level-inventory-of-objects-in-your-graph-part-2
 :author: José Rocha
-:neo4j-versions: 2.x, 3.0, 3.1, 3.2
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: counts, metadata
 :category: cypher
 
