@@ -1,5 +1,5 @@
-= How do I produce a profile/explain through cypher-shell and piping query file
-:slug: how-do-i-produce-a-profile-explain-through-cypher-shell-and-piping-query-file
+= How do I produce a profile/explain through cypher-shell and pipeing query file
+:slug: how-do-i-produce-a-profile-explain-through-cypher-shell-and-pipeing-query-file
 :author: Dana Canzano
 :neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cypher-shell, explain, profile
