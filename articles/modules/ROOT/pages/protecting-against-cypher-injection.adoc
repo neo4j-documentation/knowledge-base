@@ -5,7 +5,7 @@
 :tags: cypher, security
 :category: security
 
-=+ What is Cypher injection?
+== What is Cypher injection?
 
 Cypher injection is a way for maliciously formatted input to jump out of its context, and by altering the query itself, hijack the query and perform unexpected operations on the database.
 
