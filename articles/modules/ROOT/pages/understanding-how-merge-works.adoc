@@ -69,7 +69,7 @@ MATCH (class:Class{name:'Cypher101'})
 MERGE (student)-[:ENROLLED_IN]->(class)
 ----
 
-Similarly, you could MERGE on the student and class prior to the MERGE on the relationship between them.
+Similarly, you could MATCH on the student and class prior to the MERGE on the relationship between them.
 
 [source,cypher]
 ----
