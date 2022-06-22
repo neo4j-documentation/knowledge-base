@@ -1,0 +1,26 @@
+= Bloom Compatibility with Neo4j 5.0
+:slug: bloom-compatibility-neo4j50
+:author: Jeff Gagnon
+:neo4j-versions: 4.3+
+:bloom-versions: 2.3+
+
+Neo4j Bloom makes use of database procedures for identifying indexes and constraints that have been deprecated and will be unavailable in Neo4j 5.0. Bloom will use the supported SHOW INDEXES and SHOW CONSTRAINTS Cypher commands in place of these deprecated procedures on Neo4j 5.0 and above, but starting with Bloom 2.3, it is possible to have Bloom use the supported commands prior to upgrading to Neo4j 5.0, on Neo4j versions 4.3 and above. 
+
+To have Bloom use the supported commands, users can activate _'Experimental features'_ in the Bloom Settings drawer, and then activate _'Use updated commands to access procedures, indexes & constraints'_ in the Experimental features drawer. After restarting Bloom and logging in, the supported commands will be in use.
+
+.The ability to run or receieve results from the SHOW INDEXES and SHOW CONSTRAINTS commands may be limited to certain database users based on Neo4j Role Based Access Control settings. In order to confirm that database roles for Bloom users have appropriate permissions for Bloom to run as expected using the supported commands, it is recommended that organizations test Bloom functionality by activating the 'Use updated commands to access procedures, indexes & constraints' experimental feature and logging in with user accounts assigned roles typical of Bloom users in the organization. 
+
+If the roles assigned to Bloom users do not have the required permissions to execute and see results from the supported commands, Bloom will return an error at login: 
+
+> Bloom requires visibility of database indexes and constraints to function. User _"user"_ with role(s) _roles_ needs to have permission granted to execute "index" procedures. Please contact your database administrator.
+
+
+Administrators can add privileges to execute SHOW INDEXES and SHOW CONSTRAINTS commands to relavant roles using the following commands:
+
+- `GRANT SHOW CONSTRAINT ON {HOME DATABASE | DATABASE[S] {* | name[, ...]}} TO role[, ...]`
+- `GRANT SHOW INDEX ON {HOME DATABASE | DATABASE[S] {* | name[, ...]}} TO role[, ...]`
+
+
+See the Neo4j Role Based Access Control documentation on [Index management](https://neo4j.com/docs/cypher-manual/current/access-control/database-administration/#access-control-database-administration-index) and [Constraint management](https://neo4j.com/docs/cypher-manual/current/access-control/database-administration/#access-control-database-administration-constraints) privileges for further details.
+
+
