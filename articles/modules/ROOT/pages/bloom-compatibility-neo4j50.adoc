@@ -3,6 +3,8 @@
 :author: Jeff Gagnon
 :neo4j-versions: 4.3+
 :bloom-versions: 2.3+
+:category:
+:tags:
 
 Neo4j Bloom makes use of database procedures for identifying indexes and constraints that have been deprecated and will be unavailable in Neo4j 5.0. Bloom will use the supported SHOW INDEXES and SHOW CONSTRAINTS Cypher commands in place of these deprecated procedures on Neo4j 5.0 and above, but starting with Bloom 2.3, it is possible to have Bloom use the supported commands prior to upgrading to Neo4j 5.0, on Neo4j versions 4.3 and above. 
 
