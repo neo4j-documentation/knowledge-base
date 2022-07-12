@@ -8,13 +8,13 @@
 
 
 
-Graphs in general are very powerful in providing answers where relations do matter a lot.  In this context, Using graph queries (Cypher) allows us to answer specific questions when we know what to look for, such as:
+Graphs in general are very powerful in providing answers where relations do matter a lot.  In this context, using graph queries (Cypher) allows us to answer specific questions when we know what to look for, such as:
 
 * Finding fraudsters as well as victims by way of using transaction data, 
 * And then further extending this relationship to the associated product catalogs to come up with recommendations, 
 * And from there integrating it with process flows to come up with its digital twin as well as supply chain information.
 
-So by way of defining the relationships between the above domains we can add immense value to such use casees such as customer360, fraud detection, product recommendation, digital twin, supply chains and so on.
+So by way of defining the relationships between the above domains we can add immense value to such use cases such as customer360, fraud detection, product recommendation, digital twin, supply chains and so on.
 
 That said, beyond the specific pointed queries, what if we wanted to gain deep insight against such data to answer general questions such as finding communities or just what’s generally important?  
 
