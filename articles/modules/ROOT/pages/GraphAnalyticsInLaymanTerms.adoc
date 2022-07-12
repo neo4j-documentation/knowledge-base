@@ -38,7 +38,7 @@ OR
 * Finding associations and lower dimensional representations with embeddings.
 
 
-Generally speaking, the unsupervised GDS algos allow us to find patterns such as:
+Generally speaking, the unsupervised GDS algorithms allow us to find patterns such as:
 
 * Centrality computation — Finding objects in the network that are critical and central to the graph,
 * Similarity algorithms — Similarity between objects (based on properties and connections)
