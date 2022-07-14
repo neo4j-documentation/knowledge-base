@@ -8,13 +8,13 @@
 
 
 
-Graphs in general are very powerful in providing answers where relations do matter a lot.  In this context, Using graph queries (Cypher) allows us to answer specific questions when we know what to look for, such as:
+Graphs in general are very powerful in providing answers where relations do matter a lot.  In this context, using graph queries (Cypher) allows us to answer specific questions when we know what to look for, such as:
 
 * Finding fraudsters as well as victims by way of using transaction data, 
 * And then further extending this relationship to the associated product catalogs to come up with recommendations, 
 * And from there integrating it with process flows to come up with its digital twin as well as supply chain information.
 
-So by way of defining the relationships between the above domains we can add immense value to such use casees such as customer360, fraud detection, product recommendation, digital twin, supply chains and so on.
+So by way of defining the relationships between the above domains we can add immense value to such use cases such as customer360, fraud detection, product recommendation, digital twin, supply chains and so on.
 
 That said, beyond the specific pointed queries, what if we wanted to gain deep insight against such data to answer general questions such as finding communities or just what’s generally important?  
 
@@ -50,6 +50,6 @@ Generally speaking, the unsupervised GDS algorithms allow us to find patterns su
 
 More often than not, you want to leverage your graph data to make predictions about the future based on the data from the past, such as labeling (i.e. potential fraudsters) or recommendations(i.e. churns).  
 
-In such cases, you can use graph embedding to create a numerical/tabular representation of the graph that can be fed to an ML models to make such tasks easier, but more importantly which when we can further leverage feature extraction algos to further enrich the training data and hence the models for continuous improved accuracy of our predictions.     
+In such cases, you can use graph embedding to create a numerical/tabular representation of the graph that can be fed to ML models to make such tasks easier, but more importantly, we can further leverage feature extraction algos to further enrich the training data (and hence the models) for continuous improved accuracy of our predictions.     
 
 At the end of the day, embedded trained data from in-database graph data has the advantage that the data doesn’t have to be moved from external sources, and such tasks can be done immensely faster and easier.
