@@ -1,7 +1,7 @@
 = Post-UNION processing
 :slug: post-union-processing
 :author: Andrew Bowman
-:neo4j-versions: 4.1, 4.0, 3.5, 3.4, 3.3, 3.2, 3.1, 3.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cypher, union
 :category: cypher
 
@@ -11,7 +11,7 @@ Here are some workarounds.
 
 == Post-UNION processing in Neo4j 4.0
 
-With Neo4j 4.0, post-UNION processing is now possible via https://neo4j.com/docs/cypher-manual/4.0-preview/clauses/call-subquery/#query-call-subquery[subqueries].
+With Neo4j 4.0, post-UNION processing is now possible via https://neo4j.com/developer/cypher/subqueries/[subqueries].
 
 An example of usage:
 
@@ -31,9 +31,9 @@ This allows us to keep working with the results of the UNION subquery.
 However, with the initial 4.0 release only uncorrelated subqueries are supported, meaning the subquery cannot use variables from outside the call.
 This means that using a subquery for post-UNION processing in the middle of a more complex query may not be possible, as you cannot pass in variables from the outer query for use within the subquery.
 
-In 4.0.x, correlated subqueries, which are more useful and can use variables from outside the subquery, are currently only available when using https://neo4j.com/docs/operations-manual/4.0/fabric/introduction/[Neo4j Fabric].
+In 4.0.x, correlated subqueries, which are more useful and can use variables from outside the subquery, are currently only available when using https://neo4j.com/docs/operations-manual/current/fabric/introduction/[Neo4j Fabric].
 
-== Post-UNION processing enhancements in 4.1
+== Post-UNION processing enhancements in 4.1+
 
 With the release of 4.1, the CALL subquery functionality has been enhanced to allow correlated subqueries.
 This lets us use existing variables mid-query within the subquery.

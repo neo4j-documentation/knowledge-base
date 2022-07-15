@@ -1,7 +1,7 @@
 = Running Docker as Non-Root User
 :slug: running-docker-as-nonroot-user
 :author: Rohan Kharwar
-:neo4j-versions: 3.2,3.3,3.4,3.5,4.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: startup, permissions, docker
 :category: installation
 :environment: docker
@@ -9,7 +9,7 @@
 When running Neo4j Docker, it will run as `neo4j` user inside the container. But to run docker as a different user one can specify the `--user` argument. 
 Documentation has a section for running as non-root user:
 
-https://neo4j.com/docs/operations-manual/3.4/installation/docker/#docker-user
+https://neo4j.com/docs/operations-manual/current/docker/introduction/#docker-user
 
 but would like to elaborate on the same in this KB article. 
 

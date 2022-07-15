@@ -3,7 +3,7 @@
 :author: Daniel Terlizzi
 :category: cypher
 :tags: apoc, procedures
-:neo4j-versions: 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 How does apoc.periodic.iterate work?
 
@@ -17,4 +17,4 @@ The query will only return to the client after the original query completes, so 
 
 Link to the code is here:
 
-https://github.com/neo4j-contrib/neo4j-apoc-procedures/blob/3.5/src/main/java/apoc/periodic/Periodic.java#L273
+https://github.com/neo4j-contrib/neo4j-apoc-procedures/blob/4.2/core/src/main/java/apoc/periodic/Periodic.java#L232

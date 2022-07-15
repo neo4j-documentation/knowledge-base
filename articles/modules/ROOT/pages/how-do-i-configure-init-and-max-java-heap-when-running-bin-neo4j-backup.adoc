@@ -1,7 +1,7 @@
 = How do I configure init and max java heap when running bin/neo4j-backup
 :slug: how-do-i-configure-init-and-max-java-heap-when-running-bin-neo4j-backup
 :author: Dana Canzano
-:neo4j-versions: 2.2, 2.3, 3.0, 3.1
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: backup, heap, out-of-memory, operations
 :category: operations
 

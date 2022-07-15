@@ -1,7 +1,7 @@
 = Bulk Import / Backups into running 4.0 instances
 :slug: neo4j-import-into-running-4-0-instance
 :author: David Fauth
-:neo4j-versions: 4.0
+:neo4j-versions: 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: import-export,operations
 :category: operations
 
@@ -47,14 +47,15 @@ neo4j> MATCH (n:STORE) return n limit 3;
 
 == Neo4j-Admin Import Cluster
 
-. Run the Neo4j-Admin import on each cluster member to create the database. In this example, we are running a bulk import into a new database called dataload1. Node labels are STORE.
+. Run the Neo4j-Admin import to create the database. In this example, we are running a bulk import into a new database called dataload1. Node labels are STORE. Please note that you don't need to stop your cluster to run the import tool, but the import tool will consume memory and cpu resources which may not be available on a server already running a Neo4j instance.
 +
 [source,shell]
 ----
 $ ./bin/neo4j-admin import --database=dataload1 --nodes=:STORE="/home/ubuntu/tmp/header.csv,/home/ubuntu/tmp/nodes.csv" --skip-duplicate-nodes=true --high-io=true
 ----
 
-. Log into the Neo4j 4.0 Cluster Leader. Once the database is created on the cluster leader, it will be propagated to the other cluster members.
+. Copy the store created by the import tool to all core instances. You'll need to copy the content of both `<neo4j-home>/data/databases/dataload1` & `<neo4j-home>/data/transactions/dataload1`.
+. Run `CREATE DATABASE dataload1` (on Neo4j 4.0 that command would need to run against the system database, on the instance that is currently leader for that database). Once the database is created on the cluster leader, it will be propagated to the other cluster members.
 +
 [source,cypher-shell,role=noheader]
 ----

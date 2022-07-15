@@ -1,7 +1,7 @@
 = Using Cypher and APOC to move a property value to a label
 :slug: using-cypher-and-apoc-to-move-a-property-value-to-a-label
 :author: Dana Canzano
-:neo4j-versions: 3.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: apoc, refactoring, procedures
 :category: operations
 

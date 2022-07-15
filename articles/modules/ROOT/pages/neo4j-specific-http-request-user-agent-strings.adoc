@@ -1,12 +1,12 @@
 = Neo4j specific http request user agent strings
 :slug: neo4j-specific-http-request-user-agent-strings
 :author: Dana Canzano
-:neo4j-versions: 3.2, 3.3
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: load-csv,apoc, user-agent, webserver, logging
 :category: operations
 
-For those https://neo4j-contrib.github.io/neo4j-apoc-procedures/[APOC] commands that retrieve data using HTTP/HTTPS,
-and or running Cypher https://neo4j.com/docs/developer-manual/3.3/cypher/clauses/load-csv/[LOAD CSV]
+For those https://neo4j.com/labs/apoc/[APOC] commands that retrieve data using HTTP/HTTPS,
+and or running Cypher https://neo4j.com/docs/cypher-manual/current/functions/load-csv/[LOAD CSV]
 the request will be sent with Neo4j specific user-agent/browser identifiers.
 
 Below is an example log from an https://httpd.apache.org/[Apache] webservers access log at /var/log/apache2/access.log
@@ -15,8 +15,8 @@ and includes 4 request made by:
 * https://www.google.com/chrome/[Chrome] Browser, 
 * https://www.mozilla.org[Firefox] Browser, 
 * linux https://en.wikipedia.org/wiki/CURL[curl]
-* https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_load_json[apoc.load.json]
-* https://neo4j.com/docs/developer-manual/3.3/cypher/clauses/load-csv/[LOAD CSV] request submitted via bin/cypher-shell
+* https://neo4j.com/labs/apoc/4.4/overview/apoc.load/apoc.load.json/[apoc.load.json]
+* https://neo4j.com/docs/cypher-manual/current/functions/load-csv/[LOAD CSV] request submitted via bin/cypher-shell
 
 ....
 192.168.2.38 - - [26/Mar/2018:19:16:52 -0400] "GET / HTTP/1.1" 200 3477 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"

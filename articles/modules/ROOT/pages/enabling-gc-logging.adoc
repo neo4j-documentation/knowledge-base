@@ -2,7 +2,7 @@
 :slug: enabling-gc-logging
 :zendesk-id: 204225303
 :author: Dave Gordon
-:neo4j-versions: 3.5, 4.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: logging,garbage collection, heap, memory, jvm
 :category: operations
 
@@ -57,6 +57,6 @@ You can review those differences in the table below.
 |===
 |neo4j version | configuration value
 |3.5.x | #dbms.logs.gc.options=-XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+PrintPromotionFailure -XX:+PrintTenuringDistribution
-|4.0.x | #dbms.logs.gc.options=-Xlog:gc*,safepoint,age*=trace
+|4.0.x and higher | #dbms.logs.gc.options=-Xlog:gc*,safepoint,age*=trace
 |===
 

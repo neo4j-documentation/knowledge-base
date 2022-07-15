@@ -1,7 +1,7 @@
 = How to set up SSL communcation when running Neo4j within a Docker Container
 :slug: setting-up-ssl-with-docker
-:author: Dave Shiposh
-:neo4j-versions: 3.2, 3.3, 3.4
+:author: Dave Shiposh, Sandeep Reehall
+:neo4j-versions: 3.2, 3.3, 3.4, 4.1, 4.2, 4.3
 :tags: docker, security, ssl, tls
 :category: installation
 :environment: docker
@@ -10,10 +10,140 @@ Neo4j 3.2 added a Unified SSL Framework to setup secure connections for Bolt, HT
 framework can be found at:  https://neo4j.com/docs/operations-manual/current/security/ssl-framework/
 
 Setting up secure Bolt and HTTPS communications when running Neo4j within a Docker Container requires some specific steps and 
-configuration settings:
+configuration settings.
 
-The below steps assume you've followed the process outlined in the above documentation link and have created your public cert and
-private key.
+The below steps assume the processes outlined in the above documentation link have been followed. In addition, public certificates and private keys have already been created.
+
+CAUTION: The steps listed below are for example purposes only. It must be made sure these are suitable for the environment before deployment. 
+
+The configuration steps for Neo4j 3.5 and Neo4j 4.x are different. Both are listed below.
+
+== Neo4j 4.x
+
+=== 1. Create Neo4j Scope Directory Structure
+
+Neo4j 4.x requires directories are created with a specific structure. The following is an example for `https` and `bolt` scopes
+
+----
+ssl/
+├── bolt
+│   ├── revoked
+│   └── trusted
+└── https
+    ├── revoked
+    └── trusted
+----
+
+Create the above directory structure in `$HOME/neo4j`. It is possible to use any directory of your choice, making sure to adjust the below paths accordingly.
+
+=== 2. Copy SSL Certificates and Correct Permissions
+
+A copy of the public certificate and private key files will need to be placed in each scopes directory. The public key will also need to be copied into the respective scopes `trusted` directory.
+
+Once copied, the directory and file layout in `$HOME/neo4j/ssl` should look like the following:
+
+----
+$HOME/neo4j/ssl/
+├── bolt
+│   ├── private.key
+│   ├── public.crt
+│   ├── revoked
+│   └── trusted
+│       └── public.crt
+└── https
+    ├── private.key
+    ├── public.crt
+    ├── revoked
+    └── trusted
+        └── public.crt
+----
+
+The container will run Neo4j as user `neo4j`. The uid and gid is 7474. Use the following command to adjust the permissions on the `ssl` directory:
+
+[source,shell]
+----
+sudo chgrp -R 7474 $HOME/neo4j/ssl && \
+sudo chmod -R g+rx $HOME/neo4j/ssl
+----
+
+=== 3. Configure Neo4j
+
+There are two approaches for configuring Neo4j running as a Docker container: *externalize neo4j.conf using Docker host volumes*, OR *configure Docker environment variables*. You should only choose one of the approaches (not both)
+
+==== Externalize neo4j.conf
+
+It is possible to use a Docker host volume to mount a neo4j.conf file. This is achieved by mounting into the container's `/conf` directory.
+
+Create a `conf` directory and neo4.conf file in `$HOME/neo4j`
+
+[source,shell]
+----
+mkdir $HOME/neo4j/conf && \
+touch $HOME/neo4j/conf/neo4j.conf
+----
+
+Insert the following configuration into `neo4j.conf` making sure to substitute `host.domain.com` with the required DNS name for the server/ application. 
+
+[source,properties]
+----
+dbms.default_advertised_address=host.domain.com
+
+# Bolt SSL configuration
+dbms.ssl.policy.bolt.enabled=true
+dbms.ssl.policy.bolt.base_directory=certificates/bolt
+dbms.ssl.policy.bolt.private_key=private.key
+dbms.ssl.policy.bolt.public_certificate=public.crt
+dbms.ssl.policy.bolt.client_auth=NONE
+dbms.connector.bolt.tls_level=REQUIRED
+
+# Https SSL configuration
+dbms.connector.https.enabled=true
+dbms.ssl.policy.https.enabled=true
+dbms.ssl.policy.https.base_directory=certificates/https
+dbms.ssl.policy.https.private_key=private.key
+dbms.ssl.policy.https.public_certificate=public.crt
+dbms.ssl.policy.https.client_auth=NONE
+----
+
+The above will be mounted at deployment using `--volume=$HOME/neo4j/conf:/conf`
+
+==== Docker Environment Variables
+
+The following collection of Docker environment variables can be used instead of the above Docker host volume configuration. These should be specified at deployment making sure to substitute `host.domain.com` with the required DNS name for the server/ application. 
+
+[source,bash]
+----
+--env NEO4J_dbms_default__advertised__address=host.domain.com \
+--env NEO4J_dbms_ssl_policy_bolt_enabled=true \
+--env NEO4J_dbms_ssl_policy_bolt_base__directory=certificates/bolt \
+--env NEO4J_dbms_ssl_policy_bolt_private__key=private.key \
+--env NEO4J_dbms_ssl_policy_bolt_public__certificate=public.crt \
+--env NEO4J_dbms_ssl_policy_bolt_client__auth=NONE \
+--env NEO4J_dbms_connector_bolt_tls__level=REQUIRED \
+--env NEO4J_dbms_connector_https_enabled=true \
+--env NEO4J_dbms_ssl_policy_https_enabled=true \
+--env NEO4J_dbms_ssl_policy_https_base__directory=certificates/https \
+--env NEO4J_dbms_ssl_policy_https_private__key=private.key \
+--env NEO4J_dbms_ssl_policy_https_public__certificate=public.crt \
+--env NEO4J_dbms_ssl_policy_https_client__auth=NONE \
+----
+
+=== 4. Run Neo4j
+
+With a host volume for `neo4j.conf`, the following command will deploy Neo4j 4.3.2:
+
+[source,bash]
+----
+docker run --name=neo4j-4.3.2 \
+--publish=7474:7474 --publish=7687:7687 --publish=7473:7473 \
+--volume=$HOME/neo4j/ssl:/ssl \
+--volume=$HOME/neo4j/conf:/conf \
+--env NEO4J_dbms_memory_pagecache_size=512m \
+--env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes \
+neo4j:4.3.2-enterprise
+----
+
+== Neo4j 3.5
 
 == Add Docker Volume for storing of Certs
 

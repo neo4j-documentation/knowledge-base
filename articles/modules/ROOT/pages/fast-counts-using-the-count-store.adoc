@@ -1,7 +1,7 @@
 = Fast counts using the count store
 :slug: fast-counts-using-the-count-store
 :author: Andrew Bowman
-:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cypher, counts
 :category: cypher
 
@@ -201,7 +201,7 @@ RETURN type, value.count
 
 ==== Use apoc.meta.stats() from APOC Procedures
 
-https://neo4j-contrib.github.io/neo4j-apoc-procedures/[APOC Procedures] has https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_meta_graph[meta procedures] that can be used to access nearly all of the count store data at once.
+https://neo4j.com/labs/apoc/4.1/overview/#_apoc[APOC Procedures] has https://neo4j.com/labs/apoc/4.1/overview/#_apoc_meta[meta procedures] that can be used to access nearly all of the count store data at once.
 
 You will need to pick and choose what data from the `apoc.meta.stats()` call you want to display.
 

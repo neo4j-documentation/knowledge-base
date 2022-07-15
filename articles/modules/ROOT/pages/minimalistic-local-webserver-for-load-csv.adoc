@@ -1,11 +1,11 @@
 = How do I establish a simple HTTP Server local to my Neo4j Instance to serve CSV files
 :slug: minimalistic-local-webserver-for-load-csv
 :author: Dana Canzano
-:neo4j-versions: 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4       yudx
 :tags: load csv, http, webserver
 :category: operations
 
-When using https://neo4j.com/docs/cypher-manual/3.5/clauses/load-csv/[LOAD CSV] one can define
+When using https://neo4j.com/docs/cypher-manual/current/functions/load-csv/[LOAD CSV] one can define
 the source file to be either at a local file system (i.e `load csv from 'file:///...'` )
 or a webserver ( i.e. `load csv from 'http://...'`).
 Usage of a webserver might be a preferable approach when in a Causal Cluster,

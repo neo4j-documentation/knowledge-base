@@ -3,7 +3,7 @@
 :author: Dana Canzano
 :category: cluster
 :tags: import, causal-cluster, ha
-:neo4j-versions: 3.1
+:neo4j-versions: 3.5
 
 The following steps are provided to describe how to use neo4j-import in a Causal Cluster environment and was run from an 
 environment of a single linux host with 3 copies for Neo4j 3.1.2 installed in the following paths

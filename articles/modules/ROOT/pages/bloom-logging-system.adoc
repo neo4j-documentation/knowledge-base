@@ -1,0 +1,73 @@
+= Bloom Logging System
+:slug: bloom-logging-system
+:author: Jeff Gagnon
+:neo4j-versions: Any
+:bloom-versions: 2.1+
+
+Starting with Bloom 2.1, it's possible to extract logs at various levels of detail from the web browser's developer console when running in Chrome, Firefox or Edge. Please consult documentation for your web browser to determine how to access the console. 
+
+It is also possible to download logs from Bloom using the new _Download All Logs_ button in the _Experimental Features_ drawer. _Experimental Features_ can be activated using the _Experimental features_ toggle found in the _Settings_ drawer. In addition to using a web browser console, logging levels and loggers can be defined in a URL used to launch Bloom (see further details below).
+
+.For Bloom running in a web browser, once the web browser's developer console is active in a tab running Bloom, the following commands can be used to configure and access Bloom's error logs.
+* To see all **logging options**, such as setting log levels, printing the logs or downloading log files, open the web browser's console and type `bloom_help()` and hit enter. A list of options is presented. Note that single quotes must be used around input values, e.g. `bloom_ls('trace','ROOT')`.
+
+* `bloom_le()` : Enable all logging
+* `bloom_ld()` : Disable all logging
+
+* `bloom_ls(level, loggerName)` : Set level for specific logger
+* `bloom_lst(loggerName)` : Set level to 'trace' for specific logger
+* `bloom_lsd(loggerName)` : Set level to 'debug' for specific logger
+* `bloom_lsi(loggerName)` : Set level to 'info' for specific logger 
+* `bloom_lsw(loggerName)` : Set level to 'warn' for specific logger
+* `bloom_lse(loggerName)` : Set level to 'error' for specific logger
+* `bloom_lss(loggerName)` : Set level to 'silent' for specific logger
+
+* `bloom_dr()` : Download application logs
+* `bloom_dv()` : Download visualization logs
+* `bloom_dp()` : Download performance logs
+* `bloom_ds()` : Download SSO logs
+* `bloom_dd()` : Download driver logs
+* `bloom_da()` : Download _all_ log files in a .zip file
+
+* `bloom_pr()` : Print application logs
+* `bloom_pv()` : Print visualization logs
+* `bloom_pp()` : Print performance logs
+* `bloom_ps()` : Print SSO logs
+* `bloom_pd()` : Print driver logs
+
+The default 'loggerName' is always ROOT
+
+.Available loggers include:
+* *ROOT*: Root application logs
+* *NEVADA*: Logs related to Bloom's visualization system
+* *PERF*: Logs related to performance
+* *DRIVER*: Logs related to the driver connecting Bloom to Neo4j
+* *SSO*: Logs related to Bloom's SSO configuration
+
+.Available trace levels, ordered from most to least verbose, include:
+* *trace* 
+* *debug*
+* *info*
+* *warn*
+* *error*
+* *silent*
+
+.There are also URL query parameters available to set the log levels of individual or all loggers.
+* The parameter `LOGS_LEVEL=<level>` will set the logging level to `level` for _all_ loggers
+* The parameter `<LOGGER>_LEVEL=<level>` will set the logging level to `level` for the logger `<LOGGER>`
+* For Neo4j Desktop users, these parameters can be used along with `neo4j://graphapps/neo4j-bloom/` to adjust log settings in Bloom
+
+Examples:
+----
+`http://localhost:8085?ROOT_LEVEL=warn` set the logging level `warn` for the logger `ROOT` (the application logs)
+
+`http://localhost:8085?LOGS_LEVEL=debug` set the logging level `debug` for the _all_ loggers
+
+`neo4j://graphapps/neo4j-bloom/?LOGS_LEVEL=debug` set the logging level `debug` for the _all_ loggers when launching Bloom via Neo4j Desktop
+
+`http://localhost:8085?LOGS_LEVEL=error&DRIVER_LEVEL=debug&NEVADA_LEVEL=info` set the logging level `error` for _all_ loggers yet for the `DRIVER` logger the level is set to `debug` and for the `NEVADA` logger the level is set to `info`
+----
+
+You are able to _download_ all log files via the Experimental drawer or via one of the download commands outlined above.
+
+Bloom's logging functioanlity is supported by the [loglevel](https://github.com/pimterry/loglevel) library. Refer to the [docs](https://github.com/pimterry/loglevel#documentation) to for additional details if required.

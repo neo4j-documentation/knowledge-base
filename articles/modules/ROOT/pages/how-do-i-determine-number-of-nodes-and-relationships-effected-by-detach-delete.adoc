@@ -1,7 +1,7 @@
 = How do I determine the number of nodes and relationships to be effected by a detach delete
 :slug: how-do-i-determine-number-of-nodes-and-relationships-effected-by-detach-delete
 :author: Dana Canzano
-:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: delete
 :category: cypher
 

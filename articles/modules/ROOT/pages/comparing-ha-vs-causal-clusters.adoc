@@ -1,7 +1,7 @@
 = Comparing HA and Causal Clusters
 :slug: comparing-ha-vs-causal-clusters
 :author: Ali Maddahian
-:neo4j-versions: all
+:neo4j-versions: 3.5, 4.0
 :tags: ha, cluster, bolt, http, https, load balancer
 :category: cluster
 
@@ -56,7 +56,7 @@ Here are few articles that provide additional insight on the topic of bolt vs ht
 
 https://medium.com/neo4j/querying-neo4j-clusters-7d6fde75b5b4
 
-https://neo4j.com/docs/driver-manual/1.7/
+https://neo4j.com/docs/drivers-apis/
 
 https://neo4j.com/developer/language-guides/
 

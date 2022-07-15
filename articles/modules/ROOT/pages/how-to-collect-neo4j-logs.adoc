@@ -1,0 +1,69 @@
+= How to collect Neo4j logs
+:slug: how-to-collect-neo4j-logs
+:author: Damiano Mondardo / Sandeep Reehal
+:category: operations
+:tags: logs
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
+
+
+When raising Neo4j Support cases, it is important to upload Neo4j logs.
+
+This allows the Neo4j Support Engineers to efficiently begin working on the support case.
+
+NOTE: If clustering is used, logs and configurations should be collected from all nodes in the cluster.
+
+The following log files are usually required to troubleshoot support issues:
+
+----
+- debug.log.*
+- neo4j.conf
+- query.log.*
+----
+
+These log files should cover the time frame that issues or errors were observed.
+
+The files are located by default within the folders ''$NEO4J_HOME/logs'' and ''$NEO4J_HOME/conf'' .
+
+These files should be zipped and added to the support case.
+
+*In the case of large files above 25MB, notify the Neo4j Support Engineer and a secure location will be provided.*
+
+
+Other logs may be required during the course of a support case, since some files may be rotated by Neo4j it’s a good idea to store a copy of the following folders for further analysis:
+
+----
+- $NEO4J_HOME/data/cluster-state
+- $NEO4J_HOME/data/transactions
+- $NEO4J_HOME/metrics
+----
+
+These will be requested as required by Neo4j Support.
+
+
+== Deployment specific collection
+
+There are many logging configurations in Neo4j, below are some options for locating logging configurations by deployment type.
+
+=== Neo4j Standalone instance (Server / Container)
+
+The default location for logs is $NEO4J_HOME/logs
+
+- Logs are stored under the path specified for the property "dbms.directories.logs". Your logs folder location may differ based on the value of this configuration property, check our documentation for further details: https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.directories.logs
+- It's also possible to specify individual folders for the different log files. This is done by changing respective configuration property as described in table 2 on the following link: https://neo4j.com/docs/operations-manual/current/monitoring/logging/#general-logging
+- For container deployment (for example Docker) the same rules applies. We recommend to always map the logs folder to an external volume to avoid losing the files once the container is terminated.
+
+
+=== Neo4j Embedded instance
+
+
+The default location for logs is $NEO4J_HOME/logs, the same as the standalone deployment.
+
+The log options mentioned under the standalone section apply for embedded as well, but the value of $NEO4J_HOME is defined within your application source code, and is usually the home directory provided to the Java class used to handle the Neo4j instance (for example Java class “DatabaseManagementServiceBuilder”).
+
+Below is a list of files you can provide (the actual file location depends on the app configuration):
+
+----
+- Application logs (replacing the standard neo4j.log file)
+- debug.log
+- query.log
+----

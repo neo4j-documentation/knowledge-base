@@ -1,19 +1,19 @@
 = Debian / Ubuntu: How to enforce a certain version of neo4j when using debian packages
 :slug: debian-ubuntu-version-apt-pinning
 :author: Stefan Armbruster
-:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: unix, installation
 :category: installation
 :environment: debian
 
-If you want to run a specific version of Neo4j and install the software via a https://neo4j.com/docs/operations-manual/current/installation/linux/debian/#debian[debian repository^] you need to use a technique called https://wiki.debian.org/AptPreferences[apt pinning^]. Otherwise any system update will also update Neo4j to its latest stable version.
+If you want to run a specific version of Neo4j and install the software via a https://neo4j.com/docs/operations-manual/current/installation/linux/debian/#debian[debian repository^] you need to use a technique called https://wiki.debian.org/AptPreferences[apt pinning^]. Otherwise, any system update will also update Neo4j to its latest stable version.
 
-As an example assume you want to make sure to stay on 3.3.x versions - effectivly preventing an upgrade to 3.4.x or higher. 
+As an example assume you want to make sure to stay on 3.5.x versions - effectively preventing an upgrade to 4.x or higher.
 To use apt pinning create a file `/etc/apt.d/preferences.d/neo4j` with these contents:
 
 ....
 Package: neo4j-enterprise
-Pin: version 1:3.3.*
+Pin: version 1:3.5.*
 Pin-Priority: 1000
 ....
 

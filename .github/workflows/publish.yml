@@ -31,6 +31,9 @@ jobs:
       - name: Publish Zendesk
         run: |
           ./gradlew zenDeskUpload -Pzendesk-email="${ZENDESK_EMAIL}" -Pzendesk-apitoken="${ZENDESK_APITOKEN}" -Pstage=production
+          ./gradlew zenDeskTechSupportUpload -Pzendesk-email="${ZENDESK_TECHSUPPORT_EMAIL}" -Pzendesk-apitoken="${ZENDESK_TECHSUPPORT_APITOKEN}" -Pstage=production
         env:
           ZENDESK_EMAIL: ${{ secrets.ZENDESK_EMAIL }}
           ZENDESK_APITOKEN: ${{ secrets.ZENDESK_APITOKEN }}
+          ZENDESK_TECHSUPPORT_EMAIL: ${{ secrets.ZENDESK_TECHSUPPORT_EMAIL }}
+          ZENDESK_TECHSUPPORT_APITOKEN: ${{ secrets.ZENDESK_TECHSUPPORT_APITOKEN }}

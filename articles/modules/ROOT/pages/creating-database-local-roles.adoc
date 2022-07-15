@@ -1,15 +1,15 @@
 = Creating and configuring database-local roles
 :slug: creating-database-local-roles
 :author: Andrew Bowman
-:neo4j-versions: 4.0
+:neo4j-versions: 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: security, rbac, multi-database
 :category: security
 
-Neo4j 4.0 introduced advanced security features in the form of https://neo4j.com/docs/cypher-manual/4.0/administration/security/[role-based access controls], much needed, especially with the introduction of multiple database functionality.
+Neo4j 4.0 introduced advanced security features in the form of https://neo4j.com/docs/cypher-manual/current/access-control/[role-based access controls], much needed, especially with the introduction of multiple database functionality.
 
 These controls can be accessed by administrators on the system database, present on every Neo4j instance.
 
-The system database comes with https://neo4j.com/docs/cypher-manual/4.0/administration/security/users-and-roles/#administration-security-roles-show[several built-in roles],
+The system database comes with https://neo4j.com/docs/cypher-manual/current/access-control/manage-roles/#access-control-list-roles[several built-in roles],
 but it is not completely clear on the means to grant these kinds of privileges to users constrained to specific databases.
 
 This article seeks to explain the global nature of these roles and provide some examples of how to make the equivalent of these built-in roles at the local database level.
@@ -34,7 +34,7 @@ So don't think in terms of granting the reader role to user_a on database db1, b
 
 Instead of creating new roles from scratch, we can use the built-in roles as a template, when all we need is the equivalent of a built-in role scoped down to a specific database or databases.
 
-We do this by creating a new role https://neo4j.com/docs/cypher-manual/4.0/administration/security/users-and-roles/#administration-security-roles-create[as a copy of an existing role].
+We do this by creating a new role https://neo4j.com/docs/cypher-manual/current/access-control/manage-roles/#access-control-create-roles[as a copy of an existing role].
 Then we can revoke global database access, then grant access to the database or databases that the role should have access to.
 
 So to create the equivalent of the reader role but to database db1, and grant it to user_a, we would do the following from the system database:
@@ -128,7 +128,7 @@ GRANT MATCH {*} ON GRAPH db1 to db1_reader;
 GRANT ROLE db1_reader TO user_a;
 ----
 
-The https://neo4j.com/docs/cypher-manual/4.0/administration/security/subgraph/#administration-security-subgraph-match[MATCH privilege] is shorthand for both READ and TRAVERSE privileges, so this saves us a line.
+The https://neo4j.com/docs/cypher-manual/current/access-control/manage-privileges/#access-control-graph-_privileges_[MATCH privilege] is shorthand for both READ and TRAVERSE privileges, so this saves us a line.
 
 
 Now let's check user_a's privileges again:

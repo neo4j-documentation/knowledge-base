@@ -1,11 +1,11 @@
 = How do I produce a profile/explain through cypher-shell and pipeing query file
 :slug: how-do-i-produce-a-profile-explain-through-cypher-shell-and-pipeing-query-file
 :author: Dana Canzano
-:neo4j-versions: 3.2
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cypher-shell, explain, profile
 :category: cypher
 
-If yor prepare a file with a Cypher statement that includes either a 
+If you prepare a file with a Cypher statement that includes either a
 https://neo4j.com/docs/developer-manual/current/cypher/query-tuning/how-do-i-profile-a-query/[profile or explain] clause and then 
 want to pipe that file to bin/cypher-shell, to produce the profile/explain output you must include --format verbose on the command line.
 

@@ -1,7 +1,7 @@
 = Understanding non-existent properties and working with nulls
 :slug: understanding-non-existent-properties-and-null-values
 :author: Andrew Bowman
-:neo4j-versions: all
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cypher
 :category: cypher
 
@@ -187,7 +187,7 @@ These work:
 ----
 OPTIONAL MATCH (ele:PinkElephant)
 WITH ele
-MATCH (node1:Person{name:ele.name)-[:ACTED_IN]->(m:Movie)
+MATCH (node1:Person {name:ele.name})-[:ACTED_IN]->(m:Movie)
 RETURN node1
 ----
 
@@ -197,7 +197,7 @@ and
 ----
 OPTIONAL MATCH (ele:PinkElephant)
 WITH ele
-CREATE (node1:Person{name:ele.name)-[:ACTED_IN]->(m:Movie)
+CREATE (node1:Person {name:ele.name})-[:ACTED_IN]->(m:Movie)
 RETURN node1
 ----
 
@@ -207,6 +207,6 @@ but this throws an error:
 ----
 OPTIONAL MATCH (ele:PinkElephant)
 WITH ele
-MERGE (node1:Person{name:ele.name)-[:ACTED_IN]->(m:Movie)
+MERGE (node1:Person {name:ele.name})-[:ACTED_IN]->(m:Movie)
 RETURN node1
 ----

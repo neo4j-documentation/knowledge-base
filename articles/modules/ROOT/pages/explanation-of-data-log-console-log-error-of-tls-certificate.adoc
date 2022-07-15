@@ -3,6 +3,7 @@
 :zendesk-id: 216373927
 :author: Dana Canzano
 :tags: server,security
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :category: operations
 
 On `bin/neo4j start` the `data/log/console.log` may log an error similar to

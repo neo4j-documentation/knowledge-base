@@ -1,7 +1,7 @@
 = Neo4j Streams - Kafka Integration - List of Must Gather for Troubleshooting
 :slug: neo4j-streams-kafka-integration-list-of-mustgather-for-troubleshooting
 :author: Daniel Terlizzi
-:neo4j-versions: 3.5, 3.4
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: troubleshooting
 :category: operations
 

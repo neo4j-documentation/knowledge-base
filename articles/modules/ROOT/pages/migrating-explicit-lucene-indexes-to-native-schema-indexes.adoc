@@ -1,0 +1,105 @@
+= Migrating Explicit Lucene Indexes to Native Schema Indexes
+:slug: migrating-explicit-lucene-indexes-to-native-schema-indexes
+:author: Ali Maddahian
+:category: operations
+:tags: lucene, index, legacy, explicit, capacity, schema, full-text
+:neo4j-versions: 1.x,2.x,3.x,4.x
+
+Given that there are still some customers on the older Neo4j releases that utilize legacy/explicit indexes, we will discuss a few pointers here on how to convert these indexes to native schema indexes when upgrading to Neo4j version 4.x, as legacy/explicit indexes have been deprecated as of 3.5.x, and totally removed from the 4.x version.
+ 
+As to the background, Legacy/explicit indexes were the only type of indexes available prior to Neo4j 3.2(release date 2017).   These early version indexes which were implemented via Lucene under the cover, typically resulted in significant write performance degradation, and thus the need to replace them with the native schema indexes available in 3.3+ releases.   
+
+Aside from the performance perspective and equally important, explicit indexes also have to be explicitly/manually kept-up-to date when adding/removing/updating nodes/relationships/properties by way of the Java API (and/or stored procedures starting with 3.3.x), hence why they are called explicit indexes.    
+
+In contrast, native indexes are maintained automatically, thus eliminating the need for any such manual steps and/or extra code to keep them current.
+
+From an implementation perspective, these legacy indexes do not list much of schema details and besides the original author's chosen naming convention at the time of the index creation, there is not a whole lot of usable clue to help with implementing an automated process for migrating these indexes to Neo4j’s native schema indexes in a scripted manner.
+
+Thus any index migration would have to be done on an index by index basis and might involve some level of guessing.   This means you having to look at the API code and assess which node or relationship properties are being indexed, and accordingly implement a complementing schema index on those properties and/or look at the cypher query and come up with supporting indexes to optimize its execution.
+
+Overall at a high level, here is the recommended approach:
+
+1) Get a listing of all your indexes on your existing version
+
+*  Example:   in 3.x you can use **"call db.index.explicit.list();"** which will show the index name as well as its type, which can be either “exact” or “full-text”, as well as if it is a node or relationship index, which will help you to determine what type of schema index to construct. 
+ 
+2) Next look at your cypher and/or Java API code and convert them accordingly to 4.x+ format.   
+
+* For example, convert "start" statements to equivalent Match statement.  Example: 
+**  **START n=node:myExplicitIndexYear("myid:1234567") RETURN n;**
+** The above query would be changed to the following:
+**  **MATCH (n:Person{myid:1234567}) RETURN n;**
+
+ 
+
+3) Implement the equivalent schema index that you would need to support and optimize the execution of the associated/converted queries from step 2. 
+
+* Example:   **CREATE INDEX index_name FOR (n:Person) ON (n.myid);**
+* More specifically:
+** Inspect all cypher queries for what they actually write to that index and derive either a create index (for integer, strings, dates, geospatial, etc) and/or call db.index.fulltext.createIndexForNodes (FTS) statements.
+** Inspect all reads to that index and adopt the statements to use the new index (this would mean to enable query logging to capture generated cypher queries and its performance attributes such as execution time vs io vs memory, vs cpu to flag longest running queries to troubleshoot individually one at a time - and more than likely your query patterns are similar to each other, hence, once one query is fixed, it will similarly help other similar queries.).
+ 
+4) Once finished with all the explicit indexes, then shut down the database and move/delete the associated index subfolder(e.g. /data/databases/graph.db/index).
+
+Please note, if it happens that having converted a legacy index to an equivalent schema index, the search query using the legacy indexes are returning an unexpected number of rows (compared to schema indexes), then this likely indicates that the schema index may have been incorrectly defined (on wrong label:properties), or, the legacy index is not up to date (remember legacy indexes must be manually kept up to date, hence as an example, without the appropriate error handling in your Java API code, it is entirely possible that a transaction would not have been correctly retried and applied commits when encountering a rollback due to any reason, such as server restarts, etc). Here is a 3.x example demonstrating such case:
+
+```
+// Create New Nodes
+//
+CREATE (p:Person {name:'Steve_1',year:1990});
+CREATE (p:Person {name:'Steve_2',year:1990});
+CREATE (p:Person {name:'Steve_3',year:1990});
+
+
+// Create Two Explicit Indexes(also called Legacy/Manual/Lucene Indexes)
+//
+CALL db.index.explicit.forNodes('myExplicitIndexFTS', {type: 'fulltext', provider: 'lucene'});
+CALL db.index.explicit.forNodes('myExplicitIndexYear', {type: 'exact', provider: 'lucene'});
+
+// List Explicit Indexes
+//
+call db.index.explicit.list;
+
+// Index nodes with name property
+//
+MATCH (p:Person{name:'Steve_1'}) call db.index.explicit.addNode('myExplicitIndexFTS', p, 'name', 'Steve_1') yield success return count(*);
+MATCH (p:Person{name:'Steve_2'}) call db.index.explicit.addNode('myExplicitIndexFTS', p, 'name', 'Steve_2') yield success return count(*);
+
+// Index nodes with "birth year" property
+//
+match (p:Person{name:'Steve_1'})
+with p
+call db.index.explicit.addNode("myExplicitIndexYear",p,"year",p.year) yield success return count(*);
+
+// Search for persons with matching name VE, which will only return Steve_1, and Steve_2
+//
+CALL db.index.explicit.searchNodes('myExplicitIndexFTS','name:*VE*');
+
+// Search for persons with year=1990 which will only return Steve_1
+//
+CALL db.index.explicit.searchNodes('myExplicitIndexYear','year:1990');
+
+// Search for persons with year=1990 using explicit index which will only return Steve_1
+//
+start n=node:myExplicitIndexYear("year:1990") return n;
+
+// Convert "start" to equivalent Match statement, and this statement returns all 3 rows corresponding to year=1990 (and of course ideally, you would want to create an index on :Person(
+year) or :Person(name) for best performance when creating equivalent native schema indexes on these two properties.
+match (n:Person{year:1990}) return n;
+```
+
+Appendix:
+
+* For a full list of deprecated features per each version please visit the following link:  https://neo4j.com/docs/cypher-manual/current/deprecations-additions-removals-compatibility/
+
+* As noted above, 3.3.x, also offered explicit index implementations using stored-procedures in order to make them easier to implement without resorting to using Java API, however, these also would have had to be maintained manually.  Additionally, these sets of procedures were also deprecated as of 3.5.x, and were replaced in 4.0,4.1,4.2 with new set of procedures (to be used solely for Full-Text-Search usecases) as documented here:  https://neo4j.com/docs/cypher-manual/current/administration/indexes-for-full-text-search/
+
+* Additionally, per 4.3.0 changelog, all FTI procedures are deprecated.   
+** "Introduce CREATE FULLTEXT INDEX... Cypher command. Deprecate db.index.fulltext.createNodeIndex, db.index.fulltext.createRelationshipIndex and db.index.fulltext.drop.". 
+
+* Documentation to pre-3.x Java API code that would have to modified/removed:
+
+** https://neo4j.com/docs/java-reference/3.0/indexing/
+** https://neo4j.com/docs/stable/indexing-create.html
+** https://neo4j.com/docs/java-reference/3.0/javadocs/
+

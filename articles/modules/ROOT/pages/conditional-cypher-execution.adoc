@@ -3,7 +3,7 @@
 :author: Andrew Bowman
 :category: cypher
 :tags: cypher, conditional, apoc
-:neo4j-versions: 3.1, 3.2, 3.3, 3.4, 3.5, 4.1
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 At some point you're going to write a Cypher query requiring some conditional logic, where you want different Cypher statements executed depending on the case.
 
@@ -16,9 +16,9 @@ This article covers the ways you can perform conditional Cypher execution.
 The CASE expression does some conditional logic, but the logic can only be used to output an expression. It cannot be used to conditionally execute Cypher clauses.
 
 
-== Using correlated subqueries in 4.1
+== Using correlated subqueries in 4.1+
 
-Neo4j 4.1 allows correlated subqueries, letting us perform a subquery using variables present mid-query.
+Neo4j 4.1 introduced correlated subqueries, letting us perform a subquery using variables present mid-query.
 By combining subquery usage with filtering, we can use subqueries to implement conditional Cypher execution.
 
 This requires the use of `WITH` as the first clause within the subquery CALL block, for the purpose of importing variables to the subquery.
@@ -160,7 +160,7 @@ Remember that any other non-write clause, such as MATCH, WITH, and CALL, cannot 
 
 == APOC conditional procedures
 
-Alternately, the APOC Procedures library includes procedures designed for http://neo4j-contrib.github.io/neo4j-apoc-procedures/3.5/cypher-execution/conditionals/[conditional Cypher execution].
+Alternately, the APOC Procedures library includes procedures designed for https://neo4j.com/labs/apoc/4.1/cypher-execution/running-cypher/[conditional Cypher execution].
 
 There are two types of procedures:
 

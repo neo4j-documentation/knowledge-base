@@ -1,7 +1,7 @@
 = How do I display a hostname rather than IP address in the Causal Clustering Members section of sysinfo
 :slug: how-do-i-display-a-hostname-rather-than-ip-address-in-causal-clustering-members-section-of-sysinfo
 :author: Dana Canzano
-:neo4j-versions: 3.1
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: sysinfo, causal cluster, ip address, hostname
 :category: cluster
 

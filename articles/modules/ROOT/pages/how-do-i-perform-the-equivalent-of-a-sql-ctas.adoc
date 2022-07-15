@@ -1,7 +1,7 @@
 = How do I perform the equivalent of a SQL Create Table as Select with Cypher
 :slug: how-do-i-perform-the-equivalent-of-a-sql-ctas
 :author: Dana Canzano
-:neo4j-versions: 3.0, 3.1
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: copy,sql
 :category: cypher
 
@@ -17,11 +17,11 @@ SET m=n;
 
 The above will copy all `Movie` nodes and their properties to a set of new nodes with the label `New_Movie`.   If you
 have a significant number of `Movie` nodes you may not want to copy all nodes in a single transaction, for example you may want to run
-utilize https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_apoc_periodic_commit[apoc.periodic.commit]
+utilize https://neo4j.com/labs/apoc/4.1/overview/apoc.periodic/apoc.periodic.iterate/[apoc.periodic.iterate]
 
 [source,cypher]
 ----
-call apoc.periodic.commit("MATCH (n:Movie) with n limit {limit} create (m:New_Movie) set m=n",{limit:10000});
+call apoc.periodic.iterate("MATCH (n:Movie) RETURN properties(n) as props", "CREATE (m:New_Movie) SET m = props",{});
 ----
 
 As with a CTAS statement, this does not copy any underlying schema indexes or constraints on said label. Additionally, if the `Movie`

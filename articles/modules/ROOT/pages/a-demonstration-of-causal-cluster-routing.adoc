@@ -3,13 +3,13 @@
 :author: Dana Canzano
 :category: cluster
 :tags: causal-cluster, routing, cypher-shell
-:neo4j-versions: 3.2
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 The following will demonstrate how to use https://neo4j.com/docs/operations-manual/current/tools/cypher-shell/[cypher-shell] to get
 a better understanding of a Neo4j Causal Cluster instance and its implementation of 
 https://neo4j.com/docs/developer-manual/current/drivers/client-applications/#_routing_drivers_bolt_routing[routing].
 
-The initial scenario is described with https://neo4j.com/docs/operations-manual/current/tutorial/local-causal-cluster/[local cluster] setup with 3 core instances, 1 LEADER and 2 FOLLOWERS.   Using dbms.cluster.overview() the output reports
+The initial scenario is described with https://neo4j.com/docs/operations-manual/current/tutorial/local-causal-cluster/[local cluster] setup with 3 core instances, 1 LEADER and 2 FOLLOWERS.   Using dbms.cluster.overview() The output reports
 
 [source,shell,role=noheader]
 ----

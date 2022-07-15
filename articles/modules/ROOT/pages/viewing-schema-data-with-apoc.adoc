@@ -5,7 +5,7 @@
 :tags: apoc, procedures, schema
 :category: development
 
-APOC Procedures offers https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_meta_graph[meta procedures] to view information
+APOC Procedures offers https://neo4j.com/labs/apoc/4.4/overview/apoc.meta/[meta procedures] to view information
 about your database schema and the data it stores.
 
 The procedure `apoc.meta.schema()` uses a sampling of the graph data to produce a map of metadata on the graph labels, relationships,

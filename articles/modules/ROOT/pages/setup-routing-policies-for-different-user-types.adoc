@@ -1,7 +1,7 @@
 = Setup Routing Policies for Different User Types To Direct them to Different Servers
 :slug: setup-routing-policies-for-different-user-types
 :author: Rohan Kharwar 
-:neo4j-versions: 3.2+ 
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: causal cluster, multi-datacenter
 :category: cluster
 

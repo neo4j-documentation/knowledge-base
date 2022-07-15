@@ -2,11 +2,11 @@
 :slug: a-method-to-replicate-a-causal-cluster-to-new-hardware-with-minimum-downtime
 :author: Dana Canzano
 :category: cluster
-:tags: causal-cluster
-:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:tags: causal-cluster, clone
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 If the opportunity arises such that you are in need of replicating your existing
-https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/[Causal Cluster] to a new hardware setup,
+https://neo4j.com/docs/operations-manual/current/clustering/[Causal Cluster] to a new hardware setup,
 the following can be used to allow for minimal downtime.
 
 Let us first start with an existing 3 instances cluster with the following characteristics:
@@ -47,7 +47,7 @@ causal_clustering.initial_discovery_members=10.1.1.1:5001,10.1.1.2:5001,10.1.1.3
 
 3. Start up each instance at 10.2.2.1, 10.2.2.2, and 10.2.2.3.
 These 3 new instances will then join the initial cluster at 10.1.1.1, 10.1.1.2 and 10.1.1.3 and copy down the `databases\graph.db`.
-Running https://neo4j.com/docs/operations-manual/current/monitoring/causal-cluster/#dbms.cluster.overview[`dbms.cluster.overview();`]
+Running https://neo4j.com/docs/operations-manual/current/monitoring/causal-cluster/procedures/#dbms.cluster.overview[`dbms.cluster.overview();`]
 will return output similar to:
 +
 ....

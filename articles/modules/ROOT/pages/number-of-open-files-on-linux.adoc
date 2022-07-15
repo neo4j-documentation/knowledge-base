@@ -1,7 +1,7 @@
 = Number of open files
 :slug: number-of-open-files-on-linux
 :author: José Rocha
-:neo4j-versions:  3.3, 3.4, 3.5
+:neo4j-versions:  3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: linux
 :category: installation
 
@@ -115,7 +115,7 @@ and append the following
 LimitNOFILE=60000
 ----
 
-Follow the https://neo4j.com/docs/operations-manual/3.3/installation/linux/debian/#debian-operation[product documentation]
+Follow the https://neo4j.com/docs/operations-manual/current/installation/linux/debian/[product documentation]
 
 === neo4j is as a normal process
 

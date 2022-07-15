@@ -1,0 +1,55 @@
+= Graph Analytics In Layman Terms
+:slug: graph-analytics-in-layman-terms
+:author: Ali Maddahian
+:category: GDS
+:tags: analytics, storage, graph, GDS
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
+
+
+
+
+Graphs in general are very powerful in providing answers where relations do matter a lot.  In this context, using graph queries (Cypher) allows us to answer specific questions when we know what to look for, such as:
+
+* Finding fraudsters as well as victims by way of using transaction data, 
+* And then further extending this relationship to the associated product catalogs to come up with recommendations, 
+* And from there integrating it with process flows to come up with its digital twin as well as supply chain information.
+
+So by way of defining the relationships between the above domains we can add immense value to such use cases such as customer360, fraud detection, product recommendation, digital twin, supply chains and so on.
+
+That said, beyond the specific pointed queries, what if we wanted to gain deep insight against such data to answer general questions such as finding communities or just what’s generally important?  
+
+Then for such use cases, Graph Data Science Libraries(GDS) is where it comes handy, as it provides a number of useful algos allowing us to do fancy things in a timely manner.
+
+## Unsupervised Algorithms
+
+For instance, what if you wanted to get a picture of what is important? Well, GDS has over 50+ (unsupervised learning) algorithms which can provide you answers to a variety of example queries such as below:
+
+* Which nodes are most important? 
+* Which nodes are clustered together? 
+* Which nodes are most similar?
+* Which nodes are most unusual?
+
+OR
+
+* Where are the clusters? 
+* Which parts of my graph are more densely connected to each other?
+* Which parts are likely to be connected? 
+* What patterns are common? 
+* Finding associations and lower dimensional representations with embeddings.
+
+
+Generally speaking, the unsupervised GDS algorithms allow us to find patterns such as:
+
+* Centrality computation — Finding objects in the network that are critical and central to the graph,
+* Similarity algorithms — Similarity between objects (based on properties and connections)
+* Path finding algorithms — Shortest path to something
+* Community Detection algorithms — what communities are there
+* Heuristic link prediction - Predicting relationships based on set of rules
+ 
+## Supervised Algorithms and Machine learning
+
+More often than not, you want to leverage your graph data to make predictions about the future based on the data from the past, such as labeling (i.e. potential fraudsters) or recommendations(i.e. churns).  
+
+In such cases, you can use graph embedding to create a numerical/tabular representation of the graph that can be fed to ML models to make such tasks easier, but more importantly, we can further leverage feature extraction algos to further enrich the training data (and hence the models) for continuous improved accuracy of our predictions.     
+
+At the end of the day, embedded trained data from in-database graph data has the advantage that the data doesn’t have to be moved from external sources, and such tasks can be done immensely faster and easier.

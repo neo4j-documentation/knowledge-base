@@ -1,11 +1,11 @@
 = Configuring Remote JMX monitoring
 :slug: configuring-remote-jmx-monitoring
 :author: Rohan Kharwar
-:neo4j-versions: 3.0,3.1
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: jmx, monitoring
 :category: operations
 
-In order to enable JMX Remote monitoring, edit the `neo4j-wrapper.conf` file in Neo4j 3.0.x versions or `neo4j.conf` file in Neo4j 3.1.x versions and uncomment the following lines:
+In order to enable JMX Remote monitoring, edit the  `neo4j.conf` file in Neo4j 3.1.x versions and uncomment the following lines:
 
 [source,properties]
 ----

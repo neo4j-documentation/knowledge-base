@@ -2,7 +2,7 @@
 :slug: fix-error-no-dependefix-error-no-dependency-satisfies-type-interface-org-neo4j-graphdb
 :author: Daniel Terlizzi
 :category: development
-:neo4j-version: 3.5,4.0
+:neo4j-version: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: upgrade
 
 From Neo4j 3.5 onwards, there are 2 kinds of Extension Factories : global and per database.

@@ -1,7 +1,7 @@
 = Recommendations for recovery upon Out Of Memory error
 :slug: recommendations-for-recovery-upon-out-of-memory-error
 :author: Daniel Terlizzi
-:neo4j-versions: 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: jvm, memory, exception, error
 :category: installation
 

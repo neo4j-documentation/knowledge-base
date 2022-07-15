@@ -4,7 +4,7 @@
 :author: Dana Canzano
 :category: operations
 :tags: http, authentication, rest, security
-:neo4j-versions: 3.4
+:neo4j-versions: 3.5
 :experimental:
 
 This article will show examples of how to test the Neo4j REST API for

@@ -1,0 +1,86 @@
+= Increasing Systemd Thread Limits
+:slug: increasing-systemd-thread-limits
+:author: Phil Stott
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
+:category: operations
+:tags: configuration, linux, systemd
+
+== Problem
+
+In some high workload, and large scale multi-database environments, you may find that your Systemd unit configuration limits the maximum number of processes ("tasks") too low for your use case.
+
+When this problem occurs, you can see the following in the Neo4j `debug.log` file:
+
+....
+java.lang.OutOfMemoryError: unable to create native thread: possibly out of memory or process/resource limits reached
+....
+
+If you are looking at the output from `systemctl status neo4j` you will see the number of running tasks is at or near to the limit, 4915 in this example: 
+
+....
+● neo4j.service - Neo4j Graph Database
+Loaded: loaded (/lib/systemd/system/neo4j.service; enabled; vendor preset: enabled)
+Active: active (running) since Thu 1970-01-01 00:00:00 UTC; 48min ago
+Main PID: 20000 (java)
+Tasks: 4915 (limit: 4915)
+CGroup: /system.slice/neo4j.service
+  ├─20000 /usr/bin/java     org.neo4j.server.startup.Neo4jCommand console
+  └─20047 /usr/lib/jvm/java-11-openjdk-amd64/bin/java     com.neo4j.server.enterprise.EnterpriseEntryPoint
+....
+
+
+Looking further, you might find this reported in your Linux `syslog` or `messages` file as something similar to:
+
+....
+Jan 01 00:48:00 neo4j-core1 kernel: [ TIME ] cgroup: fork rejected by pids controller in /system.slice/neo4j.service
+Jan 01 00:48:02 neo4j-core1 neo4j[ PID ]: [ TIME ][warning][os,thread] Failed to start thread - pthread_create failed (EAGAIN) for attributes: stacksize: 1024k, guardsize: 0k, detached.
+Jan 01 00:48:02 neo4j-core1 neo4j[ PID ]: Exception in thread "neo4j.Scheduler-1" java.lang.OutOfMemoryError: unable to create native thread: possibly out of memory or process/resource limits reached
+....
+
+Systemd may then terminate and restart Neo4j Server.
+
+== Workaround
+
+In these cases, you may want to _conservatively_ increase the maximum thread limit as a workaround.
+This should only need to be temporary in all but the most extreme cases.
+
+First, ensure Neo4j is stopped:
+
+....
+systemctl stop neo4j
+....
+
+Then edit the `neo4j.service` unit file:
+
+....
+systemctl edit neo4j
+....
+
+and add/increase the `TasksMax` setting:
+
+[source,properties]
+----
+[Service]
+# The user and group which the service runs as.
+User=neo4j
+Group=neo4j
+
+# If it takes longer than this then the shutdown is considered to have failed.
+# This may need to be increased if the system serves long-running transactions.
+TimeoutSec=120
+
+# Increase the systemd process / task limit
+TasksMax=6500
+----
+
+After uncommenting the above lines, restart neo4j. 
+
+....
+systemctl daemon-reload
+systemctl start neo4j
+....
+
+Again, be very conservative when increasing the task limit for a system service.
+High process thread counts can be a strong indicator of poor configuration, sizing issues, or plugins that are misbehaving.
+
+As with all workarounds, they should be used sparingly until a root cause can be fully identified and a more permanent solution put in place.

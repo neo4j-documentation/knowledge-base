@@ -1,7 +1,7 @@
 = Neo4j current transaction commit process order
 :slug: neo4j-current-transaction-commit-process-order
 :author: José Rocha
-:neo4j-versions: 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: transaction, commit
 :category: operations
 

@@ -2,7 +2,7 @@
 :slug: pass-temporal-objects-parameters
 :author: Jennifer Reif
 :twitter: @jmhreif
-:neo4j-versions: 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: drivers, cypher, temporal
 :category: drivers
 
@@ -41,7 +41,5 @@ CREATE (p:Person { name: 'Bob', birthday: date(2018,01,01) })
 ----
 
 == Resources
-
-For more information on passing temporal types using the JavaScript driver, check out a https://www.adamcowley.co.uk/neo4j/neo4j-temporal-dates-javascript/[blog post by Adam Cowley^].
 
 Have questions? Feel free to raise them on our https://community.neo4j.com/[Community Site^] and have experts respond with answers!

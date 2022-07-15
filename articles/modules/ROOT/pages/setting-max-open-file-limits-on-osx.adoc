@@ -1,7 +1,7 @@
 = Setting Max Open File Limits on Mac OSX
 :slug: setting-max-open-file-limits-on-osx
 :author: Umar Muzammil
-:neo4j-versions: 3.2, 3.3, 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: open-files
 :category: installation
 :environment: osx

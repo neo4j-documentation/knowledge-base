@@ -1,7 +1,7 @@
 = How do I allow for authentication using Active Directory attribute samAccountName
 :slug: how-do-i-allow-for-authentication-using-active-directory-attribute-samaccountname
 :author: Dana Canzano
-:neo4j-versions: 3.2
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: samaccountname, account, authentication, authorization
 :category: operations
 

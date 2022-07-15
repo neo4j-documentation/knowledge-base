@@ -3,7 +3,7 @@
 :author: Umar Muzammil
 :category: cluster
 :tags: causal-cluster, configuration
-:neo4j-versions: 3.3, 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 *Causal Clustering Minimum Core Size At Formation*
 

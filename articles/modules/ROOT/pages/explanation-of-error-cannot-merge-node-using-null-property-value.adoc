@@ -1,11 +1,11 @@
 = Explanation of error "Cannot merge node using null property value for"
 :slug: explanation-of-error-cannot-merge-node-using-null-property-value
 :author: Dana Canzano
-:neo4j-versions: 3.3, 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cypher, merge
 :category: cypher
 
-When running a https://neo4j.com/docs/cypher-manual/3.5/clauses/merge/[MERGE], which is a combination of MATCH and/or CREATE one may 
+When running a https://neo4j.com/docs/cypher-manual/current/clauses/merge/[MERGE], which is a combination of MATCH and/or CREATE one may
 encounter an error of `Cannot merge node using null property value for` if the MERGE is performing a MATCH against a null property.
 For example, when using the following input file, test.csv
 

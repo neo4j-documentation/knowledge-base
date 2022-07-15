@@ -3,7 +3,7 @@
 :zendesk-id: 206226107
 :author: Dave Gordon
 :tags: cypher, performance
-:neo4j-versions: 2.1, 2.2, 2.3, 3.1,3.2,3.3,3.4,3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :category: cypher
 
 Just like SQL, if you do not properly connect the parts of your query, it will result in a cross (cartesian) product, which is seldom what you want.

@@ -4,7 +4,7 @@
 :twitter: @markhneedham
 :category: cluster
 :tags: causal-cluster, exception
-:neo4j-versions: 3.1, 3.2
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 When operating a https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/setup-new-cluster/#unbind-instance-from-cluster[causal cluster^], if "the store" (`data/databases/graph.db`) is removed from a server that was previously a member of the cluster we will get the following exception when that server is started:
 

@@ -1,11 +1,11 @@
 = How do I convert a property representing a date timestamp to another timezone
 :slug: how-do-i-convert-a-property-representing-a-date-timestamp-to-another-timezone
-:neo4j-versions: 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: cypher, temporal, timezone
 :author: Dana Canzano
 :category: cypher
 
-https://neo4j.com/docs/cypher-manual/3.5/syntax/temporal/[Temporal datatype] support was introduced with with Neo4j 3.4 and as a result it 
+https://neo4j.com/docs/cypher-manual/current/syntax/temporal/[Temporal datatype] support was introduced with with Neo4j 3.4 and as a result it
 is possible to record a date timestamp with timezone as a property value.
 
 The following Cypher can be used to convert a date timestamp with timezone from one timezone to another

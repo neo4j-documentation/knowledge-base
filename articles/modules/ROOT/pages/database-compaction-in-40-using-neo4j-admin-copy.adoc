@@ -1,7 +1,7 @@
 = Database Compaction in 4.0 using Neo4j-admin copy
 :slug: database-compaction-in-40-using-neo4j-admin-copy
 :author: Umar Muzammil
-:neo4j-versions: 4.0
+:neo4j-versions: 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: store, compaction
 :category: server
 
@@ -19,13 +19,13 @@ This article demonstrates using the neo4j-admin copy tool to reclaim un-used spa
 
 5). Total store size reported as `:sysinfo:` Total Store Size=18.6 MiB, ID Allocation: Node ID 100000, Property ID 100000.
 
-6). We may then execute a full neo4j-admin backup (https://neo4j.com/docs/operations-manual/current/backup/performing/) to 
+6). We may then execute a full neo4j-admin backup (https://neo4j.com/docs/operations-manual/current/backup-restore/online-backup/) to
 perform an online backup which by default executes a checkpoint (to flush any cached updates in pagecache to store files). 
 
 7). From step 6 above, it seems that the allocated IDs remain unchanged and that the store-size has not altered despite deletion. If
 at this point, or in a production database where numerous load/deletes are frequently performed and may result in significant
 un-used space occupied by store files, we could use the `neo4j-admin copy` tool (essentially a merger of store-utils) introduced
-in 4.0 (https://neo4j.com/docs/operations-manual/4.0/tools/copy/). We may then use the backup performed in step 6 to execute the 
+in 4.0 (https://neo4j.com/docs/operations-manual/current/tools/neo4j-admin/#neo4j-admin-syntax-and-commands). We may then use the backup performed in step 6 to execute the
 neo4j-admin copy tool. Note that neo4j-admin copy may ONLY be executed _ON AN OFFLINE DATABASE OR BACKUP_.
 
 8). Execute neo4j-admin copy e.g. as:
@@ -120,8 +120,8 @@ for future ID creates.
 
 References:
 
-- https://neo4j.com/docs/operations-manual/4.0/tools/copy/
+- https://neo4j.com/docs/operations-manual/current/tools/neo4j-admin/#neo4j-admin-syntax-and-commands
 - https://github.com/jexp/store-utils
-- https://neo4j.com/docs/operations-manual/current/backup/performing/
-- https://neo4j.com/docs/operations-manual/current/backup/restoring/
+- https://neo4j.com/docs/operations-manual/current/backup-restore/online-backup/
+- https://neo4j.com/docs/operations-manual/current/backup-restore/restore-backup/
 - https://neo4j.com/docs/operations-manual/current/tools/consistency-checker/

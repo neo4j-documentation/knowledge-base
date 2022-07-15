@@ -1,7 +1,7 @@
 = How to install Neo4j in a disconnected environment
 :slug: how-to-install-neo4j-in-a-disconnected-environment
 :author: Daniel Terlizzi
-:neo4j-versions: 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: offline,server
 :category: installation
 

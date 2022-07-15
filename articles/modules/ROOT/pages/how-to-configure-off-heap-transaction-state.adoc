@@ -1,7 +1,7 @@
 = How to configure off-heap transaction state
 :slug: how-to-configure-off-heap-transaction-state
 :author: Andrei Koval
-:neo4j-versions: 3.5,4.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: memory, performance
 :category: operations
 

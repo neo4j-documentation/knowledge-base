@@ -3,6 +3,7 @@
 :zendesk-id: 215953117
 :author: Dana Canzano
 :tags: cypher
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :category: cypher
 
 Although assigning a node one or more labels provides many benefits (i.e. performance gains from index usage, ability to group nodes into sets, etc), it is possible to create a node without any labels.

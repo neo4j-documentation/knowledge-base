@@ -1,7 +1,7 @@
 = Why did I get the “Kernel API returned non-existent relationship type: -1” exception? 
 :slug: kernel-api-returned-non-existent-relationship-type-exception
 :author: Vivek Saran
-:neo4j-versions: 3.3, 3.4, 3.5
+:neo4j-versions: 3.5
 :tags: kernel, exception, relationships, transaction,bolt
 :category: drivers
 

@@ -3,7 +3,7 @@
 :author: David Pecollet
 :category: operations
 :tags: performance, configuration, bolt, tcp
-:neo4j-versions: 3.5, 4.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 When large amounts of data are sent between a Neo4j database and a client (typically large query results, from server to client), there are a few hidden throttling mechanisms that may come into play.
 

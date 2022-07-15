@@ -1,7 +1,7 @@
 = How to properly shutdown a Neo4j database after receiving the message *took more than 120 seconds to stop*
 :slug: how-to-properly-shutdown-a-neo4j-database
 :author: Ali Maddahian
-:neo4j-versions: 3.1,3.2,3.3,3.4,3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: installation, server
 :category: operations
 

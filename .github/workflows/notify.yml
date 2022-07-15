@@ -3,7 +3,7 @@ name: Notify Antora
 on:
   push:
     branches:
-      - publish
+      - master
 
 jobs:
   notify:
@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Notify Antora
-        uses: peter-evans/repository-dispatch@master
+        uses: peter-evans/repository-dispatch@main
         with:
           token: ${{ secrets.BUILD_ACCESS_TOKEN }}
           repository: neo4j-documentation/docs-refresh

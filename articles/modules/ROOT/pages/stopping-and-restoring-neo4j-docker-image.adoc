@@ -1,12 +1,12 @@
 = Stopping the Neo4j docker image in order to restore from a backup
 :slug: stopping-and-restoring-neo4j-docker-image
 :author: Umar Muzammil
-:neo4j-versions: 3.1, 3.2, 3.3
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: docker, restore, backup
 :environment: docker
 :category: operations
 
-In a https://neo4j.com/docs/operations-manual/current/installation/docker/[`neo4j docker installation`], the https://neo4j.com/docs/operations-manual/current/backup/restore-backup/[`neo4j-admin restore`] requires the neo4j service to be stopped as one can't do a restore on a running database. Subsequently, running as a docker image, stopping neo4j server could be done using a `Ctrl-C` (from within the docker terminal) or `docker stop <container id>` from a separate terminal window. However, it would terminate the container itself as the container is simply an instance of the neo4j application. In such case, a restore using `./neo4j-admin restore` would not be a workable option.
+In a https://neo4j.com/docs/operations-manual/current/installation/docker/[`neo4j docker installation`], the https://neo4j.com/docs/operations-manual/current/backup-restore/restore-backup/#restore-backup-command[`neo4j-admin restore`] requires the neo4j service to be stopped as one can't do a restore on a running database. Subsequently, running as a docker image, stopping neo4j server could be done using a `Ctrl-C` (from within the docker terminal) or `docker stop <container id>` from a separate terminal window. However, it would terminate the container itself as the container is simply an instance of the neo4j application. In such case, a restore using `./neo4j-admin restore` would not be a workable option.
 
 Following is a workaround to doing a `neo4-admin restore` in docker:
 

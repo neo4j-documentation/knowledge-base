@@ -41,7 +41,7 @@ asciidoctorj {
             'assets-cdn': 'https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content',
             'linkattrs': '',
             'source-highlighter': 'codemirror',
-            'enterprise': '', // publish on support.neo4j.com
+            'enterprise@': '', // publish on support.neo4j.com
             'stage': stage != null ? stage : '',
             'document-metadata-attrs-include': 'author,slug,zendesk-id,taxonomies*<>,zendesk_publishing_targets*<>'
 }
@@ -214,6 +214,20 @@ task zenDeskAuraKnowledgeBaseUpload(type: ZenDeskUploadTask) {
     userSegmentId = 1716387
     permissionGroupId = 136408
     sectionId = 360005376634
+    // notify subscribers when creating a new article (default: false)
+    // can be configured using the project property "notify" (for instance, via the "-P" command line option): "-Pnotify=true"
+    notifySubscribers = project.hasProperty('notify') ? project.property('notify') : false
+}
+
+task zenDeskTechSupportUpload(type: ZenDeskUploadTask) {
+    dependsOn convertZenDeskHtml
+
+    host = 'techsupport.neo4j.com'
+    scheme = 'https'
+    source = convertZenDeskHtml.outputs.files
+    userSegmentId = 4420374416909
+    permissionGroupId = 4420367189517
+    sectionId = 4422945149581
     // notify subscribers when creating a new article (default: false)
     // can be configured using the project property "notify" (for instance, via the "-P" command line option): "-Pnotify=true"
     notifySubscribers = project.hasProperty('notify') ? project.property('notify') : false

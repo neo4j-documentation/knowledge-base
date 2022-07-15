@@ -1,0 +1,39 @@
+= Explanation of the "consumed after" message in query results
+:slug: explanation-of-consumed-after-message-in-query-results
+:author: Andrew Bowman
+:category: cypher
+:tags: cypher
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
+
+After successfully executing a query through the Neo4j Browser or cypher-shell, you may see a message formatted as follows accompanying the query results:
+
+```
+X rows available after Y ms, consumed after another Z ms
+```
+
+This provides the following information:
+
+```
+X rows
+```
+
+These are the total number of rows resulting from the query.
+
+```
+available after Y ms
+```
+
+This is the number of milliseconds before the first row of results became available, where we could start sending results back across the wire to the client.
+
+```
+consumed after another Z ms
+```
+
+This is the number of milliseconds it took to consume the remaining results.
+
+This includes the time it took to transport all results over the wire and back to the client, so it doesn't only include the time it took to finish the query on the server.
+
+To calculate the total time for the query to finish and to obtain all results, add the "available after" and "consumed afer another" values.
+
+If you are only interested in the time it took to execute the query on the server, then look to the query logs instead:
+https://neo4j.com/docs/operations-manual/current/monitoring/logging/#query-logging

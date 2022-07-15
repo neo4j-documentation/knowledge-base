@@ -3,7 +3,7 @@
 :author: Dave Gordon
 :category: cypher
 :tags: cypher, path, apoc
-:neo4j-versions: 3.0, 3.1, 3.2, 3.3, 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 While Cypher is optimized for finding the shortest path between two nodes, with such functionality as `shortestPath()`,
 it does not have the same sort of function for longest path. In some cases, you may want this, and not the shortest route.
@@ -61,4 +61,4 @@ Setting an upper bound can help constrain the work the query needs to perform.
 If predicates need to be evaluated during expansion, and they must apply to all nodes or relationships in the path, use `all()` or `none()` on the nodes or relationships from the path to evaluate during expansion rather than filtering after all paths are found.
 
 4. Use APOC path expanders for special cases or restrictions -
-For certain restrictions, such as not repeating nodes during expansion, you may want to use path expander procs from https://neo4j-contrib.github.io/neo4j-apoc-procedures/[APOC Procedures] to enforce different configurations of uniqueness during expansion.
+For certain restrictions, such as not repeating nodes during expansion, you may want to use path expander procs from https://neo4j.com/labs/apoc/4.1/overview/#_apoc_path[APOC Procedures] to enforce different configurations of uniqueness during expansion.

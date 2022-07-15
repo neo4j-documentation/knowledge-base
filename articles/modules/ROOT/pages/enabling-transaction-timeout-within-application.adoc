@@ -1,7 +1,7 @@
 = Enabling Transaction Timeout Within Application
 :slug: enabling-transaction-timeout-within-application
 :author: Rohan Kharwar
-:neo4j-versions: 3.4, 3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: transaction,timeout, java, drivers
 :category: drivers
 
@@ -11,7 +11,7 @@ But how do you achieve this from within an application?
 Neo4j Java Driver API provides the class `TransactionConfig` that has a method called `Timeout(<time in seconds>)` that would allow transaction timeout to be set within the application.
 
 More information on the api can be found here:
-https://neo4j.com/docs/api/java-driver/current/org/neo4j/driver/v1/TransactionConfig.html
+https://neo4j.com/docs/java-manual/current/session-api/simple/#_transaction_timeout
 
 Below is an example of the same. 
 

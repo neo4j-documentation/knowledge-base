@@ -3,7 +3,7 @@
 :author: Michael Hunger
 :category: cypher
 :tags: cypher, path, relationships, properties
-:neo4j-versions: 2.2, 2.3, 3.0
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 You want to compare relationship-properties of a path, either by a global value or parameter, or with each other within a path.
 

@@ -1,7 +1,7 @@
 = Setup Neo4j Service to run with different service ID
 :slug: setup-neo4j-service-with-different-service-id
 :author: Rohan Kharwar
-:neo4j-versions: 3.1,3.2,3.3,3.4,3.5
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 :tags: installation, service id, service
 :category: installation
 :environment: linux
@@ -12,8 +12,8 @@ So in this article we will take a look at how to go about configuring Service id
 
 For simplicity lets assume the activity is performed on Redhat Release 7.x
 
-Follow instructions as specified in the Neo4j Operations Manual Documentation to install Neo4j Enterprise. 
-https://neo4j.com/docs/operations-manual/3.5/installation/linux/rpm/
+Follow instructions as specified in the Neo4j Operations Manual Documentation to install Neo4j Enterprise.
+https://neo4j.com/docs/operations-manual/current/installation/linux/rpm/
 
 Once the Neo4j service is installed, a new user and group are created called `neo4j`. 
 When the Neo4j service is started using `sudo systemctl start neo4j`, the service is started by user `neo4j`. 
