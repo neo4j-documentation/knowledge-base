@@ -15,7 +15,7 @@ image::https://res.cloudinary.com/snyk/image/upload/v1638263093/snyk-learn/SSRF_
 
 You can practice attacking a vulnerable application and learn about mitigations in this lesson:
 
- https://learn.snyk.io/lessons/ssrf-server-side-request-forgery/javascript/
+https://learn.snyk.io/lessons/ssrf-server-side-request-forgery/javascript/
 
 == Why SSRF attacks are relevant to neo4j ecosystem
 
@@ -27,22 +27,23 @@ With that functionality comes the ability of a potentially malicious user to man
 Given that SSRF is an OWASP Top 10 issue, OWASP has a comprehensive guide to prevention and mitigation:
 https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html
 
-Given that the users should be able to grab the data from anywhere on the internet, this is falling into (https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html#case-2-application-can-send-requests-to-any-external-ip-address-or-domain-name)[Case 2], which is more complex to defend. But with defence in depth approach, it is possible.
+Given that the users should be able to grab the data from anywhere on the internet, this is falling into https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html#case-2-application-can-send-requests-to-any-external-ip-address-or-domain-name[Case 2], which is more complex to defend. But with defence in depth approach, it is possible.
 
 Neo4j does input validation as much as possible, which is your application layer defence. But to ensure defence in depth, you should do more on the network layer.  
 
 The detection and prevention are highly specific to your infrastructure and network environment.
 
-== Running on AWS cloud
+=== Running on AWS cloud
 
-Use (https://aws.amazon.com/blogs/security/defense-in-depth-open-firewalls-reverse-proxies-ssrf-vulnerabilities-ec2-instance-metadata-service/)[IMDSv2]
+Use https://aws.amazon.com/blogs/security/defense-in-depth-open-firewalls-reverse-proxies-ssrf-vulnerabilities-ec2-instance-metadata-service/[IMDSv2]
 
-== Running on Google cloud
+=== Running on Google cloud
 
 https://cloud.google.com/compute/docs/metadata/querying-metadata
+
 https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
 
-== Generic mitigation
+=== Generic mitigation
 
 Segment your network and configure your firewall to prevent access from Neo4j to the metadata subnet (if running on cloud) and any other sensitive backend subnets. In most cases you want to prevent access to internal IP addresses in general.
 
