@@ -1,73 +1,27 @@
-= Protecting against Cypher injection
-:slug: protecting-against-cypher-injection
-:author: Andrew Bowman
-:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
+= Protecting against Server Side Request Forgery (SSRF)
+:slug: protecting-against-SSRF
+:author: Irene Michlin
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4, 5.0
 :tags: cypher, security
 :category: security
 
-== What is Cypher injection?
+== What is SSRF?
 
-Cypher injection is a way for maliciously formatted input to jump out of its context, and by altering the query itself, hijack the query and perform unexpected operations on the database.
+Server-side request forgery (SSRF) vulnerabilities let an attacker send crafted requests from the back-end server of a vulnerable web application. Criminals usually use SSRF attacks to target internal systems that are behind firewalls and are not accessible from the external network.
 
-This is a cousin to SQL injection, but affecting our Cypher query language.
+SSRF vulnerabilities occur when an attacker has full or partial control of the request sent by the web application. SSRF is not limited to the HTTP protocol. Generally the input that the attacker controls is HTTP, but the backend request could use different protocols.
 
-One of the best illustrations of injection attacks is from an XKCD comic featuring Little Bobby Tables:
+image::https://res.cloudinary.com/snyk/image/upload/v1638263093/snyk-learn/SSRF_Attack.svg[Attack illustration]
 
-[link=https://xkcd.com/327/]
-image::https://imgs.xkcd.com/comics/exploits_of_a_mom.png[Little Bobby Tables]
+You can practice attacking a vulnerable application and learn about mitigations in this lesson:
+https://learn.snyk.io/lessons/ssrf-server-side-request-forgery/javascript/
 
-The boy's mother named him `Robert'; DROP TABLE STUDENTS;--`, ensuring that if his name was appended into a SQL statement that
-didn't clean their inputs or protect against an injection attack, the quote would end the context of a quoted name, the semicolon would end that statement,
-the STUDENTS table would be dropped, and the `--` would turn the remaining part of the query into a comment, so the remaining query could be ignored and avoid any syntax errors.
+== Why SSRF attacks are relevant to neo4j ecosystem
 
-This syntax is of course specific to SQL. Given that Bobby's mother would likely have continued her crusade, she might have had another child specifically for targeting Cypher, used by the leading graph database Neo4j.
-Lets call him Little Robby Labels, to differentiate him from his older brother:
+Neo4j is a graph database that is used to analyse data. To enable the users easy onboarding of the existing data, we have to provide ways to upload files (typically CSV files) locally or from the network.
+With that functionality comes the ability of a potentially malicious user to manipulate the initial request - step one of SSRF.
 
-`"Robby' WITH DISTINCT true as haxxored MATCH (s:Student) DETACH DELETE s //"`
-
-This is an attempt at Cypher injection, the equivalent of the SQL injection attack, except the deletion of all :Student nodes happens within the same statement instead of splitting it into a separate statement.
-(The WITH clause in the middle is just to ensure we reduce down to a single row of input before matching to deleting all students, it's for efficiency)
-
-And if names from outside input are string-appended into a Cypher query like so, this attack may succeed:
-
-----
-
-String queryString = "CREATE (s:Student) SET s.name = '" + studentName + "'";
-
-Result result = session.run(queryString);
-
-----
-
-== Parameter usage prevents Cypher injection
-
-We can easily prevent Cypher injection by always submitting input as parameters to our query.
-
-https://neo4j.com/docs/cypher-manual/current/syntax/parameters/
-
-The parameter might get set like this:
-
-[source,cypher]
-----
-:param name => "Robby' WITH DISTINCT true as haxxored MATCH (s:Student) DETACH DELETE s //"
-----
-
-And the parameterized query would look like this:
-
-[source,cypher]
-----
-CREATE (s:Student)
-SET s.name = $studentName
-----
-
-When using parameters like this, it is impossible for the parameter, in part or in whole, to be interpreted as part of the query.
-It cannot hijack it.
-
-One reason for this is that parameters are separate from the query. The query alone is compiled into an executable plan, and once compiled, can use any parameter map for execution.
-The parameters cannot alter the compiled plan, and have no opportunity to be included in the plan compilation.
-
-In other words, once a query plan has been compiled, it is set, and nothing in the data submitted to it can change it, alter it, or hijack it.
-
-== Other common injection attempts also fail
+== How to protect my enviroment
 
 Not all inputs can be submitted as parameters.
 Maybe some malicious input made it into a CSV file for processing.
