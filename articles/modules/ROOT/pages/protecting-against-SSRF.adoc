@@ -33,7 +33,7 @@ Given that users should be able to load the data from anywhere on the internet, 
 But with an _defence in depth approach_, it is possible.
 
 Neo4j does input validation as much as possible, which is your *application layer* defence. 
-But to ensure _defence in depth_, you should do more on the *network layer*.  
+But to ensure https://csrc.nist.gov/glossary/term/defense_in_depth[_defence in depth_^], you should do more on the *network layer*.  
 
 The detection and prevention are highly specific to your infrastructure and network environment.
 
