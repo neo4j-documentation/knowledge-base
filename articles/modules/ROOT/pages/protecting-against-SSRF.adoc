@@ -52,4 +52,65 @@ In most cases you want to prevent access to internal IP addresses originating fr
 
 == Configuration option
 
-TODO: document the unsupported.dbms.cypher_ip_blocklist here
+In addition to the external network-level restriction mechanisms listed above, Neo4j has an internal control mechanism which allows users to provide IP address ranges for the DBMS to block.
+This control is activated via a configuration setting which must be added to https://neo4j.com/docs/operations-manual/current/configuration/neo4j-conf[neo4j.conf^] and
+requires restarting the DBMS to be applied.
+
+=== `unsupported.dbms.cypher_ip_blocklist`
+[cols="1,5"]
+|===
+| **Description** | IP address ranges used by the DBMS to block IP requests
+| **Valid values** | Comma separated list of IPv4 and IPv6 https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation[CIDR-notation^] IP ranges
+| **Default value** |
+|===
+
+When the DBMS attempts to make an IP request to a URL, after resolving the URL to an IP address, it ensures this address doesn't collide with any
+of the blocked IP ranges provided by the configuration setting. Because the control mechanism is applied at the IP level, it will be applied to any HTTP and FTP requests made by Cypher features
+such as https://neo4j.com/docs/cypher-manual/4.4/clauses/load-csv/[LOAD CSV^].
+
+There are several helpful resources one could use to help calculate their required blocklist. One such resource is
+https://www.ipaddressguide.com/cidr[ipaddressguide.com^] which has calculators for both https://www.ipaddressguide.com/cidr[IPv4 CIDR^] and
+https://www.ipaddressguide.com/ipv6-cidr[IPv6 CIDR^] ranges.
+
+=== Use cases
+This section includes some example to help illustrate how the setting can be used in practice.
+
+[cols="1"]
+|===
+| **unsupported.dbms.cypher_ip_blocklist=**
+| Blocks no traffic (default behaviour).
+|===
+
+[cols="1"]
+|===
+| **unsupported.dbms.cypher_ip_blocklist=0.0.0.0/0,::/0**
+| Blocks all IPv4 and IPv6 network traffic.
+|===
+
+[cols="1"]
+|===
+| **unsupported.dbms.cypher_ip_blocklist=10.0.0.0/8,ff:f::/64**
+| Blocks IPv4 traffic between 10.0.0.0 and 10.255.255.255. +
+Blocks IPv6 traffic between ff:f:0:0:0:0:0:0 and ff:f:0:0:ffff:ffff:ffff:ffff
+|===
+
+[cols="1"]
+|===
+| **unsupported.dbms.cypher_ip_blocklist=10.0.0.0/8,10.0.0.0/24**
+| Blocks IPv4 traffic between 10.0.0.0 and 10.255.255.255. +
+Blocks IPv4 traffic between 255.0.0.0 and 255.0.0.255. +
+Blocks no IPv6 traffic.
+|===
+
+=== Supported Versions
+// TODO update versions once releases drop
+In Neo4j the setting is available from versions https://neo4j.com/release-notes/database/neo4j-4-4-4[4.4.4^], 4.3.x, 4.2.x, 4.1.x, and 3.5.x
+
+In APOC the setting is available from versions https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/tag/4.4.0.3[4.4.0.3^],
+https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/tag/4.3.0.8[4.3.0.8^],
+https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/tag/4.2.0.12[4.2.0.12^],
+https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/tag/4.1.0.12[4.1.0.12^], and
+https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/tag/3.5.0.20[3.5.0.20^].
+
+Although the name will change to `internal.dbms.cypher_ip_blocklist`, the setting will also be supported in the upcoming
+5.0 releases for both Neo4j and APOC.
