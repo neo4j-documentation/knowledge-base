@@ -14,108 +14,38 @@ SSRF vulnerabilities occur when an attacker has full or partial control of the r
 image::https://res.cloudinary.com/snyk/image/upload/v1638263093/snyk-learn/SSRF_Attack.svg[Attack illustration]
 
 You can practice attacking a vulnerable application and learn about mitigations in this lesson:
-https://learn.snyk.io/lessons/ssrf-server-side-request-forgery/javascript/
+
+ https://learn.snyk.io/lessons/ssrf-server-side-request-forgery/javascript/
 
 == Why SSRF attacks are relevant to neo4j ecosystem
 
 Neo4j is a graph database that is used to analyse data. To enable the users easy onboarding of the existing data, we have to provide ways to upload files (typically CSV files) locally or from the network.
 With that functionality comes the ability of a potentially malicious user to manipulate the initial request - step one of SSRF.
 
-== How to protect my enviroment
+== How to protect my environment
 
-Not all inputs can be submitted as parameters.
-Maybe some malicious input made it into a CSV file for processing.
-A CSV of the names of new students for the year, for example.
+Given that SSRF is an OWASP Top 10 issue, OWASP has a comprehensive guide to prevention and mitigation:
+https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html
 
-[source,cypher]
-----
-LOAD CSV WITH HEADERS FROM "file:///students_2021.csv" AS row
-CREATE (s:Student)
-SET s.year = 2021, s.name = row.student_name
-----
+Given that the users should be able to grab the data from anywhere on the internet, this is falling into (https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html#case-2-application-can-send-requests-to-any-external-ip-address-or-domain-name)[Case 2], which is more complex to defend. But with defence in depth approach, it is possible.
 
-Is this vulnerable to Little Robby Labels?
+Neo4j does input validation as much as possible, which is your application layer defence. But to ensure defence in depth, you should do more on the network layer.  
 
-No, it is not. Cypher injection is still impossible here, even if parameters aren't being used.
+The detection and prevention are highly specific to your infrastructure and network environment.
 
-The LOAD query is independent of the CSV that is to be processed.
-As such, the query is compiled separately from the CSV.
-By the time the query is executing and the CSV data starts to be accessed, the query has already been completely compiled, and the CSV data has no opportunity to affect or hijack the query itself.
+== Running on AWS cloud
 
-Likewise, any other injection attacks will fail that attempt to pull in malicious input via reading it from somewhere, or even a malicious property value that somehow was saved into the database already.
-This is because unless the malicious value is string-appended into the query itself, rather than read at the time the query executes, it will not have the opportunity to get compiled into and affect the query plan.
+Use (https://aws.amazon.com/blogs/security/defense-in-depth-open-firewalls-reverse-proxies-ssrf-vulnerabilities-ec2-instance-metadata-service/)[IMDSv2]
 
-== Be careful when string appending into dynamically-executed Cypher strings
+== Running on Google cloud
 
-Some procedures in our APOC Procedures library allow for execution of Cypher strings within a query,
-and this does present a vulnerability for Cypher injection.
+https://cloud.google.com/compute/docs/metadata/querying-metadata
+https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
 
-Some of the more notable examples include:
+== Generic mitigation
 
-----
-apoc.cypher.run()
-apoc.cypher.doIt()
-apoc.periodic.iterate() (and other periodic procs)
-apoc.when()
-apoc.do.when()
-apoc.case()
-apoc.do.case()
-----
+Segment your network and configure your firewall to prevent access from Neo4j to the metadata subnet (if running on cloud) and any other sensitive backend subnets. In most cases you want to prevent access to internal IP addresses in general.
 
-String appending into the query string is possible here, and so Cypher injection becomes possible.
+== Configuration option
 
-Consider this query:
-
-[source,cypher]
-----
-CALL apoc.cypher.doIt("CREATE (s:Student) SET s.name = '" + $studentName + "' RETURN true", {}) YIELD value
-RETURN value;
-----
-
-Even though we passed `$studentName` as a parameter to the query, the parameter is being appended into the query string for execution by `apoc.cypher.doIt()`.
-The same vulnerability would exist if we were processing a LOAD CSV query like before, and appending into a query string for execution by APOC.
-
-Little Robby Labels would end up wiping out all our student data.
-
-== Pass parameters to APOC procs instead of appending into the query string
-
-Parameter usage here is still the answer to this vulnerability.
-
-Instead of appending into the string, pass the value as a parameter to the procedure call:
-
-[source,cypher]
-----
-CALL apoc.cypher.doIt("CREATE (s:Student) SET s.name = $name  RETURN true", {name:$name}) YIELD value
-RETURN value;
-----
-
-Little Robby Labels becomes powerless here.
-
-All of the APOC procedures that execute dynamic Cypher strings should have a way to pass a parameter map to the call, providing protection from injection attacks once again.
-
-== When you MUST append into a query string, sanitize your inputs
-
-There are some cases where we can't pass a parameter into the procedure call, or a query, and string appending is the only option.
-
-For example, there are some things in Cypher that cannot be parameterized, such as node labels and relation types.
-There are some APOC Procs that can help (and should be used if so), but aside from these, the only option may be to append into a query string.
-
-In these cases, it is extremely important to sanitize your inputs, removing quote or delimiter characters (depending on their context of use) that would allow input to break out of the context within which you're trying to use it.
-
-In these cases it is better to sanitize input in your own code at the client level, as there are many utilities across various languages for input sanitization, and it makes sense to address it at that level rather than lower down at the database itself.
-
-== Beware of participation in stored scripting and web site injection attacks
-
-This doesn't really fall into the category of Cypher injection, since it's not an attack on Cypher or the database itself, but it's important to be aware of it.
-
-Stored cross site scripting attacks use values in a database as a vector for attacks on a web site.
-Malicious values (usually malicious javascript or HTML) are saved to the database (and these values do not affect or impact Cypher or the database in any way),
-but when retrieved and displayed on a vulnerable page, these values result in a cross-site scripting attack, or an injection attack, resulting in the malicious code affecting the javascript or HTML on the page.
-
-So the vulnerability is actually in the HTML or Javascript on the page itself, and has nothing to do with Neo4j.
-To mitigate, the HTML and javascript used on the page itself ought to be secured such that results from a database call are sanitized before display, inclusion in the DOM, or execution as script.
-That said, it may be a good idea to sanitize outside input for HTML/Javascript control characters before saving to the database, so your stored data can't be used as a vector in these kinds of attacks.
-
-It's often most reliable to do this in your code client-side, so you pass in parameters that have already been sanitized.
-
-https://en.wikipedia.org/wiki/Cross-site_scripting#Persistent_(or_stored)
+TODO: document the unsupported.dbms.cypher_ip_blocklist here
