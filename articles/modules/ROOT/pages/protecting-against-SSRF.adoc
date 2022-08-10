@@ -1,7 +1,7 @@
 = Protecting against Server Side Request Forgery (SSRF)
-:slug: protecting-against-SSRF
+:slug: protecting-against-ssrf
 :author: Irene Michlin
-:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4, 5.0
+:neo4j-versions: 3.5, 4.1, 4.2, 4.3, 4.4, 5.0
 :tags: cypher, security
 :category: security
 
@@ -9,8 +9,8 @@
 
 Server-side request forgery (SSRF) vulnerabilities let an attacker send crafted requests from the back-end server of a vulnerable web application. Criminals usually use SSRF attacks to target internal systems that are behind firewalls and are not accessible from the external network.
 
-SSRF vulnerabilities occur when an attacker has full or partial control of the request sent by the backend application. 
-SSRF is not limited to the HTTP protocol. 
+SSRF vulnerabilities occur when an attacker has full or partial control of the request sent by the backend application.
+SSRF is not limited to the HTTP protocol.
 Generally the input that the attacker controls is HTTP, but the backend request could use different protocols.
 
 image::https://res.cloudinary.com/snyk/image/upload/v1638263093/snyk-learn/SSRF_Attack.svg[Attack illustration]
@@ -28,11 +28,11 @@ With that functionality comes the ability of a potentially malicious user to man
 Given that SSRF is an OWASP Top 10 issue, OWASP has a https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html[comprehensive guide to prevention and mitigation^].
 
 
-Given that users should be able to load the data from anywhere on the internet, this is falling into https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html#case-2-application-can-send-requests-to-any-external-ip-address-or-domain-name[Case 2^], which is more complex to defend against. 
+The use case "users should be able to load the data from anywhere on the internet" is falling into https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html#case-2-application-can-send-requests-to-any-external-ip-address-or-domain-name[Case 2^], which is more complex to defend against.
 
 But with an _defence in depth approach_, it is possible.
 
-Neo4j does input validation as much as possible, which is your *application layer* defence. 
+Neo4j does input validation as much as possible, which is your *application layer* defence. And if you build custom applications on top of neo4j, it's a good idea to limit the ability to upload data and to run raw cypher queries to your authenticated users.
 But to ensure https://csrc.nist.gov/glossary/term/defense_in_depth[_defence in depth_^], you should do more on the *network layer*.  
 
 The detection and prevention are highly specific to your infrastructure and network environment.
