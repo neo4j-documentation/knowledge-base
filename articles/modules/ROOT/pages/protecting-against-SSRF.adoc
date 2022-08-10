@@ -43,7 +43,7 @@ Use https://aws.amazon.com/blogs/security/defense-in-depth-open-firewalls-revers
 
 === Running on Google cloud
 
-Google has advisories for preventing access to https://cloud.google.com/compute/docs/metadata/querying-metadata[metadata^] and how to https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity[utilize workload identity to minimize access^].
+Google has advisories for preventing access to https://cloud.google.com/compute/docs/metadata/querying-metadata[metadata^], https://cloud.google.com/compute/docs/instances/protecting-resources-vpc-service-controls[Compute Engine resources^] and how to https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity[utilize workload identity to minimize access^].
 
 === Generic mitigation
 
