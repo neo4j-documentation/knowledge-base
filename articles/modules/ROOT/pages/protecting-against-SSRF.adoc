@@ -30,7 +30,7 @@ Given that SSRF is an OWASP Top 10 issue, OWASP has a https://cheatsheetseries.o
 
 The use case "users should be able to load the data from anywhere on the internet" falls into https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html#case-2-application-can-send-requests-to-any-external-ip-address-or-domain-name[Case 2^], which is more complex to defend against.
 
-But with an _defence in depth approach_, it is possible.
+But with a _defence in depth approach_, it is possible.
 
 Neo4j does input validation as much as possible, which is your *application layer* defence. And if you build custom applications on top of neo4j, it's a good idea to limit the ability to upload data and to run raw cypher queries to your authenticated users.
 But to ensure https://csrc.nist.gov/glossary/term/defense_in_depth[_defence in depth_^], you should do more on the *network layer*.  
