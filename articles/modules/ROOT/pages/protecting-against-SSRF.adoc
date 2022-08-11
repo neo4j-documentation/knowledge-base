@@ -91,7 +91,7 @@ This section includes some example to help illustrate how the setting can be use
 |===
 | **unsupported.dbms.cypher_ip_blocklist=10.0.0.0/8,ff:f::/64**
 | Blocks IPv4 traffic between 10.0.0.0 and 10.255.255.255. +
-Blocks IPv6 traffic between ff:f:0:0:0:0:0:0 and ff:f:0:0:ffff:ffff:ffff:ffff
+Blocks IPv6 traffic between ff:f:0:0:0:0:0:0 and ff:f:0:0:ffff:ffff:ffff:ffff.
 |===
 
 [cols="1"]
