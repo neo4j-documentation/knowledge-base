@@ -28,7 +28,7 @@ With that functionality comes the ability of a potentially malicious user to man
 Given that SSRF is an OWASP Top 10 issue, OWASP has a https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html[comprehensive guide to prevention and mitigation^].
 
 
-The use case "users should be able to load the data from anywhere on the internet" is falling into https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html#case-2-application-can-send-requests-to-any-external-ip-address-or-domain-name[Case 2^], which is more complex to defend against.
+The use case "users should be able to load the data from anywhere on the internet" falls into https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html#case-2-application-can-send-requests-to-any-external-ip-address-or-domain-name[Case 2^], which is more complex to defend against.
 
 But with an _defence in depth approach_, it is possible.
 
