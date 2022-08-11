@@ -103,10 +103,13 @@ Blocks no IPv6 traffic.
 |===
 
 === Supported Versions
-// TODO update versions once releases drop
-In Neo4j the setting is available from versions https://neo4j.com/release-notes/database/neo4j-4-4-4[4.4.4^], 4.3.x, 4.2.x, 4.1.x, and 3.5.x
+In Neo4j, the setting is available from versions https://neo4j.com/release-notes/database/neo4j-4-4-4[4.4.4^],
+https://neo4j.com/release-notes/database/neo4j-4-3-17[4.3.17^],
+https://neo4j.com/release-notes/database/neo4j-4-2-19[4.2.19^],
+https://neo4j.com/release-notes/database/neo4j-4-1-12[4.1.12], and
+https://neo4j.com/release-notes/database/neo4j-3-5-35[3.5.35^]
 
-In APOC the setting is available from versions https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/tag/4.4.0.3[4.4.0.3^],
+In APOC, the setting is available from versions https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/tag/4.4.0.3[4.4.0.3^],
 https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/tag/4.3.0.8[4.3.0.8^],
 https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/tag/4.2.0.12[4.2.0.12^],
 https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/tag/4.1.0.12[4.1.0.12^], and
