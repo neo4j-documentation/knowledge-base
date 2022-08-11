@@ -32,7 +32,7 @@ The use case "users should be able to load the data from anywhere on the interne
 
 But with a _defence in depth approach_, it is possible.
 
-Neo4j does input validation as much as possible, which is your *application layer* defence. And if you build custom applications on top of neo4j, it's a good idea to limit the ability to upload data and to run raw cypher queries to your authenticated users.
+Neo4j does input validation as much as possible, which is your *application layer* defence. And if you build custom applications on top of Neo4j, it's a good idea to limit the ability to upload data and to run raw Cypher queries to your authenticated users.
 But to ensure https://csrc.nist.gov/glossary/term/defense_in_depth[_defence in depth_^], you should do more on the *network layer*.  
 
 The detection and prevention are highly specific to your infrastructure and network environment.
