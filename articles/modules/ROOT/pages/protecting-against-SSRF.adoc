@@ -65,7 +65,7 @@ requires restarting the DBMS to be applied.
 |===
 
 When the DBMS attempts to make an IP request to a URL, after resolving the URL to an IP address, it ensures this address doesn't collide with any
-of the blocked IP ranges provided by the configuration setting. Because the control mechanism is applied at the IP level, it will be applied to any HTTP and FTP requests made by Cypher features
+of the blocked IP ranges provided by the configuration setting. Because the control mechanism is applied at the IP network level, it will be applied to any HTTP and FTP requests made by Cypher features
 such as https://neo4j.com/docs/cypher-manual/4.4/clauses/load-csv/[LOAD CSV^].
 
 There are several helpful resources one could use to help calculate their required blocklist. One such resource is
