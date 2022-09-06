@@ -8,7 +8,7 @@
 // see taxonomy in readme, remove this comment
 :tags: cypher-shell, favorites
 // category see https://github.com/neo4j-documentation/knowledge-base/blob/master/kb-categories.txt
-:category: developmnt 
+:category: development 
 
 The Neo4j Browser has always had the ability to record `favorites`, i.e. a bookmark to saved cypher that you may want to run sometime in the future.
 `bin\cypher-shell` has somewhat similar functionality in that once connected one can run
