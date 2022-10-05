@@ -5,7 +5,9 @@
 :tags: cypher
 :category: cypher
 
-Like SQL, Cypher is a declarative query language. This is most evident with MATCH patterns, which describe what you want to find in the graph. You do not dictate to it how to find these patterns, the way you might in an imperative programming language.
+Like SQL, Cypher is a declarative query language.
+This is most evident with Match patterns, which describe what you want to find in the graph.
+You do not dictate to it how to find these patterns, the way you might in an imperative programming language.
 
 For the most part, this works out well, with the planner using the counts and statistical metadata in the graph to figure out how to find the patterns you want to match against, and which nodes to lookup (via indexes) to serve as anchor nodes that you will begin your expansions from.
 
@@ -42,11 +44,12 @@ It should be clear that there are two possible ways to expand the pattern in thi
 
 If we anchored on the country node, we would have to expand to every user in the United States, then filter all of them to find the ones that match the pattern.
 This would result in a ton of expanded rows, and a lot of filtering work where we would likely be throwing out every single row, except one.
-Even if we find that user early in the filtering, nothing in the query tells it to stop looking (no `LIMIT 1`), and of course nothing prevents a node with the same properties from being in the graph, or multiple relationship going to the same node) so it will keep on matching and filtering and throwing out all other non-matching results.
+
+Even if we find that user early in the filtering, nothing in the query tells it to stop looking (no `LIMIT 1` present), and of course without a unique constraint nothing prevents a node with the same properties from being in the graph, or multiple relationship going to the same node) so it will keep on matching and filtering and throwing out all other non-matching results.
 
 === The cheap direction
 
-If we anchored to the user node, if we assume that each user only has one :LIVES_IN relationship, we would only have to expand on that single relationship and filter on that one connected node to see if the user really does live in the United States.
+If we anchored to the user node, if we assume that each user only has one `:LIVES_IN` relationship, we would only have to expand on that single relationship and filter on that one connected node to see if the user really does live in the United States.
 
 Even if the graph contains historical data of where a user lives, we can expect only a handful of these paths that we need to filter.
 This approach would still be far quicker and easier than having to filter through every single user in the country to find the path we want.
@@ -55,15 +58,18 @@ This approach would still be far quicker and easier than having to filter throug
 
 There are other ways the planner can decide to plan a query, some of them being cheaper with a small number of nodes and relationships, and some far more costly.
 
-A NodeHashJoin, for example (when we expand from two different anchor nodes to a common node in the middle of the pattern), might be very quick when the number of anchor nodes matched is low, and when we are expanding only a few relationships from the anchor nodes. But this can be very expensive if we're traversing a ton of relationship, becoming a hinderance to query execution.
+A NodeHashJoin, for example (when we expand from two different anchor nodes to a common node in the middle of the pattern), might be very quick when the number of anchor nodes matched is low, and when we are expanding only a few relationships from the anchor nodes.
+But this can be very expensive if we're traversing a ton of relationships, becoming a hinderance to query execution.
 
-In the case of more complicated queries, there may be quite a few different nodes that could potentially be used as anchor nodes, with many possibilities on which one, or which combination, to anchor on, and how to expand to fulfill the desired patterns.
+In the case of more complicated queries, there may be quite a few different nodes that could potentially be used as anchor nodes, with many possibilities on which one or which combination to anchor on, and how to expand to fulfill the desired patterns.
 
-In any case, it is possible for the planner to make a bad choice, either because the approach isn't universally efficient across all data in your graph (some nodes may be supernodes, and cause the query over them to choke) or the metadata available to the planner is insufficient to warn it away from these more expensive expansions. In these cases, what we as humans know about the general shape of the graph may be greater than what can be inferred via metadata. Remember that walking the actual graph data is not possible here, since we're talking about query planning, which precedes execution.
+In any case, it is possible for the planner to make a bad choice, either because the approach isn't universally efficient across all data in your graph (some nodes may be supernodes, and cause the query over them to choke) or the metadata available to the planner is insufficient to warn it away from these more expensive expansions.
+
+In these cases, what we as humans know about the general shape of the graph may be greater than what can be inferred via metadata. Remember that walking the actual graph data is not possible here, since we're talking about query planning, which precedes execution.
 
 == Ways to force the direction of an expansion
 
-Unfortunately we do not yet have planner hints that directly forbid or encourage expansion in a certain direction.
+Unfortunately we do not yet have planner hints that directly require or forbid expansion in a certain direction.
 Instead, we must influence this indirectly, through other hints, or through Cypher tricks which leave the planner no other choice.
 
 === Using hash joins to force expansion to a supernode
@@ -79,11 +85,11 @@ https://neo4j.com/developer/kb/how-to-avoid-costly-traversals-with-join-hints/[H
 
 === Label filtering without anchoring
 
-The presence of a label on a node in the MATCH pattern can significantly change whether or not the planner will try to use it as an anchor node.
+The presence of a label on a node in the Match pattern can significantly change whether or not the planner will try to use it as an anchor node.
 
 That is, the planner prefers index lookups to find anchor nodes, though it may still use label scans to find anchor nodes (especially when there are no opportunities for index lookups in the query).
 
-Neither index lookups or label scans are possible when the label isn't present in the pattern (or otherwise described in a WHERE clause, like `WHERE c:Country`), and these two means of lookup are the two most common for finding anchor nodes in the graph.
+Neither index lookups or label scans are possible when the label isn't present in the pattern (or otherwise described in a Where clause, like `WHERE c:Country`), and these two means of lookup are the two most common for finding anchor nodes in the graph.
 Of course, you may need to have that label in the query for the sake of correctness, otherwise the wrong nodes and patterns might be matched.
 
 There is a way to perform the label filtering in a special manner which also prevents the planner from using it for index lookup or label scanning.
@@ -95,7 +101,7 @@ MATCH (user:User {id:12345})-[:LIVES_IN]->(country {name:'United States'})
 WHERE 'Country' IN labels(country)
 ----
 
-Note that we removed the `:Country` label from the MATCH pattern, preventing the planner from being able to use it as an anchor node via an index lookup or label scan.
+Note that we removed the `:Country` label from the Match pattern, preventing the planner from being able to use it as an anchor node via an index lookup or label scan.
 The planner has no choice but to use the `user` node as an anchor, and expand relationships to the `country` node at the other end.
 
 The second line, this membership check of a certain label being present in the node's labels, lets us still retain the label filtering we need for correctness.
@@ -117,69 +123,6 @@ WHERE c = country
 
 The key is in the second and third lines, usage of the unlabeled variable `c`.
 
-Even though we have matched to both end nodes, and they are both potential anchors, in the second MATCH  it is clear that the `user` node is the only one we can expand from; the planner is only aware that `c` is an unlabeled node and not a candidate for an anchor node.
+Even though we have matched to both end nodes, and they are both potential anchors, in the second Match  it is clear that the `user` node is the only one we can expand from; the planner is only aware that `c` is an unlabeled node and not a candidate for an anchor node.
 
 The filtering that the `c` node we expand to must be the same as the `country` anchor node is something the planner can only consider after the expansion is finished, so there is no oppportunity for it to use `country` as an anchor for expansion.
-
-== Ways to force ordering of MATCHes
-
-Remember that the planner is not only allowed to decide how to anchor and expand to fulfill single MATCH patterns, but it has the ability to reorder the matches it performs in order to produce the same result.
-This is especially applicable when it comes to more complex MATCH structures.
-
-In some cases, the planner may pick an ordering of execution that is suboptimal, and we may need a way to force the ordering of the MATCHes performed.
-
-For example consider this MATCH:
-
-[source,cypher]
-----
-MATCH (got:TvShow {name:'Game of Thrones'})<-[:LIKES]-(user:User {id:12345})-[:LIVES_IN]->(country:Country {name:'United States'})
-----
-
-There are several ways to fulfill this pattern. But let's say the planner chooses a suboptimal plan, anchoring on `got`, expanding to all users who like the show, filtering to just our specific user, then expanding to their country.
-Given how popular this show is, this is a terrible plan
-
-So we could try to change the query in an attempt to force the ordering:
-
-
-[source,cypher]
-----
-MATCH (user:User {id:12345})-[:LIVES_IN]->(country:Country {name:'United States'})
-WITH user, country
-MATCH (got:TvShow {name:'Game of Thrones'})<-[:LIKES]-(user)
-----
-
-However, since the planner has the ability to reorder how it fulfills matches, this may actually produce the exact same plan. The `WITH` clause alone does not apply a barrier to reordering.
-
-However, if we introduce a new variable in the WITH clause, then that DOES introduce a barrier across which the planner cannot reorder:
-
-[source,cypher]
-----
-MATCH (user:User {id:12345})-[:LIVES_IN]->(country:Country {name:'United States'})
-WITH user, country, 1 as ignored
-MATCH (got:TvShow {name:'Game of Thrones'})<-[:LIKES]-(user)
-----
-
-The `1 as ignored` as a newly introduced variable is the key here.
-The planner is forced to fulfill the first MATCH clause first, and only after those paths are found and the new variable introduced will it execute the next MATCH.
-
-=== Dividing MATCH from WHERE
-
-This can even be used to separate MATCH clauses from WHERE clauses to prevent the WHERE clause to be considered by the earlier MATCH.
-
-Recall the earlier example when we were trying to find a way to remove a label from the MATCH pattern, but we still wanted to apply the label in our filtering.
-We could not use `WHERE country:Country` because the planner is aware of that syntax and could use it when fulfilling the above MATCH.
-
-But when we separate that WHERE clause from the MATCH by introducing a new variable in a WITH clause, we can achieve what we want:
-
-[source,cypher]
-----
-MATCH (user:User {id:12345})-[:LIVES_IN]->(country {name:'United States'})
-WITH user, country, 1 as ignored
-WHERE country:Country
-----
-
-Why not use this instead of the more complicated `WHERE 'Country' in labels(country)` that was recommended earlier?
-
-Because this filtering is forced to happen after the MATCH pattern is resolved.
-In this particular case, the pattern is simple, and there's no downside.
-But if this was only one segment of the pattern, and we needed to expand beyond `country` to other nodes, it may be important for the filtering to happen during expansion, as this will prune out paths that don't want to consider, which can improve efficiency.
