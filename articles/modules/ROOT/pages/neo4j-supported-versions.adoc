@@ -8,7 +8,9 @@
 
 ### Neo4j Database Enterprise Edition 5
 
-For reference and planning purposes, the following represents a list of Neo4j 5.x releases, release date, and when that release will no longer be supported by hotfixes. This is the release of the next minor release with the 5.x family and will be on a regular cadence.
+For reference and planning purposes, the following represents a list of Neo4j 5.x releases, release date, and when that release will no longer be supported by hotfixes. This is the release of the next minor release with the 5.x family and will be on a regular cadence.  
+
+Review our https://neo4j.com/terms/support-terms/[Neo4j 5.x Support Terms] for reference.
 
 [options=header]
 |===
@@ -16,8 +18,6 @@ For reference and planning purposes, the following represents a list of Neo4j 5.
 |[white]*5.1* |[white]*October 24, 2022* |[white]*Release of 5.2* |[white]*5.x,4.4*
 |[white]*5.0* |[white]*October 06, 2022* |[white]*October 24, 2022* |[white]*5.x,4.4*
 |===
-
-Review our https://neo4j.com/terms/support-terms/[Neo4j 5.x Support Terms] for reference.
 
 ---
 
