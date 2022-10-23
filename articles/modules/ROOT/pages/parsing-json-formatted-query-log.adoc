@@ -1,0 +1,102 @@
+= Parsing json formatted query log
+:slug: parsing-json-formatted-query-log
+:author: Ali Maddahian
+:category: operations
+:tags: cypher, query, tunning
+:neo4j-versions: 4.0, 4.1, 4.2, 4.3, 4.4, 5.0
+
+
+There are times when we have to examine a query log in order to find longest running queries, and/or other problem queries such as those with missing indexes or when not using parameters appropriately.
+
+This can be done by parsing and sorting the query log attributes, which is typically straight forward when using csv formmated query logs, but with json formatted logs as in Aura, we can use the following jq command to get the longest running queres as needed:
+
+# Aura
+```
+cat query.log.json |
+	jq '. | sort_by(.jsonPayload.elapsedTimeMs) | reverse ' |
+	jq '.[] | select(.jsonPayload.event == "success") |
+	{ timestamp: .timestamp,
+		severity:  .severity,
+		event: .jsonPayload.event,
+		id: .jsonPayload.id,
+		elapsedTimeMs: .jsonPayload.elapsedTimeMs,
+		allocatedBytes: .jsonPayload.allocatedBytes,
+		pageFaults: .jsonPayload.pageFaults,
+		pageHits: .jsonPayload.pageHits,
+		waiting: .jsonPayload.waiting,
+		planning: .jsonPayload.planning,
+		runtime: .jsonPayload.runtime,
+		username: .jsonPayload.username,
+		query: .jsonPayload.query } |   join(" | ")  '
+```
+
+Which produces the following row formatted output:
+
+```
+"2022-10-20T04:51:22.485Z | INFO | success | 13452855 | 1792 | 248 | 0 | 905357 | 0 | 0 | slotted | neo4j | MATCH (n) return n"
+```
+
+# On-Prem
+
+On the other hand in a non-Aura environment, we will have to use the following version of our jq script in order to confirm to a slightly different format as shown below:
+
+```
+{
+  "time": "2022-10-23 00:09:37.772+0000",
+  "level": "INFO",
+  "event": "success",
+  "type": "query",
+  "elapsedTimeMs": 2,
+  "planning": 0,
+  "cpu": 2,
+  "waiting": 0,
+  "allocatedBytes": 176,
+  "pageHits": 4,
+  "pageFaults": 0,
+  "source": "bolt-session\tbolt\tneo4j-browser/v5.0.0\t\tclient/127.0.0.1:49863\tserver/127.0.0.1:11004>",
+  "database": "neo4j",
+  "username": "neo4j",
+  "executingUser": "neo4j",
+  "authenticatedUser": "neo4j",
+  "query": "MATCH (tom {name: \"Tom Hanks\"}) RETURN tom",
+  "queryParameters": "{}",
+  "runtime": "pipelined",
+  "annotationData": "{type: 'user-direct', app: 'neo4j-browser_v5.0.0'}"
+}
+```
+
+So our jq command will look like the following:
+
+```
+cat query.log.json | 
+jq  -s -c 'sort_by(.elapsedTimeMs) | reverse | .[]' | 
+jq '. | select( .event == "success") |
+	{ time: .time,
+		level:  .level,
+		event: .event,
+		type: .type,
+		id: .id,
+		elapsedTimeMs: .elapsedTimeMs,
+		planning: .planning,
+		cpu: .cpu,
+		waiting: .waiting,
+		allocatedBytes: .allocatedBytes,
+		pageHits: .pageHits,
+		pageFaults: .pageFaults,
+		source: .source,
+		username: .username,
+		executingUser: .executingUser,
+		authenticatedUser: .authenticatedUser,
+		authenticatedUser: .authenticatedUser,
+		runtime: .runtime,
+		query: .query,
+		queryParameters: .queryParameters }  | join(" | ")  '
+    ```
+With the output as shown below:
+
+```
+"2022-10-23 00:09:16.352+0000 | INFO | success | query |  | 95 | 62 | 91 | 0 | 0 | 9 | 0 | bolt-session\tbolt\tneo4j-browser/v5.0.0\t\tclient/127.0.0.1:49863\tserver/127.0.0.1:11004> | neo4j | neo4j | neo4j | pipelined | EXPLAIN MATCH (nineties:Movie) WHERE nineties.released >= 1990 AND nineties.released < 2000 RETURN nineties.title | {}"
+"2022-10-23 00:09:31.071+0000 | INFO | success | query |  | 27 | 26 | 26 | 0 | 0 | 1 | 0 | bolt-session\tbolt\tneo4j-browser/v5.0.0\t\tclient/127.0.0.1:49863\tserver/127.0.0.1:11004> | neo4j | neo4j | neo4j | pipelined | EXPLAIN MATCH (tom {name: \"Tom Hanks\"}) RETURN tom | {}"
+```
+
+As a last work, please note that the above commands are excepted to use a lot of memory when it is run.  As an example, for a 7GB file (uncompressed) with some 4 million entries, it used about 60GB of memory and finished in about 10 minutes.
