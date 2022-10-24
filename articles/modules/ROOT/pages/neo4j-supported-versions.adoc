@@ -6,19 +6,44 @@
 :promoted: true
 :category: support
 
-Review our https://neo4j.com/terms/support-terms/[Support Terms] for reference.
+### Neo4j Database Enterprise Edition 5
 
-For reference and planning purposes, the following represents a list of the currently supported Neo4j releases, release date, and date at which that release will no longer be supported. 
+For reference and planning purposes, the following represents a list of Neo4j 5.x releases, release date, and when that release will no longer be supported by hotfixes. This is the release of the next minor release with the 5.x family and will be on a regular cadence.  
 
-Neo4j Database Enterprise Edition
+Review our https://neo4j.com/terms/support-terms/[Neo4j 5.x Support Terms] for reference.
+
+[options=header]
+|===
+|Release |Release Date |Hotfixes until |Compatible Driver Versions 
+|[white]*5.1* |[white]*October 24, 2022* |[white]*Release of 5.2* |[white]*5.x, 4.4*
+|[white]*5.0* |[white]*October 06, 2022* |[white]*October 24, 2022* |[white]*5.x, 4.4*
+|===
+
+---
+
+### Neo4j Database Enterprise Edition 4
+
+For reference and planning purposes, the following represents a list of Neo4j 4.x releases, their release date, and date at which that release will no longer be supported.
+
+Review our https://neo4j.com/terms/support-terms-pre-neo4j-5/[Neo4j Pre-5.x Support Terms] for reference.
+
 [options=header]
 |===
 |Release |Release Date |End of Support Date |Compatible Driver Versions 
-|[white]*4.4*(n1) |[white]*December 2, 2021* |[white]*December 1, 2024* |[white]*4.4, 4.3, 4.2, 4.1, 4.0* 
+|[white]*4.4*(n1) |[white]*December 2, 2021* |[white]*December 1, 2024* |[white]*5.x, 4.4, 4.3, 4.2, 4.1, 4.0* 
 |[white]*4.3* |[white]*June 17, 2021* |[white]*December 16, 2022* |[white]*4.4, 4.3, 4.2, 4.1, 4.0* 
 |[white]*4.2* |[white]*November 17, 2020* |[white]*May 16, 2022* |[white]*4.4, 4.3, 4.2, 4.1, 4.0* 
 |[white]*4.1* |[white]*June 23, 2020* |[white]*December 22, 2021* |[white]*4.4, 4.3, 4.2, 4.1, 4.0* 
 |[white]*4.0* |[white]*January 15, 2020* |[white]*July 14, 2021* |[white]*4.4, 4.3, 4.2, 4.1, 4.0* 
+|===
+
+---
+
+### Neo4j Database Enterprise Edition (1.x-3.x)
+
+[options=header]
+|===
+|Release |Release Date |End of Support Date |Compatible Driver Versions 
 |[white]*3.5*(n1) |[white]*November 29, 2018* |[white]*May 27, 2022* (n3) |[white]*4.4, 4.3, 4.2, 4.1, 4.0, 1.7* 
 |[white]*3.4* |[white]*May 17, 2018* |[white]*March 31, 2020* (n2) |[white]*1.7, 1.6* 
 |[white]*3.3* |[white]*October 24, 2017* |[white]*April 28, 2019* |[white]*1.7, 1.6, 1.5, 1.4* 
