@@ -9,8 +9,8 @@ buildscript {
 }
 
 plugins {
-    id 'org.asciidoctor.jvm.gems' version '3.2.0' apply false
-    id 'org.asciidoctor.jvm.convert' version '3.2.0' apply false
+    id 'org.asciidoctor.jvm.gems' version '3.3.2' apply false
+    id 'org.asciidoctor.jvm.convert' version '3.3.2' apply false
     id "com.neo4j.gradle.zendesk.ZenDeskPlugin" version "0.3.0"
 }
 
@@ -36,6 +36,7 @@ zendesk {
 def stage = project.findProperty('stage')
 
 asciidoctorj {
+    version = '2.5.7'
     requires "${rootProject.projectDir}/resources/extensions.rb"
     attributes 'allow-uri-read': '',
             'assets-cdn': 'https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content',
