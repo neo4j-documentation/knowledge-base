@@ -6,24 +6,23 @@
 :promoted: true
 :category: server
 
-With the release of Neo4j version 5, the APOC library has been split into two: https://neo4j.com/docs/apoc/5/[APOC Core] and https://neo4j.com/labs/apoc/5/[APOC Extended]. 
+With the release of Neo4j 5, the APOC library has been split into two separate packages: https://neo4j.com/docs/apoc/5/[APOC Core] and https://neo4j.com/labs/apoc/5/[APOC Extended]. 
 
 
 == APOC Core 
 
-APOC was created to provide a standard utility library for common user-defined procedures.
-It was not, however, maintained by Neo4j.  
+Neo4j 5 brings greatly increased support to the APOC library. More specifically, while the APOC library was previously  supported on a "best effort" basis by members of the community, the vast majority of APOC procedures and functions are now officially supported by Neo4j engineers dedicated to the improvement of the APOC library and its integration within the Neo4j Data Platform. 
 
-With the release of Neo4j 5, this has changed. The majority of APOC procedures are now supported and maintained by Neo4j engineers. These supported procedures constitute the APOC Core library. 
+The procedures and functions receiving official Neo4j support constitute the APOC Core library. 
 
 For more details about APOC Core, see the https://neo4j.com/docs/apoc/5/[APOC Core documentation].
 
 
 == APOC Extended
 
-Procedures that fall outside the remit of APOC Core are still available to users. 
-These procedures constitute APOC Extended. 
-Note that the procedures in the APOC Extended library are not supported by Neo4j. 
+The minority of procedures and functions that fall outside the remit of APOC Core are still available to users. These constitute the APOC Extended library. 
+
+The APOC Extended library will not be officially supported by Neo4j, but will rather remain as they were before (supported on a "best effort" basis by members of the community). 
 
 For more details about APOC Extended, see the https://neo4j.com/labs/apoc/5/[APOC Extended documentation].
 
