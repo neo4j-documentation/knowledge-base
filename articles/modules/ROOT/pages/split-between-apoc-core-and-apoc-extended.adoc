@@ -1,0 +1,35 @@
+= Split between APOC Core and APOC Extended
+:slug: split-between-apoc-core-and-apoc-extended
+:author: Jens Pryce-Åklundh
+:neo4j-versions: 5
+:tags: apoc
+:promoted: true
+:category: server
+
+With the release of Neo4j 5, the APOC library has been split into two separate packages: https://neo4j.com/docs/apoc/5/[APOC Core] and https://neo4j.com/labs/apoc/5/[APOC Extended]. 
+
+
+== APOC Core 
+
+Neo4j 5 brings substantially more support to the APOC library. 
+
+While the APOC library was previously supported on a "best effort" basis by members of the community, the vast majority of APOC procedures and functions are now officially supported by Neo4j engineers dedicated to the improvement of the APOC library and its integration in the Neo4j Data Platform. 
+
+The procedures and functions that receive official Neo4j support constitute the APOC Core library. 
+
+For more details about APOC Core, see the https://neo4j.com/docs/apoc/5/[APOC Core documentation].
+
+== APOC Extended
+
+The minority of procedures and functions that fall outside the remit of APOC Core are still available to users. 
+These constitute the APOC Extended library. 
+
+The APOC Extended library will not be officially supported by Neo4j. 
+It will instead continue to receive "best effort" support by members of the community. 
+
+For more details about APOC Extended, see the https://neo4j.com/labs/apoc/5/[APOC Extended documentation].
+
+
+
+
+ 
