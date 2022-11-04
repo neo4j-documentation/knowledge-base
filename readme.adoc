@@ -7,6 +7,7 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
+
 This repository is a knowledge base for Neo4j.
 
 It contains *public* articles that cover questions, problems, and issues with Neo4j.
