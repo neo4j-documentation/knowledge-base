@@ -1,6 +1,6 @@
 = Neo4j Supported Versions
 :slug: neo4j-supported-versions
-:author: Daniel Terlizzi
+:author: Phil Stott
 :neo4j-versions: all
 :tags: support
 :promoted: true
@@ -35,7 +35,7 @@ Review our https://neo4j.com/terms/support-terms-pre-neo4j-5/[Neo4j Pre-5.x Supp
 [options=header]
 |===
 |Release |Release Date |End of Support Date |Compatible Driver Versions 
-|[white]*4.4* `LTS` |[white]*December 2, 2021* |[white]*December 1, 2024* |[white]*5.x, 4.4, 4.3, 4.2, 4.1, 4.0* 
+|[white]*4.4* `LTS` |[white]*December 2, 2021* |[white]*June 30, 2025* |[white]*5.x, 4.4, 4.3, 4.2, 4.1, 4.0* 
 |[white]*4.3* |[white]*June 17, 2021* |[white]*December 16, 2022* |[white]*4.4, 4.3, 4.2, 4.1, 4.0* 
 |[white]*4.2* |[white]*November 17, 2020* |[white]*May 16, 2022* |[white]*4.4, 4.3, 4.2, 4.1, 4.0* 
 |[white]*4.1* |[white]*June 23, 2020* |[white]*December 22, 2021* |[white]*4.4, 4.3, 4.2, 4.1, 4.0* 
