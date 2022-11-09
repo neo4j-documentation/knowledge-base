@@ -6,7 +6,7 @@
 :neo4j-versions: 4.0, 4.1, 4.2, 4.3, 4.4, 5.0
 
 
-There are times when we have to examine a query log in order to find longest running queries, and/or other problem queries such as those with missing indexes or when not using parameters appropriately.
+There are times when we have to examine a query log in order to find longest running queries and/or other problem queries such as those with missing indexes or when not using parameters appropriately.
 
 This can be done by parsing and sorting the query log attributes, which is typically straight forward when using csv formmated query logs, but with json formatted logs as in Aura, we can use the following jq command to get the longest running queres as needed:
 
