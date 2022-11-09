@@ -18,7 +18,6 @@ apply plugin: 'org.asciidoctor.jvm.gems'
 
 repositories {
     mavenCentral()
-    jcenter()
     ruby {
         gems()
     }
