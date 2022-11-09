@@ -95,4 +95,4 @@ With the output as shown below:
 "2022-10-23 00:09:31.071+0000 | INFO | success | query |  | 27 | 26 | 26 | 0 | 0 | 1 | 0 | bolt-session\tbolt\tneo4j-browser/v5.0.0\t\tclient/127.0.0.1:49863\tserver/127.0.0.1:11004> | neo4j | neo4j | neo4j | pipelined | EXPLAIN MATCH (tom {name: \"Tom Hanks\"}) RETURN tom | {}"
 ```
 
-As a last word, please note that the above commands are excepted to use a lot of memory when it is run.  As an example, for a 7GB file (uncompressed) with some 4 million entries, it used about 60GB of memory and finished in about 10 minutes.
+As a last word, please note that the above commands are expected to use a lot of memory when it is run.  As an example, for a 7GB file (uncompressed) with some 4 million entries, it used about 60GB of memory and finished in about 10 minutes.
