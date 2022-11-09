@@ -25,8 +25,9 @@ jobs:
           title: 'report'
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
           input: './annotations.json'
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v3
         with:
+          distribution: 'temurin'
           java-version: 11
       - name: Publish Zendesk
         run: |
