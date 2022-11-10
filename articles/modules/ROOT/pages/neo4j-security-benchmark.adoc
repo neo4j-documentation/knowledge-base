@@ -1,0 +1,8 @@
+= Neo4j Security Benchmark
+:slug: neo4j-security-benchmark
+:author: David Fauth
+:neo4j-versions: 3.5
+:tags: operations, security, configuration
+:category: operations
+:redirect: https://neo4j.com/developer/kb/
+
