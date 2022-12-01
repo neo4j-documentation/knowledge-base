@@ -4,7 +4,7 @@
 :author: Dana Canzano
 :tags: configuration,jvm
 :category: operations
-:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4, 5.0
 :environment: linux,osx
 
 http://www.oracle.com/technetwork/java/javaseproducts/mission-control/java-mission-control-1998576.html[Java Flight Recorder] can 
@@ -18,7 +18,9 @@ evaluation purposes in test, development, and production environments. However, 
 you require a commercial license. Using JMC UI for other purposes on the JDK does not require a commercial license.
 ....
 
-To enable the Java Flight Recorder the following JVM options should be added to the `neo4j.conf`
+JFR can be activated by configuring JVM options within a Java application at startup or by using the jcmd tool for a running Java application. The commands and options available will depend on the supported JVM in use based on the Neo4j version. The JMC documentation https://docs.oracle.com/en/java/java-components/jdk-mission-control/[here] links to the documentation of various JDK versions for example and may be helpful when the need for additional options arises.
+
+To enable the Java Flight Recorder at the start of Neo4j service, the following JVM options should be added to the `neo4j.conf` and then Neo4j needs to be restarted for these changes to take effect. The JFR.dump commands discussed later can be used to dump the contents once enabled.
 
 For 3.x
 
@@ -28,8 +30,18 @@ dbms.jvm.additional=-XX:+UnlockCommercialFeatures
 dbms.jvm.additional=-XX:+FlightRecorder
 dbms.jvm.additional=-XX:FlightRecorderOptions=defaultrecording=true,settings=profile
 ----
+For 4.x
 
-and then Neo4j needs to be restarted for these changes to take effect.
+[source,properties]
+----
+dbms.jvm.additional=-XX:StartFlightRecording=settings=profile
+----
+For 5.x
+
+[source,properties]
+----
+server.jvm.additional=-XX:StartFlightRecording=settings=profile
+----
 
 To begin a time based recording, at the command line run:
 
@@ -78,6 +90,7 @@ and then to completely stop the recording, though this does not dump the content
 ----
 $ jcmd <pid> JFR.stop recording=<recording #>
 ----
+(Note: The `recording=` option in the above commands is not used in the JDK versions for Neo4j 4.x and 5x and instead one can use `name=` . )
 
 To view the results start Java Mission Control (`$JAVA/HOME/jmc`).
 This will launch a Java app as detailed below.
