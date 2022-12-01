@@ -1,7 +1,7 @@
 = Understanding how MERGE works
 :slug: understanding-how-merge-works
 :author: Andrew Bowman
-:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4, 5
 :tags: merge, cypher
 :category: cypher
 
