@@ -15,6 +15,7 @@ Review our https://neo4j.com/terms/support-terms/[Neo4j 5.x Support Terms] for r
 [options=header]
 |===
 |Release |Release Date |Hotfixes until |Compatible Driver Versions 
+|[white]*5.3*      |[white]*December 15, 2022* |[white]*Release of 5.4* |[white]*5.x, 4.4*
 |[white]*5.2*      |[white]*November 21, 2022* |[white]*Release of 5.3* |[white]*5.x, 4.4*
 |[white]*5.1* `GA` |[white]*October 24, 2022* |[white]*Release of 5.2* |[white]*5.x, 4.4*
 |[white]*5.0* `LA` |[white]*October 06, 2022* |[white]*October 24, 2022* |[white]*5.x, 4.4*
