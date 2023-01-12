@@ -59,16 +59,16 @@ A possible injection vector is when the malicious input aims to read information
 
 For example; the attack payload of:
 
-`Robby' OR 1=1 RETURN apoc.text.join(collect(n.username), ',') //`
+`Robby' OR 1=1 RETURN apoc.text.join(collect(s.username), ',') //`
 
 Might execute as;
 
 [source,cypher]
 ----
-MATCH (s:Student) WHERE s.name = 'Robby' OR 1=1 RETURN apoc.text.join(collect(n.username), ',') //' RETURN s.name;
+MATCH (s:Student) WHERE s.name = 'Robby' OR 1=1 RETURN apoc.text.join(collect(s.username), ',') //' RETURN s.name;
 ----
 
-Returning the names of all the users in the database in one comma separated string.
+Returning the names of all the students in the database in one comma separated string.
 For this method to succeed, the client application needs to be vulnerable to injection as well as sending back the results of the query to the user.
 
 === Blind Injection
@@ -78,17 +78,17 @@ Blind injection is when the attacker doesn't aim to fetch the disclosed informat
 One way this is done is by reacting to the behavior of the application. Let's assume that a website loads a different page based on the existence result of a query.
 For example a login page first asks for an email and will then display either a login to continue page or a register to continue page.
 
-`MATCH (u) WHERE user.email = '{email}' RETURN u IS NOT NULL;`
+`MATCH (user) WHERE user.email = '{email}' RETURN user IS NOT NULL;`
 
 The result of this query is not returned to the user, instead the application uses the existence of a user to show the next page.
 In this way, a possible injection could exploit this by triggering different responses conditionally.
 
-For example, Little Robby wants to steal his older brother's password:
+For example, Little Robby wants to see what username his brother is registered with:
 
-`email = "bobby@mail.com' RETURN password STARTS WITH 'a';//`
+`"bobby@mail.com' RETURN user.username STARTS WITH 'a';//`
 
-If the password starts with an `a`, the query resolves to true and the login page is shown.
-In this way, Robby can, character by character, figure out the password belonging to his older brother by systematically checking each character's response.
+If the username starts with an `a`, the query resolves to true and the login page is shown.
+In this way, Robby can, character by character, figure out the username belonging to his older brother is by systematically checking each character's response.
 
 === Error Based Cypher Injection
 
@@ -140,13 +140,26 @@ CREATE (s:Student)
 SET s.name = $studentName
 ----
 
-When using parameters like this, it is impossible for the parameter, in part of whole, to escape the query, stopping any attempts at Cypher Injection.
+When using parameters like this, it is impossible for the parameter to escape the query, stopping any attempts at Cypher Injection.
 
 This is because parameters are separate from the query. The query alone is compiled into an executable plan, and once compiled, can use any parameter map for execution.
 
 In other words, once a query plan has been compiled, it is set, and nothing in the data submitted to it can change it, alter it, or hijack it.
 
 This type of protection is the easiest and safest way to protect against Cypher Injection on literals, unfortunately, not everything in a query is parameterizable.
+
+It is also important to remember that not all injection attacks rely on quotation escaping of string literals,
+for example the following query, for a number literal, is still vulnerable when not using parameterization.
+
+`query = "MATCH (user) WHERE user.id =" + userid + ";"`
+
+Where the malicious userid input is: `"1 OR 1 = 1 WITH DISTINCT true AS haxxored MATCH (all) DETACH DELETE all; //"`
+This can also be easily fixed by using parameters:
+
+[source,cypher]
+----
+MATCH (user) WHERE user.id = $userid;
+----
 
 == Parameters and APOC
 
@@ -166,12 +179,23 @@ RETURN value;
 Even though `studentName` was passed as a parameter, it will now be concatenated with the `CREATE` query ready for execution.
 This concatenation may result in a hijacked query being executed by APOC.
 
+For example, if student name was:
+
+`' MATCH (all) DETACH DELETE all; //`
+
+This would be executed by APOC as the following query:
+
+[source,cypher]
+----
+CREATE (s:Student) SET s.name = '' MATCH (all) DETACH DELETE all; //' RETURN true
+----
+
 The solution in this case is to continue passing `studentName` as a parameter to the APOC procedure.
 
 
 [source,cypher]
 ----
-CALL apoc.cypher.doIt("CREATE (s:Student)SET s.name = $name  RETURN true", {name:$studentName})
+CALL apoc.cypher.doIt("CREATE (s:Student) SET s.name = $name RETURN true", { name: $studentName })
 YIELD value
 RETURN value;
 ----
@@ -210,37 +234,73 @@ All of the above listed APOC procedures include a way to pass a parameter map to
 
 == Query Sanitization
 
-Whilst string concatenation for building queries is generally a bad idea, it is not always possible to avoid it.
+While string concatenation for building queries is generally a bad idea, it is not always possible to avoid it.
 Node labels, relationship types and property names are notable examples where parameterization is not supported in Cypher.
 
 In these cases it is important to sanitize user inputs.
-Sanitization is the modification of input to ensure that it is valid, in the case of Cypher, this usually means escaping
-quotation characters or removing delimiter characters which would break out of the context in which they are being used.
+Sanitization is the modification of input to ensure that it is valid. In the case of Cypher, this usually means escaping
+quotation or removing delimiters which would prematurely be interpreted as the end of a string literal or identifier.
 Sanitization should always be done when accepting untrusted external input and may be needed other times, see second order injections for more information.
 
 It is recommended that this sanitization is done at the client level, before passing it down to the database.
 
-=== Escape Characters
+=== Escape Characters in Cypher
 
 Escape characters invoke an alternative meaning on the following characters in the sequence.
-In Cypher, the definition of string literals, regular expressions and naming of types such as node labels can be done
+In Cypher, the definition of string literals, regular expressions and identifiers such as node labels can be done
 with the opening and closing of certain characters that can also be used inside the expression given it is escaped correctly.
 
-In all cases, a backslash is escaped using another backslash.
+In the following sections we will explain how to escape delimiters of different Cypher types.
+
+[cols="1,1,1,1"]
+|===
+|Cypher Type |Character Type |Character |Escape Sequence
+
+.4+|String Literals
+|Single Quote
+|'
+|\' or \u005c'
+
+|Unicode Single Quote
+|\u0027
+|\u005c\u0027
+
+|Double Quote
+|"
+|\" or \u005c"
+
+|Unicode Double Quote
+|\u0022
+|\u005c\u0022
+
+.2+|Identifiers
+|Backtick Quote
+|`
+|``
+
+|Unicode Identifiers
+|\u0060
+|\u0060\u0060 or `\u0060
+
+|===
 
 ==== String Literals
 
 String literals are started and ended with either a single quote `'` or a double quote `"`.
-These can be escaped using a backslash `\`.
+These can be escaped using a backslash `\`. Backslashes in string literals are escaped using another backslash `\`.
 
-==== Regular Expressions
+==== Identifiers
 
-Regular expressions are started and ended with a single quote `'` which can be escaped using a backslash.
+Node labels, relationship types, parameters, variables, function names, and map keys follow a set of naming rules.
+However, it is possible to have an arbitrary name using backticks.
+For example, you could use a space in an identifier:
 
-==== Naming
+[source,cypher]
+----
+CREATE (n:`Fancy Name`);
+----
 
-Node labels, relationship types, parameters and variables can be started and ended with a single backtick ```,
-the backtick is escaped using another backtick ```.
+To use a backtick within such a name, it must be escaped using another backtick `&#96;`.
 
 For more information on escape characters, see the Cypher Manual on https://neo4j.com/docs/cypher-manual/current/syntax/expressions/[Expressions]
 and https://neo4j.com/docs/cypher-manual/current/syntax/naming/[Naming rules and recommendations].
@@ -251,6 +311,9 @@ Node labels, relationship types and parameters may contain non-alphabetic charac
 For example: `node label with spaces`.
 This means that when dynamically building a query using string concatenation, sanitization needs to be done on the escaping of backticks.
 In Cypher, a backtick is escaped using another backtick `&#96;&#96;`.
+For other types, for example string literals, that are opened and closed with either single quotes `'` or double quotes `"`,
+the sanitization would be done by escaping the quote character with a backslash `\`.
+Note however that where string literals can be used, so can parameters, and it is recommended to always parameterize instead of sanitize the input to avoid Cypher Injection.
 
 Here is an example of a simple dynamic label injection attack:
 
@@ -269,7 +332,18 @@ The `WITH` reduces the result set down to one row and then the final part will d
 
 This attack was not possible to avoid using parameterization.
 To avoid this attack sanitization must be used.
-It is possible to add validation to the query as well, in this case, validating the city name is a real city name before passing it into the database, and rejecting it otherwise.
+
+[Note]
+====
+The best protection against Cypher Injection is to always parameterize user input.
+If possible, update your data model to avoid needing to query using dynamic labels.
+In this example, the refactoring would be to move the city name to a parameter.
+
+`MATCH (c: City { name: $cityName }) RETURN name`
+====
+
+
+It is possible to add validation to the user input as well, in this case, validating the city name is a real city name before passing it into the database, and rejecting it otherwise.
 
 The sanitization needed for this query is escaping the additional backtick character.
 
@@ -280,26 +354,19 @@ The additional backtick added now ensures that the entire string is used as the 
 The unicode character for the bactick; `\u0060` will also resolve to a backtick and needs to be sanitized.
 When handling user input, it is important that the programming language the client is written in is taken into account.
 For example, the input: `\u005C\u00750060` may be resolved before being passed to the database as `\u0060`
-(`\u005C` is backslash, `\`, and `\u0075` is u), which will then be resolved by the database as a backtick!
+(`\u005C` is backslash `\`, and `\u0075` is `u`), which will then be resolved by the database as a backtick!
 
 Writing your own sanitization function can be tricky.
 That is why it is highly recommended to avoid string concatenation and design your database in such a way that user input
 is not needed to dynamically query based on node labels, relationship types and parameters.
 
-It is also important to remember that not all injection attacks rely on quotation escaping of string literals,
-for example the following query, for a number literal, is still vulnerable when not using parameterization.
-
-`query = "MATCH (n) WHERE n.id =" + userid + ";"`
-
-Where the malicious userid input is: `"1 OR 1 = 1 WITH DISTINCT true AS haxxored MATCH (all) DETACH DELETE all; //"`
-
-=== Validation and Sanitization common Exploits
+=== Validation and Sanitization Common Exploits
 
 Sanitization can also be used as a technique to clean up user input.
 Another way of keeping the input safe and clean is to use validation.
 Validation checks the input and makes sure it meets a set of certain criteria and will reject the input if it does not,
 in comparison to sanitization which cleans the input only.
-Validation can be used alongside sanitization, keep in mind that both techniques come with risks.
+Validation can be used alongside sanitization. Keep in mind that both techniques come with risks.
 
 === Whitespace checks
 
@@ -329,11 +396,7 @@ The following query doesn't look like it escapes the string at first glance:
 
 But in reality, Cypher will resolve the unicode into a single quote and treat it as such in the compilation of the query.
 
-As mentioned earlier, malicious users may double encode their unicode input by additionally encoding the backslash, `\`, and `u`,
-which allows that to be resolved first in your client application code, and then resolved as the actual attack in the database.
-For example; `\u005C\u00750027` may be sent to the database as the input `\u0027`, thus successfully escaping the single quotation.
-
-When it comes to the validation of input such as usernames, it is often done to avoid the use of reserved keywords, such as admin.
+When validating input such as usernames, it is often done to check the absence of reserved keywords, such as admin.
 Unicode encoding can be used as another common bypass for this.
 For example the user input `\u0061\u0064\u006d\u0069\u006e` is the unicode for `admin`:
 
@@ -357,29 +420,36 @@ For example, validation that the user isn’t setting their username to admin co
 
 `"ad' + 'min'"`
 
+This can be avoided by escaping the delimiter.
+
 === Second Order Injections
 
 A second order injection occurs when the input is successfully filtered and sanitized the first time it is used and is
-then stored in the database, when the application uses the value another time, the malicious code is then executed.
+then stored in the database. When the application uses the value another time, the malicious code is executed.
 
-For example; Little Robby Labels sets up an account with a username and password:
+For example; Little Robby Labels sets up an account with his username set as:
 
-`Username: LilRob' OR 1=1 WITH true AS hacked MATCH (a) DETACH DELETE ALL; –`
+`LilRob' OR 1=1 WITH true AS hacked MATCH (all) DETACH DELETE all; //`
 
-As the username is received from the user directly, our application runs sanitization on it, escaping the quotation mark.
+As the username is received from the user directly, our application sets it user a parameter.
 
-
-[source,cypher]
-----
-CREATE (u:User) SET u.username = 'LilRob\' OR 1=1 WITH true AS hacked MATCH (a) DETACH DELETE ALL; –';
-----
-
-Little Robby Tables now resets their password and as the username is assumed to be safe our application runs sanitization only the new password:
-
+`:param username => "LilRob' OR 1=1 WITH true AS hacked MATCH (all) DETACH DELETE all; //"`
 
 [source,cypher]
 ----
-MATCH (u:User) WHERE u.name = 'LilRob' OR 1=1 WITH true AS hacked MATCH (a) DETACH DELETE ALL; –' SET password = 'newPassword';
+CREATE (u:User) SET u.username = $username;
+----
+
+Now that an account is made, Little Robby Tables logs in and goes to the settings to change his username.
+The database retrieves his current username and uses client-side string concatenation to build a query to update it.
+
+`query = "MATCH (u:User) WHERE u.username = '" + username + "' SET u.username = $newUsername;"`
+
+This query is executed as:
+
+[source,cypher]
+----
+MATCH (u:User) WHERE u.username = 'LilRob' OR 1=1 WITH true AS hacked MATCH (all) DETACH DELETE all; //' SET u.username = $newUsername;
 ----
 
 The malicious code is now run, and all users are deleted!
@@ -391,12 +461,12 @@ This is why sanitization should continue to be used, even when the input doesn't
 
 The principle of least privilege is the idea that a program or user should have the bare minimum of privileges needed to perform their function.
 This means that, for example, if your application is only reading data, then it should have read only access to that data.
-The benefit of this is that in the case of a Cypher Injection attack, the injected query is not able to manipulate the data,
+The benefit of this is that in the case of a Cypher Injection attack, an injected query is not able to manipulate the data,
 as the role executing the hijacked query is limited in its functionality.
 With Neo4j, a range of fine-grained access control is available, which can add another layer of protection in case of an injection attack.
 See https://neo4j.com/docs/operations-manual/current/authentication-authorization/access-control/[here] for more information on role based privileges in Neo4j.
 
-== Other Notes
+== Importing Data
 
 Not all inputs can be submitted as parameters.
 Maybe some malicious input made it into a CSV file for processing.
@@ -414,24 +484,20 @@ Is this vulnerable to Little Robby Labels?
 No, it is not. Cypher injection is still impossible here, even if parameters aren't being used.
 
 The LOAD query is independent of the CSV that is to be processed.
-As such, the query is compiled separately from the CSV.
-By the time the query is executing and the CSV data starts to be accessed, the query has already been completely compiled, and the CSV data has no opportunity to affect or hijack the query itself.
-
-Likewise, any other injection attacks will fail that attempt to pull in malicious input via reading it from somewhere, or even a malicious property value that somehow was saved into the database already.
-This is because unless the malicious value is string-appended into the query itself, rather than read at the time the query executes, it will not have the opportunity to get compiled into and affect the query plan.
+This means that, regardless of the content of each row, the content cannot affect or hijack the query itself.
 
 == Beware of participation in stored scripting and website injection attacks
 
 This doesn't really fall into the category of Cypher injection, since it's not an attack on Cypher or the database itself, but it's important to be aware of it.
 
-Stored cross site scripting attacks use values in a database as a vector for attacks on a web site.
-Malicious values (usually malicious javascript or HTML) are saved to the database (and these values do not affect or impact Cypher or the database in any way),
+Stored cross site scripting attacks use values in a database as a vector for attacks on a website.
+Malicious values (usually malicious javascript or HTML) are saved to the database,
 but when retrieved and displayed on a vulnerable page, these values result in a cross-site scripting attack, or an injection attack, resulting in the malicious code affecting the javascript or HTML on the page.
 
-So the vulnerability is actually in the HTML or Javascript on the page itself, and has nothing to do with Neo4j.
-To mitigate, the HTML and javascript used on the page itself ought to be secured such that results from a database call are sanitized before display, inclusion in the DOM, or execution as script.
+So the vulnerability is actually in the HTML or Javascript code on the page itself, and has nothing to do with Neo4j.
+To mitigate the vulnerability, the HTML and Javascript code used on the page itself ought to be secured such that results from a database call are sanitized before display, inclusion in the DOM, or execution as script.
 That said, it may be a good idea to sanitize outside input for HTML/Javascript control characters before saving to the database, so your stored data can't be used as a vector in these kinds of attacks.
 
-It's often most reliable to do this in your code client-side, so you pass in parameters that have already been sanitized.
+It is best practice to do this client-side before passing the sanitized parameters to the database.
 
 https://en.wikipedia.org/wiki/Cross-site_scripting#Persistent_(or_stored)
