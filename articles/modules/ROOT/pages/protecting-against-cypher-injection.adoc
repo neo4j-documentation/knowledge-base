@@ -1,13 +1,13 @@
-= Protecting against Cypher injection
+= Protecting against Cypher Injection
 :slug: protecting-against-cypher-injection
 :author: Andrew Bowman, Gemma Lamont
 :neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4, 5.x
 :tags: cypher, security
 :category: security
 
-== What is Cypher injection?
+== What is Cypher Injection?
 
-Cypher injection is a way for maliciously formatted input to jump out of its context, and by altering the query itself, hijack the query and perform unexpected operations on the database.
+Cypher Injection is a way for maliciously formatted input to jump out of its context, and by altering the query itself, hijack the query and perform unexpected operations on the database.
 
 This is a cousin to SQL injection, but affects our Cypher query language.
 
@@ -23,7 +23,7 @@ the semicolon would finish the statement, and the `--` would comment out the res
 Given that Bobby’s mother would likely have continued her crusade, her next child might be named to target Cypher, used by the leading graph database Neo4j.
 Let’s call them Little Robby Labels.
 
-`"Robby' WITH DISTINCT true as haxxored MATCH (s:Student) DETACH DELETE s //"`
+`"Robby' WITH DISTINCT true as haxxored MATCH (s:Student) DETACH DELETE s; //"`
 
 This is an attempt at Cypher Injection, the equivalent of the SQL Injection attack, but with the deletion of all :Student nodes instead.
 The `WITH` clause in the middle is to ensure the result set is reduced to a single row before deleting all students.
@@ -31,11 +31,9 @@ The `WITH` clause in the middle is to ensure the result set is reduced to a sing
 If Robby’s school used string concatenation to build their queries, this attack might succeed:
 
 ----
-
 String queryString = "CREATE (s:Student) SET s.name = '" + studentName + "'";
 
 Result result = session.run(queryString);
-
 ----
 
 The query that will be run is:
@@ -44,7 +42,7 @@ The query that will be run is:
 [source,cypher]
 ----
 CREATE (s:Student)
-SET s.name = 'Robby' WITH DISTINCT true as haxxored MATCH (s:Student) DETACH DELETE s //';
+SET s.name = 'Robby' WITH DISTINCT true as haxxored MATCH (s:Student) DETACH DELETE s; //';
 ----
 
 After the Robby node is created, all :Student nodes are found and deleted.
@@ -55,7 +53,16 @@ When receiving user input, it is possible to prevent Cypher Injection by using p
 
 In the above example, instead of concatenating the students name with the `CREATE` query, one should use parameters instead:
 
-`:param name => "Robby' WITH DISTINCT true as haxxored MATCH (s:Student) DETACH DELETE s //"`
+----
+Map<String,Object> params = new HashMap<>();
+params.put( "studentName", studentName );
+
+String query =
+"CREATE (s:Student)" + "\n" +
+"SET s.name = $studentName";
+
+Result result = transaction.execute( query, params );
+----
 
 The parameterized query would look like this:
 
@@ -370,16 +377,16 @@ Validation can be used alongside sanitization. Keep in mind that both techniques
 Checking user input for whitespace sounds like a good way to avoid injection, and in some cases it would work,
 consider the example:
 
-`"Robby' MATCH (s:Student) DETACH DELETE s //"`
+`"Robby' MATCH (s:Student) DETACH DELETE s; //"`
 
 A validation check for whitespace would flag this query as invalid, but checking for whitespace alone isn’t enough.
 In Cypher using block comments to replace whitespaces is also valid, the following query would, therefore, pass whitespace validation checks:
 
-`"Robby'/&#42;&#42;/MATCH/&#42;&#42;/(s:Student)/&#42;&#42;/DETACH/&#42;&#42;/DELETE/&#42;&#42;/s/&#42;&#42;///"`
+`"Robby'/&#42;&#42;/MATCH/&#42;&#42;/(s:Student)/&#42;&#42;/DETACH/&#42;&#42;/DELETE/&#42;&#42;/s;/&#42;&#42;///"`
 
 Note that in this case, filtering for `/&#42;&#42;/` is still not enough as block comments can, themselves, contain random ignorable characters: `/&#42;&#42;thisisacomment&#42;&#42;/`.
 
-Checking for and cleaning up whitespace may be useful for your application, but shouldn't be relied upon as a secure way of avoiding Cypher injection.
+Checking for and cleaning up whitespace may be useful for your application, but shouldn't be relied upon as a secure way of avoiding Cypher Injection.
 
 ==== Unicode Encoding
 
@@ -389,7 +396,7 @@ For example; the single quote character `'` can be encoded as `\u0027`.
 When sanitizing a string for the removal of escape quotation characters, it is important to also check for the unicode equivalent.
 The following query doesn't look like it escapes the string at first glance:
 
-`"Robby\u0027 MATCH (s:Student) DETACH DELETE s //"`
+`"Robby\u0027 MATCH (s:Student) DETACH DELETE s; //"`
 
 But in reality, Cypher will resolve the unicode into a single quote and treat it as such in the compilation of the query.
 
@@ -430,7 +437,18 @@ For example; Little Robby Labels sets up an account with their username set as:
 
 As the username is received from the user directly, our application sets it using a parameter.
 
-`:param username => "LilRob' OR 1=1 WITH true AS hacked MATCH (all) DETACH DELETE all; //"`
+----
+Map<String,Object> params = new HashMap<>();
+params.put( "username", username );
+
+String query =
+"CREATE (u:User)" + "\n" +
+"SET u.username = $username";
+
+Result result = transaction.execute( query, params );
+----
+
+The parameterized query would look like this:
 
 [source,cypher]
 ----
@@ -479,7 +497,7 @@ SET s.year = 2021, s.name = row.student_name
 
 Is this vulnerable to Little Robby Labels?
 
-No, it is not. Cypher injection is still impossible here, even if parameters aren't being used.
+No, it is not. Cypher Injection is still impossible here, even though parameters can't be used for the row data.
 
 The LOAD query is independent of the CSV that is to be processed.
 This means that, regardless of the content of each row, the content cannot affect or hijack the query itself.
