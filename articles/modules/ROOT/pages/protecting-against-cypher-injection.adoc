@@ -23,12 +23,11 @@ the semicolon would finish the statement, and the `--` would comment out the res
 Given that Bobby’s mother would likely have continued her crusade, her next child might be named to target Cypher, used by the leading graph database Neo4j.
 Let’s call them Little Robby Labels.
 
-`"Robby' WITH DISTINCT true as haxxored MATCH (s:Student) DETACH DELETE s; //"`
+`"Robby' WITH true as ignored MATCH (s:Student) DETACH DELETE s; //"`
 
 This is an attempt at Cypher Injection, the equivalent of the SQL Injection attack, but with the deletion of all :Student nodes instead.
-The `WITH` clause in the middle is to ensure the result set is reduced to a single row before deleting all students.
 
-If Robby’s school used string concatenation to build their queries, this attack might succeed:
+If Robby's school used string concatenation to build their queries, this attack might succeed:
 
 ----
 String queryString = "CREATE (s:Student) SET s.name = '" + studentName + "'";
@@ -42,7 +41,7 @@ The query that will be run is:
 [source,cypher]
 ----
 CREATE (s:Student)
-SET s.name = 'Robby' WITH DISTINCT true as haxxored MATCH (s:Student) DETACH DELETE s; //';
+SET s.name = 'Robby' WITH true as ignored MATCH (s:Student) DETACH DELETE s; //';
 ----
 
 After the Robby node is created, all :Student nodes are found and deleted.
@@ -87,7 +86,7 @@ For example the following query, for a number literal, is still vulnerable when 
 
 `query = "MATCH (user) WHERE user.id =" + userid + ";"`
 
-Where the malicious userid input is: `"1 OR 1 = 1 WITH DISTINCT true AS haxxored MATCH (all) DETACH DELETE all; //"`
+Where the malicious userid input is: `"1 OR 1 = 1 WITH true AS ignored MATCH (all) DETACH DELETE all; //"`
 This can also be easily fixed by using parameters:
 
 [source,cypher]
@@ -329,7 +328,7 @@ so it isn't possible to parameterize the input.
 
 A possible attack input would be:
 
-`Input = &#96;) RETURN 1 as a UNION MATCH (n) RETURN 1 WITH DISTINCT true AS haxxored MATCH (n) DETACH DELETE n; //`
+`Input = &#96;) RETURN 1 as a UNION MATCH (n) RETURN 1 WITH true AS ignored MATCH (n) DETACH DELETE n; //`
 
 The backtick escapes the label name context and the parentheses closes the node.
 The `UNION` here then ensures that a match is made, because if the first `MATCH` statement doesn't return anything, the next part of the query won't be run.
@@ -351,7 +350,7 @@ It is possible to add validation to the user input as well, in this case, valida
 
 The sanitization needed for this query is escaping the additional backtick character.
 
-`SanitizedInput = &#96;&#96;) RETURN 1 as a UNION MATCH (n) RETURN 1 WITH DISTINCT true AS haxxored MATCH (n) DETACH DELETE n; //`
+`SanitizedInput = &#96;&#96;) RETURN 1 as a UNION MATCH (n) RETURN 1 WITH true AS ignored MATCH (n) DETACH DELETE n; //`
 
 The additional backtick added now ensures that the entire string is used as the node label, and not able to break out of that context.
 
