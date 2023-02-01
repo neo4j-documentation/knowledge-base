@@ -35,6 +35,7 @@ zendesk {
 def stage = project.findProperty('stage')
 
 asciidoctorj {
+    jrubyVersion = '9.4.0.0' 
     version = '2.5.7'
     requires "${rootProject.projectDir}/resources/extensions.rb"
     attributes 'allow-uri-read': '',
