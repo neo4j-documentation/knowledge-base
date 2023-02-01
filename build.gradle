@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    asciidoctorGems 'rubygems:neo4j-asciidoctor-extensions:0.1.0'
+    asciidoctorGems 'rubygems:neo4j-asciidoctor-extensions:1.0.2'
 }
 
 zendesk {
@@ -37,6 +37,7 @@ def stage = project.findProperty('stage')
 asciidoctorj {
     jrubyVersion = '9.4.0.0' 
     version = '2.5.7'
+    //pdfVersion = '2.3.4'
     requires "${rootProject.projectDir}/resources/extensions.rb"
     attributes 'allow-uri-read': '',
             'assets-cdn': 'https://s3.amazonaws.com/dev.assets.neo4j.com/kb-content',
