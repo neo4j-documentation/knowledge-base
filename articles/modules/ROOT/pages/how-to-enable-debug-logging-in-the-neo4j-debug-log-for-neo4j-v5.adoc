@@ -1,0 +1,30 @@
+= How to Enable Debug Logging in the Neo4j debug.log for Neo4j v5
+:slug: how-to-enable-debug-logging-in-the-neo4j-debug-log-for-neo4j-v5.adoc
+:author: Renea Caldwell
+:category: logging
+:tags: configuration,logging
+:neo4j-versions: 5.x
+
+Starting in Neo4j v5, the configuration settings for file management have been moved to log4j configuration files. 
+The log4j2 framework allows for flexibility in logging requirements and additional information can be found in Neo4j documentation to explain usage.
+
+You can find additional information on the changes from v4 to v5 at:
+https://neo4j.com/docs/upgrade-migration-guide/current/version-5/migration/breaking-changes/#_changes_to_configuration
+
+Additional information on how to use log4j configuration and logging in Neo4j v5 can be found at:
+https://neo4j.com/docs/operations-manual/5/monitoring/logging/
+
+In earlier v4.x versions, one could enable debug logging for the Neo4j debug.log by enabling the setting `dbms.logs.debug.level=DEBUG` in the neo4j.conf file. If you desire simliar behavior in the later v5 versions, the **server-conf.xml** can be configured to the **DEBUG** level.
+
+To do this, update the conf/server-logs.xml file to update the DebugLog Logger to DEBUG level like below. (The default is set to INFO.)
+[source,properties]
+       <!-- The debug log is used as the root logger to catch everything -->
+        <Root level="DEBUG">
+            <AppenderRef ref="DebugLog"/> <!-- Keep this -->
+        </Root>
+
+The configuration change will get picked up on restart or after the time configured in the server-conf.xml **monitorInterval** has passed. (The default is 30 seconds as shown below)
+
+[source,properties]
+ <Configuration status="ERROR" monitorInterval="30" packages="org.neo4j.logging.log4j">
+
