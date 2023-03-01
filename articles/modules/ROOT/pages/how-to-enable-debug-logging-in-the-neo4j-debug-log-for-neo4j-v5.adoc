@@ -1,5 +1,5 @@
 = How to Enable Debug Logging in the Neo4j debug.log for Neo4j v5
-:slug: how-to-enable-debug-logging-in-the-neo4j-debug-log-for-neo4j-v5.adoc
+:slug: how-to-enable-debug-logging-in-the-neo4j-debug-log-for-neo4j-v5
 :author: Renea Caldwell
 :category: logging
 :tags: configuration,logging
