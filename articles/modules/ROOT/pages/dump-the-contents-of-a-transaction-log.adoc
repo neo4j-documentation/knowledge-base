@@ -22,7 +22,7 @@ $ java -cp 'lib/*:system/lib/*:/usr/share/neo4j/lib/*' org.neo4j.tools.dump.Dump
 ----
 For 4.0 and higher
 ----
-$ java -cp 'lib/*:system/lib/*:/usr/share/neo4j/lib/*' com.neo4j.tools.dump.DumpLogicalLog ./data/transactions/<Your Database Here>/neostore.transaction.db.0 /tmp/dumptxlog_1.log
+$ java -cp 'lib/*:system/lib/*:/usr/share/neo4j/lib/*' com.neo4j.tools.dump.DumpLogicalLog ./data/transactions/<Your Database Here>/neostore.transaction.db.0 > /tmp/dumptxlog_1.log
 ----
 Once dumped, you can search for a node ID, etc.
 
