@@ -6,6 +6,20 @@
 :promoted: true
 :category: support
 
+### Neo4j Database Enterprise Edition 2025
+
+For reference and planning purposes, the following table provides a list of Neo4j 2025.x releases, respective release dates and when that release will no longer be supported by hotfixes, which is generally the release of the next minor release with the 2025.x family and will be on a regular cadence.
+
+Review our https://neo4j.com/terms/support-terms/[Neo4j 5.x Support Terms] for reference.
+
+[options=header]
+|===
+|Release |Release Date |Hotfixes until |Compatible Driver Versions 
+|[white]*2025.01.0*      |[white]*February 06, 2025* |[white]*Release of 2025.02* |[white]*5.x, 4.4 (limited)*
+|===
+
+---
+
 ### Neo4j Database Enterprise Edition 5
 
 For reference and planning purposes, the following represents a list of Neo4j 5.x releases, release date, and when that release will no longer be supported by hotfixes. This is the release of the next minor release with the 5.x family and will be on a regular cadence.  
