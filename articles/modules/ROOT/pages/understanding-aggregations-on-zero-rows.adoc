@@ -1,7 +1,7 @@
 = Understanding aggregations on zero rows
 :slug: understanding-aggregations-on-zero-rows
 :author: Andrew Bowman
-:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4, 5.x
 :tags: cypher
 :category: cypher
 
@@ -180,3 +180,43 @@ However, it should be clear that setting the grouping key to null can have negat
 If we don't return and inspect the output, it's possible for bad data to have been written to the graph, and who knows when that would be detected.
 
 For these reasons, we feel justified that it is more correct to stay at 0 rows in these situations than to suddenly and unexpectedly change variable values and let the query continue in a not-so-sane state.
+
+
+=== Avoiding the problem by using subqueries
+
+Subqueries were introduced in Neo4j 4.x.
+They allow for a subquery to execute per input row, and they are another means by which we can avoid this zero-rows problem.
+
+All of the data for a row prior to the subquery call will continue to exist until the subquery call finishes, even if rows go to zero midway through subquery execution.
+
+If the subquery finishes and there are no rows to return at that point, only then is the corresponding row and its data wiped out.
+
+But if rows are recovered prior to the subquery ending, such as by performing an aggregation (without a grouping key), then since at least one returned row exists, the data for the row persists after that subquery return.
+
+In this way, by separating out the segment of cypher that COULD fail to match and hit zero rows into its own subquery, and using an aggregation to recover rows in any case, we can circumvent the problem:
+
+[source,cypher]
+----
+MATCH (movie:Movie)
+WHERE exists(movie.title)
+WITH count(movie) AS movieCount
+
+CALL {
+  MATCH (person:Person)
+  WHERE exists(person.title)
+  WITH count(person) AS personCount
+  RETURN personCount
+}
+
+RETURN personCount, movieCount
+----
+
+Notice that when we aggregate within the subquery, we no longer need to use `movieCount` as the grouping key.
+Why? Because `movieCount` exists outside the scope of the subquery, we don't need to retain it or address it at all within the subquery.
+
+Also, because subqueries execute per row, the row itself already predefines the grouping, even if we don't reference it within the subquery.
+
+This allows our `count()` aggregation to recover from zero rows, giving us a count of 0, and since a row is returned from the subquery, we retain the `movieCount` data from prior to the subquery call.
+
+Note that this only applies for the row data that existed prior to the subquery call.
+Any new data introduced within the subquery would be wiped out as expected if rows ever go to zero during the subquery execution.
