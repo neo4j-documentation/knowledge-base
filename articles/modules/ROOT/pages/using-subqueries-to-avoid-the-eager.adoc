@@ -1,0 +1,222 @@
+= Using Subqueries to Scope and Avoid Eager Behavior
+
+:slug: using-subqueries-to-avoid-the-eager
+:author: Andrew Bowman
+:neo4j-versions: 5.x, 4.4, 4.3, 4.2, 4.1
+:tags: cypher, performance, load-csv
+:category: cypher
+
+Eager operators in a query plan can be disruptive, especially when performing writes involving large amounts of data, or batch loading.
+
+If you've used `USING PERIODIC COMMIT LOAD CSV` to import data into Neo4j, it's likely at some point that you've been bitten by the Eager:
+Some operations require eagerly pulling in interim results for all rows, which effectively disables the `PERIODIC COMMIT` behavior, possibly causing you to go out of memory when running on a large input dataset.
+
+The culprit, in an EXPLAIN query plan, is usually the Eager operator, with a dark blue header.
+These are not just "monkeywrench operators" meant to disrupt your query, there are valid reasons these operators exist; they maintain the Cypher semantics which aim to minimize the effect of row order affecting processing and results.
+As long as those Cypher semantics are maintained, these operators will continue to be planned to preserve them, and it is therefore important to understand their consequences, and how to mitigate them.
+
+In most cases, the Eager operator cannot be removed from the query plan entirely, but with subqueries its effects can be scoped such that they are no longer disruptive or have an impact on heap and memory.
+This article provides some ways to minimize eager behavior by scoping their effect to local per-row executions with subqueries.
+
+NOTE: We won't be talking about EagerAggregations here, which result from aggregation functions like count() and collect().
+https://support.neo4j.com/hc/en-us/articles/4403024564243-Using-Subqueries-to-Control-the-Scope-of-Aggregations[We have a separate article for those here], but they can be similarly scoped via subqueries to avoid adding pressure to heap memory.
+
+== Understanding Eager, and why it exists
+
+What does the Eager operator mean? From the perspective of those writing the query, behavior-wise it means that your query is going to be processed differently than you may expect, operation-by-operation for all rows at a time with each step.
+As a side effect this may be memory-intensive, as all input rows and intermediate rows are processed all at once, and holding onto massive sets of interim results can cause high GC pauses, maybe even out of memory errors, and definitely prevents you from doing batch commiting as you intended to when `USING PERIODIC COMMIT`.
+
+Batch commits are not compatible with Eager behavior, as they require lazy row-by-row semantics for correct operation.
+While Cypher does not stop you from attempting batch commit operations when there is an Eager in the plan, they will not commit in batches, and you may encounter the above mentioned issues around GC pauses and heap problems.
+
+Why does this happen?
+
+Cypher semantics demand that to the greatest extent possible, operations from later in the query should not influence the results of operations from earlier in the query.
+For example, a MERGE that appears later in the query should not influence a MATCH that shows up earlier in the query (on nodes of the same label).
+
+At first glance such a rule may seem nonsensical, especially if only considering a single row of input, since of course a MATCH operation earlier in the query would execute before a MERGE that happens later in the query.
+
+However, the problem of ordering and influencing of results makes more sense when considering queries that execute over multiple rows, either from pure input, such as LOAD CSV, or from MATCH operations that can return many rows.
+Cypher planning would ordinarily try for row-by-row processing, so the entire remaining query would execute for each input row.
+Because of that, a MERGE from later in the query, applying to an earlier row of input, would happen before processing of a later row of input, that has yet to execute its MATCH operation.
+
+If that MERGE from later in the query could affact the results of a MATCH earlier in the query, then that violates the above mentioned Cypher semantics, and so Eager is planned to preserve them.
+This causes the change in execution behavior, so instead of lazy row-by-row processing, all rows are processed operation-by-operation.
+
+If the input size is too large, either from the very start, or building  up over the course of execution, since all interim results must be built up and held in memory at once for all rows, this could easily exceed the bounds of the heap and cause out of memory errors, thus the problem of Eager.
+
+We have a blog entry by Jennifer Reif discussing Eager and its effects in more detail here:
+
+https://community.neo4j.com/t5/general-discussions/cypher-sleuthing-the-eager-operator/m-p/50596
+
+Operations that are likely to result in Eager being planned include these in the query, when there is are operations preceding them (MATCH, MERGE, UNWIND, CALL, or LOAD CSV) that suggest multiple input rows to process:
+
+* MATCH (regular or OPTIONAL) and CREATE clauses (in any ordering) on the same node labels
+* MATCH (regular or OPTIONAL) and MERGE clauses (in any ordering) on the same node labels
+* CREATE and MERGE clauses (in any ordering) on the same node labels
+* Multiple MERGE clauses on the same labels
+* FOREACH clauses, especially when there are multiple of these in a query
+
+=== Setup and queries for investigating Eager
+
+We can use this set of two query statements to clear the db and create the initial single node for this exercise,
+and it can also be used for resetting later:
+
+[source,cypher]
+----
+MATCH (n) DETACH DELETE n;
+CREATE (:Node {id:1});
+----
+
+Here is the initial query we will use:
+
+[source,cypher]
+----
+EXPLAIN
+UNWIND [1,2,3,4,5] as id
+MATCH (n:Node {id: id})
+MERGE (x:Node {id: id + 1})
+----
+
+Remember that in Cypher, operators produce rows, and execute per row.
+That's why the UNWIND is important for the Eager to show up, as the planner infers that there are multiple rows for which the MATCH will be called (not just once),
+so the execution of the MATCH when processing a later row could be influenced by the MERGE being performed when processing an earlier row.
+
+The same thing would happen if we derived the id from a LOAD CSV, with the difference that we might be ingesting from a massive file, in which case the Eager behavior would be much more impactful on memory.
+
+We can see the Eager operator in the resulting query plan here:
+
+image::https://i.imgur.com/7cCwf9x.jpeg[]
+
+As described above, this means that the query will execute operation by operation for all rows. Here is what would happen if we actually ran this:
+
+* The MATCH will be performed for each of the input rows from the UNWIND.
+* Only the first row will succeed, since at present there is only one node present, with id: 1.
+* For that single matching row, MERGE will be performed, creating one new :Node with id:2.
+* Total nodes from the first run of this query will be 2.
+* If performing subsequent executions, this will create one node each run, until there are a total of 6 nodes with ids of 1 (the original) through 6.
+
+This behavior is quite different than if we expected or wanted per-row semantics, where we wanted the operations later to execute per row from the UNWIND.
+But that's not how Cypher works.
+
+This is where subqueries come to the rescue.
+
+== Subqueries enforce per-row processing
+
+To review, a subquery means per input row, the subquery will execute in full.
+The planner has no ability to insert an Eager between separate per-row executions of a single subquery.
+If there is an Eager planned *within* the subquery, it will be scoped, so the eager behavior will apply to an individual execution of the subquery.
+
+[source,cypher]
+----
+EXPLAIN
+UNWIND [1,2,3,4,5] as id
+CALL {
+  WITH id
+  MATCH (n:Node {id: id})
+  MERGE (x:Node {id: id + 1})
+  RETURN true as done
+}
+RETURN true as done
+----
+
+(The `RETURN true as done` rows aren't necessary in 4.4 and above, but are needed in prior versions due to restrictions that have since been dropped for ending a subquery with a RETURN, and not ending a query with a subquery.)
+
+With these changes, per id from the UNWIND, the subquery will execute in full. Here is what would result if we actually ran the query:
+
+* The first row from the UNWIND, id 1, will start subquery execution.
+* It will execute the MATCH, and find the existing node with id: 1.
+* MERGE will execute, creating a node with id:2.
+* The RETURNs will execute, ending the subquery execution for that row, and producing the first output row from the query.
+* The second row from the UNWIND, id 2, will start subquery execution.
+* It will execute the MATCH, and find the just-created node with id: 2.
+* MERGE will execute, creating a node with id:3.
+* The RETURNs will execute, ending the subquery execution for that row, and producing the second output row from the query.
+* The subsequent rows from the UNWIND will execute in a similar manner from the subquery.
+* As a result of the subquery scoping the Eager and enforcing per-row execution here, a single run of this query will produce 5 new nodes, for a total of 6, with ids of 1 through 6.
+
+While this has changed behavior such that it won't pressure the heap, and will again allow sane batch processing, it is important to note that the query results changed!
+
+Again, this is because subqueries enforce per-row processing behavior, but only between the input rows at the point of the subquery call, and the entirety of the single subquery.
+If two separate back-to-back subquery calls were used instead, then the planner could possibly plan an Eager between those calls, and you would need to check to see if that meets your expectations for the behavior and results you want, or needs to be further tuned to remove the Eager.
+
+=== Scoping the Eager
+
+Even though the subquery usage has changed the behavior, and allowed us to process in a per-row manner, the Eager is still in the query plan:
+
+image::https://i.imgur.com/HwfyuU6.jpeg[]
+
+The difference is in where the Eager occurs in the plan.
+In this case, the Eager is on the right-hand side of an Apply operator.
+
+The Apply operator means: for each input row from the left side, do all the stuff on the right side of the operator.
+Here's the official docs for Apply:
+
+https://neo4j.com/docs/cypher-manual/4.4/execution-plans/operators/#query-plan-apply
+
+Subqueries generate Apply operators, so this plan just confirms that the Eager is scoped to an individual subquery execution, and won't alter behavior outside of the subquery.
+
+When managing eager behavior, this kind of plan is what you're looking for to confirm that the Eager is scoped behind an Apply,
+and not on the main branch of execution, which is the direct line of operators from the top-leftmost operator (which may not be at the top of the plan, so check carefully) to the last operator at the bottom.
+
+== Nested subqueries for additional scoping
+
+For a more complex query, a single subquery usage may not be enough to properly reign in the eager behavior.
+
+That is, when the Eager is scoped behind a subquery, it means each individual subquery execution behaves eagerly, and that's usually enough to make the impact minimal.
+But when an individual subquery execution can generate a ton of rows (such as additional MATCHes) such that the Eager still retains a negative impact,
+it may be necessary to use another subquery to scope the Eager down to yet another level.
+
+It is important that nested subqueries are applied such that they are still logically correct and produce correct results with respect to the scoping.
+
+For example, if you need to aggregate, be aware that if you aggregate within a subquery, you will be performing aggregation per subquery execution, that is its scope.
+If your aggregation needs to aggregate beyond the scope of per subquery execution, then it belongs outside of the subquery so it has visilibity for the wider scope.
+
+More on usage of aggregations and subqueries can be found here:
+
+https://support.neo4j.com/hc/en-us/articles/4403024564243-Using-Subqueries-to-Control-the-Scope-of-Aggregations
+
+== Using APOC procs as subqueries
+
+If you aren't running Neo4j 4.1 or higher, you can make use of some procs in APOC to act as subqueries for a similar effect.
+
+Notably, `apoc.cypher.run()` for read subqueries, and `apoc.cypher.doIt()` when it needs to write to the graph.
+
+Here's another similar query that results in an Eager operator in the plan:
+
+[source,cypher]
+----
+EXPLAIN
+UNWIND [1,2,3,4,5] as id
+MERGE (c:Customer {id: id})
+MERGE (e:Employee {id: c.id*10})
+ON CREATE SET e:Customer
+WITH c, e
+MERGE (e)-[r:DEDICATED_TO]->(c)
+----
+
+In this one, we conditionally add the :Customer label to the :Employee node.
+Now the two MERGEs might interfere with each other across rows such that an Eager will be planned to preserve Cypher semantics.
+
+We can apply `apoc.cypher.doIt()` as a subquery, using it similar as we would a native subquery:
+
+[source,cypher]
+----
+EXPLAIN
+UNWIND [1,2,3,4,5] as id
+MERGE (c:Customer {id: id})
+WITH c
+CALL apoc.cypher.doIt("
+	MERGE (e:Employee {id: c.id*10})
+	ON CREATE SET e:Customer",
+    {c:c}) YIELD value
+WITH c, value.e as e
+MERGE (e)-[r:DEDICATED_TO]->(c)
+----
+
+Just like before, isolating the scope with a subquery prevents the planner from adding the Eager, it vanishes from the query plan.
+
+Be aware, however, that usage of APOC procedures that execute a dynamic query like this require overhead to parse, compile, and execute the query, a cost that you do not have to pay when using native Cypher subqueries.
+
+Since in Cypher operations execute per row, then the APOC proc will execute per row, so the overhead cost multiplies out accordingly.
+As such, native Cypher subqueries are nearly always going to be more performant, especially as the rows that need to be processed increases.
