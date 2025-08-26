@@ -1,16 +1,16 @@
-= How Neo4j Browser uses bolt+routing
+= How Neo4j Browser uses the neo4j scheme
 :slug: how-neo4j-browser-bolt-routing
 :author: José Rocha
 :neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
-There are two kinds of Bolt drivers specified by URI scheme: the *bolt://* scheme is used to create a direct driver and the *bolt+routing://* scheme is used to create a routing driver.
+There are two kinds of Bolt drivers specified by URI scheme: the *bolt://* scheme is used to create a direct driver and the *neo4j://* scheme is used to create a routing driver.
 
 Neo4j Browser will always:
 
 - Use a direct driver for user administration frames
 - Use a direct driver to populate :sysinfo and the member specific items in the information panel e.g. version, cluster role etc
 
-When using bolt+routing and the provided URI points to a Core Causal Cluster member Neo4j Browser will:
+When using the neo4j scheme and the provided URI points to a Core Causal Cluster member Neo4j Browser will:
 
 - Use a routing driver for all cypher queries submitted via the editor (including calls to user admininstration procedures)
 - Use a routing driver to populate the metadata (labels, relationship types, properties) in the information panel
@@ -20,7 +20,7 @@ If the provided URI points to a Read-Replica Causal Cluster member, Neo4j Browse
 - Use a direct driver for all cypher queries submitted via the editor
 - Use a direct driver to populate the metadata (labels, relationship types, properties) in the information panel
 
-Please note that in order for bolt+routing to work correctly the current user must exist on all members in the cluster with the same authentication credentials.
+Please note that in order for the neo4j scheme to work correctly the current user must exist on all members in the cluster with the same authentication credentials.
 
 == Troubleshooting
 
