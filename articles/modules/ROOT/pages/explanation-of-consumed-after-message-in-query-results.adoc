@@ -6,9 +6,10 @@
 :neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
 
 After successfully executing a query through the Neo4j Browser or cypher-shell, you may see a message formatted as follows accompanying the query results:
+Started streaming 32 records after 33ms and completed after 3777ms.
 
 ```
-X rows available after Y ms, consumed after another Z ms
+Started streaming X records after Y ms and completed after another Z ms
 ```
 
 This provides the following information:
@@ -33,7 +34,7 @@ This is the number of milliseconds it took to consume the remaining results.
 
 This includes the time it took to transport all results over the wire and back to the client, so it doesn't only include the time it took to finish the query on the server.
 
-To calculate the total time for the query to finish and to obtain all results, add the "available after" and "consumed afer another" values.
+To calculate the total time for the query to finish and to obtain all results, add the "result_available_after" and "result_consumed_after" values.
 
 If you are only interested in the time it took to execute the query on the server, then look to the query logs instead:
 https://neo4j.com/docs/operations-manual/current/monitoring/logging/#query-logging
