@@ -1,0 +1,107 @@
+= How to Force Match Ordering
+:slug: how-to-force-match-ordering
+:author: Andrew Bowman
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4, 5.x
+:tags: cypher
+:category: cypher
+
+Like SQL, Cypher is a declarative query language. This is most evident with Match patterns, which describe what you want to find in the graph.
+You do not dictate to it how to find these patterns, the way you might in an imperative programming language.
+
+Not only does the query planner decide how it will fulfill a single Match pattern, it has the ability to consider the entirety of patterns connected by common variables across multiple Match clauses in your query.
+This means that the planner does not have to fulfill Matches in the order that they occur in the query, and this can sometimes be surprising, especially when the ordering of operations the planner chooses to fulfill these Matches is suboptimal.
+
+Keep in mind also that Where clauses are not independent, and are bound to the preceding Match or With clause.
+This means that since multiple Match clauses are evaluated during planning, their Where clauses are likewise available for consideration.
+
+It is also important to understand that a With clause alone also cannot prevent the planner from considering Match patterns after it.
+
+This article discusses the reasons for this behavior, offers examples of when this behavior can become problematic, and provides techniques you can use to force the planner to fulfill separate Match clauses in the order they occur in your query.
+
+== In a query plan there is no Match, there is only Expand
+
+While the Cypher query describes "what" you want to find, the execution plan operators that make up a query plan are "how" Neo4j will fulfill the query.
+
+If you review https://neo4j.com/docs/cypher-manual/current/execution-plans/operator-summary/[query plan operators in the docs], you may note that they do not correspond one-to-one with Cypher clauses.
+There is no Match operator.
+Instead, to fulfill anchoring and expansion, there are several kinds of lookup operators (AllNodesScan, NodeByLabelScan, NodeIndexSeek, and others), and several kinds of expand operators.
+
+As such, this particular aspect of query planning involves the analysis of the Match patterns in a query (not Match pattern by Match pattern, but connected patterns across multiple Matches),
+and breaking those down into these various smaller operations.
+The ordering of those smaller operations is not constrained by the ordering of the Match patterns that these operations fulfill.
+Instead, the planner will attempt to use what it knows of the graph via metadata and counts data in order to select an optimal plan.
+
+In some cases, this works well, as the planner is able to see the larger pattern across Matches and consider other options that may be better for lookup and anchoring.
+
+In other cases, the metadata available to the planner may not give it sufficient knowledge to choose an optimal plan, and a suboptimal one may result instead.
+It is also possible for a plan to be mostly optimal across most of the graph data it can match against, but for there to be exceptional cases, such as supernodes with dense relationships, that end up being severely suboptimal when the query executes across these exceptional areas of the graph.
+
+
+== Barriers to entry
+
+We cannot directly dictate the ordering of how Matches are evaluated.
+We can, however, use some Cypher techniques to introduce barriers in a query that the planner cannot cross when planning how to solve a Match clause.
+
+Consider a graph of users, the tv shows they like, and the country each lives in.
+A query for one such path, with all 3 nodes of the path strictly defined, might be this:
+
+[source,cypher]
+----
+MATCH (got:TvShow {name:'Game of Thrones'})<-[:LIKES]-(user:User {id:12345})-[:LIVES_IN]->(country:Country {name:'United States'})
+----
+
+We know that countries are supernodes, as there are many users who live in the same country, so anchoring and expanding from country nodes will be expensive.
+We also know that tv shows are supernodes, as there are many users who like the same show, so anchoring and expanding from tv show nodes is expensive.
+
+If the metadata available to the planner is not enough to guide it to an efficient plan, and it chooses either the tv show, country, or both for anchoring, then we may be looking for a way to force the planner to choose a more optimal plan.
+
+The below presents two of the best means to influence clause ordering in the query.
+
+=== With clause as a barrier
+
+One attempt to do so might be to break up the single Match into two, and to use a With clause in between in hope that it enforces ordering.
+
+[source,cypher]
+----
+MATCH (user:User {id:12345})-[:LIVES_IN]->(country:Country {name:'United States'})
+WITH user, country
+MATCH (got:TvShow {name:'Game of Thrones'})<-[:LIKES]-(user)
+----
+
+However, the With clause alone does not apply a barrier to reordering.
+This may actually produce the exact same plan.
+
+However, if we introduce a new variable in the With clause, then that DOES introduce a barrier across which the planner cannot consider or reorder:
+
+[source,cypher]
+----
+MATCH (user:User {id:12345})-[:LIVES_IN]->(country:Country {name:'United States'})
+WITH user, country, 1 as ignored
+MATCH (got:TvShow {name:'Game of Thrones'})<-[:LIKES]-(user)
+----
+
+The `1 as ignored` as a newly introduced variable is the key here.
+This variable is not a part of the pattern in the Match nor derived from any part of that pattern.
+The planner is forced to plan fulfilment of the first Match clause first, as it does not know if the variable introduced will influence subsequent operations.
+
+
+=== Subquery as a barrier (since Neo4j 4.1.x)
+
+Cypher subqueries that follow the `CALL {}` syntax are like per-row foreach operations.
+That is, per incoming row to the subquery, the entirety of the subquery's logic will execute for that input row.
+
+That forces a barrier to reordering, as clauses prior the subquery must all execute for that row prior to start of the subquery for that row.
+As such, any Match clause prior to the subquery will be planned without consideration to the Match clauses within, or after, the subquery.
+
+Here is one example:
+
+[source,cypher]
+----
+MATCH (user:User {id:12345})-[:LIVES_IN]->(country:Country {name:'United States'})
+CALL {
+  WITH user, country
+  MATCH (got:TvShow {name:'Game of Thrones'})<-[:LIKES]-(user)
+  RETURN got
+}
+...
+----
