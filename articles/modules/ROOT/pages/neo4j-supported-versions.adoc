@@ -15,12 +15,12 @@ Review our https://neo4j.com/terms/support-terms/[Neo4j 5.x Support Terms] for r
 [options=header]
 |===
 |Release |Release Date |Hotfixes until |Compatible Driver Versions 
-|[white]*2025.06.0*      |[white]*July 2, 2025* |[white]*Release of 2025.07* |[white]*5.x, 4.4 (limited)*
-|[white]*2025.05.0*      |[white]*June 3, 2025* |[white]*Release of 2025.06* |[white]*5.x, 4.4 (limited)*
-|[white]*2025.04.0*      |[white]*April 30, 2025* |[white]*Release of 2025.05* |[white]*5.x, 4.4 (limited)*
-|[white]*2025.03.0*      |[white]*March 27, 2025* |[white]*Release of 2025.04* |[white]*5.x, 4.4 (limited)*
-|[white]*2025.02.0*      |[white]*February 27, 2025* |[white]*Release of 2025.03* |[white]*5.x, 4.4 (limited)*
-|[white]*2025.01.0*      |[white]*February 06, 2025* |[white]*Release of 2025.02* |[white]*5.x, 4.4 (limited)*
+|[white]*2025.06.0*      |[white]*July 2, 2025* |[white]*Release of 2025.07* |[white]*6.x, 5.x, 4.4 (limited)*
+|[white]*2025.05.0*      |[white]*June 3, 2025* |[white]*Release of 2025.06* |[white]*6.x, 5.x, 4.4 (limited)*
+|[white]*2025.04.0*      |[white]*April 30, 2025* |[white]*Release of 2025.05* |[white]*6.x, 5.x, 4.4 (limited)*
+|[white]*2025.03.0*      |[white]*March 27, 2025* |[white]*Release of 2025.04* |[white]*6.x, 5.x, 4.4 (limited)*
+|[white]*2025.02.0*      |[white]*February 27, 2025* |[white]*Release of 2025.03* |[white]*6.x, 5.x, 4.4 (limited)*
+|[white]*2025.01.0*      |[white]*February 06, 2025* |[white]*Release of 2025.02* |[white]*6.x, 5.x, 4.4 (limited)*
 |===
 
 Link to https://github.com/neo4j/neo4j/wiki/Neo4j-2025-changelog/[Changelogs]
@@ -36,33 +36,33 @@ Review our https://neo4j.com/terms/support-terms/[Neo4j 5.x Support Terms] for r
 [options=header]
 |===
 |Release |Release Date |Hotfixes until |Compatible Driver Versions 
-|[white]*5.26 LTS*      |[white]*December 6, 2024* |[white]*June 6, 2028* |[white]*5.x, 4.4*
-|[white]*5.25*      |[white]*October 31, 2024* |[white]*Release of 5.26* |[white]*5.x, 4.4*
-|[white]*5.24*      |[white]*September 27, 2024* |[white]*Release of 5.25* |[white]*5.x, 4.4*
-|[white]*5.23*      |[white]*August 22, 2024* |[white]*Release of 5.24* |[white]*5.x, 4.4*
-|[white]*5.22*      |[white]*July 24, 2024* |[white]*Release of 5.23* |[white]*5.x, 4.4*
-|[white]*5.21*      |[white]*June 28, 2024* |[white]*Release of 5.22* |[white]*5.x, 4.4*
-|[white]*5.20*      |[white]*May 23, 2024* |[white]*Release of 5.21* |[white]*5.x, 4.4*
-|[white]*5.19*      |[white]*April 12, 2024* |[white]*Release of 5.20* |[white]*5.x, 4.4*
-|[white]*5.18*      |[white]*March 13, 2024* |[white]*Release of 5.19* |[white]*5.x, 4.4*
-|[white]*5.17*      |[white]*February 23, 2024* |[white]*Release of 5.18* |[white]*5.x, 4.4*
-|[white]*5.16*      |[white]*January 22, 2024* |[white]*Release of 5.17* |[white]*5.x, 4.4*
-|[white]*5.15*      |[white]*December 15, 2023* |[white]*Release of 5.16* |[white]*5.x, 4.4*
-|[white]*5.14*      |[white]*November 24, 2023* |[white]*Release of 5.15* |[white]*5.x, 4.4*
-|[white]*5.13*      |[white]*October 23, 2023* |[white]*Release of 5.14* |[white]*5.x, 4.4*
-|[white]*5.12*      |[white]*September 15, 2023* |[white]*Release of 5.13* |[white]*5.x, 4.4*
-|[white]*5.11*      |[white]*August 14, 2023* |[white]*Release of 5.12* |[white]*5.x, 4.4*
-|[white]*5.10*      |[white]*July 19, 2023* |[white]*Release of 5.11* |[white]*5.x, 4.4*
-|[white]*5.9*      |[white]*June 15, 2023* |[white]*Release of 5.10* |[white]*5.x, 4.4*
-|[white]*5.8*      |[white]*May 16, 2023* |[white]*Release of 5.9* |[white]*5.x, 4.4*
-|[white]*5.7*      |[white]*April 20, 2023* |[white]*Release of 5.8* |[white]*5.x, 4.4*
-|[white]*5.6*      |[white]*March 24, 2023* |[white]*Release of 5.7* |[white]*5.x, 4.4*
-|[white]*5.5*      |[white]*February 16, 2023* |[white]*Release of 5.6* |[white]*5.x, 4.4*
-|[white]*5.4*      |[white]*January 26, 2023* |[white]*Release of 5.5* |[white]*5.x, 4.4*
-|[white]*5.3*      |[white]*December 15, 2022* |[white]*Release of 5.4* |[white]*5.x, 4.4*
-|[white]*5.2*      |[white]*November 21, 2022* |[white]*Release of 5.3* |[white]*5.x, 4.4*
-|[white]*5.1* `GA` |[white]*October 24, 2022* |[white]*Release of 5.2* |[white]*5.x, 4.4*
-|[white]*5.0* `LA` |[white]*October 06, 2022* |[white]*October 24, 2022* |[white]*5.x, 4.4*
+|[white]*5.26 LTS*      |[white]*December 6, 2024* |[white]*June 6, 2028* |[white]*6.x, 5.x, 4.4*
+|[white]*5.25*      |[white]*October 31, 2024* |[white]*Release of 5.26* |[white]*6.x, 5.x, 4.4*
+|[white]*5.24*      |[white]*September 27, 2024* |[white]*Release of 5.25* |[white]*6.x, 5.x, 4.4*
+|[white]*5.23*      |[white]*August 22, 2024* |[white]*Release of 5.24* |[white]*6.x, 5.x, 4.4*
+|[white]*5.22*      |[white]*July 24, 2024* |[white]*Release of 5.23* |[white]*6.x, 5.x, 4.4*
+|[white]*5.21*      |[white]*June 28, 2024* |[white]*Release of 5.22* |[white]*6.x, 5.x, 4.4*
+|[white]*5.20*      |[white]*May 23, 2024* |[white]*Release of 5.21* |[white]*6.x, 5.x, 4.4*
+|[white]*5.19*      |[white]*April 12, 2024* |[white]*Release of 5.20* |[white]*6.x, 5.x, 4.4*
+|[white]*5.18*      |[white]*March 13, 2024* |[white]*Release of 5.19* |[white]*6.x, 5.x, 4.4*
+|[white]*5.17*      |[white]*February 23, 2024* |[white]*Release of 5.18* |[white]*6.x, 5.x, 4.4*
+|[white]*5.16*      |[white]*January 22, 2024* |[white]*Release of 5.17* |[white]*6.x, 5.x, 4.4*
+|[white]*5.15*      |[white]*December 15, 2023* |[white]*Release of 5.16* |[white]*6.x, 5.x, 4.4*
+|[white]*5.14*      |[white]*November 24, 2023* |[white]*Release of 5.15* |[white]*6.x, 5.x, 4.4*
+|[white]*5.13*      |[white]*October 23, 2023* |[white]*Release of 5.14* |[white]*6.x, 5.x, 4.4*
+|[white]*5.12*      |[white]*September 15, 2023* |[white]*Release of 5.13* |[white]*6.x, 5.x, 4.4*
+|[white]*5.11*      |[white]*August 14, 2023* |[white]*Release of 5.12* |[white]*6.x, 5.x, 4.4*
+|[white]*5.10*      |[white]*July 19, 2023* |[white]*Release of 5.11* |[white]*6.x, 5.x, 4.4*
+|[white]*5.9*      |[white]*June 15, 2023* |[white]*Release of 5.10* |[white]*6.x, 5.x, 4.4*
+|[white]*5.8*      |[white]*May 16, 2023* |[white]*Release of 5.9* |[white]*6.x, 5.x, 4.4*
+|[white]*5.7*      |[white]*April 20, 2023* |[white]*Release of 5.8* |[white]*6.x, 5.x, 4.4*
+|[white]*5.6*      |[white]*March 24, 2023* |[white]*Release of 5.7* |[white]*6.x, 5.x, 4.4*
+|[white]*5.5*      |[white]*February 16, 2023* |[white]*Release of 5.6* |[white]*6.x, 5.x, 4.4*
+|[white]*5.4*      |[white]*January 26, 2023* |[white]*Release of 5.5* |[white]*6.x, 5.x, 4.4*
+|[white]*5.3*      |[white]*December 15, 2022* |[white]*Release of 5.4* |[white]*6.x, 5.x, 4.4*
+|[white]*5.2*      |[white]*November 21, 2022* |[white]*Release of 5.3* |[white]*6.x, 5.x, 4.4*
+|[white]*5.1* `GA` |[white]*October 24, 2022* |[white]*Release of 5.2* |[white]*6.x, 5.x, 4.4*
+|[white]*5.0* `LA` |[white]*October 06, 2022* |[white]*October 24, 2022* |[white]*6.x, 5.x, 4.4*
 |===
 
 ##### Notes:
@@ -81,7 +81,7 @@ Review our https://neo4j.com/terms/support-terms-pre-neo4j-5/[Neo4j Pre-5.x Supp
 [options=header]
 |===
 |Release |Release Date |End of Support Date |Compatible Driver Versions 
-|[white]*4.4* `LTS` |[white]*December 2, 2021* |[white]*November 30, 2025* `n1` |[white]*5.x, 4.4, 4.3, 4.2, 4.1, 4.0* 
+|[white]*4.4* `LTS` |[white]*December 2, 2021* |[white]*November 30, 2025* `n1` |[white]*6.x, 5.x, 4.4, 4.3, 4.2, 4.1, 4.0* 
 |[white]*4.3* |[white]*June 17, 2021* |[white]*December 16, 2022* |[white]*4.4, 4.3, 4.2, 4.1, 4.0* 
 |[white]*4.2* |[white]*November 17, 2020* |[white]*May 16, 2022* |[white]*4.4, 4.3, 4.2, 4.1, 4.0* 
 |[white]*4.1* |[white]*June 23, 2020* |[white]*December 22, 2021* |[white]*4.4, 4.3, 4.2, 4.1, 4.0* 
