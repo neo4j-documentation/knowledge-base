@@ -1,0 +1,114 @@
+= An explanation of a read replica dropping in and out of a Neo4j cluster.
+:slug: explanation-of-read-replica-dropping-out-of-cluster
+:author: Stephen Levett
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2 & 4.3
+:tags: causal clustering.
+:category: operations, configuration.
+:enterprise:
+
+The document aims to explain one possible explanation for a read replica repeatedly dropping in and out of a causal cluster.
+
+When running a Neo4j Causal Cluster, you may notice the Read Replica or any member continually joins, drops out, rejoins repeatedly.
+The `dbms.cluster.info()` shows that happening:
+
+```
+| "ac6d9023-5535-401b-b8ba-1e3048aa6728" | ["bolt://<redacted>:7687", "http://<redacted>:7474"] | {test: "FOLLOWER", system: "FOLLOWER"} | ["core"] |
+| "cbfd55eb-81f9-4543-8f68-f54c0cccf910" | ["bolt://<redacted>:7687", "http://<redacted>:7474"] | {test: "LEADER", system: "LEADER"} | ["core"] |
+| "1a553865-74d7-427c-96e6-e983109604a4" | ["bolt://<redacted>:7687", "http://<redacted>:7474"] | {test: "FOLLOWER", system: "FOLLOWER"} | ["core"] |
+| "3828c089-5461-4687-8666-ccc0015421a8" | ["bolt://<redacted>:7687", "http://<redacted>:7474"] | {test: "READ_REPLICA", system: "READ_REPLICA"} | ["backup-agent"] |
+```
+
+And then again a few seconds later:
+
+```
+| "ac6d9023-5535-401b-b8ba-1e3048aa6728" | ["bolt://<redacted>:7687", "http://<redacted>:7474"] | {test: "FOLLOWER", system: "FOLLOWER"} | ["core"] |
+| "cbfd55eb-81f9-4543-8f68-f54c0cccf910" | ["bolt://<redacted>:7687", "http://<redacted>:7474"] | {test: "LEADER", system: "LEADER"} | ["core"] |
+| "1a553865-74d7-427c-96e6-e983109604a4" | ["bolt://<redacted>:7687", "http://<redacted>:7474"] | {test: "FOLLOWER", system: "FOLLOWER"} | ["core"] |
+```
+
+*Troubleshooting and monitoring:*
+
+The debug.log file shows the RR successfully binds to the cluster:
+
+```
+2021-07-22 16:07:44.381+0000 INFO [c.n.m.s.s.ServerMetrics] Server thread metrics have been registered successfully
+2021-07-22 16:07:44.389+0000 INFO [c.n.k.i.p.PageCacheWarmer] [dps] Page cache warmup completed. 855 pages loaded. Duration: 136ms.
+2021-07-22 16:07:44.715+0000 INFO [c.n.c.p.i.ClientChannelInitializer] Initializing client channel [id: 0x777395ce]
+2021-07-22 16:07:44.721+0000 INFO [c.n.c.p.h.HandshakeClientInitializer] Initiating handshake on channel [id: 0x777395ce, L:/<redacted>:41402 - R:<redacted>/<redacted>:6000]
+2021-07-22 16:07:44.723+0000 INFO [c.n.c.p.h.HandshakeClientInitializer] Connected to <redacted>/<redacted>:6000 [catchup version:3.0]
+2021-07-22 16:07:44.723+0000 INFO [c.n.c.p.h.HandshakeClientInitializer] Handshake completed on channel [id: 0x777395ce, L:/<redacted>:41402 - R:n<redacted>/<redacted>:6000]. Installing: catchup version:3.0
+
+```
+
+But then we see a topology change and a connection abort message:
+
+```
+2021-07-22 16:07:44.767+0000 INFO [c.n.c.d.a.GlobalTopologyState] Read replica topology for database DatabaseId{95d77092} is now: [MemberId{3828c089}]
+No members where lost
+New members:
+  MemberId{3828c089}=ReadReplicaInfo{catchupServerAddress=<redacted>:6000, clientConnectorAddresses=bolt://<redacted>:7687,http://redacted>:7474, groups=[backup-agent], startedDatabaseIds=[DatabaseId{95d77092}, DatabaseId{00000000}]}
+2021-07-22 16:07:44.767+0000 INFO [c.n.c.d.a.GlobalTopologyState] Read replica topology for database DatabaseId{00000000} is now: [MemberId{3828c089}]
+No members where lost
+No new members
+2021-07-22 16:07:44.768+0000 INFO [c.n.c.d.a.GlobalTopologyState] The read_replica replicated states for database DatabaseId{00000000} changed
+previous state was empty
+current state is:
+  MemberId{3828c089}=DiscoveryDatabaseState{DatabaseId{00000000}, operatorState=STARTED, result=SUCCESS}
+2021-07-22 16:07:45.207+0000 INFO [o.n.s.AbstractNeoServer$ServerComponentsLifecycleAdapter] [system] Web server started.
+2021-07-22 16:07:46.768+0000 INFO [c.n.c.d.a.GlobalTopologyState] The read_replica replicated states for database DatabaseId{95d77092} changed
+previous state was empty
+current state is:
+  MemberId{3828c089}=DiscoveryDatabaseState{DatabaseId{95d77092}, operatorState=STARTED, result=SUCCESS}
+2021-07-22 16:12:42.406+0000 WARN [a.s.Materializer] [outbound connection to [akka://<redacted>:5000], control stream] Upstream failed, cause: StreamTcpException: The connection has been aborted
+2021-07-22 16:12:42.406+0000 WARN [a.s.Materializer] [outbound connection to [akka://<redacted>:5000], control stream] Upstream failed, cause: StreamTcpException: The connection has been aborted
+2021-07-22 16:12:42.406+0000 WARN [a.s.s.RestartWithBackoffFlow] Restarting graph due to failure. stack_trace:  (akka.stream.StreamTcpException: The connection has been aborted)
+2021-07-22 16:12:42.406+0000 WARN [a.s.s.RestartWithBackoffFlow] Restarting graph due to failure. stack_trace:  (akka.stream.StreamTcpException: The connection has been aborted)
+2021-07-22 16:12:42.409+0000 WARN [a.s.Materializer] [outbound connection to [akka://<redacted>:5000], message stream] Upstream failed, cause: StreamTcpException: The connection has been aborted
+2021-07-22 16:12:42.411+0000 WARN [a.s.Materializer] [outbound connection to [akka://<redacted>:5000], message stream] Upstream failed, cause: StreamTcpException: The connection has been aborted
+```
+
+Meanwhile, on the cores, we see:
+
+```
+2021-07-27 13:13:41.387+0100 INFO [c.n.c.d.a.GlobalTopologyState] Read replica topology for database DatabaseId{00000000} is now: [MemberId{3828c089}]
+No members where lost
+New members:
+  MemberId{3828c089}=ReadReplicaInfo{catchupServerAddress=<redacted>:6000, clientConnectorAddresses=bolt://<redacted>:7687,http://<redacted>:7474, groups=[backup-agent], startedDatabaseIds=[DatabaseId{95d77092}, DatabaseId{00000000}]}
+2021-07-27 13:13:44.765+0100 INFO [c.n.c.d.a.GlobalTopologyState] Read replica topology for database DatabaseId{95d77092} is now: empty
+Lost members :[MemberId{3828c089}]
+No new members
+2021-07-27 13:13:44.765+0100 INFO [c.n.c.d.a.GlobalTopologyState] Read replica topology for database DatabaseId{00000000} is now: empty
+Lost members :[MemberId{3828c089}]
+No new members
+2021-07-27 13:13:46.387+0100 INFO [c.n.c.d.a.GlobalTopologyState] Read replica topology for database DatabaseId{95d77092} is now: [MemberId{3828c089}]
+No members where lost
+New members:
+  MemberId{3828c089}=ReadReplicaInfo{catchupServerAddress=<redacted>:6000, clientConnectorAddresses=bolt://<redacted>:7687,http://1<redacted>:7474, groups=[backup-agent], startedDatabaseIds=[DatabaseId{95d77092}, DatabaseId{00000000}]}
+2021-07-27 13:13:46.387+0100 INFO [c.n.c.d.a.GlobalTopologyState] Read replica topology for database DatabaseId{00000000} is now: [MemberId{3828c089}]
+No members where lost
+New members:
+  MemberId{3828c089}=ReadReplicaInfo{catchupServerAddress=<redacted>:6000, clientConnectorAddresses=bolt://<redacted>:7687,http://<redacted>:7474, groups=[backup-agent], startedDatabaseIds=[DatabaseId{95d77092}, DatabaseId{00000000}]}
+```
+
+The problem will continue to occur until we make a parameter change.  See the Resolution section.
+
+At first glance, it appears to be network related, perhaps a firewall blocking the ports?
+
+However, an `nc` or `netcat` bidirectionally against all the IPs and ports shows they are in `LISTEN` State.
+
+Upon further examination of the debug.log, a pattern emerges.  The read replica checks every 5 seconds to see if it is still a member of the cluster.
+
+However, the cores are checking every 1 second.
+
+On the cores `causal_clustering.cluster_topology_refresh` is set to 1s, the same parameter on the replica is not set, so that means 5s by default.  See:
+https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_causal_clustering.cluster_topology_refresh
+
+What happens is that the replica report every 5 seconds that it is in the topology. The cores check every second, and after the third check, they did not hear from the replica, so the read replica is removed.
+
+*Resolution:*
+The above behaviour is because of a configuration discrepancy.
+`causal_clustering.cluster_topology_refresh` should be the same across all members of the cluster.  
+
+
+
+
