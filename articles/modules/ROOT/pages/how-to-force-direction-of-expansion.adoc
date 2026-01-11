@@ -1,0 +1,128 @@
+= How to force direction of an expansion
+:slug: how-to-force-direction-of-expansion
+:author: Andrew Bowman
+:neo4j-versions: 3.5, 4.0, 4.1, 4.2, 4.3, 4.4
+:tags: cypher
+:category: cypher
+
+Like SQL, Cypher is a declarative query language.
+This is most evident with Match patterns, which describe what you want to find in the graph.
+You do not dictate to it how to find these patterns, the way you might in an imperative programming language.
+
+For the most part, this works out well, with the planner using the counts and statistical metadata in the graph to figure out how to find the patterns you want to match against, and which nodes to lookup (via indexes) to serve as anchor nodes that you will begin your expansions from.
+
+However, sometimes the counts and metadata information is not sufficient for producing an optimal plan, particularly when it comes to the direction of certain expansions.
+That is, for some expansions, traversing in one direction may be considerably cheap, but expanding in the opposite direction may be very expensive.
+
+This article discusses the problem, and provides means by which you can force the planner to expand in a certain direction if needed.
+
+== When one direction is clearly more expensive
+
+Consider if you have a graph of social graph contact data, which may include this pattern for all contacts:
+
+[source,cypher]
+----
+(:User)-[:LIVES_IN]->(:Country)
+----
+
+If we are querying for a specific user in a specific country, we might have part of the query include:
+
+[source,cypher]
+----
+MATCH (user:User {id:12345})-[:LIVES_IN]->(country:Country {name:'United States'})
+----
+
+There are several different ways we can imagine how this match portion might get planned, subject to indexes present and graph metadata.
+
+If only one of these nodes is chosen as an anchor node, the expansion will start there, expand the relationship to the other node, and then filter the other node's label and properties to find the matches.
+
+If both nodes are looked up via index, still only one will be the anchor node that we expand from, so the expansion process should remain about the same, but filtering will be more efficient, only having to filter on the node's internal graph id to see if the other node is the same one we matched earlier.
+
+It should be clear that there are two possible ways to expand the pattern in this case, and that one is going to be far more efficient than the other.
+
+=== The costly direction
+
+If we anchored on the country node, we would have to expand to every user in the United States, then filter all of them to find the ones that match the pattern.
+This would result in a ton of expanded rows, and a lot of filtering work where we would likely be throwing out every single row, except one.
+
+Even if we find that user early in the filtering, nothing in the query tells it to stop looking (no `LIMIT 1` present), and of course without a unique constraint nothing prevents a node with the same properties from being in the graph, or multiple relationship going to the same node) so it will keep on matching and filtering and throwing out all other non-matching results.
+
+=== The cheap direction
+
+If we anchored to the user node, if we assume that each user only has one `:LIVES_IN` relationship, we would only have to expand on that single relationship and filter on that one connected node to see if the user really does live in the United States.
+
+Even if the graph contains historical data of where a user lives, we can expect only a handful of these paths that we need to filter.
+This approach would still be far quicker and easier than having to filter through every single user in the country to find the path we want.
+
+=== Other expensive pitfalls
+
+There are other ways the planner can decide to plan a query, some of them being cheaper with a small number of nodes and relationships, and some far more costly.
+
+A NodeHashJoin, for example (when we expand from two different anchor nodes to a common node in the middle of the pattern), might be very quick when the number of anchor nodes matched is low, and when we are expanding only a few relationships from the anchor nodes.
+But this can be very expensive if we're traversing a ton of relationships, becoming a hinderance to query execution.
+
+In the case of more complicated queries, there may be quite a few different nodes that could potentially be used as anchor nodes, with many possibilities on which one or which combination to anchor on, and how to expand to fulfill the desired patterns.
+
+In any case, it is possible for the planner to make a bad choice, either because the approach isn't universally efficient across all data in your graph (some nodes may be supernodes, and cause the query over them to choke) or the metadata available to the planner is insufficient to warn it away from these more expensive expansions.
+
+In these cases, what we as humans know about the general shape of the graph may be greater than what can be inferred via metadata. Remember that walking the actual graph data is not possible here, since we're talking about query planning, which precedes execution.
+
+== Ways to force the direction of an expansion
+
+Unfortunately we do not yet have planner hints that directly require or forbid expansion in a certain direction.
+Instead, we must influence this indirectly, through other hints, or through Cypher tricks which leave the planner no other choice.
+
+=== Using hash joins to force expansion to a supernode
+
+Remember that supernodes are really only problematic when expanding through, or expanding away from, but depending on your graph data it may be just fine if you are only expanding to them.
+
+
+In the case where you have multiple efficient anchor nodes, and a known or potential supernode in the middle of the pattern, and you know the expansion TO the supernode from both sides is cheap, you can use a join hint to force expanding to the super node.
+
+This is discussed in more detail on an alternate article here:
+
+https://neo4j.com/developer/kb/how-to-avoid-costly-traversals-with-join-hints/[How to avoid costly traversals with join hints]
+
+=== Label filtering without anchoring
+
+The presence of a label on a node in the Match pattern can significantly change whether or not the planner will try to use it as an anchor node.
+
+That is, the planner prefers index lookups to find anchor nodes, though it may still use label scans to find anchor nodes (especially when there are no opportunities for index lookups in the query).
+
+Neither index lookups or label scans are possible when the label isn't present in the pattern (or otherwise described in a Where clause, like `WHERE c:Country`), and these two means of lookup are the two most common for finding anchor nodes in the graph.
+Of course, you may need to have that label in the query for the sake of correctness, otherwise the wrong nodes and patterns might be matched.
+
+There is a way to perform the label filtering in a special manner which also prevents the planner from using it for index lookup or label scanning.
+Here is an example:
+
+[source,cypher]
+----
+MATCH (user:User {id:12345})-[:LIVES_IN]->(country {name:'United States'})
+WHERE 'Country' IN labels(country)
+----
+
+Note that we removed the `:Country` label from the Match pattern, preventing the planner from being able to use it as an anchor node via an index lookup or label scan.
+The planner has no choice but to use the `user` node as an anchor, and expand relationships to the `country` node at the other end.
+
+The second line, this membership check of a certain label being present in the node's labels, lets us still retain the label filtering we need for correctness.
+
+Note that attempting to use `WHERE country:Country` to accomplish the same thing will not work, as the planner is aware of this syntax and can still use labels  used here for lookups to find anchor nodes.
+
+=== Node identity filtering to avoid anchoring
+
+If the end nodes are known such that they can be efficiently pre-matched (such as via index lookup), when we want to prevent one from being used as an anchor for expansion, then we can use this trick.
+
+Consider this query:
+
+[source,cypher]
+----
+MATCH (user:User {id:12345}), (country:Country {name:'United States'})
+MATCH (user)-[:LIVES_IN]->(c)
+WHERE c = country
+----
+
+The key is in the second and third lines, usage of the unlabeled variable `c`.
+
+Even though we have matched to both end nodes, and they are both potential anchors, in the second Match  it is clear that the `user` node is the only one we can expand from; the planner is only aware that `c` is an unlabeled node and not a candidate for an anchor node.
+
+The filtering that the `c` node we expand to must be the same as the `country` anchor node is something the planner can only consider after the expansion is finished, so there is no oppportunity for it to use `country` as an anchor for expansion.
