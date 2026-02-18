@@ -7,9 +7,9 @@
 :category: support
 
 
-### Neo4j Database Enterprise Edition 2026
+### Latest Neo4j Database Enterprise Edition
 
-For reference and planning purposes, the following table lists Neo4j 2026.x releases, respective release dates and when that release will no longer be supported by hotfixes, which is generally the release of the next minor release with the 2026.x family and will be on a regular cadence.
+For reference and planning purposes, the following table provides a list of Neo4j releases, respective release dates and when that release will no longer be supported by hotfixes, which is generally the release of the next minor release with the Neo4j Database Enterprise Edition family and will be on a regular cadence.
 
 Review our https://neo4j.com/terms/support-terms/[Neo4j Support Terms] for reference.
 
@@ -17,21 +17,6 @@ Review our https://neo4j.com/terms/support-terms/[Neo4j Support Terms] for refer
 |===
 |Release |Release Date |Hotfixes until |Compatible Driver Versions 
 |[white]*2026.01.4*      |[white]*February 10, 2026* |[white]*Release of 2026.02* |[white]*6.x, 5.x, 4.4 (limited)*
-|===
-
-Link to https://github.com/neo4j/neo4j/wiki/Neo4j-2026-changelog/[Changelogs]
-
----
-
-### Neo4j Database Enterprise Edition 2025
-
-For reference and planning purposes, the following table provides a list of Neo4j 2025.x releases, respective release dates and when that release will no longer be supported by hotfixes, which is generally the release of the next minor release with the 2025.x family and will be on a regular cadence.
-
-Review our https://neo4j.com/terms/support-terms/[Neo4j Support Terms] for reference.
-
-[options=header]
-|===
-|Release |Release Date |Hotfixes until |Compatible Driver Versions 
 |[white]*2025.12.1*      |[white]*January 16, 2026* |[white]*Release of 2026.01* |[white]*6.x, 5.x, 4.4 (limited)*
 |[white]*2025.11.2*      |[white]*December 19, 2025* |[white]*Release of 2025.12* |[white]*6.x, 5.x, 4.4 (limited)*
 |[white]*2025.10.1*      |[white]*October 30, 2025* |[white]*Release of 2025.11* |[white]*6.x, 5.x, 4.4 (limited)*
