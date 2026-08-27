@@ -1,0 +1,128 @@
+= How to use Google  OAuth for authenticating with Neo4j Browser ?
+:slug: use-google-oauth-for-authentication
+:author: Sterin Jacob
+:neo4j-versions: 4.4
+:tags: SSO, OAuth.
+:category: operations, configuration.
+:enterprise:
+
+
+
+
+Neo4j 4.4.x supports SSO with browser . This guide explains how to integrate with Neo4j . Google authentication is based on OAuth and it is free setup .
+
+
+
+
+Currently Neo4j only supports authentication with Google OAuth. Authorization wont work currently . 
+
+
+
+
+Summary
+
+
+
+
+1 . Configure Google developer console
+
+2 . Update neo4j.conf with details
+
+3 . Work around for Authorization
+
+
+
+
+In this example Neo4J is running as local host .
+
+**A. Settings in Google Developer console**
+
+```
+
+
+1. Go to https://console.cloud.google.com/apis/dashboard
+
+2. Create new project
+
+3. Go to the project created on step 2:
+
+4.. Click on Credentials -> Create Oauth ID
+application type: Web application
+Name : Neo4J_Browser
+Authorized redirect URIs: http://localhost:7474/browser/?
+idp_id=google&auth_flow_step=redirect_uri
+
+
+
+
+5. This will create Client ID and Client Secret
+Save this details . It required for neo4j.conf
+
+6. Download JSON
+```
+
+
+**B. Settings in Neo4j.conf**
+
+```
+dbms.security.auth_enabled=true
+dbms.security.authentication_providers=oidc-google,native
+dbms.security.authorization_providers=native
+########### Google
+dbms.security.oidc.google.display_name=google
+dbms.security.oidc.google.auth_flow=pkce
+dbms.security.oidc.google.params=scope=email openid
+profile;response_type=code;client_id=<StepA6>
+dbms.security.oidc.google.redirect_uri=http://localhost:7474/?
+idp_id=google&auth_flow_step=redirect_uri
+dbms.security.oidc.google.audience=<StepA6 Client ID>
+dbms.security.oidc.google.client_id=<StepA6 Client ID>
+dbms.security.oidc.google.well_known_discovery_uri=https://accounts.google.com/.well-known/
+openid-configuration
+dbms.security.oidc.google.token_params=client_secret=<StepA6 Secret>
+dbms.security.oidc.google.claims.username=email
+dbms.security.oidc.google.config=token_type_principal=id_token;token_type_authentication=id_to
+ken
+```
+
+**C. Restart the Neo4J server .**
+
+
+You can enable http logs for debugging
+
+
+**D. Testing**
+
+```
+1. Access browser like :
+1. http://localhost:7474/browser
+2.Select auth type to sso
+3. Select Google
+4. provide Google ID and password
+
+5. SHOW CURRENT USER;
+6. By default user will get only PUBLIC role
+```
+
+
+**E. Work around to get other roles**
+
+
+
+
+```
+1. Start cypher-shell as neo4j user
+
+
+2. Create user
+CREATE USER `mygoogle@gamil.com` SET PASSWORD 'password' CHANGE NOT REQUIRED SET STATUS
+ACTIVE;
+
+
+3. Add user to admin role
+GRANT ROLE
+admin TO ` mygoogle@gamil.com `;
+
+
+4. Re login again to test the roles in browser
+```
