@@ -1,0 +1,52 @@
+= An explanation of "Unable to load CA certificate for Kubernetes" in a Neo4j Kubernetes cluster.
+:slug: explanation-of-unable-to-load-ca-certificate-for-kubernetes
+:author: Stephen Levett
+:neo4j-versions: 4.0, 4.1, 4.2 & 4.3
+:tags: causal clustering, Kubernetes.
+:category: operations, configuration.
+:enterprise:
+
+The document aims to explain one possible explanation for "Unable to load CA certificate for Kubernetes".  It also explains the purpose of the certificate.
+
+When running a Kubernetes enabled Neo4j cluster, you may see the following error during startup:
+
+```
+2021-09-01 09:38:02.550+0000 INFO  ======== Neo4j 4.0.7 ========
+2021-09-01 09:38:02.554+0000 INFO  Starting...
+2021-09-01 09:38:04.178+0000 ERROR Failed to start Neo4j: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabaseService@4784013e' was successfully initialized, but failed to start. Please see the attached cause exception "Illegal footer: -----END CERTIFICATE----- ". Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabaseService@4784013e' was successfully initialized, but failed to start. Please see the attached cause exception "Illegal footer: -----END CERTIFICATE----- ".
+org.neo4j.server.ServerStartupException: Starting Neo4j failed: Component 'org.neo4j.server.database.LifecycleManagingDatabaseService@4784013e' was successfully initialized, but failed to start. Please see the attached cause exception "Illegal footer: -----END CERTIFICATE----- ".
+        at org.neo4j.server.exception.ServerStartupErrors.translateToServerStartupError(ServerStartupErrors.java:45)
+        at org.neo4j.server.AbstractNeoServer.start(AbstractNeoServer.java:164)
+        at org.neo4j.server.ServerBootstrapper.start(ServerBootstrapper.java:114)
+        at org.neo4j.server.ServerBootstrapper.start(ServerBootstrapper.java:89)
+        at com.neo4j.server.enterprise.EnterpriseEntryPoint.main(EnterpriseEntryPoint.java:25)
+Caused by: org.neo4j.kernel.lifecycle.LifecycleException: Component 'org.neo4j.server.database.LifecycleManagingDatabaseService@4784013e' was successfully initialized, but failed to start. Please see the attached cause exception "Illegal footer: -----END CERTIFICATE----- ".
+        at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.start(LifeSupport.java:465)
+        at org.neo4j.kernel.lifecycle.LifeSupport.start(LifeSupport.java:111)
+        at org.neo4j.server.AbstractNeoServer.start(AbstractNeoServer.java:157)
+        ... 3 more
+Caused by: java.lang.IllegalStateException: Unable to load CA certificate for Kubernetes
+```
+
+TLS wasn't configured on this instance, so what does the error mean, and why are we receiving it?
+
+Firstly, the exception gives us more detail:
+
+```
+"Illegal footer: -----END CERTIFICATE----- ".
+```
+
+Not a great deal more detail, but it suggests a problem with the certificate.  We will explore this later, but now I'll discuss the purpose of this certificate.
+
+If we look at the `KubernetesResolver` code, we can see that it creates a `sslContextFactory`.  Neo4j's K8S discovery mechanism calls the K8s API to find the addresses of other Neo4j servers. That is so we can form a secure connection to the K8s API.
+
+See:
+https://kubernetes.io/docs/setup/best-practices/certificates/
+
+> Kubernetes requires PKI for the following operations:
+> Client certificates for the kubelet to authenticate to the API server
+> Server certificate for the API server endpoint
+
+As such, this cert is a requirement for K8s, not specifically Neo4j.
+
+In this particular instance, as part of a deployment, the certificate was corrupted.  Once we deployed the correct certificate via Kubernetes, the error stopped.
