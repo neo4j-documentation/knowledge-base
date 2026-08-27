@@ -1,0 +1,78 @@
+= What is pattern comprehension and why should I care?
+:slug: what-is-pattern-comprehension-and-why-should-i-care
+:author: Sven
+:category: cypher
+:tags: cypher, OGM, SDN, Mapping
+:neo4j-versions: 3.5, 4.x
+
+
+See this documentation section for a short introduction to "Pattern Comprehension":
+
+https://neo4j.com/docs/cypher-manual/current/syntax/lists/#cypher-pattern-comprehension
+
+In some situations, it is beneficial to use the concept of pattern comprehension over the OPTIONAL MATCH statements.
+
+*When?*
+
+If you return nodes, relationships or in general paths into your application for further processing (e.g. SDN/OGM or some other mapping), it is often times (much) quicker to map one single entry (aka row) per entity compared to multiple entries per entity.
+
+_Let's see that on an example:_
+
+Conside this simple graph:
+[source,cypher]
+----
+CREATE (cart:Cart{name: 'cart 1'})
+CREATE (cart)-[:HAS_ITEM]->(:Item{name: 'item 1'})
+CREATE (cart)-[:HAS_ITEM]->(:Item{name: 'item 2'})
+----
+
+And then this cypher query:
+[source,cypher]
+----
+MATCH (cart:Cart)
+OPTIONAL MATCH (cart)-[:HAS_ITEM]->(item)
+RETURN *
+----
+Response:
+....
+╒═════════════════╤═════════════════╕
+│"cart"           │"item"           │
+╞═════════════════╪═════════════════╡
+│{"name":"cart 1"}│{"name":"item 2"}│
+├─────────────────┼─────────────────┤
+│{"name":"cart 1"}│{"name":"item 1"}│
+└─────────────────┴─────────────────┘
+....
+
+This statement above will return two entries (aka rows). This will most likely do its job for displaying the path in the browser. And if you don't have too many nodes/relationships, then it will maybe not affect performance too much.
+
+However,
+
+* conceptually, we are interested in the carts. And we have exactly one cart. So it would be logical to return only one entry and
+* if we do have bigger graphs, mapping in the application will likely speed up significantly, if we switch to the following approach.
+
+Consider now this cypher query:
+[source,cypher]
+----
+MATCH (cart:Cart)
+WITH cart,
+[(cart)-[:HAS_ITEM]->(item) | item] AS item
+RETURN *
+----
+Response:
+....
+╒═════════════════╤═════════════════════════════════════╕
+│"cart"           │"item"                               │
+╞═════════════════╪═════════════════════════════════════╡
+│{"name":"cart 1"}│[{"name":"item 2"},{"name":"item 1"}]│
+└─────────────────┴─────────────────────────────────────┘
+....
+
+This statement above will return only one entry where the items are listed in an array per cart.
+
+*Conclusion:*
+
+Pattern Comprehension may speed up application queries where a lot of mapping needs
+to be done between the database and the application layer.
+
+Check for your use-case, if that pattern comprehension technique makes sense.
